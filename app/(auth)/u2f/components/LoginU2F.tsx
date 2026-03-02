@@ -59,33 +59,6 @@ export function LoginU2F({
 
   const initialized = useRef(false);
 
-  useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      updateSessionForChallenge()
-        .then((response) => {
-          const pK = response?.challenges?.webAuthN?.publicKeyCredentialRequestOptions?.publicKey;
-
-          if (!pK) {
-            setError(t("verify.errors.couldNotRequestChallenge"));
-            return;
-          }
-
-          return submitLoginAndContinue(pK as PublicKeyCredentialRequestOptionsData).catch(
-            (error) => {
-              setError(error);
-              return;
-            }
-          );
-        })
-        .catch((error) => {
-          setError(error);
-          return;
-        });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   async function updateSessionForChallenge(
     userVerificationRequirement: number = login
       ? UserVerificationRequirement.REQUIRED
@@ -213,6 +186,33 @@ export function LoginU2F({
         }
       });
   }
+
+  useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      updateSessionForChallenge()
+        .then((response) => {
+          const pK = response?.challenges?.webAuthN?.publicKeyCredentialRequestOptions?.publicKey;
+
+          if (!pK) {
+            setError(t("verify.errors.couldNotRequestChallenge"));
+            return;
+          }
+
+          return submitLoginAndContinue(pK as PublicKeyCredentialRequestOptionsData).catch(
+            (error) => {
+              setError(error);
+              return;
+            }
+          );
+        })
+        .catch((error) => {
+          setError(error);
+          return;
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="w-full">

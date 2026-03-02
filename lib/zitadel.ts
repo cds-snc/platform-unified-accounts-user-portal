@@ -474,7 +474,7 @@ export async function listSessions({ serviceUrl, ids }: ListSessionsCommand) {
   );
 }
 
-export type AddHumanUserData = {
+type AddHumanUserData = {
   serviceUrl: string;
   firstName: string;
   lastName: string;

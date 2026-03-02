@@ -24,5 +24,3 @@ export const Loader = ({ message, className }: LoaderProps): React.ReactElement 
     </div>
   );
 };
-
-export default Loader;

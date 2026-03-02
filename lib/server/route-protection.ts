@@ -23,7 +23,7 @@ export enum AuthLevel {
 /**
  * Result of authentication level check
  */
-export type AuthCheckResult = {
+type AuthCheckResult = {
   satisfied: boolean;
   session?: Session | null;
   redirect?: string;
