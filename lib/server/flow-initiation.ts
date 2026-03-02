@@ -14,6 +14,7 @@ import { IdentityProviderType } from "@zitadel/proto/zitadel/settings/v2/login_s
 
 import { Cookie } from "@lib/cookies";
 import { idpTypeToSlug } from "@lib/idp";
+import { toAuthRequestId, toOidcRequestId } from "@lib/oidc-request-id";
 import { sendLoginname, SendLoginnameCommand } from "@lib/server/loginname";
 import { constructUrl } from "@lib/service-url";
 import { findValidSession } from "@lib/session";
@@ -102,12 +103,16 @@ export async function handleOIDCFlowInitiation(
 ): Promise<NextResponse> {
   const { serviceUrl, requestId, sessions, sessionCookies, request } = params;
 
+  const authRequestId = toAuthRequestId(requestId);
+
   const { authRequest } = await getAuthRequest({
     serviceUrl,
-    authRequestId: requestId.replace("oidc_", ""),
+    authRequestId,
   });
 
-  const oidcRequestId = authRequest?.id ? `oidc_${authRequest.id}` : requestId;
+  const oidcRequestId = authRequest?.id
+    ? toOidcRequestId(authRequest.id)
+    : toOidcRequestId(requestId);
 
   let organization = "";
   let idpId = "";
@@ -160,7 +165,7 @@ export async function handleOIDCFlowInitiation(
         if (identityProviderType === IdentityProviderType.LDAP) {
           const ldapUrl = constructUrl(request, "/ldap");
           if (authRequest.id) {
-            ldapUrl.searchParams.set("requestId", `oidc_${authRequest.id}`);
+            ldapUrl.searchParams.set("requestId", toOidcRequestId(authRequest.id));
           }
           if (organization) {
             ldapUrl.searchParams.set("organization", organization);
@@ -172,7 +177,7 @@ export async function handleOIDCFlowInitiation(
         const provider = idpTypeToSlug(identityProviderType);
 
         const params = new URLSearchParams({
-          requestId: requestId,
+          requestId: oidcRequestId,
         });
 
         if (organization) {
@@ -203,7 +208,7 @@ export async function handleOIDCFlowInitiation(
 
   if (authRequest && authRequest.prompt.includes(Prompt.CREATE)) {
     const registerUrl = constructUrl(request, "/register");
-    registerUrl.searchParams.set("requestId", requestId);
+    registerUrl.searchParams.set("requestId", oidcRequestId);
 
     if (organization) {
       registerUrl.searchParams.set("organization", organization);
@@ -297,7 +302,7 @@ export async function handleOIDCFlowInitiation(
       const { callbackUrl } = await createCallback({
         serviceUrl,
         req: create(CreateCallbackRequestSchema, {
-          authRequestId: requestId.replace("oidc_", ""),
+          authRequestId,
           callbackKind: {
             case: "session",
             value: create(SessionSchema, session),
@@ -343,7 +348,7 @@ export async function handleOIDCFlowInitiation(
         const { callbackUrl } = await createCallback({
           serviceUrl,
           req: create(CreateCallbackRequestSchema, {
-            authRequestId: requestId.replace("oidc_", ""),
+            authRequestId,
             callbackKind: {
               case: "session",
               value: create(SessionSchema, session),
@@ -356,14 +361,14 @@ export async function handleOIDCFlowInitiation(
           console.log("could not create callback, redirect user to login");
           return gotoLogin({
             request,
-            requestId,
+            requestId: oidcRequestId,
           });
         }
       } catch (error) {
         console.error(error);
         return gotoLogin({
           request,
-          requestId,
+          requestId: oidcRequestId,
         });
       }
     }
@@ -371,7 +376,7 @@ export async function handleOIDCFlowInitiation(
     // No local sessions available - start an interactive login with request context.
     return gotoLogin({
       request,
-      requestId,
+      requestId: oidcRequestId,
     });
   }
 }

@@ -9,6 +9,7 @@ import {
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 
 import { Cookie } from "@lib/cookies";
+import { toAuthRequestId, toOidcRequestId } from "@lib/oidc-request-id";
 import { sendLoginname, SendLoginnameCommand } from "@lib/server/loginname";
 import { createCallback } from "@lib/zitadel";
 
@@ -28,6 +29,9 @@ export async function loginWithOIDCAndSession({
   sessions,
   sessionCookies,
 }: LoginWithOIDCAndSession): Promise<{ error: string } | { redirect: string }> {
+  const authRequestId = toAuthRequestId(authRequest);
+  const oidcRequestId = toOidcRequestId(authRequest);
+
   console.log(`Login with session: ${sessionId} and authRequest: ${authRequest}`);
 
   const selectedSession = sessions.find((s) => s.id === sessionId);
@@ -49,7 +53,7 @@ export async function loginWithOIDCAndSession({
       const command: SendLoginnameCommand = {
         loginName: selectedSession.factors.user?.loginName,
         organization: selectedSession.factors?.user?.organizationId,
-        requestId: `oidc_${authRequest}`,
+        requestId: oidcRequestId,
       };
 
       const res = await sendLoginname(command);
@@ -72,7 +76,7 @@ export async function loginWithOIDCAndSession({
         const { callbackUrl } = await createCallback({
           serviceUrl,
           req: create(CreateCallbackRequestSchema, {
-            authRequestId: authRequest,
+            authRequestId,
             callbackKind: {
               case: "session",
               value: create(SessionSchema, session),
