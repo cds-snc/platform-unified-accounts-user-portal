@@ -90,7 +90,6 @@ export function LoginOTP({
       method,
       loginSettings,
       redirect,
-      t,
     });
 
     // Handle redirect if present
