@@ -62,7 +62,10 @@ export const MFAAuthentication = ({
   return (
     <>
       <div className={cn("rounded-2xl border-1 border-[#D1D5DB] bg-white p-6", className)}>
-        <h3 className="mb-6">{t("mfaAuthentication.title")}</h3>
+        {/* Style like an H3 for now */}
+        <h2 className="mb-6 text-xl font-semibold tablet:text-2xl">
+          {t("mfaAuthentication.title")}
+        </h2>
 
         {!hasMFAMethods && <p>{t("mfaAuthentication.noTwoFactor")}</p>}
 

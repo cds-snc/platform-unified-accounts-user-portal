@@ -1,6 +1,7 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { I18n } from "@i18n";
 import { Logout } from "@components/auth/Logout";
 import { SiteHeader } from "@components/layout/site-header/SiteHeader";
 import LanguageToggle from "@components/ui/language-toggle/LanguageToggle";
@@ -15,7 +16,10 @@ export default async function Layout({ children }: { children: React.ReactNode }
           <LanguageToggle />
         </div>
       </SiteHeader>
-      <main className="mx-auto max-w-[71.25rem] px-6 py-2 laptop:px-0">
+      <main id="content" className="mx-auto max-w-[71.25rem] px-6 py-2 laptop:px-0">
+        <h1 className="mb-8">
+          <I18n i18nKey={"title"} namespace={"account"} />
+        </h1>
         <div className="mb-20 px-16">{children}</div>
       </main>
     </div>

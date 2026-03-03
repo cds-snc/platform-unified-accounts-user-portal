@@ -100,7 +100,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   ]);
 
   return (
-    <main id="content">
+    <>
       <PersonalDetails userId={userId} firstName={firstName} lastName={lastName} className="mb-4" />
       <VerifiedAccount email={email} className="mb-4" />
       <PasswordAuthentication className="mb-4" />
@@ -109,6 +109,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         authenticatorStatus={authenticatorStatus}
         userId={userId}
       />
-    </main>
+    </>
   );
 }
