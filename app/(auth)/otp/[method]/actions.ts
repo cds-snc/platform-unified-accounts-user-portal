@@ -16,6 +16,7 @@ import { sendOtpEmail } from "@lib/server/otp";
 import { updateSession } from "@lib/server/session";
 import { validateCode, validateTotpCode } from "@lib/validationSchemas";
 import { getZitadelUiError } from "@lib/zitadel-errors";
+import { serverTranslation } from "@i18n/server";
 export type FormState = {
   error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
@@ -145,10 +146,10 @@ export async function handleOTPFormSubmit(
   code: string,
   params: SubmitCodeParams & {
     loginSettings?: LoginSettings;
-    t: (key: string) => string;
   }
 ): Promise<FormState & { redirect?: string }> {
-  const { loginSettings, t, ...submitParams } = params;
+  const { t } = await serverTranslation("otp");
+  const { loginSettings, ...submitParams } = params;
   const normalizedCode = code.trim();
 
   try {

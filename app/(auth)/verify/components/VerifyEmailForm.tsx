@@ -75,9 +75,8 @@ export function VerifyEmailForm({
       }
     } catch {
       setError(t("errors.couldNotResendEmail"));
-    } finally {
-      setCodeLoading(false);
     }
+    setCodeLoading(false);
   }
 
   // Send verification email once on component mount

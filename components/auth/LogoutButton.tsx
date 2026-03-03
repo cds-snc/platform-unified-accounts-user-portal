@@ -39,9 +39,8 @@ export function LogoutButton({ className, label, postLogoutRedirectUri }: Logout
     } catch {
       // Fallback to logout page
       router.push("/logout");
-    } finally {
-      setIsLoggingOut(false);
     }
+    setIsLoggingOut(false);
   }
 
   return (
