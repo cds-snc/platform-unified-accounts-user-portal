@@ -17,7 +17,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
         </div>
       </SiteHeader>
       <main id="content" className="mx-auto max-w-[71.25rem] px-6 py-2 laptop:px-0">
-        <h1 className="mb-8">
+        {/* Leave to give proper heading structure. This will likely move to the sidebar and become part of the design/visible in the future */}
+        <h1 className="sr-only">
           <I18n i18nKey={"title"} namespace={"account"} />
         </h1>
         <div className="mb-20 px-16">{children}</div>
