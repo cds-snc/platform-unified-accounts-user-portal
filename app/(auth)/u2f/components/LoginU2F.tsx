@@ -152,9 +152,7 @@ export function LoginU2F({
         loginName,
         sessionId,
         organization,
-        checks: {
-          webAuthN: { credentialAssertionData: data },
-        } as Checks,
+        checks: { webAuthN: { credentialAssertionData: data } } as Checks,
         requestId,
         redirect,
       });
