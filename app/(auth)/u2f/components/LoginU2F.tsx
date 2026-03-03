@@ -44,6 +44,51 @@ type Props = {
   redirect?: string | null;
 };
 
+async function getCredentialAssertionData(
+  publicKey: PublicKeyCredentialRequestOptionsData
+): Promise<JsonObject | null> {
+  const normalizedPublicKey: PublicKeyCredentialRequestOptionsData = {
+    ...publicKey,
+    challenge: coerceToArrayBuffer(publicKey.challenge, "publicKey.challenge"),
+    allowCredentials: publicKey.allowCredentials?.map(
+      (listItem: PublicKeyCredentialDescriptor) => ({
+        ...listItem,
+        id: coerceToArrayBuffer(listItem.id, "publicKey.allowCredentials.id"),
+        // Only allow hardware key transports (USB, NFC, BLE) - excludes platform/internal transports
+        transports: ["usb", "ble", "nfc"] as AuthenticatorTransport[],
+      })
+    ),
+  };
+
+  const credential = (await navigator.credentials.get({
+    publicKey: normalizedPublicKey,
+  } as CredentialRequestOptions)) as Credential | null;
+
+  if (!credential) {
+    return null;
+  }
+
+  const assertedCredential = credential as PublicKeyCredential;
+  const assertionResponse = assertedCredential.response as AuthenticatorAssertionResponse;
+  const authData = new Uint8Array(assertionResponse.authenticatorData);
+  const clientDataJSON = new Uint8Array(assertionResponse.clientDataJSON);
+  const rawId = new Uint8Array(assertedCredential.rawId);
+  const sig = new Uint8Array(assertionResponse.signature);
+  const userHandle = new Uint8Array(assertionResponse.userHandle || []);
+
+  return {
+    id: assertedCredential.id,
+    rawId: coerceToBase64Url(rawId, "rawId"),
+    type: assertedCredential.type,
+    response: {
+      authenticatorData: coerceToBase64Url(authData, "authData"),
+      clientDataJSON: coerceToBase64Url(clientDataJSON, "clientDataJSON"),
+      signature: coerceToBase64Url(sig, "sig"),
+      userHandle: coerceToBase64Url(userHandle, "userHandle"),
+    },
+  } as JsonObject;
+}
+
 export function LoginU2F({
   loginName,
   sessionId,
@@ -64,28 +109,26 @@ export function LoginU2F({
       ? UserVerificationRequirement.REQUIRED
       : UserVerificationRequirement.DISCOURAGED
   ) {
-    setError("");
-    const session = await updateSession({
-      loginName,
-      sessionId,
-      organization,
-      challenges: create(RequestChallengesSchema, {
-        webAuthN: {
-          domain: "",
-          userVerificationRequirement,
-        },
-      }),
-      requestId,
-    }).catch(() => {
-      console.error("Error requesting challenge - likely network or server error");
+    let session;
+    try {
+      session = await updateSession({
+        loginName,
+        sessionId,
+        organization,
+        challenges: create(RequestChallengesSchema, {
+          webAuthN: {
+            domain: "",
+            userVerificationRequirement,
+          },
+        }),
+        requestId,
+      });
+    } catch {
       setError(t("verify.errors.couldNotRequestChallenge"));
       return;
-    });
+    }
 
     if (session && "error" in session && session.error) {
-      console.error(
-        "Error in response when requesting challenge - likely validation or other server error"
-      );
       setError(
         typeof session.error === "string"
           ? session.error
@@ -103,19 +146,22 @@ export function LoginU2F({
   }
 
   async function submitLogin(data: JsonObject) {
-    const response = await verifyU2FLogin({
-      loginName,
-      sessionId,
-      organization,
-      checks: {
-        webAuthN: { credentialAssertionData: data },
-      } as Checks,
-      requestId,
-      redirect,
-    }).catch(() => {
+    let response;
+    try {
+      response = await verifyU2FLogin({
+        loginName,
+        sessionId,
+        organization,
+        checks: {
+          webAuthN: { credentialAssertionData: data },
+        } as Checks,
+        requestId,
+        redirect,
+      });
+    } catch {
       setError(t("verify.errors.couldNotVerifyPasskey"));
       return;
-    });
+    }
 
     if (response && "error" in response && response.error) {
       setError(response.error);
@@ -134,82 +180,41 @@ export function LoginU2F({
     }
   }
 
-  async function submitLoginAndContinue(
-    publicKey: PublicKeyCredentialRequestOptionsData
-  ): Promise<boolean | void> {
-    publicKey.challenge = coerceToArrayBuffer(publicKey.challenge, "publicKey.challenge");
-    if (publicKey.allowCredentials) {
-      publicKey.allowCredentials.map((listItem: PublicKeyCredentialDescriptor) => {
-        listItem.id = coerceToArrayBuffer(listItem.id, "publicKey.allowCredentials.id");
-        // Only allow hardware key transports (USB, NFC, BLE) - excludes platform/internal transports
-        listItem.transports = ["usb", "ble", "nfc"] as AuthenticatorTransport[];
-      });
+  async function startU2FLoginFlow() {
+    setError("");
+
+    const response = await updateSessionForChallenge();
+    const publicKey = response?.challenges?.webAuthN?.publicKeyCredentialRequestOptions?.publicKey;
+
+    if (!publicKey) {
+      setError(t("verify.errors.couldNotRequestChallenge"));
+      return;
     }
 
-    return navigator.credentials
-      .get({
-        publicKey,
-      } as CredentialRequestOptions)
-      .then((credential: Credential | null) => {
-        if (!credential) {
-          setError(t("verify.errors.couldNotRetrievePasskey"));
-          return;
-        }
+    try {
+      const data = await getCredentialAssertionData(
+        publicKey as PublicKeyCredentialRequestOptionsData
+      );
 
-        const assertedCredential = credential as PublicKeyCredential;
-        const assertionResponse = assertedCredential.response as AuthenticatorAssertionResponse;
-        const authData = new Uint8Array(assertionResponse.authenticatorData);
-        const clientDataJSON = new Uint8Array(assertionResponse.clientDataJSON);
-        const rawId = new Uint8Array(assertedCredential.rawId);
-        const sig = new Uint8Array(assertionResponse.signature);
-        const userHandle = new Uint8Array(assertionResponse.userHandle || []);
-        const data = {
-          id: assertedCredential.id,
-          rawId: coerceToBase64Url(rawId, "rawId"),
-          type: assertedCredential.type,
-          response: {
-            authenticatorData: coerceToBase64Url(authData, "authData"),
-            clientDataJSON: coerceToBase64Url(clientDataJSON, "clientDataJSON"),
-            signature: coerceToBase64Url(sig, "sig"),
-            userHandle: coerceToBase64Url(userHandle, "userHandle"),
-          },
-        };
+      if (!data) {
+        setError(t("verify.errors.couldNotRetrievePasskey"));
+        return;
+      }
 
-        return submitLogin(data);
-      })
-      .catch((error: Error) => {
-        // Handle U2F verification cancellation or errors
-        if (error?.name === "NotAllowedError") {
-          setError(t("verify.errors.verificationCancelled"));
-        } else {
-          setError(t("verify.errors.verificationFailed"));
-        }
-      });
+      await submitLogin(data);
+    } catch (error) {
+      if ((error as Error)?.name === "NotAllowedError") {
+        setError(t("verify.errors.verificationCancelled"));
+      } else {
+        setError(t("verify.errors.verificationFailed"));
+      }
+    }
   }
 
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      updateSessionForChallenge()
-        .then((response) => {
-          const pK = response?.challenges?.webAuthN?.publicKeyCredentialRequestOptions?.publicKey;
-
-          if (!pK) {
-            setError(t("verify.errors.couldNotRequestChallenge"));
-            return;
-          }
-
-          return submitLoginAndContinue(pK as PublicKeyCredentialRequestOptionsData).catch(
-            (error) => {
-              setError(error);
-              return;
-            }
-          );
-        })
-        .catch((error) => {
-          setError(error);
-          return;
-        });
+      void startU2FLoginFlow();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

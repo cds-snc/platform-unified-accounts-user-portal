@@ -55,7 +55,6 @@ export function LoginOTP({
   const genericErrorMessage = t("set.genericError");
   const invalidCodeMessage = t("set.invalidCode");
   const invalidCodeLengthMessage = t("set.invalidCodeLength");
-  const [, setError] = useState<string>("");
   const [codeSent, setCodeSent] = useState<boolean>(false);
   const [codeLoading, setCodeLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -70,18 +69,13 @@ export function LoginOTP({
       method,
     });
 
-    if (error) {
-      setError(error);
-    }
+    return !error;
   };
 
   useEffect(() => {
-    if (!initialized.current && ["email"].includes(method) && !code) {
+    if (!initialized.current && method === "email" && !code) {
       initialized.current = true;
-      requestOTPChallenge().catch((error) => {
-        setError(error);
-        return;
-      });
+      requestOTPChallenge().catch(() => false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -110,13 +104,14 @@ export function LoginOTP({
   const resendCode = async () => {
     setCodeSent(false);
     setCodeLoading(true);
-    requestOTPChallenge()
-      .then(() => setCodeSent(true))
-      .catch((error) => {
-        setError(error);
-        return;
-      })
-      .finally(() => setCodeLoading(false));
+    try {
+      const success = await requestOTPChallenge();
+      setCodeSent(success);
+      setCodeLoading(false);
+    } catch {
+      setCodeSent(false);
+      setCodeLoading(false);
+    }
   };
 
   const [state, formAction, isPending] = useActionState(localFormAction, {
@@ -160,7 +155,7 @@ export function LoginOTP({
           <Link href={`${SUPPORT_URL}/${language}/support`}>
             <I18n i18nKey="help" namespace="verify" />
           </Link>
-          {["email"].includes(method) && (
+          {method === "email" && (
             <div className="flex whitespace-nowrap" aria-live="polite">
               <Button
                 theme="link"
