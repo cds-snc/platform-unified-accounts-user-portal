@@ -20,6 +20,7 @@ export const SiteHeader = ({
 }) => {
   return (
     <>
+      {skipLink && <SkipLink />}
       <header className={cn("mb-5 border-b-1 border-gray-500 bg-white")}>
         <div
           className="mx-auto grid max-w-[71.25rem] grid-cols-[auto_1fr] items-center gap-4 px-4 py-2 laptop:px-0"
@@ -32,7 +33,6 @@ export const SiteHeader = ({
             {children}
           </div>
         </div>
-        {skipLink && <SkipLink />}
       </header>
     </>
   );
