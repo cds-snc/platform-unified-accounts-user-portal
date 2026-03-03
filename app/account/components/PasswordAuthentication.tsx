@@ -18,7 +18,7 @@ export const PasswordAuthentication = ({ className }: { className: string }) => 
     <>
       <div className={cn("rounded-2xl border-1 border-[#D1D5DB] bg-white p-6", className)}>
         <div className="flex items-center justify-between">
-          {/* Style like an H3 for now */}
+          {/* Added for logical heading structure but style like an H3 for now to meet design*/}
           <h2 className="mb-6 text-xl font-semibold tablet:text-2xl">
             {t("authentication.title")}
           </h2>
