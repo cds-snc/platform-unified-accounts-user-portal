@@ -13,9 +13,7 @@ import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { getSerializableObject, SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
-import { I18n } from "@i18n";
 import { serverTranslation } from "@i18n/server";
-import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 /*--------------------------------------------*
@@ -75,19 +73,8 @@ export default async function Page(props: {
           loginSettings={loginSettings}
           code={code}
           redirect={safeRedirect}
-        >
-          {method === "email" && (
-            <I18n i18nKey="verify.emailDescription" namespace="otp" tagName="p" className="mb-3" />
-          )}
-
-          {sessionFactors && (
-            <UserAvatar
-              loginName={loginName ?? sessionFactors.factors?.user?.loginName}
-              displayName={sessionFactors.factors?.user?.displayName}
-              showDropdown={false}
-            />
-          )}
-        </LoginOTP>
+          displayName={sessionFactors.factors?.user?.displayName}
+        />
       )}
     </AuthPanel>
   );

@@ -69,19 +69,20 @@ export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
     setError("");
     setLoading(true);
 
-    const response = await verifyU2F({
-      u2fId,
-      passkeyName,
-      publicKeyCredential,
-      sessionId,
-    })
-      .catch(() => {
-        setError("set.errors.verificationFailed");
-        return;
-      })
-      .finally(() => {
-        setLoading(false);
+    let response;
+    try {
+      response = await verifyU2F({
+        u2fId,
+        passkeyName,
+        publicKeyCredential,
+        sessionId,
       });
+    } catch (e) {
+      setError("set.errors.verificationFailed");
+      setLoading(false);
+      return;
+    }
+    setLoading(false);
 
     if (response && "error" in response && response?.error) {
       setError(response?.error);
@@ -95,16 +96,17 @@ export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
     setError("");
     setLoading(true);
 
-    const response = await addU2F({
-      sessionId,
-    })
-      .catch(() => {
-        setError("set.errors.credentialRegistrationFailed");
-        return;
-      })
-      .finally(() => {
-        setLoading(false);
+    let response;
+    try {
+      response = await addU2F({
+        sessionId,
       });
+    } catch (e) {
+      setError("set.errors.credentialRegistrationFailed");
+      setLoading(false);
+      return;
+    }
+    setLoading(false);
 
     if (response && "error" in response && response?.error) {
       setError(response?.error);

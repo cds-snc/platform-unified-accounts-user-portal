@@ -14,6 +14,7 @@ import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { I18n, useTranslation } from "@i18n";
+import { UserAvatar } from "@components/account/user-avatar";
 import { BackButton } from "@components/ui/button/BackButton";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
@@ -36,7 +37,7 @@ export function LoginOTP({
   code,
   loginSettings,
   redirect,
-  children,
+  displayName,
 }: {
   loginName?: string; // either loginName or sessionId must be provided
   sessionId?: string;
@@ -46,7 +47,7 @@ export function LoginOTP({
   code?: string;
   loginSettings?: LoginSettings;
   redirect?: string | null;
-  children?: React.ReactNode;
+  displayName?: string;
 }) {
   const {
     t,
@@ -55,7 +56,6 @@ export function LoginOTP({
   const genericErrorMessage = t("set.genericError");
   const invalidCodeMessage = t("set.invalidCode");
   const invalidCodeLengthMessage = t("set.invalidCodeLength");
-  const [, setError] = useState<string>("");
   const [codeSent, setCodeSent] = useState<boolean>(false);
   const [codeLoading, setCodeLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -70,18 +70,13 @@ export function LoginOTP({
       method,
     });
 
-    if (error) {
-      setError(error);
-    }
+    return !error;
   };
 
   useEffect(() => {
-    if (!initialized.current && ["email"].includes(method) && !code) {
+    if (!initialized.current && method === "email" && !code) {
       initialized.current = true;
-      requestOTPChallenge().catch((error) => {
-        setError(error);
-        return;
-      });
+      requestOTPChallenge().catch(() => false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -96,7 +91,6 @@ export function LoginOTP({
       method,
       loginSettings,
       redirect,
-      t,
     });
 
     // Handle redirect if present
@@ -110,13 +104,14 @@ export function LoginOTP({
   const resendCode = async () => {
     setCodeSent(false);
     setCodeLoading(true);
-    requestOTPChallenge()
-      .then(() => setCodeSent(true))
-      .catch((error) => {
-        setError(error);
-        return;
-      })
-      .finally(() => setCodeLoading(false));
+    try {
+      const success = await requestOTPChallenge();
+      setCodeSent(success);
+      setCodeLoading(false);
+    } catch {
+      setCodeSent(false);
+      setCodeLoading(false);
+    }
   };
 
   const [state, formAction, isPending] = useActionState(localFormAction, {
@@ -143,7 +138,11 @@ export function LoginOTP({
 
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
 
-      {children}
+      {method === "email" && (
+        <I18n i18nKey="verify.emailDescription" namespace="otp" tagName="p" className="mb-3" />
+      )}
+
+      <UserAvatar loginName={loginName} displayName={displayName} showDropdown={false} />
 
       <div className="w-full">
         <form action={formAction} noValidate>
@@ -160,7 +159,7 @@ export function LoginOTP({
           <Link href={`${SUPPORT_URL}/${language}/support`}>
             <I18n i18nKey="help" namespace="verify" />
           </Link>
-          {["email"].includes(method) && (
+          {method === "email" && (
             <div className="flex whitespace-nowrap" aria-live="polite">
               <Button
                 theme="link"

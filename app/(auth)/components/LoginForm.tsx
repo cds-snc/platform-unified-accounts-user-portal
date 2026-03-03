@@ -68,19 +68,19 @@ export function LoginForm({ requestId }: Props) {
       };
     }
 
-    const response = await submitLoginForm({
-      username: username,
-      password: password,
-      requestId,
-    })
-      .catch(() => {
-        return {
-          error: t("validation.invalidCredentials"),
-        };
-      })
-      .finally(() => {
-        setLoading(false);
+    let response;
+    try {
+      response = await submitLoginForm({
+        username: username,
+        password: password,
+        requestId,
       });
+    } catch (e) {
+      response = {
+        error: t("validation.invalidCredentials"),
+      };
+    }
+    setLoading(false);
 
     if (response && "error" in response && response.error) {
       return {
