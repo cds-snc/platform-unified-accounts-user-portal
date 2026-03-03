@@ -75,19 +75,21 @@ export const MFAAuthentication = ({
                     .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                     .map((data) => {
                       return (
-                        <li key={data.id} className="mb-4">
+                        <li key={data.id} className="mb-4 flex items-center gap-1">
                           <Image
                             src={getImageUrl("/img/fingerprint_24px.png")}
                             alt=""
                             width={32}
                             height={32}
-                            className="mr-2 inline-block"
+                            className="inline-block"
                           />
-                          <span className="mr-2 font-semibold">
-                            {t("mfaAuthentication.securityKey")}
-                          </span>
-                          <span>({data.name || t("mfaAuthentication.unknownDevice")})</span>
-                          <span className="mx-2">&#8226;</span>
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold">
+                              {t("mfaAuthentication.securityKey")}
+                            </span>
+                            <span>({data.name || t("mfaAuthentication.unknownDevice")})</span>
+                          </div>
+                          <span className="">&#8226;</span>
                           <Button onClick={() => handleRemoveU2F(data.id)} theme="link">
                             {t("mfaAuthentication.remove")}
                           </Button>
@@ -96,18 +98,16 @@ export const MFAAuthentication = ({
                     })}
 
                 {authenticatorStatus && (
-                  <li className="mb-4">
+                  <li className="mb-4 flex items-center gap-1">
                     <Image
                       src={getImageUrl("/img/verified_user_24px.png")}
                       alt=""
                       width={32}
                       height={32}
-                      className="mr-2 inline-block"
+                      className="inline-block"
                     />
-                    <span className="mr-2 font-semibold">
-                      {t("mfaAuthentication.authenticatorApp")}
-                    </span>
-                    <span className="mx-2">&#8226;</span>
+                    <span className="font-semibold">{t("mfaAuthentication.authenticatorApp")}</span>
+                    <span>&#8226;</span>
                     <Button onClick={handleRemoveAuthenticator} theme="link">
                       {t("mfaAuthentication.remove")}
                     </Button>
