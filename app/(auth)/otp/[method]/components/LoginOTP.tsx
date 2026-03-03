@@ -14,6 +14,7 @@ import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { I18n, useTranslation } from "@i18n";
+import { UserAvatar } from "@components/account/user-avatar";
 import { BackButton } from "@components/ui/button/BackButton";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
@@ -36,7 +37,7 @@ export function LoginOTP({
   code,
   loginSettings,
   redirect,
-  children,
+  displayName,
 }: {
   loginName?: string; // either loginName or sessionId must be provided
   sessionId?: string;
@@ -46,7 +47,7 @@ export function LoginOTP({
   code?: string;
   loginSettings?: LoginSettings;
   redirect?: string | null;
-  children?: React.ReactNode;
+  displayName?: string;
 }) {
   const {
     t,
@@ -137,7 +138,11 @@ export function LoginOTP({
 
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
 
-      {children}
+      {method === "email" && (
+        <I18n i18nKey="verify.emailDescription" namespace="otp" tagName="p" className="mb-3" />
+      )}
+
+      <UserAvatar loginName={loginName} displayName={displayName} showDropdown={false} />
 
       <div className="w-full">
         <form action={formAction} noValidate>
