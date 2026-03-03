@@ -96,5 +96,3 @@ export const LinkButton = {
   Primary,
   Secondary,
 };
-
-export default Default;

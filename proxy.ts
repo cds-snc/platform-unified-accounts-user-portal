@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { SecuritySettings } from "@zitadel/proto/zitadel/settings/v2/security_settings_pb";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
+import { generateCSP } from "@lib/cspScripts";
 
-import { DEFAULT_CSP } from "./constants/csp";
 import {
   API_ROUTES,
   AUTH_FLOW_ROUTES,
@@ -88,14 +88,20 @@ export async function proxy(request: NextRequest) {
     const responseHeaders = new Headers();
     responseHeaders.set("Access-Control-Allow-Origin", "*");
     responseHeaders.set("Access-Control-Allow-Headers", "*");
+    const { csp } = generateCSP();
 
     const securitySettings = await loadSecuritySettings(request);
 
+    const contentSecurityPolicy = securitySettings?.embeddedIframe?.enabled
+      ? csp.replace(
+          /frame-ancestors\s+[^;]+;/,
+          `frame-ancestors ${securitySettings.embeddedIframe.allowedOrigins.join(" ")};`
+        )
+      : csp;
+
+    responseHeaders.set("Content-Security-Policy", contentSecurityPolicy);
+
     if (securitySettings?.embeddedIframe?.enabled) {
-      responseHeaders.set(
-        "Content-Security-Policy",
-        `${DEFAULT_CSP} frame-ancestors ${securitySettings.embeddedIframe.allowedOrigins.join(" ")};`
-      );
       responseHeaders.delete("X-Frame-Options");
     }
 

@@ -1,9 +1,9 @@
 import type { ConnectError } from "@connectrpc/connect";
 import { ErrorDetailSchema } from "@zitadel/proto/zitadel/message_pb";
 
-export type ZitadelErrorContext = string;
+type ZitadelErrorContext = string;
 
-export type ZitadelUiError = {
+type ZitadelUiError = {
   i18nKey: string;
   blockContinue?: boolean;
 };

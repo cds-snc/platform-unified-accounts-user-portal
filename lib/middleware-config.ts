@@ -5,7 +5,7 @@ import { AuthLevel } from "./server/route-protection";
 /**
  * Route patterns mapped to their required authentication levels
  */
-export const ROUTE_PATTERNS: Record<string, AuthLevel> = {
+const ROUTE_PATTERNS: Record<string, AuthLevel> = {
   // Account management - requires full authentication with any MFA factor
   "/account": AuthLevel.ANY_MFA_REQUIRED,
 
@@ -42,7 +42,7 @@ export const ROUTE_PATTERNS: Record<string, AuthLevel> = {
 /**
  * Fully open routes - no authentication required
  */
-export const PUBLIC_ROUTES = [
+const PUBLIC_ROUTES = [
   "/", // Login/username entry
   "/login", // OIDC/SAML initiation
   "/register", // User registratio (accessed via email link with userId)
@@ -69,12 +69,6 @@ export const AUTH_FLOW_ROUTES = [
   "/u2f/set",
   "/verify",
 ];
-
-/**
- * Routes requiring strict validation at both middleware and page level
- * These are high-value targets that need defense in depth
- */
-export const STRICT_ROUTES = ["/account", "/password/change"];
 
 /**
  * API routes that should not be processed by auth middleware
