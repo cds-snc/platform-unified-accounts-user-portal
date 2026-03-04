@@ -57,7 +57,7 @@
       "noSession": "User information could not be retrieved from session."
     },
     "personalDetails": {
-      "title": "Personal Details",
+      "title": "Personal details",
       "firstName": "First name",
       "lastName": "Last name",
       "change": "Change",
@@ -76,7 +76,7 @@
       }
     },
     "verifiedAccount": {
-      "title": "Verified Account",
+      "title": "Verified account",
       "email": "Email address",
       "changeMessage": "<0>Cannot be changed</0> <1>create new account</1> or <2>contact support</2>"
     },
@@ -86,11 +86,11 @@
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "2 Factor Authentication",
+      "title": "Multi-factor authentication",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
       "authenticatorApp": "Authentication app",
-      "addlMethods": "Add additional methods",
+      "addlMethods": "Add another method",
       "remove": "Remove",
       "unknownDevice": "Unknown device",
       "success": {
