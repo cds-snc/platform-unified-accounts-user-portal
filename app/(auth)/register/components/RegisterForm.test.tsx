@@ -3,13 +3,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { RegisterForm } from "@root/app/(auth)/register/components/RegisterForm";
 import { validateAccount } from "@lib/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../test/helpers/client";
 import { useRegistration } from "../context/RegistrationContext";
-
-import { RegisterForm } from "./RegisterForm";
 
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
@@ -66,7 +65,7 @@ describe("RegisterForm", () => {
   });
 
   it("renders registration fields and submit button", () => {
-    render(<RegisterForm organization="org-1" requestId="req-123" />);
+    render(<RegisterForm organization="org-1" requestId="req-123" baseUrl="" />);
 
     expect(screen.getByLabelText(/labels\.firstname/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels\.lastname/i)).toBeInTheDocument();
@@ -86,7 +85,7 @@ describe("RegisterForm", () => {
       ],
     } as never);
 
-    render(<RegisterForm organization="org-1" requestId="req-123" />);
+    render(<RegisterForm organization="org-1" requestId="req-123" baseUrl="" />);
 
     await userEvent.click(screen.getByRole("button", { name: "button.continue" }));
 
@@ -100,7 +99,7 @@ describe("RegisterForm", () => {
   });
 
   it("stores registration data and redirects to password step on valid submit", async () => {
-    render(<RegisterForm organization="org-1" requestId="req-123" />);
+    render(<RegisterForm organization="org-1" requestId="req-123" baseUrl="" />);
 
     await userEvent.type(screen.getByLabelText(/labels\.firstname/i), "Person");
     await userEvent.type(screen.getByLabelText(/labels\.lastname/i), "Example");

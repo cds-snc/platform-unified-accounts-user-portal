@@ -9,8 +9,10 @@ import { HumanUser, User } from "@zitadel/proto/zitadel/user/v2/user_pb";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadMostRecentSession } from "@lib/session";
+import { resolveSiteConfigByHost } from "@lib/site-config";
 import { SearchParams } from "@lib/utils";
 import { getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -34,6 +36,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  const resolvedHost = getOriginalHostFromHeaders(_headers);
+  const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
   let sessionFactors;
   let user: User | undefined;
@@ -74,6 +78,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         userId={id}
         code={code}
         requestId={requestId}
+        baseUrl={siteConfig.baseUrl}
       >
         <div className="my-8">
           {sessionFactors ? (

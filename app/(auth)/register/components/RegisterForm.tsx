@@ -23,6 +23,7 @@ import { Hint } from "@components/ui/form/Hint";
  * Parent Relative
  *--------------------------------------------*/
 import { useRegistration } from "../context/RegistrationContext";
+
 type FormState = {
   error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
@@ -36,11 +37,10 @@ type FormState = {
 type Props = {
   organization: string;
   requestId?: string;
+  baseUrl: string;
 };
 
-const FORMS_PRODUCTION_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
-
-export function RegisterForm({ organization, requestId }: Props) {
+export function RegisterForm({ organization, requestId, baseUrl }: Props) {
   const { t, i18n } = useTranslation(["register", "validation", "errorSummary", "common"]);
   const { setRegistrationData } = useRegistration();
   const router = useRouter();
@@ -150,9 +150,7 @@ export function RegisterForm({ organization, requestId }: Props) {
 
         <p className="-mt-2 mb-10">
           {t("terms.agreement")}
-          <Link href={`${FORMS_PRODUCTION_URL}/${i18n.language}/terms-of-use`}>
-            {t("terms.linkText")}
-          </Link>
+          <Link href={`${baseUrl}/${i18n.language}/terms-of-use`}>{t("terms.linkText")}</Link>
         </p>
 
         <div>

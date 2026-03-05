@@ -26,7 +26,6 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
  * Local Relative
  *--------------------------------------------*/
 import { FormState, handleOTPFormSubmit, updateSessionForOTPChallenge } from "../actions";
-const SUPPORT_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
 
 export function LoginOTP({
   loginName,
@@ -38,6 +37,7 @@ export function LoginOTP({
   loginSettings,
   redirect,
   displayName,
+  baseUrl,
 }: {
   loginName?: string; // either loginName or sessionId must be provided
   sessionId?: string;
@@ -48,6 +48,7 @@ export function LoginOTP({
   loginSettings?: LoginSettings;
   redirect?: string | null;
   displayName?: string;
+  baseUrl: string;
 }) {
   const {
     t,
@@ -156,7 +157,7 @@ export function LoginOTP({
         </form>
 
         <div className="mt-8 flex items-center gap-4">
-          <Link href={`${SUPPORT_URL}/${language}/support`}>
+          <Link href={`${baseUrl}/${language}/support`}>
             <I18n i18nKey="help" namespace="verify" />
           </Link>
           {method === "email" && (

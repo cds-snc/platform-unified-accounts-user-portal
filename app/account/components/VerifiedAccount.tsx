@@ -15,9 +15,15 @@ import { logoutCurrentSession } from "@lib/server/session";
 import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button/Button";
 
-const FORMS_PRODUCTION_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
-
-export const VerifiedAccount = ({ email, className }: { email: string; className?: string }) => {
+export const VerifiedAccount = ({
+  email,
+  className,
+  baseUrl,
+}: {
+  email: string;
+  className?: string;
+  baseUrl: string;
+}) => {
   const router = useRouter();
   const {
     t,
@@ -60,7 +66,7 @@ export const VerifiedAccount = ({ email, className }: { email: string; className
               components={[
                 <strong key="0" />,
                 <Button key="1" theme="link" onClick={logoutAndRedirectToRegister} />,
-                <Link key="2" href={`${FORMS_PRODUCTION_URL}/${language}/support`} />,
+                <Link key="2" href={`${baseUrl}/${language}/support`} />,
               ]}
             />
           </p>
