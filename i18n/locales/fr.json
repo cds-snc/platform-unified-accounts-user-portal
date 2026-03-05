@@ -53,6 +53,12 @@
   },
   "account": {
     "title": "Comptes Plateforme GC",
+    "navigation": {
+      "title": "Paramètres du compte",
+      "ariaLabel": "Navigation du compte",
+      "account": "Compte",
+      "profile": "Profil"
+    },
     "errors": {
       "noSession": "Vos renseignements de compte n'ont pas pu être récupérés à partir de la session."
     },

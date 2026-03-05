@@ -53,6 +53,12 @@
   },
   "account": {
     "title": "GC Platform Accounts",
+    "navigation": {
+      "title": "Account settings",
+      "ariaLabel": "Account navigation",
+      "account": "Account",
+      "profile": "Profile"
+    },
     "errors": {
       "noSession": "Your account information could not be retrieved from the session."
     },
