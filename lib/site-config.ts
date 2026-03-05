@@ -14,7 +14,7 @@ export type SiteConfig = {
   zitadelOrganizationId: string;
 };
 
-export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "support";
+export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "support" | "profile";
 
 type SiteLinkTemplates = Record<SiteLinkKey, string>;
 

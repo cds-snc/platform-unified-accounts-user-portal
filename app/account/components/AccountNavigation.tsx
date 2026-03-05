@@ -9,11 +9,10 @@ import { usePathname } from "next/navigation";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { useTranslation } from "@i18n";
 
-const PROFILE_PORTAL_BASE_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL;
-
-export function AccountNavigation() {
+export function AccountNavigation({ siteConfig }: { siteConfig: SiteConfig }) {
   const pathname = usePathname();
   const {
     t,
@@ -21,11 +20,7 @@ export function AccountNavigation() {
   } = useTranslation("account");
 
   const isAccountPage = pathname === "/account" || pathname.includes("/account/");
-
-  // Note: this will need to be updated later to be dynamic or based on a site configuration
-  const profileUrl = PROFILE_PORTAL_BASE_URL
-    ? new URL(`/${language}/profile/oidc`, PROFILE_PORTAL_BASE_URL)
-    : null;
+  const profileUrl = getSiteLink(siteConfig, "profile", language);
 
   return (
     <nav
@@ -50,18 +45,13 @@ export function AccountNavigation() {
             )}
           </h2>
         </li>
-        {profileUrl && (
-          <li>
-            <h2 className="text-base">
-              <a
-                href={profileUrl.toString()}
-                className="text-gcds-grayscale-800 underline hover:no-underline"
-              >
-                {t("navigation.profile")}
-              </a>
-            </h2>
-          </li>
-        )}
+        <li>
+          <h2 className="text-base">
+            <a href={profileUrl} className="text-gcds-grayscale-800 underline hover:no-underline">
+              {t("navigation.profile")}
+            </a>
+          </h2>
+        </li>
       </ul>
     </nav>
   );
