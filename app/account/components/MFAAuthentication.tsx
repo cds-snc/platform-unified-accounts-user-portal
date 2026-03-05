@@ -62,10 +62,7 @@ export const MFAAuthentication = ({
   return (
     <>
       <div className={cn("rounded-2xl border-1 border-[#D1D5DB] bg-white p-6", className)}>
-        {/* Added for logical heading structure but style like an H3 for now to meet design*/}
-        <h2 className="mb-6 text-xl font-semibold tablet:text-2xl">
-          {t("mfaAuthentication.title")}
-        </h2>
+        <h3 className="mb-6">{t("mfaAuthentication.title")}</h3>
 
         {!hasMFAMethods && <p>{t("mfaAuthentication.noTwoFactor")}</p>}
 

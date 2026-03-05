@@ -107,10 +107,9 @@ export const PersonalDetails = ({
     <>
       <div className={cn("rounded-2xl border-1 border-[#D1D5DB] bg-white p-6", className)}>
         <div className="flex items-center justify-between">
-          {/* Added for logical heading structure but style like an H3 for now to meet design*/}
-          <h2 id="personal-details-title" className="mb-6 text-xl font-semibold tablet:text-2xl">
+          <h3 id="personal-details-title" className="mb-6">
             {t("personalDetails.title")}
-          </h2>
+          </h3>
           <div>
             <Button
               theme="primary"

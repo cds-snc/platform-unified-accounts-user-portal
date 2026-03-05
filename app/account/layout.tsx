@@ -1,9 +1,28 @@
 /*--------------------------------------------*
+ * Framework and Third-Party
+ *--------------------------------------------*/
+import { Metadata } from "next";
+
+/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { serverTranslation } from "@i18n/server";
 import { Logout } from "@components/auth/Logout";
 import { SiteHeader } from "@components/layout/site-header/SiteHeader";
 import LanguageToggle from "@components/ui/language-toggle/LanguageToggle";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await serverTranslation("account");
+  return {
+    title: {
+      default: t("title"),
+      // wraps any sub-page's title, so %s gets replaced with the page-specific string
+      // Note: each sub page must update it's title e.g. ...generateMetadata()... return {title: "My Page Title"}..
+      // TODO: this may need to be moved to a higher level when new sections are added
+      template: `%s | ${t("title")}`,
+    },
+  };
+}
 
 /*--------------------------------------------*
  * Local Relative

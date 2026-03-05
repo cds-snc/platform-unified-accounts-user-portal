@@ -35,24 +35,31 @@ export function AccountNavigation() {
       <h1 className="mb-6 text-3xl font-semibold">{t("navigation.title")}</h1>
       <ul className="list-none space-y-4 p-0">
         <li>
-          {isAccountPage ? (
-            <span aria-current="page" className="font-semibold text-gcds-blue-700">
-              {t("navigation.account")}
-            </span>
-          ) : (
-            <Link href="/account" className="text-gcds-grayscale-800 underline hover:no-underline">
-              {t("navigation.account")}
-            </Link>
-          )}
+          <h2 className="text-base">
+            {isAccountPage ? (
+              <span aria-current="page" className="font-semibold text-gcds-blue-700">
+                {t("navigation.account")}
+              </span>
+            ) : (
+              <Link
+                href="/account"
+                className="text-gcds-grayscale-800 underline hover:no-underline"
+              >
+                {t("navigation.account")}
+              </Link>
+            )}
+          </h2>
         </li>
         {profileUrl && (
           <li>
-            <a
-              href={profileUrl.toString()}
-              className="text-gcds-grayscale-800 underline hover:no-underline"
-            >
-              {t("navigation.profile")}
-            </a>
+            <h2 className="text-base">
+              <a
+                href={profileUrl.toString()}
+                className="text-gcds-grayscale-800 underline hover:no-underline"
+              >
+                {t("navigation.profile")}
+              </a>
+            </h2>
           </li>
         )}
       </ul>

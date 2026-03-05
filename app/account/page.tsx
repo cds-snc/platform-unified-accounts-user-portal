@@ -27,7 +27,7 @@ import { VerifiedAccount } from "./components/VerifiedAccount";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("account");
-  return { title: t("title") };
+  return { title: t("navigation.title") };
 }
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {

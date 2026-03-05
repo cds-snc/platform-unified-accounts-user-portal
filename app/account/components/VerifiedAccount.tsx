@@ -44,10 +44,7 @@ export const VerifiedAccount = ({ email, className }: { email: string; className
       <div className={cn("rounded-2xl border-1 border-[#D1D5DB] bg-white p-6", className)}>
         <div className="grid grid-cols-[1fr_auto] items-start gap-4">
           <div>
-            {/* Added for logical heading structure but style like an H3 for now to meet design*/}
-            <h2 className="mb-6 text-xl font-semibold tablet:text-2xl">
-              {t("verifiedAccount.title")}
-            </h2>
+            <h3 className="mb-6">{t("verifiedAccount.title")}</h3>
             <div className="mb-1 font-semibold">{t("verifiedAccount.email")}</div>
             <div>
               <em>{email}</em>
