@@ -21,6 +21,7 @@ import { serverTranslation } from "@i18n/server";
  *--------------------------------------------*/
 import { idpTypeToIdentityProviderType, idpTypeToSlug } from "../idp";
 import { getServiceUrlFromHeaders } from "../service-url";
+import { buildUrlWithRequestId } from "../utils";
 import {
   getActiveIdentityProviders,
   getIDPByID,
@@ -300,20 +301,20 @@ export async function sendLoginname(command: SendLoginnameCommand) {
     // always resend invite if user has no auth method set
     if (!methods.authMethodTypes || !methods.authMethodTypes.length) {
       const params = new URLSearchParams({
-        loginName: session.factors?.user?.loginName as string,
         send: "true", // set this to true to request a new code immediately
         invite: humanUser?.email?.isVerified ? "false" : "true", // sendInviteEmailCode results in an error if user is already initialized
       });
-
-      if (command.requestId) {
-        params.append("requestId", command.requestId);
-      }
 
       if (organization) {
         params.append("organization", organization);
       }
 
-      return { redirect: `/verify?` + params };
+      const verifyUrl = buildUrlWithRequestId("/verify", command.requestId);
+      const [basePath, existingQuery = ""] = verifyUrl.split("?");
+      const mergedParams = new URLSearchParams(existingQuery);
+      params.forEach((value, key) => mergedParams.set(key, value));
+
+      return { redirect: `${basePath}?${mergedParams.toString()}` };
     }
 
     if (methods.authMethodTypes.length == 1) {
