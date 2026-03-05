@@ -3,13 +3,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { RegisterForm } from "@root/app/(auth)/register/components/RegisterForm";
 import { validateAccount } from "@lib/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../test/helpers/client";
 import { useRegistration } from "../context/RegistrationContext";
-
-import { RegisterForm } from "./RegisterForm";
 
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
@@ -66,7 +65,18 @@ describe("RegisterForm", () => {
   });
 
   it("renders registration fields and submit button", () => {
-    render(<RegisterForm organization="org-1" requestId="req-123" />);
+    render(
+      <RegisterForm
+        organization="org-1"
+        requestId="req-123"
+        siteConfig={{
+          id: "forms_dev",
+          productId: "gcforms",
+          baseUrl: "http://localhost:3000",
+          zitadelOrganizationId: "org-1",
+        }}
+      />
+    );
 
     expect(screen.getByLabelText(/labels\.firstname/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels\.lastname/i)).toBeInTheDocument();
@@ -74,7 +84,7 @@ describe("RegisterForm", () => {
     expect(screen.getByRole("button", { name: "button.continue" })).toBeInTheDocument();
 
     const termsLink = screen.getByRole("link", { name: "terms.linkText" });
-    expect(termsLink).toHaveAttribute("href", "/en/terms-of-use");
+    expect(termsLink).toHaveAttribute("href", "http://localhost:3000/en/terms-of-use");
   });
 
   it("shows validation errors and stays on page when form is invalid", async () => {
@@ -86,7 +96,18 @@ describe("RegisterForm", () => {
       ],
     } as never);
 
-    render(<RegisterForm organization="org-1" requestId="req-123" />);
+    render(
+      <RegisterForm
+        organization="org-1"
+        requestId="req-123"
+        siteConfig={{
+          id: "forms_dev",
+          productId: "gcforms",
+          baseUrl: "http://localhost:3000",
+          zitadelOrganizationId: "org-1",
+        }}
+      />
+    );
 
     await userEvent.click(screen.getByRole("button", { name: "button.continue" }));
 
@@ -100,7 +121,18 @@ describe("RegisterForm", () => {
   });
 
   it("stores registration data and redirects to password step on valid submit", async () => {
-    render(<RegisterForm organization="org-1" requestId="req-123" />);
+    render(
+      <RegisterForm
+        organization="org-1"
+        requestId="req-123"
+        siteConfig={{
+          id: "forms_dev",
+          productId: "gcforms",
+          baseUrl: "http://localhost:3000",
+          zitadelOrganizationId: "org-1",
+        }}
+      />
+    );
 
     await userEvent.type(screen.getByLabelText(/labels\.firstname/i), "Person");
     await userEvent.type(screen.getByLabelText(/labels\.lastname/i), "Example");

@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
  * Internal Aliases
  *--------------------------------------------*/
 import { sendVerification, sendVerificationEmail } from "@lib/server/verify";
+import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { validateCode } from "@lib/validationSchemas";
 import { I18n, useTranslation } from "@i18n";
 import * as AlertNotification from "@components/ui/alert/Alert";
@@ -20,7 +21,6 @@ import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus } from "@components/ui/form";
 import { CodeEntry } from "@components/ui/form/CodeEntry";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
-const SUPPORT_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
 
 type FormState = {
   error?: string;
@@ -37,6 +37,7 @@ export function VerifyEmailForm({
   requestId,
   code,
   children,
+  siteConfig,
 }: {
   userId: string;
   loginName?: string;
@@ -44,6 +45,7 @@ export function VerifyEmailForm({
   code?: string;
   requestId?: string;
   children?: React.ReactNode;
+  siteConfig: SiteConfig;
 }) {
   const router = useRouter();
   const processedCodeRef = useRef<string | null>(null);
@@ -201,7 +203,7 @@ export function VerifyEmailForm({
             >
               <I18n i18nKey="newCode" namespace="verify" />
             </Button>
-            <Link href={`${SUPPORT_URL}/${language}/support`}>
+            <Link href={getSiteLink(siteConfig, "support", language)}>
               <I18n i18nKey="help" namespace="verify" />
             </Link>
           </div>

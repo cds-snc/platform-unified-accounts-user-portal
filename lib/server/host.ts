@@ -2,6 +2,21 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { headers } from "next/headers";
+
+type HeaderReader = {
+  get: (name: string) => string | null;
+};
+
+export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
+  const host =
+    _headers.get("x-forwarded-host") || _headers.get("x-original-host") || _headers.get("host");
+
+  if (!host || typeof host !== "string") {
+    throw new Error("No host found in headers");
+  }
+
+  return host;
+}
 /**
  * Gets the original host that the user sees in their browser URL.
  * When using rewrites this function prioritizes forwarded headers that preserve the original host.
@@ -18,18 +33,7 @@ import { headers } from "next/headers";
 export async function getOriginalHost(): Promise<string> {
   const _headers = await headers();
 
-  // Priority order:
-  // 1. x-forwarded-host - Set by proxies/CDNs with the original host
-  // 2. x-original-host - Alternative header sometimes used
-  // 3. host - Fallback to the current host header
-  const host =
-    _headers.get("x-forwarded-host") || _headers.get("x-original-host") || _headers.get("host");
-
-  if (!host || typeof host !== "string") {
-    throw new Error("No host found in headers");
-  }
-
-  return host;
+  return getOriginalHostFromHeaders(_headers);
 }
 
 /**

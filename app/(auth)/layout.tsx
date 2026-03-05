@@ -6,6 +6,8 @@ import * as Tooltip from "@radix-ui/react-tooltip";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { getSiteConfigFromHeaders } from "@lib/server/site-config";
+import { getSiteLink } from "@lib/site-config";
 import { serverTranslation } from "@i18n/server";
 import { Logout } from "@components/auth/Logout";
 import { Footer } from "@components/layout/footer/Footer";
@@ -13,9 +15,9 @@ import { FooterLinks } from "@components/layout/footer/FooterLinks";
 import { GcdsHeader } from "@components/layout/gcds-header/GcdsHeader";
 import { SiteLink } from "@components/layout/site-header/SiteLink";
 import { ToastContainer } from "@components/ui/toast/Toast";
-const FORMS_PRODUCTION_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const siteConfig = await getSiteConfigFromHeaders();
   const {
     i18n: { language },
   } = await serverTranslation(["fip"]);
@@ -35,7 +37,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           >
             <main id="content">
               <div className="mb-6 mr-10 inline-flex">
-                <SiteLink href={`${FORMS_PRODUCTION_URL}`} />
+                <SiteLink href={getSiteLink(siteConfig, "about", language)} />
               </div>
               <Tooltip.Provider>{children}</Tooltip.Provider>
               <ToastContainer autoClose={false} containerId="default" />
@@ -44,7 +46,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         </div>
       </div>
       <Footer>
-        <FooterLinks />
+        <FooterLinks siteConfig={siteConfig} />
       </Footer>
     </div>
   );
