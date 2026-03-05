@@ -13,7 +13,7 @@
     }
   },
   "error": {
-    "title": "Oups! Quelque chose s'est mal passé."
+    "title": "Quelque chose a mal tourné"
   },
   "header": {
     "lang-toggle": "Sélection de la langue",
@@ -52,61 +52,61 @@
     "ariaLabel": "Pied de page"
   },
   "account": {
-    "title": "[FR]GC Platform Accounts",
+    "title": "Comptes Plateforme GC",
     "navigation": {
-      "title": "[FR]Account settings",
-      "ariaLabel": "[FR]Account navigation",
-      "account": "[FR]Account",
-      "profile": "[FR]Profile"
+      "title": "Paramètres du compte",
+      "ariaLabel": "Navigation du compte",
+      "account": "Compte",
+      "profile": "Profil"
     },
     "errors": {
-      "noSession": "[FR]User information could not be retrieved from session."
+      "noSession": "Vos renseignements de compte n'ont pas pu être récupérés à partir de la session."
     },
     "personalDetails": {
-      "title": "[FR]Personal Details",
-      "firstName": "[FR]First name",
-      "lastName": "[FR]Last name",
-      "change": "[FR]Change",
-      "cancel": "[FR]Cancel",
-      "updateAccount": "[FR]Update",
+      "title": "Renseignements personnels",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "change": "Modifier",
+      "cancel": "Annuler",
+      "updateAccount": "Mettre à jour",
       "success": {
-        "updateSuccess": "[FR]Personal details updated successfully"
+        "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
       "errors": {
-        "updateFailed": "[FR]Failed to update personal details"
+        "updateFailed": "Vos renseignements personnels n'ont pas pu être modifiés"
       },
       "validation": {
-        "required": "[FR]Complete the required fields to continue.",
-        "requiredFirstname": "[FR]Your first name is required.",
-        "requiredLastname": "[FR]Your last name is required."
+        "required": "Veuillez remplir les champs obligatoires pour continuer.",
+        "requiredFirstname": "Prénom est un champ obligatoire.",
+        "requiredLastname": "Nom de famille est un champ obligatoire."
       }
     },
     "verifiedAccount": {
-      "title": "[FR]Verified Account",
-      "email": "[FR]Email address",
-      "changeMessage": "[FR]<0>Cannot be changed</0> <1>create new account</1> or <2>contact support</2>"
+      "title": "Compte vérifié",
+      "email": "Adresse courriel",
+      "changeMessage": "<0>Ne peut être modifié</0> <1>créer un nouveau compte</1> ou <2>contacter l'équipe de soutien</2>"
     },
     "authentication": {
-      "title": "[FR]Authentication",
-      "password": "[FR]Password",
-      "change": "[FR]Change"
+      "title": "Authentification",
+      "password": "Mot de passe",
+      "change": "Modifier"
     },
     "mfaAuthentication": {
-      "title": "[FR]2 Factor Authentication",
-      "securityKey": "[FR]Security key",
-      "noTwoFactor": "[FR]No two-factor authentication methods configured.",
-      "authenticatorApp": "[FR]Authentication app",
-      "addlMethods": "[FR]Add additional methods",
-      "remove": "[FR]Remove",
-      "unknownDevice": "[FR]Unknown device",
+      "title": "Authentification à deux facteurs",
+      "securityKey": "Clé de sécurité",
+      "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
+      "authenticatorApp": "Application d'authentification",
+      "addlMethods": "Ajouter une autre méthode",
+      "remove": "Retirer",
+      "unknownDevice": "Appareil inconnu",
       "success": {
-        "keyRemoved": "[FR]Security key removed successfully",
-        "authAppRemoved": "[FR]Authenticator app removed successfully"
+        "keyRemoved": "La clé de sécurité a été supprimée.",
+        "authAppRemoved": "L'application d'authentification a été supprimée."
       },
       "errors": {
-        "cannotRemoveSecurityKey": "[FR]Cannot remove security key. At least one strong authentication method must be configured to remove one.",
-        "failedToRemoveSecurityKey": "[FR]Failed to remove security key",
-        "failedToRemoveAuthApp": "[FR]Failed to remove authenticator"
+        "cannotRemoveSecurityKey": "Impossible de supprimer la clé de sécurité. Au moins une méthode d'authentification supplémentaire doit être configurée.",
+        "failedToRemoveSecurityKey": "La clé de sécurité n'a pas pu être supprimée.",
+        "failedToRemoveAuthApp": "L'application d'authentification n'a pas pu être supprimée."
       }
     }
   },
@@ -115,13 +115,13 @@
     "signUpText": "Si vous n'avez pas de compte, vous pouvez",
     "signUpLink": "en créer un maintenant.",
     "userName": "Nom",
-    "register": "Créer un compte maintenant",
+    "register": "Si vous n'avez pas de compte, vous pouvez",
     "registerLinkText": "en créer un maintenant",
     "form": {
       "label": "Adresse courriel",
       "description": "Entrez votre propre adresse courriel individuelledu gouvernement.",
       "passwordLabel": "Mot de passe",
-      "forgotPasswordLink": "Mot de passe oublié?",
+      "forgotPasswordLink": "Vous avez oublié votre mot de passe?",
       "signingIn": "Connexion en cours...",
       "submit": "Se connecter"
     },
@@ -133,11 +133,11 @@
     }
   },
   "password": {
-    "title": "Enter your password [FR]",
-    "forgot": "Mot de passe oublié?",
+    "title": "Entrer votre mot de passe",
+    "forgot": "Vous avez oublié votre mot de passe?",
     "verify": {
       "title": "Mot de passe",
-      "description": "Veuillez entrer votre mot de passe ou sélectionner un autre compte ci-dessous.",
+      "description": "Veuillez entrer votre mot de passe ou sélectionner un autre compte.",
       "form": {
         "resetPassword": "Réinitialiser le mot de passe",
         "label": "Mot de passe"
@@ -145,9 +145,9 @@
     },
     "set": {
       "title": "Définissez un mot de passe",
-      "description": "Définissez le mot de passe de votre compte",
+      "description": "Choisissez un mot de passe pour votre compte",
       "codeSent": "Un code a été envoyé à votre adresse courriel.",
-      "noCodeReceived": "Didn't receive a code?",
+      "noCodeReceived": "Vous n'avez pas reçu de code?",
       "resend": "Envoyer un nouveau code",
       "submit": "Continuer",
       "labels": {
@@ -164,8 +164,8 @@
         "couldNotSetPassword": "Le mot de passe n'a pas pu être défini.",
         "couldNotResetPassword": "Le mot de passe n'a pas pu être réinitialisé.",
         "couldNotVerifyPassword": "Le mot de passe n'a pas pu être vérifié.",
-        "couldNotLoadUser": "Impossible de charger l'utilisateur.",
-        "couldNotLoadUserEmail": "Impossible de charger l'adresse courriel de l'utilisateur.",
+        "couldNotLoadUser": "Le compte utilisateur n'a pas pu être chargé.",
+        "couldNotLoadUserEmail": "L'adresse courriel de l'utilisateur n'a pas pu être chargée.",
         "emailConfigurationError": "Erreur de configuration du courriel.",
         "emailSendFailed": "Échec de l'envoi du courriel."
       }
@@ -176,7 +176,7 @@
       "submit": "Continuer",
       "labels": {
         "newPassword": "Nouveau mot de passe",
-        "confirmPassword": "Confirmer le mot de passe"
+        "confirmPassword": "Confirmation du mot de passe"
       },
       "required": {
         "newPassword": "Vous devez fournir un nouveau mot de passe.",
@@ -193,7 +193,7 @@
       "submit": "Continuer",
       "labels": {
         "password": "Mot de passe",
-        "confirmPassword": "Confirmer le mot de passe"
+        "confirmPassword": "Confirmation du mot de passe"
       },
       "passwordHint": "Votre mot de passe devrait être difficile à deviner avec :",
       "disabled": {
@@ -230,7 +230,7 @@
         "confirmationCode": "Code de confirmation"
       },
       "errors": {
-        "missingRequiredInformation": "Information requise manquante",
+        "missingRequiredInformation": "Information obligatoire manquante",
         "couldNotSetPassword": "Le mot de passe n'a pas pu être défini.",
         "couldNotVerifyPassword": "Le mot de passe n'a pas pu être vérifié."
       }
@@ -241,9 +241,9 @@
       "couldNotCreateSessionForUser": "Problème de création de session pour cet utilisateur",
       "couldNotVerifyPassword": "Problème de vérification du mot de passe",
       "couldNotResetPassword": "Problème de réinitialisation du mot de passe",
-      "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur",
+      "couldNotRegisterUser": "Problème d'enregistrement du compte utilisateur",
       "failedToAuthenticate": "Échec de l'authentification. Vous avez essayé {failedAttempts} des {maxPasswordAttempts} tentatives de mot de passe. {lockoutMessage}",
-      "failedToAuthenticateNoLimit": "Échec de l'authentification.",
+      "failedToAuthenticateNoLimit": "Échec d'authentification.",
       "accountLockedContactAdmin": " Contactez votre administrateur pour déverrouiller votre compte",
       "userNotFound": "Compte utilisateur introuvable dans le système",
       "initialUserNotSupported": "Utilisateur initial non pris en charge",
@@ -266,10 +266,10 @@
     "set": {
       "title": "Ajouter une méthode de vérification",
       "description": "Lors de la connexion, on vous demandera de confirmer votre identité d'une autre façon, comme couche de sécurité supplémentaire. Vous pourrez ajouter d'autres méthodes plus tard dans les paramètres de votre compte.",
-      "skip": "Ignorer",
+      "skip": "Ignorer pour l'instant",
       "securityKey": {
         "title": "Clé de sécurité",
-        "recommended": "Recommandé",
+        "recommended": "Recommandée",
         "description": "(ex : Yubikey émise par le gouvernement)"
       },
       "authenticator": {
@@ -287,7 +287,7 @@
   "otp": {
     "verify": {
       "title": "Code à usage unique",
-      "authAppTitle": "Use authentication app [FR]",
+      "authAppTitle": "Utilisez l'application d'authentification",
       "otpDescription": "Entrez le code de votre application d'authentification",
       "emailDescription": "Entrez le code reçu par courriel",
       "form": {
@@ -325,7 +325,7 @@
     },
     "title": "Créer votre compte",
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
-    "description": "We’re asking for your information again because we’re transferring all GC Forms accounts to a new authentication provider. [FR]",
+    "description": "Nous vous demandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
     "noMethodAvailableWarning": "Aucune méthode d'authentification disponible. Veuillez contacter votre administrateur.",
     "selectMethod": "Sélectionnez la méthode que vous souhaitez utiliser pour vous authentifier",
     "agreeTo": "Pour vous inscrire, vous devez accepter les conditions d'utilisation",
@@ -338,9 +338,9 @@
       "email": "Adresse courriel"
     },
     "required": {
-      "firstname": "Le champ Prénom est obligatoire",
-      "lastname": "Le champ Nom de famille est obligatoire",
-      "email": "Le champ Adresse courriel est obligatoire"
+      "firstname": "Le champ prénom est obligatoire",
+      "lastname": "Le champ nom de famille est obligatoire",
+      "email": "Le champ adresse courriel est obligatoire"
     },
     "terms": {
       "agreement": "En créant un compte, vous acceptez les ",
@@ -348,21 +348,21 @@
     },
     "validation": {
       "required": "Veuillez remplir les champs obligatoires pour continuer.",
-      "requiredFirstname": "Votre prénom est obligatoire.",
-      "requiredLastname": "Votre nom de famille est obligatoire.",
-      "requiredEmail": "Votreadresse courriel est obligatoire.",
+      "requiredFirstname": "Prénom est obligatoire.",
+      "requiredLastname": "Nom de famille est obligatoire.",
+      "requiredEmail": "Adresse courriel est obligatoire.",
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada."
     },
     "errors": {
       "couldNotCreateUser": "Problème de création de l'utilisateur",
       "couldNotCreateSession": "Problème de création de la session",
-      "userNotFound": "Compte utilisateur non trouvé dans le système",
+      "userNotFound": "Compte utilisateur introuvable dans le système",
       "couldNotLinkIDP": "Impossible de lier le fournisseur d'identité au compte utilisateur",
       "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur"
     },
     "password": {
-      "title": "Password creation",
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider.",
+      "title": "Création du mot de passe",
+      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
       "errors": {
         "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur"
       }
@@ -386,9 +386,9 @@
     },
     "set": {
       "title": "Activez votre clé",
-      "label": "Nommez",
+      "label": "Nom de la clé de sécurité",
       "hint": "Donnez un nom à votre clé",
-      "placeholder": "p. ex., Ma clé de sécurité",
+      "placeholder": "ex : Ma clé de sécurité",
       "submit": "Continuer",
       "errors": {
         "sessionNotFound": "Session non trouvée. Veuillez recommencer.",

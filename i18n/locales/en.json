@@ -13,7 +13,7 @@
     }
   },
   "error": {
-    "title": "Oops! Something went wrong."
+    "title": "Something went wrong"
   },
   "header": {
     "lang-toggle": "Language selection",
@@ -60,31 +60,31 @@
       "profile": "Profile"
     },
     "errors": {
-      "noSession": "User information could not be retrieved from session."
+      "noSession": "Your account information could not be retrieved from the session."
     },
     "personalDetails": {
-      "title": "Personal Details",
+      "title": "Personal details",
       "firstName": "First name",
       "lastName": "Last name",
       "change": "Change",
       "cancel": "Cancel",
       "updateAccount": "Update",
       "success": {
-        "updateSuccess": "Personal details updated successfully"
+        "updateSuccess": "Your personal details were updated"
       },
       "errors": {
         "updateFailed": "Failed to update personal details"
       },
       "validation": {
         "required": "Complete the required fields to continue.",
-        "requiredFirstname": "Your first name is required.",
-        "requiredLastname": "Your last name is required."
+        "requiredFirstname": "First name is required.",
+        "requiredLastname": "Last name is required."
       }
     },
     "verifiedAccount": {
-      "title": "Verified Account",
+      "title": "Verified account",
       "email": "Email address",
-      "changeMessage": "<0>Cannot be changed</0> <1>create new account</1> or <2>contact support</2>"
+      "changeMessage": "<0>Cannot be changed</0> <1>create new account</1> or <2>contact the support team</2>"
     },
     "authentication": {
       "title": "Authentication",
@@ -92,21 +92,21 @@
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "2 Factor Authentication",
+      "title": "Two-factor authentication",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
       "authenticatorApp": "Authentication app",
-      "addlMethods": "Add additional methods",
+      "addlMethods": "Add another method",
       "remove": "Remove",
       "unknownDevice": "Unknown device",
       "success": {
-        "keyRemoved": "Security key removed successfully",
-        "authAppRemoved": "Authenticator app removed successfully"
+        "keyRemoved": "Security key was removed.",
+        "authAppRemoved": "Authenticator app was removed."
       },
       "errors": {
-        "cannotRemoveSecurityKey": "Cannot remove security key. At least one strong authentication method must be configured to remove one.",
-        "failedToRemoveSecurityKey": "Failed to remove security key",
-        "failedToRemoveAuthApp": "Failed to remove authenticator"
+        "cannotRemoveSecurityKey": "Cannot remove security key. At least one additional authentication method must be configured.",
+        "failedToRemoveSecurityKey": "Failed to remove security key.",
+        "failedToRemoveAuthApp": "Failed to remove authenticator app."
       }
     }
   },
@@ -137,15 +137,15 @@
     "forgot": "Forgot password?",
     "verify": {
       "title": "Password",
-      "description": "Please enter your password or select a different account below.",
+      "description": "Please enter your password or select a different account.",
       "form": {
-        "resetPassword": "Forgot password?",
+        "resetPassword": "Reset password",
         "label": "Password"
       }
     },
     "set": {
       "title": "Set a password",
-      "description": "Set the password for your account",
+      "description": "Choose a password for your account",
       "codeSent": "A code has been sent to your email address.",
       "noCodeReceived": "Didn't receive a code?",
       "resend": "Send a new code",
@@ -216,7 +216,7 @@
       "hasSymbol": "A symbol",
       "maxLength": "Less than 50 characters",
       "mustMatch": "The passwords must match.",
-      "equals": "Password confirmation matched.",
+      "equals": "Passwords must match.",
       "matches": "Matches",
       "doesNotMatch": "The entries for password must match.",
       "success": "Success",
@@ -266,7 +266,7 @@
     "set": {
       "title": "Add a verification method",
       "description": "When you sign in, you will be asked to confirm your identity in another way, as an extra layer of security. You’ll be able to add additional methods later in your account settings.",
-      "skip": "Skip",
+      "skip": "Skip for now",
       "securityKey": {
         "title": "Security key",
         "recommended": "Recommended",
@@ -325,7 +325,7 @@
     },
     "title": "Create your account",
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
-    "description": "We’re asking for your information again because we’re transferring all GC Forms accounts to a new authentication provider.",
+    "description": "We’re asking for this information as we’re transferring all GC Forms accounts to a new authentication provider.",
     "noMethodAvailableWarning": "No authentication method available. Please contact your administrator.",
     "selectMethod": "Select the method you would like to authenticate",
     "agreeTo": "To register, you must agree to the terms of use",
@@ -348,9 +348,9 @@
     },
     "validation": {
       "required": "Complete the required fields to continue.",
-      "requiredFirstname": "Your first name is required.",
-      "requiredLastname": "Your last name is required.",
-      "requiredEmail": "Your email address is required.",
+      "requiredFirstname": "First name is required.",
+      "requiredLastname": "Last name is required.",
+      "requiredEmail": "Email address is required.",
       "validGovEmail": "Enter a valid individual Government of Canada email address."
     },
     "errors": {
@@ -386,9 +386,9 @@
     },
     "set": {
       "title": "Activate your key",
-      "label": "Name",
+      "label": "Security key name",
       "hint": "Give your key a name",
-      "placeholder": "e.g., My Security Key",
+      "placeholder": "ex: My security key",
       "submit": "Continue",
       "errors": {
         "sessionNotFound": "Session not found. Please start again.",
