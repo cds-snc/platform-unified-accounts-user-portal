@@ -10,9 +10,11 @@ import { redirect } from "next/navigation";
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
+import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { isSessionValid, loadMostRecentSession, loadSessionById } from "@lib/session";
+import { resolveSiteConfigByHost } from "@lib/site-config";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { getTOTPStatus, getU2FList, getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -37,6 +39,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  const resolvedHost = getOriginalHostFromHeaders(_headers);
+  const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
   // Attempt to get session credentials from cookies
   let sessionId, organization, loginName;
@@ -102,7 +106,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   return (
     <>
       <PersonalDetails userId={userId} firstName={firstName} lastName={lastName} className="mb-4" />
-      <VerifiedAccount email={email} className="mb-4" />
+      <VerifiedAccount email={email} className="mb-4" siteConfig={siteConfig} />
       <PasswordAuthentication className="mb-4" />
       <MFAAuthentication
         u2fList={u2fList}

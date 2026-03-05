@@ -13,6 +13,7 @@ import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
+import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { I18n, useTranslation } from "@i18n";
 import { UserAvatar } from "@components/account/user-avatar";
 import { BackButton } from "@components/ui/button/BackButton";
@@ -26,7 +27,6 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
  * Local Relative
  *--------------------------------------------*/
 import { FormState, handleOTPFormSubmit, updateSessionForOTPChallenge } from "../actions";
-const SUPPORT_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
 
 export function LoginOTP({
   loginName,
@@ -35,6 +35,7 @@ export function LoginOTP({
   organization,
   method,
   code,
+  siteConfig,
   loginSettings,
   redirect,
   displayName,
@@ -45,6 +46,7 @@ export function LoginOTP({
   organization?: string;
   method: string;
   code?: string;
+  siteConfig: SiteConfig;
   loginSettings?: LoginSettings;
   redirect?: string | null;
   displayName?: string;
@@ -93,7 +95,6 @@ export function LoginOTP({
       redirect,
     });
 
-    // Handle redirect if present
     if ("redirect" in result && result.redirect) {
       router.push(result.redirect);
     }
@@ -156,7 +157,7 @@ export function LoginOTP({
         </form>
 
         <div className="mt-8 flex items-center gap-4">
-          <Link href={`${SUPPORT_URL}/${language}/support`}>
+          <Link href={getSiteLink(siteConfig, "support", language)}>
             <I18n i18nKey="help" namespace="verify" />
           </Link>
           {method === "email" && (

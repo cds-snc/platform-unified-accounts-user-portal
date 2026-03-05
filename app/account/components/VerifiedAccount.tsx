@@ -12,12 +12,19 @@ import { Trans, useTranslation } from "react-i18next";
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
 import { logoutCurrentSession } from "@lib/server/session";
+import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button/Button";
 
-const FORMS_PRODUCTION_URL = process.env.NEXT_PUBLIC_FORMS_PRODUCTION_URL || "";
-
-export const VerifiedAccount = ({ email, className }: { email: string; className?: string }) => {
+export const VerifiedAccount = ({
+  email,
+  className,
+  siteConfig,
+}: {
+  email: string;
+  className?: string;
+  siteConfig: SiteConfig;
+}) => {
   const router = useRouter();
   const {
     t,
@@ -57,7 +64,7 @@ export const VerifiedAccount = ({ email, className }: { email: string; className
               components={[
                 <strong key="0" />,
                 <Button key="1" theme="link" onClick={logoutAndRedirectToRegister} />,
-                <Link key="2" href={`${FORMS_PRODUCTION_URL}/${language}/support`} />,
+                <Link key="2" href={getSiteLink(siteConfig, "support", language)} />,
               ]}
             />
           </p>

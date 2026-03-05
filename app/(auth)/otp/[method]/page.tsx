@@ -9,8 +9,10 @@ import { headers } from "next/headers";
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { getSafeRedirectUrl } from "@lib/redirect-validator";
+import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import { resolveSiteConfigByHost } from "@lib/site-config";
 import { getSerializableObject, SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -34,6 +36,8 @@ export default async function Page(props: {
     await Promise.all([props.params, props.searchParams, headers(), getSessionCredentials()]);
 
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  const resolvedHost = getOriginalHostFromHeaders(_headers);
+  const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
   const { code, redirect } = searchParams;
 
@@ -74,6 +78,7 @@ export default async function Page(props: {
           code={code}
           redirect={safeRedirect}
           displayName={sessionFactors.factors?.user?.displayName}
+          siteConfig={siteConfig}
         />
       )}
     </AuthPanel>
