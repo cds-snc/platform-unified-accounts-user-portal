@@ -4,7 +4,8 @@
       "about": "{baseUrl}/{locale}/about",
       "termsOfUse": "{baseUrl}/{locale}/terms-of-use",
       "sla": "{baseUrl}/{locale}/sla",
-      "support": "{baseUrl}/{locale}/support"
+      "support": "{baseUrl}/{locale}/support",
+      "profile": "{baseUrl}/{locale}/profile/oidc"
     },
     "overrides": {
       "forms_dev": {
