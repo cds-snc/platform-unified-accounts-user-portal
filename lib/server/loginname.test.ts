@@ -213,7 +213,7 @@ describe("sendLoginname", () => {
 
       expect(result).toHaveProperty("redirect");
       expect((result as WithRedirect).redirect).toMatch(/^\/verify\?/);
-      expect((result as WithRedirect).redirect).toContain("loginName=user%40example.com");
+      expect((result as WithRedirect).redirect).not.toContain("loginName=");
       expect((result as WithRedirect).redirect).toContain("send=true");
       expect((result as WithRedirect).redirect).toContain("invite=true");
       expect((result as WithRedirect).redirect).toContain("requestId=req123");

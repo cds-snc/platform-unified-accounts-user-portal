@@ -305,10 +305,6 @@ export async function sendLoginname(command: SendLoginnameCommand) {
         invite: humanUser?.email?.isVerified ? "false" : "true", // sendInviteEmailCode results in an error if user is already initialized
       });
 
-      if (organization) {
-        params.append("organization", organization);
-      }
-
       const verifyUrl = buildUrlWithRequestId("/verify", command.requestId);
       const [basePath, existingQuery = ""] = verifyUrl.split("?");
       const mergedParams = new URLSearchParams(existingQuery);

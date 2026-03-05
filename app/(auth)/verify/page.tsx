@@ -43,15 +43,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   let user: User | undefined;
   let human: HumanUser | undefined;
 
-  if ("loginName" in searchParams) {
-    sessionFactors = await loadMostRecentSession({
-      serviceUrl,
-      sessionParams: {
-        loginName,
-        organization,
-      },
-    });
-  } else if ("userId" in searchParams && userId) {
+  if ("userId" in searchParams && userId) {
     const userResponse = await getUserByID({
       serviceUrl,
       userId,
@@ -64,7 +56,19 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     }
   }
 
+  if (!sessionFactors) {
+    sessionFactors = await loadMostRecentSession({
+      serviceUrl,
+      sessionParams: {
+        loginName,
+        organization,
+      },
+    }).catch(() => undefined);
+  }
+
   const id = userId ?? sessionFactors?.factors?.user?.id;
+  const resolvedOrganization =
+    organization ?? sessionFactors?.factors?.user?.organizationId ?? user?.details?.resourceOwner;
 
   if (!id) {
     redirect("/");
@@ -74,7 +78,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="verify">
       <VerifyEmailForm
         loginName={loginName}
-        organization={organization}
+        organization={resolvedOrganization}
         userId={id}
         code={code}
         requestId={requestId}

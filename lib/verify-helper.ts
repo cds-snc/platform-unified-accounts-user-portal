@@ -61,13 +61,6 @@ export function checkEmailVerified(
       send: "true", // we request a new email code once the page is loaded
     });
 
-    if (organization || session.factors?.user?.organizationId) {
-      paramsVerify.append(
-        "organization",
-        organization ?? (session.factors?.user?.organizationId as string)
-      );
-    }
-
     const verifyUrl = buildUrlWithRequestId("/verify", requestId);
     const [basePath, existingQuery = ""] = verifyUrl.split("?");
     const mergedParams = new URLSearchParams(existingQuery);
@@ -87,13 +80,6 @@ export function checkEmailVerification(
     const params = new URLSearchParams({
       send: "true", // set this to true as we dont expect old email codes to be valid anymore
     });
-
-    if (organization || session.factors?.user?.organizationId) {
-      params.append(
-        "organization",
-        organization ?? (session.factors?.user?.organizationId as string)
-      );
-    }
 
     const verifyUrl = buildUrlWithRequestId("/verify", requestId);
     const [basePath, existingQuery = ""] = verifyUrl.split("?");
