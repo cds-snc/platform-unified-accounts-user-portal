@@ -11,7 +11,7 @@ export const SiteTitle = ({ className }: { className?: string }) => {
     <span
       className={
         (className ? className + " " : "") +
-        "ml-3 inline-block text-[24px] font-semibold leading-10 text-[#1B00C2]"
+        "ml-3 inline-block text-[24px] font-semibold leading-10 text-black"
       }
     >
       <I18n i18nKey="title" namespace="common" />

@@ -5,7 +5,7 @@
       "continue": "Continue",
       "submit": "Submit"
     },
-    "title": "GC Forms",
+    "title": "Accounts",
     "required": "required",
     "errorSummary": {
       "title": "Please correct the errors on the page.",
@@ -30,29 +30,24 @@
   "footer": {
     "version": "Version",
     "about": {
-      "link": "https://articles.alpha.canada.ca/forms-formulaires/?utm_source=EN_FormsFooter&utm_medium=Product&utm_campaign=forms_product",
-      "desc": "About GC Forms"
+      "desc": "About"
     },
     "terms-and-conditions": {
-      "link": "/en/terms-and-conditions",
       "desc": "Terms and conditions"
     },
     "terms-of-use": {
-      "link": "/en/terms-of-use",
       "desc": "Terms of use"
     },
     "sla": {
-      "link": "/en/sla",
       "desc": "Service-level agreement"
     },
     "support": {
-      "link": "/en/support",
       "desc": "Support"
     },
     "ariaLabel": "Footer"
   },
   "account": {
-    "title": "GC Platform Accounts",
+    "title": "Account settings",
     "navigation": {
       "title": "Account settings",
       "ariaLabel": "Account navigation",

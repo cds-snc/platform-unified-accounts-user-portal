@@ -5,7 +5,7 @@
       "continue": "Continuer",
       "submit": "Soumettre"
     },
-    "title": "Formulaires GC",
+    "title": "Comptes",
     "required": "obligatoire",
     "errorSummary": {
       "title": "Veuillez corriger les erreurs sur la page.",
@@ -52,7 +52,7 @@
     "ariaLabel": "Pied de page"
   },
   "account": {
-    "title": "Comptes Plateforme GC",
+    "title": "Paramètres du compte",
     "navigation": {
       "title": "Paramètres du compte",
       "ariaLabel": "Navigation du compte",

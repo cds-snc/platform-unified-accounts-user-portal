@@ -3,11 +3,11 @@
  *--------------------------------------------*/
 import Link from "next/link";
 
+import { ManageAccountsIcon } from "@components/icons/ManageAccounts";
+
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { SiteLogo } from "@components/icons/SiteLogo";
-
 import SiteTitle from "./SiteTitle";
 export const SiteLink = ({ href }: { href: string }) => {
   return (
@@ -18,7 +18,7 @@ export const SiteLink = ({ href }: { href: string }) => {
       className="flex items-center no-underline focus:bg-white"
     >
       <span className="inline-block">
-        <SiteLogo />
+        <ManageAccountsIcon className="size-12" />
       </span>
       <SiteTitle />
     </Link>
