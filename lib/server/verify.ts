@@ -34,6 +34,7 @@ import { completeFlowOrGetUrl } from "../client";
 import { getSessionCookieByLoginName } from "../cookies";
 import { getOrSetFingerprintId } from "../fingerprint";
 import { loadMostRecentSession } from "../session";
+import { buildUrlWithRequestId } from "../utils";
 import { checkMFAFactors } from "../verify-helper";
 
 export async function verifyTOTP(code: string, loginName?: string, organization?: string) {
@@ -119,7 +120,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
   const user = userResponse.user;
 
   const sessionCookie = await getSessionCookieByLoginName({
-    loginName: "loginName" in command ? command.loginName : user.preferredLoginName,
+    loginName: command.loginName ?? user.preferredLoginName,
     organization: command.organization,
   }).catch(() => {
     // Ignored error, checked later
@@ -197,14 +198,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
       maxAge: 300, // 5 minutes
     });
 
-    const redirectParams = new URLSearchParams({
-      loginName: user.preferredLoginName,
-      ...(user.details?.resourceOwner && { organization: user.details.resourceOwner }),
-      userId: user.userId,
-      ...(command.requestId && { requestId: command.requestId }),
-    });
-
-    return { redirect: `/verify/success?${redirectParams.toString()}` };
+    return { redirect: buildUrlWithRequestId("/verify/success", command.requestId) };
   }
 
   // Session required to proceed with MFA verification

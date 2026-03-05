@@ -57,23 +57,16 @@ export function checkEmailVerified(
 ) {
   if (!humanUser?.email?.isVerified) {
     const paramsVerify = new URLSearchParams({
-      loginName: session.factors?.user?.loginName as string,
       userId: session.factors?.user?.id as string, // verify needs user id
       send: "true", // we request a new email code once the page is loaded
     });
 
-    if (organization || session.factors?.user?.organizationId) {
-      paramsVerify.append(
-        "organization",
-        organization ?? (session.factors?.user?.organizationId as string)
-      );
-    }
+    const verifyUrl = buildUrlWithRequestId("/verify", requestId);
+    const [basePath, existingQuery = ""] = verifyUrl.split("?");
+    const mergedParams = new URLSearchParams(existingQuery);
+    paramsVerify.forEach((value, key) => mergedParams.set(key, value));
 
-    if (requestId) {
-      paramsVerify.append("requestId", requestId);
-    }
-
-    return { redirect: "/verify?" + paramsVerify };
+    return { redirect: `${basePath}?${mergedParams.toString()}` };
   }
 }
 
@@ -85,22 +78,15 @@ export function checkEmailVerification(
 ) {
   if (!humanUser?.email?.isVerified && process.env.EMAIL_VERIFICATION === "true") {
     const params = new URLSearchParams({
-      loginName: session.factors?.user?.loginName as string,
       send: "true", // set this to true as we dont expect old email codes to be valid anymore
     });
 
-    if (requestId) {
-      params.append("requestId", requestId);
-    }
+    const verifyUrl = buildUrlWithRequestId("/verify", requestId);
+    const [basePath, existingQuery = ""] = verifyUrl.split("?");
+    const mergedParams = new URLSearchParams(existingQuery);
+    params.forEach((value, key) => mergedParams.set(key, value));
 
-    if (organization || session.factors?.user?.organizationId) {
-      params.append(
-        "organization",
-        organization ?? (session.factors?.user?.organizationId as string)
-      );
-    }
-
-    return { redirect: `/verify?` + params };
+    return { redirect: `${basePath}?${mergedParams.toString()}` };
   }
 }
 
