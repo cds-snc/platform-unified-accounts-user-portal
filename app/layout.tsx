@@ -49,22 +49,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
           type="image/x-icon"
           sizes="32x32"
         />
-        {process.env.NEXT_PUBLIC_BASE_PATH && (
-          <style>
-            {`@font-face {
-  font-family: "gcds-icons";
-  src: url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.eot");
-  src:
-    url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.eot#iefix") format("embedded-opentype"),
-    url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.ttf") format("truetype"),
-    url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.woff") format("woff"),
-    url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.svg") format("svg");
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
-}`}
-          </style>
-        )}
       </head>
 
       <body>{children} </body>
