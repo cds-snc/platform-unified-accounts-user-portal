@@ -53,6 +53,10 @@ function normalizeHost(rawHost: string): string {
   );
 }
 
+const TRUSTED_SITE_HOSTS = Object.values(SITE_CONFIG_BY_ID).map((config) => {
+  return normalizeHost(config.baseUrl);
+});
+
 class SiteConfigService {
   private static instance: SiteConfigService;
 
@@ -96,6 +100,10 @@ export const siteConfig = SiteConfigService.getInstance();
 export const requestHost = (host: string): SiteId => siteConfig.requestHost(host);
 
 export const resolveSiteConfigByHost = (rawHost: string): SiteConfig => siteConfig.resolve(rawHost);
+
+export const isTrustedSiteHost = (rawHost: string): boolean => {
+  return TRUSTED_SITE_HOSTS.includes(normalizeHost(rawHost));
+};
 
 export const getSiteLinksByProductId = (productId: ProductId) => {
   return SITE_LINKS_BY_PRODUCT_ID[productId];

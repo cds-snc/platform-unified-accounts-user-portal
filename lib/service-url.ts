@@ -3,10 +3,10 @@
  *--------------------------------------------*/
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { NextRequest } from "next/server";
+
+import { getOriginalHostFromHeaders } from "./server/host";
 /**
- * Extracts the service url and region from the headers if used in a multitenant context (host, x-zitadel-forward-host header)
- * or falls back to the ZITADEL_API_URL for a self hosting deployment
- * or falls back to the host header for a self hosting deployment using custom domains
+ * Extracts the service url and region from the headers
  * @param headers
  * @returns the service url and region from the headers
  * @throws if the service url could not be determined
@@ -15,39 +15,19 @@ import { NextRequest } from "next/server";
 export function getServiceUrlFromHeaders(headers: ReadonlyHeaders): {
   serviceUrl: string;
 } {
-  let instanceUrl;
-
   if (process.env.ZITADEL_API_URL) {
-    instanceUrl = process.env.ZITADEL_API_URL;
-  } else {
-    const host = headers.get("host");
-
-    if (host) {
-      const [hostname] = host.split(":");
-      if (hostname !== "localhost") {
-        instanceUrl = host.startsWith("http") ? host : `https://${host}`;
-      }
-    }
+    return { serviceUrl: process.env.ZITADEL_API_URL };
   }
 
-  if (!instanceUrl) {
-    throw new Error("Service URL could not be determined");
-  }
+  const host = getOriginalHostFromHeaders(headers);
 
-  return {
-    serviceUrl: instanceUrl,
-  };
+  return { serviceUrl: host.includes("localhost") ? `http://${host}` : `https://${host}` };
 }
 
 export function constructUrl(request: NextRequest, path: string) {
-  const forwardedProto = request.headers.get("x-forwarded-proto")
-    ? `${request.headers.get("x-forwarded-proto")}:`
-    : request.nextUrl.protocol;
-
-  const forwardedHost =
-    request.headers.get("x-zitadel-forward-host") ??
-    request.headers.get("x-forwarded-host") ??
-    request.headers.get("host");
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-  return new URL(`${basePath}${path}`, `${forwardedProto}//${forwardedHost}`);
+  const host = getOriginalHostFromHeaders(request.headers);
+  const origin = host.includes("localhost") ? `http://${host}` : `https://${host}`;
+
+  return new URL(`${basePath}${path}`, origin);
 }
