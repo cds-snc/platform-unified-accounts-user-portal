@@ -78,8 +78,13 @@ export function checkEmailVerification(
 ) {
   if (!humanUser?.email?.isVerified && process.env.EMAIL_VERIFICATION === "true") {
     const params = new URLSearchParams({
+      userId: session.factors?.user?.id as string,
       send: "true", // set this to true as we dont expect old email codes to be valid anymore
     });
+
+    if (organization || session.factors?.user?.organizationId) {
+      params.set("organization", organization ?? (session.factors?.user?.organizationId as string));
+    }
 
     const verifyUrl = buildUrlWithRequestId("/verify", requestId);
     const [basePath, existingQuery = ""] = verifyUrl.split("?");
