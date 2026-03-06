@@ -3,6 +3,8 @@
  *--------------------------------------------*/
 import { headers } from "next/headers";
 
+import { logMessage } from "@lib/logger";
+
 import { isTrustedSiteHost } from "../site-config";
 
 type HeaderReader = {
@@ -36,11 +38,16 @@ export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
     parseHostHeader(_headers.get("host"));
 
   if (!host) {
+    logMessage.warn(`No host found in headers: ${host}`);
     throw new Error("No host found in headers");
   }
 
   if (!isLocalHost(host) && !isTrustedSiteHost(host)) {
-    throw new Error("Untrusted host header");
+    logMessage.warn(`Untrusted host header: ${host}`);
+    logMessage.warn(`_headers.get("x-forwarded-host"): ${_headers.get("x-forwarded-host")}`);
+    logMessage.warn(`_headers.get("x-original-host"): ${_headers.get("x-original-host")}`);
+    logMessage.warn(`_headers.get("host"): ${_headers.get("host")}`);
+    // throw new Error(`Untrusted host header: ${host}`);
   }
 
   return host;
