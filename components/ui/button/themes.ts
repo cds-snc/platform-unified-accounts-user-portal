@@ -7,7 +7,7 @@ export const themes = {
     "border-gcds-blue-800 bg-white-default text-gcds-blue-800 visited:text-gcds-blue-800 hover:bg-gcds-blue-100 hover:text-gcds-blue-800 active:border-black",
   destructive:
     "border-gcds-red-700 bg-gcds-red-700 text-white-default hover:border-gcds-red-900 hover:bg-gcds-red-900 active:border-black",
-  link: "!border-none bg-transparent !p-0 text-gcds-blue-800 underline hover:no-underline focus:!text-white-default",
+  link: "!border-none bg-transparent !p-0 text-gcds-blue-muted underline hover:text-gcds-blue-vivid font-normal",
   icon: "ml-1.5 max-h-9 !rounded-full !border-none !p-1.5",
   disabled: "cursor-not-allowed border-none bg-gcds-grayscale-100 text-gcds-grayscale-800",
 } as const;
