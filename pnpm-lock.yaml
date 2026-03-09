@@ -16,8 +16,8 @@ importers:
         specifier: ^2.2.16
         version: 2.2.16
       '@gcforms/core':
-        specifier: file:/tmp/gcforms-core-local.tgz
-        version: file:../../../../tmp/gcforms-core-local.tgz(@gcforms/types@1.0.27)(typescript@5.9.3)
+        specifier: 2.1.0
+        version: 2.1.0(@gcforms/types@1.0.27)(typescript@5.9.3)
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -793,9 +793,8 @@ packages:
   '@gcforms/connectors@2.2.16':
     resolution: {integrity: sha512-tGaMNHl4ZeaNjvOq5PFiZySKWIq7FiwVvGB8clHF5T3eCQoad6S9lar/e72OYH0L2V/i8Yow+OJdNsypX1riGg==}
 
-  '@gcforms/core@file:../../../../tmp/gcforms-core-local.tgz':
-    resolution: {integrity: sha512-vRutVsl/C8nTJVVXnRt8M5PB8/4vVPxZoUV5wZbSH83wxDSHf9xK5c/X06bT1uEJRcfxsf4eM+BfF2Ivw3lYlw==, tarball: file:../../../../tmp/gcforms-core-local.tgz}
-    version: 2.0.3
+  '@gcforms/core@2.1.0':
+    resolution: {integrity: sha512-+BC6ifwmA1cwC/+MUdzNEYvqvJCatXWG+9ztdEprWSiL5XASRFtDjP4xNweA8by6o8rWDLIvky9CCYvEpQSpPg==}
     peerDependencies:
       '@gcforms/types': '*'
 
@@ -5513,7 +5512,7 @@ snapshots:
       - aws-crt
       - debug
 
-  '@gcforms/core@file:../../../../tmp/gcforms-core-local.tgz(@gcforms/types@1.0.27)(typescript@5.9.3)':
+  '@gcforms/core@2.1.0(@gcforms/types@1.0.27)(typescript@5.9.3)':
     dependencies:
       '@gcforms/types': 1.0.27
       file-type: 21.3.0
