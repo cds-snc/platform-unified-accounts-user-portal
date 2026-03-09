@@ -3,6 +3,8 @@
  *--------------------------------------------*/
 import { headers } from "next/headers";
 
+import { logMessage } from "@lib/logger";
+
 import { isTrustedSiteHost } from "../site-config";
 
 type HeaderReader = {
@@ -36,6 +38,7 @@ export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
     parseHostHeader(_headers.get("host"));
 
   if (!host) {
+    logMessage.warn(`No host found in headers: ${host}`);
     throw new Error("No host found in headers");
   }
 
