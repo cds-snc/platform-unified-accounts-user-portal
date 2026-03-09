@@ -102,7 +102,17 @@ export const requestHost = (host: string): SiteId => siteConfig.requestHost(host
 export const resolveSiteConfigByHost = (rawHost: string): SiteConfig => siteConfig.resolve(rawHost);
 
 export const isTrustedSiteHost = (rawHost: string): boolean => {
-  return TRUSTED_SITE_HOSTS.includes(normalizeHost(rawHost));
+  const normalizedHost = normalizeHost(rawHost);
+
+  // Check for exact match
+  if (TRUSTED_SITE_HOSTS.includes(normalizedHost)) {
+    return true;
+  }
+
+  // Check if it's a subdomain of a trusted host
+  return TRUSTED_SITE_HOSTS.some((trustedHost) => {
+    return normalizedHost.endsWith(`.${trustedHost}`);
+  });
 };
 
 export const getSiteLinksByProductId = (productId: ProductId) => {

@@ -40,7 +40,7 @@ export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
   }
 
   if (!isLocalHost(host) && !isTrustedSiteHost(host)) {
-    throw new Error("Untrusted host header");
+    throw new Error(`Untrusted host header: ${host}`);
   }
 
   return host;

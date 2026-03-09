@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 
-import { requestHost, resolveSiteConfigByHost } from "./site-config";
+import { isTrustedSiteHost, requestHost, resolveSiteConfigByHost } from "./site-config";
 
 describe("site-config", () => {
   it("classifies localhost hosts as forms_dev", () => {
@@ -48,6 +48,46 @@ describe("site-config", () => {
       productId: "gcforms",
       baseUrl: "https://forms-formulaires.alpha.canada.ca",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
+    });
+  });
+
+  describe("isTrustedSiteHost", () => {
+    it("trusts exact matches for localhost", () => {
+      expect(isTrustedSiteHost("localhost:3000")).toBe(true);
+      expect(isTrustedSiteHost("http://localhost:3000")).toBe(true);
+    });
+
+    it("trusts exact matches for staging", () => {
+      expect(isTrustedSiteHost("forms-staging.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
+    });
+
+    it("trusts exact matches for production", () => {
+      expect(isTrustedSiteHost("forms-formulaires.alpha.canada.ca")).toBe(true);
+      expect(isTrustedSiteHost("https://forms-formulaires.alpha.canada.ca")).toBe(true);
+    });
+
+    it("trusts subdomains of staging", () => {
+      expect(isTrustedSiteHost("auth.forms-staging.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
+      expect(isTrustedSiteHost("my-custom.forms-staging.cdssandbox.xyz")).toBe(true);
+    });
+
+    it("trusts subdomains of production", () => {
+      expect(isTrustedSiteHost("auth.forms-formulaires.alpha.canada.ca")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.forms-formulaires.alpha.canada.ca")).toBe(true);
+    });
+
+    it("rejects untrusted hosts", () => {
+      expect(isTrustedSiteHost("evil.com")).toBe(false);
+      expect(isTrustedSiteHost("forms-staging.evil.com")).toBe(false);
+      expect(isTrustedSiteHost("https://malicious.xyz")).toBe(false);
+    });
+
+    it("normalizes hosts before checking trust", () => {
+      expect(isTrustedSiteHost("HTTPS://AUTH.FORMS-STAGING.CDSSANDBOX.XYZ")).toBe(true);
+      expect(isTrustedSiteHost("  forms-staging.cdssandbox.xyz  ")).toBe(true);
     });
   });
 });
