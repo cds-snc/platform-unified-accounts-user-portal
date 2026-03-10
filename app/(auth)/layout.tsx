@@ -26,7 +26,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     <div className="flex min-h-full flex-col bg-gray-soft">
       <GcdsHeader language={language}>
         <div className="inline-block">
-          <Logout className="mr-2 text-sm" />
+          <Logout className="mr-2" />
         </div>
       </GcdsHeader>
 
