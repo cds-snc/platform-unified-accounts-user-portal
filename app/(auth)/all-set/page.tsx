@@ -1,90 +1,36 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { headers } from "next/headers";
 import Image from "next/image";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
 import { getSessionCredentials } from "@lib/cookies";
 import { getImageUrl } from "@lib/imageUrl";
-import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { loadSessionById } from "@lib/session";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
-import { getSerializableLoginSettings } from "@lib/zitadel";
 import { I18n } from "@i18n";
 import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { CircleCheckIcon } from "@components/icons/CircleCheckIcon";
 import { LinkButton } from "@components/ui/button/LinkButton";
+
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { requestId, checkAfter, method } = searchParams;
+  const { loginName } = await getSessionCredentials();
 
-  const _headers = await headers();
-  const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  let continueUrl = buildUrlWithRequestId("/account", requestId);
 
-  const { sessionId, loginName, organization } = await getSessionCredentials();
-
-  let redirectUrl: string | undefined;
-
-  // If checkAfter is true, redirect to the appropriate verification page
   if (checkAfter === "true") {
     if (method === "time-based") {
-      redirectUrl = buildUrlWithRequestId(`/otp/time-based`, requestId);
+      continueUrl = buildUrlWithRequestId("/otp/time-based", requestId);
     } else if (method === "u2f") {
-      redirectUrl = buildUrlWithRequestId(`/u2f`, requestId);
+      continueUrl = buildUrlWithRequestId("/u2f", requestId);
     }
-  }
-
-  // If no checkAfter redirect, try to get the normal flow redirect URL
-  if (!redirectUrl) {
-    // Try to get the redirect URL
-    if (sessionId && requestId) {
-      const sessionFactors = await loadSessionById(serviceUrl, sessionId, organization);
-      const loginSettings = await getSerializableLoginSettings({
-        serviceUrl,
-        organizationId: sessionFactors.factors?.user?.organizationId,
-      });
-
-      const callbackResponse = await completeFlowOrGetUrl(
-        {
-          sessionId,
-          requestId,
-          organization,
-        },
-        loginSettings?.defaultRedirectUri
-      );
-
-      if ("redirect" in callbackResponse) {
-        redirectUrl = callbackResponse.redirect;
-      }
-    } else if (loginName) {
-      const sessionFactors = await loadSessionById(serviceUrl, sessionId, organization);
-      const loginSettings = await getSerializableLoginSettings({
-        serviceUrl,
-        organizationId: sessionFactors.factors?.user?.organizationId,
-      });
-
-      const callbackResponse = await completeFlowOrGetUrl(
-        {
-          loginName,
-          organization,
-        },
-        loginSettings?.defaultRedirectUri
-      );
-
-      if ("redirect" in callbackResponse) {
-        redirectUrl = callbackResponse.redirect;
-      }
-    }
-
-    // If we still don't have a redirect URL, use the default
-    if (!redirectUrl) {
-      redirectUrl = buildUrlWithRequestId("/account", requestId);
-    }
+  } else if (requestId && (requestId.startsWith("oidc_") || requestId.startsWith("saml_"))) {
+    // Defer callback completion to click-time to avoid consuming one-time state during SSR.
+    continueUrl = buildUrlWithRequestId("/login", requestId);
   }
 
   return (
@@ -126,7 +72,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
             {/* Continue button */}
             <div>
-              <LinkButton.Primary href={redirectUrl}>
+              <LinkButton.Primary href={continueUrl}>
                 <I18n i18nKey="continueButton" namespace="allSet" />
               </LinkButton.Primary>
             </div>
