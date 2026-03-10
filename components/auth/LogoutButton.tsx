@@ -46,7 +46,7 @@ export function LogoutButton({ className, label, postLogoutRedirectUri }: Logout
   return (
     <button
       onClick={handleLogout}
-      className={`cursor-pointer border-none bg-transparent p-0 text-inherit underline hover:no-underline ${className ?? ""}`}
+      className={`cursor-pointer border-none bg-transparent p-0 !text-lg text-inherit underline hover:no-underline ${className ?? ""}`}
       aria-label={label}
       disabled={isLoggingOut}
     >
