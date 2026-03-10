@@ -10,7 +10,9 @@
     "errorSummary": {
       "title": "Please correct the errors on the page.",
       "itemFallback": "Please check this field."
-    }
+    },
+    "gcForms": "GC Forms",
+    "externalLinkIconLabel": " (Opens destination in a new tab.)"
   },
   "error": {
     "title": "Something went wrong"
@@ -51,8 +53,7 @@
     "navigation": {
       "title": "Account settings",
       "ariaLabel": "Account navigation",
-      "account": "Account",
-      "profile": "Profile"
+      "account": "Account"
     },
     "errors": {
       "noSession": "Your account information could not be retrieved from the session."

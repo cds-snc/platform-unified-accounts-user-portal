@@ -10,7 +10,9 @@
     "errorSummary": {
       "title": "Veuillez corriger les erreurs sur la page.",
       "itemFallback": "Veuillez vérifier ce champ."
-    }
+    },
+    "gcForms": "Formulaires GC",
+    "externalLinkIconLabel": "  (Ouvre l'emplacement dans un nouvel onglet.)"
   },
   "error": {
     "title": "Quelque chose a mal tourné"
@@ -56,8 +58,7 @@
     "navigation": {
       "title": "Paramètres du compte",
       "ariaLabel": "Navigation du compte",
-      "account": "Compte",
-      "profile": "Profil"
+      "account": "Compte"
     },
     "errors": {
       "noSession": "Vos renseignements de compte n'ont pas pu être récupérés à partir de la session."

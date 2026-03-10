@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
  *--------------------------------------------*/
 import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { useTranslation } from "@i18n";
+import { ExternalLink } from "@components/ui/external-link/ExternalLink";
 
 export function AccountNavigation({ siteConfig }: { siteConfig: SiteConfig }) {
   const pathname = usePathname();
@@ -46,11 +47,7 @@ export function AccountNavigation({ siteConfig }: { siteConfig: SiteConfig }) {
           </h2>
         </li>
         <li>
-          <h2 className="text-base">
-            <a href={profileUrl} className="text-gcds-grayscale-800 underline hover:no-underline">
-              {t("navigation.profile")}
-            </a>
-          </h2>
+          <ExternalLink href={profileUrl} i18nKey="gcForms" namespace="common" />
         </li>
       </ul>
     </nav>
