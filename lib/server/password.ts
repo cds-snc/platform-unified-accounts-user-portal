@@ -224,15 +224,17 @@ export async function sendPassword(
   }
 
   if (!sessionCookie) {
+    const effectiveOrganization = cookieOrganization ?? command.organization;
+
     loginSettings = await getLoginSettings({
       serviceUrl,
-      organization: cookieOrganization ?? command.organization,
+      organization: effectiveOrganization,
     });
 
     const users = await listUsers({
       serviceUrl,
       loginName: command.loginName,
-      organizationId: cookieOrganization ?? command.organization,
+      organizationId: effectiveOrganization,
     });
 
     if (users.details?.totalResult == BigInt(1) && users.result[0].userId) {
@@ -253,7 +255,7 @@ export async function sendPassword(
         const authFailure = await handleAuthenticationFailure(
           error,
           serviceUrl,
-          command.organization,
+          effectiveOrganization,
           t
         );
         if (authFailure) {
