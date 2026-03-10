@@ -17,7 +17,9 @@ export const ExternalLink = ({
   } = useTranslation("header");
   return (
     <div>
-      <a href={href}>{t(i18nKey, { ns: namespace, lng: currentLang })} </a>
+      <a target="_blank" rel="noopener noreferrer" href={href}>
+        {t(i18nKey, { ns: namespace, lng: currentLang })}{" "}
+      </a>
       <span
         className="gcds-icon gcds-icon-external ml-75"
         role="img"
