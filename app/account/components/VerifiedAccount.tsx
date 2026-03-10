@@ -57,7 +57,7 @@ export const VerifiedAccount = ({
               <em>{email}</em>
             </div>
           </div>
-          <p className="max-w-48 self-start text-right">
+          <p className="max-w-48 self-start text-left">
             <Trans
               i18nKey="verifiedAccount.changeMessage"
               ns="account"
