@@ -253,6 +253,7 @@
       "userInitialStateNotSupported": "L'état initial de l'utilisateur n'est pas pris en charge",
       "codeOrVerificationRequired": "Vous devez fournir un code ou avoir une vérification d'utilisateur valide",
       "verificationRequired": "La vérification de l'utilisateur doit être effectuée",
+      "strongMfaRequiredForReset": "Vérifiez votre identité avec votre application d'authentification ou votre clé de sécurité avant de réinitialiser votre mot de passe.",
       "couldNotLoadSession": "Problème de chargement de la session",
       "couldNotLoadAuthMethods": "Problème de chargement des méthodes d'authentification",
       "failedPrecondition": "Échec de la précondition",

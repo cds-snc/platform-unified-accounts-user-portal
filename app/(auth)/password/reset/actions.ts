@@ -5,14 +5,19 @@
  *--------------------------------------------*/
 import { headers } from "next/headers";
 import { GCNotifyConnector } from "@gcforms/connectors";
+import { create } from "@zitadel/client";
+import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getPasswordResetTemplate } from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
+import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
+import { buildUrlWithRequestId } from "@lib/utils";
 import { listUsers, passwordResetWithReturn } from "@lib/zitadel";
+import { serverTranslation } from "@i18n/server";
 type SendResetCodeCommand = {
   loginName: string;
   organization?: string;
@@ -21,9 +26,10 @@ type SendResetCodeCommand = {
 
 export const submitUserNameForm = async (
   command: SendResetCodeCommand
-): Promise<{ error: string } | { userId: string; loginName: string }> => {
+): Promise<{ error: string } | { redirect: string }> => {
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  const { t } = await serverTranslation("password");
 
   const users = await listUsers({
     serviceUrl,
@@ -31,13 +37,12 @@ export const submitUserNameForm = async (
     organizationId: command.organization,
   });
 
-  const nonEnumeratingResponse = {
-    userId: "",
-    loginName: command.loginName,
+  const genericErrorResponse = {
+    error: t("errors.couldNotSendResetLink"),
   };
 
   if (!users.details || users.details.totalResult !== BigInt(1) || !users.result[0].userId) {
-    return nonEnumeratingResponse;
+    return genericErrorResponse;
   }
 
   const user = users.result[0];
@@ -50,7 +55,7 @@ export const submitUserNameForm = async (
 
   if (!email) {
     logMessage.info("Password reset requested for user without email address");
-    return nonEnumeratingResponse;
+    return genericErrorResponse;
   }
 
   const codeResponse = await passwordResetWithReturn({
@@ -63,7 +68,7 @@ export const submitUserNameForm = async (
 
   if (!codeResponse || !("verificationCode" in codeResponse) || !codeResponse.verificationCode) {
     logMessage.error("Password reset code missing from response");
-    return nonEnumeratingResponse;
+    return genericErrorResponse;
   }
 
   const apiKey = process.env.NOTIFY_API_KEY;
@@ -72,7 +77,7 @@ export const submitUserNameForm = async (
 
   if (!apiKey || !templateId) {
     logMessage.error("Missing NOTIFY_API_KEY or TEMPLATE_ID environment variables");
-    return nonEnumeratingResponse;
+    return genericErrorResponse;
   }
 
   try {
@@ -80,8 +85,29 @@ export const submitUserNameForm = async (
     await gcNotify.sendEmail(email, templateId, getPasswordResetTemplate(resetCode));
   } catch (_error) {
     logMessage.error("Failed to send password reset email via GC Notify");
-    return nonEnumeratingResponse;
+    return genericErrorResponse;
   }
 
-  return { userId, loginName: command.loginName };
+  // Establish a recovery session tied to the identified user so a strong factor
+  // can be challenged before the reset form is shown.
+  const session = await createSessionAndUpdateCookie({
+    checks: create(ChecksSchema, {
+      user: {
+        search: {
+          case: "userId",
+          value: userId,
+        },
+      },
+    }),
+    requestId: command.requestId,
+  }).catch((_error) => undefined);
+
+  if (!session?.factors?.user?.id) {
+    logMessage.error("Failed to create password reset recovery session");
+    return genericErrorResponse;
+  }
+
+  return {
+    redirect: buildUrlWithRequestId("/password/reset/verify", command.requestId),
+  };
 };
