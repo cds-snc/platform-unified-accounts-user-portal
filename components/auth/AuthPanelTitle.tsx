@@ -14,7 +14,7 @@ export const AuthPanelTitle = ({
   className?: string;
 }) => {
   return (
-    <div className={`mb-6 mt-4 ${className || ""}`}>
+    <div className={`mt-4 mb-6 ${className || ""}`}>
       <h1 className="!mb-0">
         <I18n i18nKey={i18nKey} namespace={namespace} data={data} />
       </h1>

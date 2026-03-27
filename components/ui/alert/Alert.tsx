@@ -45,7 +45,7 @@ export const Title = ({
   return (
     <HeadingTag
       data-testid="alert-heading"
-      className={cn("!mb-0 pb-0 !mt-0", headingClasses[HeadingTag], statusClass, className)}
+      className={cn("!mt-0 !mb-0 pb-0", headingClasses[HeadingTag], statusClass, className)}
     >
       {children}
     </HeadingTag>
@@ -207,7 +207,7 @@ const AlertContainer = ({
     <div
       ref={refFocus}
       {...(focussable && { tabIndex: -1 })}
-      className={cn("relative flex rounded-sm laptop:rounded-md p-4", className)}
+      className={cn("relative flex rounded-sm p-4 laptop:rounded-md", className)}
       data-testid="alert"
       role={role}
       {...props}

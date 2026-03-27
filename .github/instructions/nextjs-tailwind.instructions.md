@@ -5,22 +5,24 @@ applyTo: '**/*.tsx, **/*.css, **/*.scss'
 
 ## Tailwind CSS Class Ordering
 
-This project enforces Tailwind CSS class ordering via `eslint-plugin-tailwindcss` with recommended rules enabled (see eslint.config.mjs).
+This project uses `prettier-plugin-tailwindcss` for Tailwind class ordering. Prettier, not ESLint, is the source of truth for class sorting.
 
-### ESLint Rules Enforced
-The `tailwind/classnames-order` rule automatically orders your Tailwind classes according to the official recommended order. ESLint will flag incorrect ordering and can auto-fix it.
+## Tailwind CSS Configuration
+
+This project uses Tailwind CSS v4 in CSS-first mode. Theme customization and source registration live in `styles/app.css` using `@theme`, `@custom-variant`, and `@source` directives.
 
 ### Recommended Workflow
 1. **Auto-fix on save**: Configure your editor to run ESLint fix on save
 2. **Pre-commit checks**: Run `pnpm lint` before committing
-3. **Let ESLint handle ordering**: Don't manually sort - let the plugin do it
+3. **Class sorting**: Run Prettier or format-on-save to normalize Tailwind class order
+4. **Theme changes**: Add or update Tailwind theme tokens in `styles/app.css`, not a JS Tailwind config file
 
 ### Example
 ```tsx
-// ❌ WRONG ORDER (ESLint will flag this)
+// Prettier will reorder Tailwind classes automatically
 <div className="text-white p-4 bg-blue-500 hover:bg-blue-600 rounded-lg">
 
-// ✅ CORRECT ORDER (ESLint auto-fixes to this)
+// After formatting
 <div className="rounded-lg bg-blue-500 p-4 text-white hover:bg-blue-600">
 ```
 
@@ -33,12 +35,13 @@ This project uses custom `gc-*` class prefixes for GC Design System components. 
 
 ## GC Design System (GCDS) Tokens
 
-This project uses design tokens from [@gcds-core/tokens](https://github.com/cds-snc/gcds-tokens) integrated into the Tailwind configuration. These tokens ensure consistency with the Government of Canada Design System.
+This project uses design tokens from [@gcds-core/tokens](https://github.com/cds-snc/gcds-tokens) integrated into the Tailwind theme defined in [styles/app.css](styles/app.css). These tokens ensure consistency with the Government of Canada Design System.
 
-GCDS tokens are imported and configured in [tailwind.config.ts](tailwind.config.ts):
-```typescript
-import tokens from "@gcds-core/tokens/build/figma/figma.tokens.json";
-``
+GCDS tokens are imported in [styles/app.css](styles/app.css):
+```css
+@import "@gcds-core/tokens/build/web/css/tokens.css";
+@import "@gcds-core/tokens/build/web/css/global.css";
+```
 
 ### Available Token Namespaces
 

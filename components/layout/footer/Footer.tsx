@@ -8,12 +8,12 @@ export const Footer = async ({ children }: { children?: React.ReactNode }) => {
   return (
     <footer
       className={cn(
-        "mt-16 flex-none border-0 bg-gray-100 px-[1rem] tablet:px-[4rem] py-0 lg:mt-10 laptop:px-32"
+        "mt-16 flex-none border-0 bg-gray-100 px-[1rem] py-0 tablet:px-[4rem] laptop:px-32 lg:mt-10"
       )}
       data-server="true"
       data-testid="footer"
     >
-      <div className="flex flex-row items-center justify-between pb-5 pt-10 lg:flex-col lg:items-start lg:gap-4">
+      <div className="flex flex-row items-center justify-between pt-10 pb-5 lg:flex-col lg:items-start lg:gap-4">
         <div>
           <>
             <nav className="inline-block">{children}</nav>

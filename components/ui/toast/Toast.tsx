@@ -21,7 +21,7 @@ import { WarningIcon } from "@components/icons/WarningIcon";
 const contextClass = {
   success: {
     classes: "bg-green-50 text-green-800 [&_svg]:fill-green-800",
-    icon: <CircleCheckIcon className="my-2 mr-2 size-6 fill-green-800" />,
+    icon: <CircleCheckIcon className="fill-green-800 my-2 mr-2 size-6" />,
   },
   error: {
     classes: "bg-red-100 text-red-800 [&_svg]:fill-red-800",

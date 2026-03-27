@@ -83,7 +83,7 @@ export const Secondary = ({
       scroll={scroll}
       href={href}
       className={cn(
-        "text-black-default visited:text-black-default active:text-black-default no-underline",
+        "text-black-default no-underline visited:text-black-default active:text-black-default",
         themes.secondary,
         themes.base,
         className

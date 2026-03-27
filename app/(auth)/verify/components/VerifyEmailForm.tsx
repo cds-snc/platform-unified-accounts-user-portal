@@ -195,7 +195,7 @@ export function VerifyEmailForm({
         <form action={formAction} noValidate>
           <CodeEntry state={state} code={code ?? ""} className="mt-10" />
 
-          <div className="mb-6 mt-8 flex items-center gap-4">
+          <div className="mt-8 mb-6 flex items-center gap-4">
             <Button
               theme="link"
               type="button"

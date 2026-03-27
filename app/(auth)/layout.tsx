@@ -36,7 +36,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
             className={`rounded-2xl border-1 border-[#D1D5DB] bg-white p-10 tablet:w-[658px] has-[#auth-panel-wide]:tablet:w-[950px] laptop:w-[850px] has-[#auth-panel-wide]:laptop:w-[1200px]`}
           >
             <main id="content">
-              <div className="mb-6 mr-10 inline-flex">
+              <div className="mr-10 mb-6 inline-flex">
                 <SiteLink href={getSiteLink(siteConfig, "home", language)} />
               </div>
               <Tooltip.Provider>{children}</Tooltip.Provider>
