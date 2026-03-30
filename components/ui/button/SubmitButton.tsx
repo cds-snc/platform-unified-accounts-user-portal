@@ -106,7 +106,7 @@ export const SubmitButton = ({
       aria-disabled={loading}
       {...rest}
     >
-      {icon && <div className={cn(theme !== "icon" && "-ml-2 mr-2 w-8")}>{icon}</div>}
+      {icon && <div className={cn(theme !== "icon" && "mr-2 -ml-2 w-8")}>{icon}</div>}
       {children}
       {loading && <SpinnerIcon className="ml-2 size-7 animate-spin fill-highlight text-white" />}
       <div aria-live="polite" className="sr-only">

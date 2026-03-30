@@ -13,7 +13,7 @@ import { serverTranslation } from "@i18n/server";
 /*--------------------------------------------*
  * Styles
  *--------------------------------------------*/
-import "@root/styles/app.scss";
+import "@root/styles/app.css";
 export const dynamic = "force-dynamic";
 
 const notoSans = Noto_Sans({

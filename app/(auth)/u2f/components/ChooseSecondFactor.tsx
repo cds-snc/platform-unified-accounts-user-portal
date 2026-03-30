@@ -62,7 +62,7 @@ export function ChooseSecondFactor({ userMethods, requestId }: Props) {
 
   return (
     <>
-      <div className={cn("grid w-full grid-cols-1  pt-4", authMehods.length >= 2 && "gap-5")}>
+      <div className={cn("grid w-full grid-cols-1 pt-4", authMehods.length >= 2 && "gap-5")}>
         {authMehods.map((method, i) => {
           return (
             <div key={"method-" + i}>

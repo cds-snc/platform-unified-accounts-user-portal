@@ -70,7 +70,7 @@ export const Button = ({
       data-testid={dataTestId}
       {...rest}
     >
-      {icon && <div className={cn(theme !== "icon" && "-ml-2 mr-2 w-8")}>{icon}</div>}
+      {icon && <div className={cn(theme !== "icon" && "mr-2 -ml-2 w-8")}>{icon}</div>}
       {children}
 
       {loading && (

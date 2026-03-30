@@ -23,7 +23,7 @@ function CheckIcon() {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="mr-2 size-6 flex-none text-lg text-green-500 dark:text-green-500"
+      className="text-green-500 dark:text-green-500 mr-2 size-6 flex-none text-lg"
       // Update announced to SR in validation instead
       aria-hidden="true"
     >
