@@ -2,7 +2,9 @@ import { GCNotifyConnector } from "@gcforms/connectors";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getPasswordResetTemplate } from "@lib/emailTemplates";
+import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { listUsers, passwordResetWithReturn } from "@lib/zitadel";
+import { serverTranslation } from "@i18n/server";
 
 import { setupServerActionContext } from "../../../../test/helpers/serverAction";
 
@@ -24,6 +26,10 @@ vi.mock("@lib/emailTemplates", () => ({
 
 vi.mock("@lib/service-url", () => ({
   getServiceUrlFromHeaders: vi.fn(),
+}));
+
+vi.mock("@lib/server/cookie", () => ({
+  createSessionAndUpdateCookie: vi.fn(),
 }));
 
 vi.mock("@lib/zitadel", () => ({
@@ -73,6 +79,17 @@ describe("submitUserNameForm", () => {
       verificationCode: "reset-456",
     } as never);
     vi.mocked(getPasswordResetTemplate).mockReturnValue({ code: "reset-456" } as never);
+    vi.mocked(serverTranslation).mockResolvedValue({
+      t: (key: string) => `translated:${key}`,
+    } as never);
+    vi.mocked(createSessionAndUpdateCookie).mockResolvedValue({
+      factors: {
+        user: {
+          id: "user-123",
+          loginName: "person@canada.ca",
+        },
+      },
+    } as never);
 
     sendEmail.mockResolvedValue(undefined);
     vi.mocked(GCNotifyConnector.default).mockReturnValue({ sendEmail } as never);
@@ -81,7 +98,7 @@ describe("submitUserNameForm", () => {
     process.env.TEMPLATE_ID = "template-123";
   });
 
-  it("returns non-enumerating response when no matching user exists", async () => {
+  it("returns a generic error when no matching user exists", async () => {
     vi.mocked(listUsers).mockResolvedValue({
       details: { totalResult: BigInt(0) },
       result: [],
@@ -93,11 +110,11 @@ describe("submitUserNameForm", () => {
       requestId: "req-123",
     });
 
-    expect(response).toEqual({ userId: "", loginName: "person@canada.ca" });
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
     expect(passwordResetWithReturn).not.toHaveBeenCalled();
   });
 
-  it("returns non-enumerating response when user has no email", async () => {
+  it("returns a generic error when user has no email", async () => {
     vi.mocked(listUsers).mockResolvedValue({
       details: { totalResult: BigInt(1) },
       result: [
@@ -113,44 +130,44 @@ describe("submitUserNameForm", () => {
 
     const response = await submitUserNameForm({ loginName: "person@canada.ca" });
 
-    expect(response).toEqual({ userId: "", loginName: "person@canada.ca" });
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
     expect(passwordResetWithReturn).not.toHaveBeenCalled();
   });
 
-  it("returns non-enumerating response when reset code is missing", async () => {
+  it("returns a generic error when reset code is missing", async () => {
     vi.mocked(passwordResetWithReturn).mockResolvedValue({} as never);
 
     const response = await submitUserNameForm({ loginName: "person@canada.ca" });
 
-    expect(response).toEqual({ userId: "", loginName: "person@canada.ca" });
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
   });
 
-  it("returns non-enumerating response when notify configuration is missing", async () => {
+  it("returns a generic error when notify configuration is missing", async () => {
     delete process.env.NOTIFY_API_KEY;
     delete process.env.TEMPLATE_ID;
 
     const response = await submitUserNameForm({ loginName: "person@canada.ca" });
 
-    expect(response).toEqual({ userId: "", loginName: "person@canada.ca" });
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
-  it("returns non-enumerating response when email send fails", async () => {
+  it("returns a generic error when email send fails", async () => {
     sendEmail.mockRejectedValue(new Error("notify unavailable"));
 
     const response = await submitUserNameForm({ loginName: "person@canada.ca" });
 
-    expect(response).toEqual({ userId: "", loginName: "person@canada.ca" });
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
   });
 
-  it("returns user information on successful reset code email", async () => {
+  it("creates a recovery session and redirects on successful reset code email", async () => {
     const response = await submitUserNameForm({
       loginName: "person@canada.ca",
       organization: "org-1",
       requestId: "req-123",
     });
 
-    expect(response).toEqual({ userId: "user-123", loginName: "person@canada.ca" });
+    expect(response).toEqual({ redirect: "/password/reset/verify?requestId=req-123" });
     expect(listUsers).toHaveBeenCalledWith({
       serviceUrl: "https://idp.example",
       loginName: "person@canada.ca",
@@ -160,6 +177,27 @@ describe("submitUserNameForm", () => {
     expect(sendEmail).toHaveBeenCalledWith("person@canada.ca", "template-123", {
       code: "reset-456",
     });
+    expect(createSessionAndUpdateCookie).toHaveBeenCalledWith(
+      expect.objectContaining({
+        checks: expect.objectContaining({
+          user: expect.objectContaining({
+            search: expect.objectContaining({
+              case: "userId",
+              value: "user-123",
+            }),
+          }),
+        }),
+        requestId: "req-123",
+      })
+    );
+  });
+
+  it("returns a generic error when the recovery session cannot be created", async () => {
+    vi.mocked(createSessionAndUpdateCookie).mockResolvedValue(undefined as never);
+
+    const response = await submitUserNameForm({ loginName: "person@canada.ca" });
+
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
   });
 
   afterEach(() => {

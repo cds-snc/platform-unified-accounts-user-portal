@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { useRouter } from "next/navigation";
+import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -8,6 +9,10 @@ import { useTranslation } from "@i18n/client";
 import { submitUserNameForm } from "../actions";
 
 import { UserNameForm } from "./UserNameForm";
+
+vi.mock("next/navigation", () => ({
+  useRouter: vi.fn(),
+}));
 
 vi.mock("@i18n", () => ({
   useTranslation: vi.fn(() => ({
@@ -30,10 +35,13 @@ vi.mock("../actions", () => ({
 }));
 
 describe("UserNameForm", () => {
-  const onSuccess = vi.fn();
+  const router = {
+    push: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useRouter).mockReturnValue(router as never);
 
     vi.mocked(useTranslation).mockReturnValue({
       t: (key: string) => key,
@@ -41,17 +49,18 @@ describe("UserNameForm", () => {
 
     vi.mocked(validateUsername).mockResolvedValue({ success: true } as never);
     vi.mocked(submitUserNameForm).mockResolvedValue({
-      userId: "user-123",
-      loginName: "person@canada.ca",
+      redirect: "/password/reset/verify",
     });
   });
 
   it("renders username field and continue button", () => {
-    render(<UserNameForm organization="org-1" requestId="req-123" onSuccess={onSuccess} />);
+    const { getByLabelText, getByText, getByRole } = render(
+      <UserNameForm organization="org-1" requestId="req-123" />
+    );
 
-    expect(screen.getByLabelText(/form\.label/i)).toBeInTheDocument();
-    expect(screen.getByText("form.description")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "button.continue" })).toBeInTheDocument();
+    expect(getByLabelText(/form\.label/i)).toBeInTheDocument();
+    expect(getByText("form.description")).toBeInTheDocument();
+    expect(getByRole("button", { name: "button.continue" })).toBeInTheDocument();
   });
 
   it("shows validation error and does not submit when username is invalid", async () => {
@@ -60,50 +69,53 @@ describe("UserNameForm", () => {
       issues: [{ path: [{ key: "username" }], message: "requiredUsername" }],
     } as never);
 
-    render(<UserNameForm organization="org-1" requestId="req-123" onSuccess={onSuccess} />);
+    const { getByRole, getByText } = render(
+      <UserNameForm organization="org-1" requestId="req-123" />
+    );
 
-    await userEvent.click(screen.getByRole("button", { name: "button.continue" }));
+    await userEvent.click(getByRole("button", { name: "button.continue" }));
 
-    await waitFor(() => {
-      expect(screen.getByText("validation.requiredUsername")).toBeInTheDocument();
+    await vi.waitFor(() => {
+      expect(getByText("validation.requiredUsername")).toBeInTheDocument();
     });
 
     expect(submitUserNameForm).not.toHaveBeenCalled();
-    expect(onSuccess).not.toHaveBeenCalled();
+    expect(router.push).not.toHaveBeenCalled();
   });
 
-  it("submits username and calls onSuccess when action succeeds", async () => {
-    render(<UserNameForm organization="org-1" requestId="req-123" onSuccess={onSuccess} />);
+  it("submits username and redirects when action succeeds", async () => {
+    const { getByLabelText, getByRole } = render(
+      <UserNameForm organization="org-1" requestId="req-123" />
+    );
 
-    await userEvent.type(screen.getByLabelText(/form\.label/i), "person@canada.ca");
-    await userEvent.click(screen.getByRole("button", { name: "button.continue" }));
+    await userEvent.type(getByLabelText(/form\.label/i), "person@canada.ca");
+    await userEvent.click(getByRole("button", { name: "button.continue" }));
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(submitUserNameForm).toHaveBeenCalledWith({
         loginName: "person@canada.ca",
         organization: "org-1",
         requestId: "req-123",
       });
-      expect(onSuccess).toHaveBeenCalledWith({
-        userId: "user-123",
-        loginName: "person@canada.ca",
-      });
+      expect(router.push).toHaveBeenCalledWith("/password/reset/verify");
     });
   });
 
   it("shows generic error when action returns disallowed error text", async () => {
     vi.mocked(submitUserNameForm).mockResolvedValue({ error: "raw backend message" } as never);
 
-    render(<UserNameForm organization="org-1" requestId="req-123" onSuccess={onSuccess} />);
+    const { getByLabelText, getByRole, getAllByText, queryByText } = render(
+      <UserNameForm organization="org-1" requestId="req-123" />
+    );
 
-    await userEvent.type(screen.getByLabelText(/form\.label/i), "person@canada.ca");
-    await userEvent.click(screen.getByRole("button", { name: "button.continue" }));
+    await userEvent.type(getByLabelText(/form\.label/i), "person@canada.ca");
+    await userEvent.click(getByRole("button", { name: "button.continue" }));
 
-    await waitFor(() => {
-      expect(screen.getAllByText("title").length).toBeGreaterThan(0);
+    await vi.waitFor(() => {
+      expect(getAllByText("title").length).toBeGreaterThan(0);
     });
 
-    expect(screen.queryByText("raw backend message")).not.toBeInTheDocument();
-    expect(onSuccess).not.toHaveBeenCalled();
+    expect(queryByText("raw backend message")).not.toBeInTheDocument();
+    expect(router.push).not.toHaveBeenCalled();
   });
 });

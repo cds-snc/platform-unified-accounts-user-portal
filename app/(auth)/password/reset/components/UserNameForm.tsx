@@ -4,6 +4,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useActionState } from "react";
+import { useRouter } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -23,7 +24,6 @@ import { submitUserNameForm } from "../actions";
 type Props = {
   organization?: string;
   requestId?: string;
-  onSuccess: (data: { userId: string; loginName: string }) => void;
 };
 
 type FormState = {
@@ -34,9 +34,10 @@ type FormState = {
   validationErrors?: { fieldKey: string; fieldValue: string }[];
 };
 
-export const UserNameForm = ({ organization, requestId, onSuccess }: Props) => {
+export const UserNameForm = ({ organization, requestId }: Props) => {
   const { t } = useTranslation(["start", "common", "error"]);
   const genericErrorMessage = t("title", { ns: "error" });
+  const router = useRouter();
 
   const localFormAction = async (previousState: FormState, formData?: FormData) => {
     const username = (formData?.get("username") as string) || "";
@@ -61,8 +62,7 @@ export const UserNameForm = ({ organization, requestId, onSuccess }: Props) => {
       loginName: username,
       organization,
       requestId,
-    }).catch((error) => {
-      console.error(error);
+    }).catch(() => {
       return {
         error: "Internal Error",
       };
@@ -78,8 +78,8 @@ export const UserNameForm = ({ organization, requestId, onSuccess }: Props) => {
       };
     }
 
-    if (result && "userId" in result) {
-      onSuccess(result);
+    if (result && "redirect" in result && result.redirect) {
+      router.push(result.redirect);
     }
 
     return previousState;
