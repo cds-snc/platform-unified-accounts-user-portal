@@ -248,6 +248,7 @@
       "userInitialStateNotSupported": "User initial state is not supported",
       "codeOrVerificationRequired": "You have to provide a code or have a valid user verification check",
       "verificationRequired": "User verification check required",
+      "strongMfaRequiredForReset": "Verify with your authenticator app or security key before resetting your password.",
       "couldNotLoadSession": "Could not load session",
       "couldNotLoadAuthMethods": "Could not load authentication methods",
       "failedPrecondition": "Failed precondition",

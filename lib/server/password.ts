@@ -16,6 +16,7 @@ import { SetPasswordRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_se
  * Internal Aliases
  *--------------------------------------------*/
 import { createSessionAndUpdateCookie, setSessionAndUpdateCookie } from "@lib/server/cookie";
+import { hasStrongMFA } from "@lib/server/route-protection";
 import {
   getLockoutSettings,
   getLoginSettings,
@@ -35,6 +36,7 @@ import { getServiceUrlFromHeaders } from "../../lib/service-url";
 import { createServerTransport } from "../../lib/zitadel";
 import { completeFlowOrGetUrl } from "../client";
 import { getSessionCookieById, getSessionCookieByLoginName } from "../cookies";
+import { loadMostRecentSession } from "../session";
 import {
   checkEmailVerification,
   checkMFAFactors,
@@ -348,6 +350,50 @@ export async function sendPassword(
     return { error: t("errors.couldNotVerifyPassword") };
   }
 
+  // Recovery MFA may already be satisfied on the current session, so avoid
+  // forcing the user back through a second MFA prompt after they set a new password.
+  if (hasStrongMFA(session)) {
+    if (command.requestId && session.id) {
+      const result = await completeFlowOrGetUrl(
+        {
+          sessionId: session.id,
+          requestId: command.requestId,
+          organization: command.organization ?? session.factors?.user?.organizationId,
+        },
+        loginSettings?.defaultRedirectUri
+      );
+
+      if (
+        !result ||
+        typeof result !== "object" ||
+        (!("redirect" in result) && !("error" in result))
+      ) {
+        return { error: "Authentication completed but navigation failed" };
+      }
+
+      return result;
+    }
+
+    const result = await completeFlowOrGetUrl(
+      {
+        sessionId: session.id,
+        loginName: session.factors.user.loginName,
+        organization: session.factors?.user?.organizationId,
+      },
+      loginSettings?.defaultRedirectUri
+    );
+
+    if (
+      !result ||
+      typeof result !== "object" ||
+      (!("redirect" in result) && !("error" in result))
+    ) {
+      return { error: "Authentication completed but navigation failed" };
+    }
+
+    return result;
+  }
+
   const mfaFactorCheck = await checkMFAFactors(
     serviceUrl,
     session,
@@ -458,6 +504,26 @@ export async function changePassword(command: { code?: string; userId: string; p
 
     if (!hasValidUserVerificationCheck) {
       return { error: t("errors.verificationRequired") };
+    }
+  }
+
+  // A reset code is only accepted when it is paired with the same browser session
+  // that just completed a strong recovery factor for this user.
+  if (normalizedCode) {
+    const session = await loadMostRecentSession({
+      serviceUrl,
+      sessionParams: {
+        loginName: user.preferredLoginName,
+        organization: user.details?.resourceOwner,
+      },
+    }).catch(() => undefined);
+
+    if (
+      !session?.factors?.user?.id ||
+      session.factors.user.id !== userId ||
+      !hasStrongMFA(session)
+    ) {
+      return { error: t("errors.strongMfaRequiredForReset") };
     }
   }
 
