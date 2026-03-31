@@ -1,0 +1,25 @@
+{
+	"name": "platform-unified-accounts-user-portal",
+	"image": "mcr.microsoft.com/devcontainers/base:bullseye@sha256:fb17cc95abb5489d81d129c8e5f58c7c1985d009397f2718a7d1d4c26f94b302",
+	"containerEnv": {
+		"SHELL": "/bin/zsh"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "24.14.1",
+			"pnpmVersion": "10.33.0"
+		}
+	},
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"github.copilot",
+				"github.vscode-github-actions"
+			]
+		}
+	},
+
+	"remoteUser": "vscode",
+	"postCreateCommand": "pnpm install"
+}
