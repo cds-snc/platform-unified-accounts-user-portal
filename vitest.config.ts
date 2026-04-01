@@ -7,9 +7,6 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./test/setup.ts"],
-    env: {
-      ZITADEL_ORGANIZATION: "357256007820312901",
-    },
     include: ["**/*.{test,spec}.{ts,tsx}"],
     coverage: {
       provider: "v8",
