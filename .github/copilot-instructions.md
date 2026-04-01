@@ -3,14 +3,6 @@
 ## Overview
 This is a **Next.js 16 App Router** identity portal for GC Forms, integrating with **Zitadel** for authentication. It handles login, registration, password management, and MFA (TOTP, U2F, Email OTP). Supports both OIDC and SAML authentication flows.
 
-## MCP Tools
-- `ask_question`: Use for clarifications or when uncertain about user intent.
-- `get_user_approval`: Must be used to obtain user acceptance before finalizing any work or returning control to the user. Provide context and testing steps if applicable. Iterate until approval is obtained.
-
-After a prompt to continue working ensure you still ask for user approval before finalizing any work.
-
-
-
 ## Key Architecture
 
 ### Component Organization
