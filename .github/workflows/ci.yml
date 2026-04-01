@@ -54,5 +54,5 @@ jobs:
         run: |
           docker build \
             --platform linux/arm64 \
-            --tag idp-login \
+            --tag idp-login:latest \
             .

@@ -31,7 +31,7 @@ jobs:
       run: |
         docker build \
           --platform linux/arm64 \
-          --tag platform-unified-accounts-user-portal:latest \
+          --tag idp-login:latest \
           .
 
     - name: Docker generate SBOM
@@ -39,7 +39,7 @@ jobs:
       env:
         TRIVY_DB_REPOSITORY: ${{ vars.TRIVY_DB_REPOSITORY }}
       with:
-        docker_image: "platform-unified-accounts-user-portal:latest"
+        docker_image: "idp-login:latest"
         dockerfile_path: ".Dockerfile"
         token: "${{ secrets.GITHUB_TOKEN }}"
         platform: "linux/arm64"
