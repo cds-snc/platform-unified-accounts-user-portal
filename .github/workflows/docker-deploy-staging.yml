@@ -1,0 +1,62 @@
+name: Docker deploy Staging
+
+on:
+  workflow_run:
+    workflows: ["Docker build and push Staging"]
+    types:
+      - completed
+    branches:
+      - main
+
+env: 
+  AWS_REGION: ca-central-1
+  ECS_CLUSTER: idp
+  REGISTRY_PREFIX: ${{ vars.STAGING_AWS_ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
+  GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
+
+permissions:
+  id-token: write
+
+jobs:
+  docker-deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Audit DNS requests
+      uses: cds-snc/dns-proxy-action@f0796e7f3d6bec5d40aecb0321ed8012f5602f84
+      env:
+        DNS_PROXY_FORWARDTOSENTINEL: "true"
+        DNS_PROXY_LOGANALYTICSWORKSPACEID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+        DNS_PROXY_LOGANALYTICSSHAREDKEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+      with:
+        role-to-assume: arn:aws:iam::${{ vars.STAGING_AWS_ACCOUNT_ID }}:role/platform-unified-accounts-user-portal-apply
+        role-session-name: DeployContainer
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update ECS task image
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@6b89923a897d41e9ad789181d8865b532ecf973c # v1.8.3
+      with:
+        task-definition-family: idp-login
+        container-name: idp-login
+        image: ${{ env.REGISTRY_PREFIX }}/idp-login:sha-${{ env.GITHUB_SHA }}
+
+    - name: Deploy updated ECS task
+      uses: aws-actions/amazon-ecs-deploy-task-definition@cbf54ec46642b86ff78c2f5793da6746954cf8ff # v2.6.0
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: idp-login
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+        propagate-tags: SERVICE
+
+    - name: Update SSM parameter for deployed image
+      run: |
+        aws ssm put-parameter \
+          --name "/ecs/${{ env.ECS_CLUSTER }}/idp-login/container-image" \
+          --value "${{ env.REGISTRY_PREFIX }}/idp-login:sha-${{ env.GITHUB_SHA }}" \
+          --type "String" \
+          --overwrite

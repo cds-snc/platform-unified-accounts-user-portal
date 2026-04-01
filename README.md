@@ -1,6 +1,6 @@
-# Forms Account (Identity Portal)
+# Platform Unified Accounts User Portal
 
-Next.js 16 App Router app for GC Forms identity flows (login, password, MFA, verification), integrated with Zitadel.
+Next.js 16 App Router app for CDS Platform identity flows (login, password, MFA, verification), integrated with Zitadel.
 
 ## Quick start
 

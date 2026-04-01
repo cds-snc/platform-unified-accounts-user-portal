@@ -1,0 +1,45 @@
+name: Docker SBOM Staging
+
+on:
+  workflow_run:
+    workflows: ["Docker build and push Staging"]
+    types:
+    - completed
+
+permissions:
+  contents: write
+
+jobs:
+  docker-sbom:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+    - name: Audit DNS requests
+      uses: cds-snc/dns-proxy-action@f0796e7f3d6bec5d40aecb0321ed8012f5602f84
+      env:
+        DNS_PROXY_FORWARDTOSENTINEL: "true"
+        DNS_PROXY_LOGANALYTICSWORKSPACEID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+        DNS_PROXY_LOGANALYTICSSHAREDKEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
+
+    - name: Build Docker image
+      run: |
+        docker build \
+          --platform linux/arm64 \
+          --tag idp-login:latest \
+          .
+
+    - name: Docker generate SBOM
+      uses: cds-snc/security-tools/.github/actions/generate-sbom@837a88b6337d4842543184c8eac97a8adac8f302 # v4.0.3
+      env:
+        TRIVY_DB_REPOSITORY: ${{ vars.TRIVY_DB_REPOSITORY }}
+      with:
+        docker_image: "idp-login:latest"
+        dockerfile_path: ".Dockerfile"
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        platform: "linux/arm64"
