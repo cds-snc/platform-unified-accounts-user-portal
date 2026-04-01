@@ -4,3 +4,6 @@ ignoredBuiltDependencies:
   - '@parcel/watcher'
   - sharp
   - unrs-resolver
+
+blockExoticSubdeps: true
+minimumReleaseAge: 10080 # 7 days
