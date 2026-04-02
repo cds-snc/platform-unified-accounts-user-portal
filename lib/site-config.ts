@@ -3,7 +3,7 @@
  *--------------------------------------------*/
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 
-export type SiteId = "dev" | "staging" | "production";
+export type SiteId = "dev" | "authStaging" | "formsStaging" | "formsProduction";
 export type SiteConfig = {
   id: SiteId;
   baseUrl: string;
@@ -36,11 +36,15 @@ const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
     baseUrl: "http://localhost:3000",
     links: createLinks(),
   },
-  staging: {
+  authStaging: {
+    baseUrl: "https://idp.cdssandbox.xyz",
+    links: createLinks(),
+  },
+  formsStaging: {
     baseUrl: "https://forms-staging.cdssandbox.xyz",
     links: createLinks(),
   },
-  production: {
+  formsProduction: {
     baseUrl: "https://forms-formulaires.alpha.canada.ca",
     links: createLinks(),
   },
@@ -75,13 +79,14 @@ class SiteConfigService {
   }
 
   requestHost(host: string): SiteId {
-    if (host.includes("forms-staging") || process.env.REVIEW_ENV) {
-      return "staging";
-    } else if (host.includes("localhost") || host === "") {
-      return "dev";
-    } else {
-      return "production";
+    const ids = Object.keys(this.configById) as SiteId[];
+    for (const id of ids) {
+      const trustedHost = normalizeHost(this.configById[id].baseUrl);
+      if (host === trustedHost || host.endsWith(`.${trustedHost}`)) {
+        return id;
+      }
     }
+    return "authStaging";
   }
 
   resolve(rawHost: string): SiteConfig {
