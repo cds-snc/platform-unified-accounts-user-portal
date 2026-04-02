@@ -18,6 +18,7 @@ export const TextInput = ({
   onChange,
   defaultValue = "",
   ref,
+  invalid,
 }: {
   id: string;
   type: string;
@@ -29,6 +30,7 @@ export const TextInput = ({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   defaultValue?: string;
   ref?: React.Ref<HTMLInputElement>;
+  invalid?: boolean;
 }): React.ReactElement => {
   const classes = cn("gc-input-text", className);
 
@@ -51,6 +53,7 @@ export const TextInput = ({
             : ariaDescribedbyIds,
         })}
         ref={ref}
+        {...(invalid !== undefined && { "aria-invalid": invalid })}
       />
     </>
   );

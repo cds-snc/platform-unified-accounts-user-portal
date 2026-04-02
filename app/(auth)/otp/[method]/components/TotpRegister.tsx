@@ -153,6 +153,7 @@ export function TotpRegister({ uri, loginName, requestId, organization, checkAft
                 required
                 defaultValue={""}
                 autoComplete="one-time-code"
+                invalid={!!state.error}
               />
             </div>
 

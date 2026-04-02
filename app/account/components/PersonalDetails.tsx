@@ -160,6 +160,7 @@ export const PersonalDetails = ({
                   required
                   defaultValue={state.formData?.firstname ?? ""}
                   ariaDescribedbyIds={getError("firstname") ? ["errorMessageFirstname"] : undefined}
+                  invalid={!!getError("firstname")}
                 />
               </div>
               <div className="gcds-input-wrapper">
@@ -177,6 +178,7 @@ export const PersonalDetails = ({
                   id="lastname"
                   defaultValue={state.formData?.lastname ?? ""}
                   ariaDescribedbyIds={getError("lastname") ? ["errorMessageLastname"] : undefined}
+                  invalid={!!getError("lastname")}
                 />
               </div>
             </div>

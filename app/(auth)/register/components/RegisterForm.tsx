@@ -111,6 +111,7 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               required
               defaultValue={state.formData?.firstname ?? ""}
               ariaDescribedbyIds={getError("firstname") ? ["errorMessageFirstname"] : undefined}
+              invalid={!!getError("firstname")}
             />
           </div>
           <div className="gcds-input-wrapper">
@@ -128,13 +129,14 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               id="lastname"
               defaultValue={state.formData?.lastname ?? ""}
               ariaDescribedbyIds={getError("lastname") ? ["errorMessageLastname"] : undefined}
+              invalid={!!getError("lastname")}
             />
           </div>
           <div className="gcds-input-wrapper col-span-2">
             <Label htmlFor="email" required>
               {t("labels.email")}
             </Label>
-            <Hint>{t("emailInputHint")}</Hint>
+            <Hint id="email-hint">{t("emailInputHint")}</Hint>
             {getError("email") && (
               <ErrorMessage id={"errorMessageEmail"}>{getError("email")}</ErrorMessage>
             )}
@@ -145,7 +147,10 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               required
               id="email"
               defaultValue={state.formData?.email ?? ""}
-              ariaDescribedbyIds={getError("email") ? ["errorMessageEmail"] : undefined}
+              ariaDescribedbyIds={
+                getError("email") ? ["errorMessageEmail", "hint-email-hint"] : "hint-email-hint"
+              }
+              invalid={!!getError("email")}
             />
           </div>
         </div>
