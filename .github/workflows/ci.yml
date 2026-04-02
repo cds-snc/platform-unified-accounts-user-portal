@@ -48,9 +48,6 @@ jobs:
         with:
           json-summary-path: ./coverage/coverage-summary.json
 
-      - name: Build
-        run: pnpm build
-
       - name: Docker build
         run: |
           docker build \
