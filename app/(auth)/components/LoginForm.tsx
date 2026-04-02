@@ -146,7 +146,9 @@ export function LoginForm({ requestId }: Props) {
               autoComplete={"email"}
               defaultValue={state.formData?.username || ""}
               ariaDescribedbyIds={
-                getError("username") ? ["errorMessageUsername"] : "login-description"
+                getError("username")
+                  ? ["login-description", "errorMessageUsername"]
+                  : "login-description"
               }
               invalid={!!getError("password")}
             />

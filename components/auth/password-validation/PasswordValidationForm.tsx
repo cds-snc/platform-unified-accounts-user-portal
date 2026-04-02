@@ -177,7 +177,11 @@ export function PasswordValidationForm({
               className="w-full"
               type="password"
               required
-              ariaDescribedbyIds={["password-complexity-requirements"]}
+              ariaDescribedbyIds={
+                getError("password")
+                  ? ["errorMessagePassword", "password-complexity-requirements"]
+                  : "password-complexity-requirements"
+              }
               defaultValue={state.formData?.password ?? ""}
               onChange={(e) => setWatchPassword(e.target.value)}
               invalid={!!getError("password")}
@@ -197,6 +201,9 @@ export function PasswordValidationForm({
               className="w-full"
               type="password"
               required
+              ariaDescribedbyIds={
+                getError("confirmPassword") ? "errorMessageConfirmPassword" : undefined
+              }
               defaultValue={state.formData?.confirmPassword ?? ""}
               invalid={!!getError("confirmPassword")}
             />

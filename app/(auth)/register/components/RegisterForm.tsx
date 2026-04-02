@@ -136,7 +136,7 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
             <Label htmlFor="email" required>
               {t("labels.email")}
             </Label>
-            <Hint>{t("emailInputHint")}</Hint>
+            <Hint id="email-hint">{t("emailInputHint")}</Hint>
             {getError("email") && (
               <ErrorMessage id={"errorMessageEmail"}>{getError("email")}</ErrorMessage>
             )}
@@ -147,7 +147,9 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               required
               id="email"
               defaultValue={state.formData?.email ?? ""}
-              ariaDescribedbyIds={getError("email") ? ["errorMessageEmail"] : undefined}
+              ariaDescribedbyIds={
+                getError("email") ? ["errorMessageEmail", "hint-email-hint"] : "hint-email-hint"
+              }
               invalid={!!getError("email")}
             />
           </div>
