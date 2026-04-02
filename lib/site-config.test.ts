@@ -6,16 +6,19 @@ import { isTrustedSiteHost, requestHost, resolveSiteConfigByHost } from "./site-
 
 describe("site-config", () => {
   it("classifies localhost hosts as dev", () => {
-    expect(requestHost("localhost:3002")).toBe("dev");
-    expect(requestHost("127.0.0.1:3002")).toBe("production");
+    expect(requestHost("localhost")).toBe("dev");
+  });
+
+  it("classifies auth-staging hosts as staging", () => {
+    expect(requestHost("idp.cdssandbox.xyz")).toBe("authStaging");
   });
 
   it("classifies forms-staging hosts as staging", () => {
-    expect(requestHost("forms-staging.cdssandbox.xyz")).toBe("staging");
+    expect(requestHost("forms-staging.cdssandbox.xyz")).toBe("formsStaging");
   });
 
-  it("classifies other hosts as production", () => {
-    expect(requestHost("forms-formulaires.alpha.canada.ca")).toBe("production");
+  it("classifies forms-production hosts as production", () => {
+    expect(requestHost("forms-formulaires.alpha.canada.ca")).toBe("formsProduction");
   });
 
   it("resolves dev baseUrl from localhost host", () => {
@@ -28,21 +31,31 @@ describe("site-config", () => {
     });
   });
 
-  it("resolves staging baseUrl from forms-staging host", () => {
+  it("resolves auth-staging baseUrl from auth-staging host", () => {
+    const config = resolveSiteConfigByHost("idp.cdssandbox.xyz");
+
+    expect(config).toEqual({
+      id: "authStaging",
+      baseUrl: "https://idp.cdssandbox.xyz",
+      zitadelOrganizationId: ZITADEL_ORGANIZATION,
+    });
+  });
+
+  it("resolves forms-staging baseUrl from forms-staging host", () => {
     const config = resolveSiteConfigByHost("https://forms-staging.cdssandbox.xyz/some/path");
 
     expect(config).toEqual({
-      id: "staging",
+      id: "formsStaging",
       baseUrl: "https://forms-staging.cdssandbox.xyz",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     });
   });
 
-  it("resolves production baseUrl from production host", () => {
+  it("resolves forms-production baseUrl from production host", () => {
     const config = resolveSiteConfigByHost("forms-formulaires.alpha.canada.ca");
 
     expect(config).toEqual({
-      id: "production",
+      id: "formsProduction",
       baseUrl: "https://forms-formulaires.alpha.canada.ca",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     });
@@ -54,24 +67,36 @@ describe("site-config", () => {
       expect(isTrustedSiteHost("http://localhost:3000")).toBe(true);
     });
 
-    it("trusts exact matches for staging", () => {
+    it("trusts exact matches for auth-staging", () => {
+      expect(isTrustedSiteHost("idp.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://idp.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://idp.cdssandbox.xyz/ui/v2")).toBe(true);
+    });
+
+    it("trusts exact matches for forms-staging", () => {
       expect(isTrustedSiteHost("forms-staging.cdssandbox.xyz")).toBe(true);
       expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz")).toBe(true);
       expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
     });
 
-    it("trusts exact matches for production", () => {
+    it("trusts exact matches for forms-production", () => {
       expect(isTrustedSiteHost("forms-formulaires.alpha.canada.ca")).toBe(true);
       expect(isTrustedSiteHost("https://forms-formulaires.alpha.canada.ca")).toBe(true);
     });
 
-    it("trusts subdomains of staging", () => {
+    it("trusts subdomains of auth-staging", () => {
+      expect(isTrustedSiteHost("auth.idp.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.idp.cdssandbox.xyz/ui/v2")).toBe(true);
+      expect(isTrustedSiteHost("my-custom.idp.cdssandbox.xyz")).toBe(true);
+    });
+
+    it("trusts subdomains of forms-staging", () => {
       expect(isTrustedSiteHost("auth.forms-staging.cdssandbox.xyz")).toBe(true);
       expect(isTrustedSiteHost("https://auth.forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
       expect(isTrustedSiteHost("my-custom.forms-staging.cdssandbox.xyz")).toBe(true);
     });
 
-    it("trusts subdomains of production", () => {
+    it("trusts subdomains of forms-production", () => {
       expect(isTrustedSiteHost("auth.forms-formulaires.alpha.canada.ca")).toBe(true);
       expect(isTrustedSiteHost("https://auth.forms-formulaires.alpha.canada.ca")).toBe(true);
     });
