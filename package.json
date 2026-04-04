@@ -54,7 +54,7 @@
     "@connectrpc/connect": "^2.1.1",
     "@gcds-core/fonts": "^1.0.0",
     "@gcds-core/tokens": "^1.0.0",
-    "@gcforms/types": "1.0.27",
+    "@gcforms/types": "1.0.29",
     "@tailwindcss/postcss": "^4.2.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
