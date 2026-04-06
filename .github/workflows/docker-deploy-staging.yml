@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Audit DNS requests
-      uses: cds-snc/dns-proxy-action@f0796e7f3d6bec5d40aecb0321ed8012f5602f84
+      uses: cds-snc/dns-proxy-action@c187d352e5065709dcfccb84c586a71bce45cc75
       env:
         DNS_PROXY_FORWARDTOSENTINEL: "true"
         DNS_PROXY_LOGANALYTICSWORKSPACEID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
@@ -38,14 +38,14 @@ jobs:
 
     - name: Update ECS task image
       id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@6b89923a897d41e9ad789181d8865b532ecf973c # v1.8.3
+      uses: aws-actions/amazon-ecs-render-task-definition@77954e213ba1f9f9cb016b86a1d4f6fcdea0d57e # v1.8.4
       with:
         task-definition-family: idp-login
         container-name: idp-login
         image: ${{ env.REGISTRY_PREFIX }}/idp-login:sha-${{ env.GITHUB_SHA }}
 
     - name: Deploy updated ECS task
-      uses: aws-actions/amazon-ecs-deploy-task-definition@cbf54ec46642b86ff78c2f5793da6746954cf8ff # v2.6.0
+      uses: aws-actions/amazon-ecs-deploy-task-definition@fc8fc60f3a60ffd500fcb13b209c59d221ac8c8c # v2.6.1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
         service: idp-login
