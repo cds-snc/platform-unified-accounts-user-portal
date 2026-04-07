@@ -37,7 +37,7 @@ const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
     links: createLinks(),
   },
   authStaging: {
-    baseUrl: "https://idp.cdssandbox.xyz",
+    baseUrl: "https://auth.cdssandbox.xyz",
     links: createLinks(),
   },
   formsStaging: {
