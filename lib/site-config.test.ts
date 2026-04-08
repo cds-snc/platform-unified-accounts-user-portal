@@ -10,7 +10,7 @@ describe("site-config", () => {
   });
 
   it("classifies auth-staging hosts as staging", () => {
-    expect(requestHost("idp.cdssandbox.xyz")).toBe("authStaging");
+    expect(requestHost("auth.cdssandbox.xyz")).toBe("authStaging");
   });
 
   it("classifies forms-staging hosts as staging", () => {
@@ -32,11 +32,11 @@ describe("site-config", () => {
   });
 
   it("resolves auth-staging baseUrl from auth-staging host", () => {
-    const config = resolveSiteConfigByHost("idp.cdssandbox.xyz");
+    const config = resolveSiteConfigByHost("auth.cdssandbox.xyz");
 
     expect(config).toEqual({
       id: "authStaging",
-      baseUrl: "https://idp.cdssandbox.xyz",
+      baseUrl: "https://auth.cdssandbox.xyz",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     });
   });
@@ -68,9 +68,9 @@ describe("site-config", () => {
     });
 
     it("trusts exact matches for auth-staging", () => {
-      expect(isTrustedSiteHost("idp.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://idp.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://idp.cdssandbox.xyz/ui/v2")).toBe(true);
+      expect(isTrustedSiteHost("auth.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.cdssandbox.xyz/ui/v2")).toBe(true);
     });
 
     it("trusts exact matches for forms-staging", () => {
@@ -85,9 +85,9 @@ describe("site-config", () => {
     });
 
     it("trusts subdomains of auth-staging", () => {
-      expect(isTrustedSiteHost("auth.idp.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://auth.idp.cdssandbox.xyz/ui/v2")).toBe(true);
-      expect(isTrustedSiteHost("my-custom.idp.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("auth.auth.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.auth.cdssandbox.xyz/ui/v2")).toBe(true);
+      expect(isTrustedSiteHost("my-custom.auth.cdssandbox.xyz")).toBe(true);
     });
 
     it("trusts subdomains of forms-staging", () => {
