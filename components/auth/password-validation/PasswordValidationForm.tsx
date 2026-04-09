@@ -97,7 +97,9 @@ export function PasswordValidationForm({
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`complexity.${issue.message}`),
+          fieldValue: t(`complexity.${issue.message}`, {
+            minLength: passwordComplexitySettings.minLength || 8,
+          }),
         })),
         formData: formEntries,
       };

@@ -208,7 +208,7 @@
       "required": "This field is required.",
       "requiredPassword": "Password is required.",
       "requiredConfirmPassword": "Confirm password is required.",
-      "minLength": "At least 8 characters",
+      "minLength": "At least {{minLength}} characters",
       "hasNumber": "A number",
       "hasUppercase": "A capital letter",
       "hasLowercase": "A lowercase letter",
