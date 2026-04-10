@@ -16,9 +16,13 @@ import { checkAuthenticationLevel, getSmartRedirect } from "./lib/server/route-p
 import { getServiceUrlFromHeaders } from "./lib/service-url";
 import { proxy } from "./proxy";
 
-vi.mock("@lib/cspScripts", () => ({
-  generateCSP: vi.fn(() => ({ csp: "default-src 'self';", nonce: "test-nonce" })),
-}));
+vi.mock("@lib/cspScripts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@lib/cspScripts")>();
+  return {
+    ...actual,
+    generateCSP: vi.fn(() => ({ csp: "default-src 'self';", nonce: "test-nonce" })),
+  };
+});
 
 vi.mock("@lib/logger", () => ({
   logMessage: {

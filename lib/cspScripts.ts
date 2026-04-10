@@ -1,6 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 /**
  * Generates a Content Security Policy header with a nonce for inline scripts and styles.
@@ -19,8 +20,8 @@ export const generateCSP = (): { csp: string; nonce: string } => {
   // 'unsafe-eval' is required in development for React's enhanced error overlays
   const isDev = process.env.NODE_ENV === "development";
   const scriptSrc = isDev
-    ? `'self' 'nonce-${nonce}' 'unsafe-eval' 'wasm-unsafe-eval' 'strict-dynamic'`
-    : `'self' 'nonce-${nonce}' 'wasm-unsafe-eval' 'strict-dynamic'`;
+    ? `'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic'`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic'`;
   const styleSrc = isDev ? `'self' 'unsafe-inline'` : `'self' 'nonce-${nonce}'`;
 
   const cspHeader = `
@@ -43,3 +44,8 @@ export const generateCSP = (): { csp: string; nonce: string } => {
     nonce,
   };
 };
+
+export function responseWithCSP(response: NextResponse, csp: string): NextResponse {
+  response.headers.set("Content-Security-Policy", csp);
+  return response;
+}

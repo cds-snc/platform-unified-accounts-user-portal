@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SecuritySettings } from "@zitadel/proto/zitadel/settings/v2/security_settings_pb";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
-import { generateCSP } from "@lib/cspScripts";
+import { generateCSP, responseWithCSP } from "@lib/cspScripts";
 import { logMessage } from "@lib/logger";
 
 import {
@@ -90,9 +90,7 @@ export async function proxy(request: NextRequest) {
   if (isProxyPath) {
     // escape proxy if the environment is not setup for multitenancy
     if (!process.env.ZITADEL_API_URL || !process.env.ZITADEL_SERVICE_USER_TOKEN) {
-      const response = NextResponse.next({ request: { headers: requestHeaders } });
-      response.headers.set("Content-Security-Policy", csp);
-      return response;
+      return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
     }
 
     const { serviceUrl } = getServiceUrlFromHeaders(request.headers);
@@ -134,9 +132,7 @@ export async function proxy(request: NextRequest) {
 
   // Skip auth checks for API routes
   if (matchesPattern(pathname, API_ROUTES)) {
-    const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", csp);
-    return response;
+    return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
   }
 
   // Get service URL for auth checks
@@ -147,9 +143,7 @@ export async function proxy(request: NextRequest) {
 
   // Skip check for open routes
   if (requiredLevel === AuthLevel.OPEN) {
-    const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", csp);
-    return response;
+    return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
   }
 
   // Check authentication level (loginName will be extracted from session cookie)
@@ -162,9 +156,7 @@ export async function proxy(request: NextRequest) {
 
   // If satisfied, allow the request
   if (authCheck.satisfied) {
-    const response = NextResponse.next({ request: { headers: requestHeaders } });
-    response.headers.set("Content-Security-Policy", csp);
-    return response;
+    return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
   }
 
   // Special handling for auth flow routes
@@ -198,18 +190,14 @@ export async function proxy(request: NextRequest) {
         }
 
         // Allow access to MFA flow pages when password is already verified
-        const response = NextResponse.next({ request: { headers: requestHeaders } });
-        response.headers.set("Content-Security-Policy", csp);
-        return response;
+        return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
       }
     }
 
     // Allow access to password pages if session exists
     if (pathname.startsWith("/password")) {
       if (authCheck.session?.factors?.user) {
-        const response = NextResponse.next({ request: { headers: requestHeaders } });
-        response.headers.set("Content-Security-Policy", csp);
-        return response;
+        return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
       }
     }
   }

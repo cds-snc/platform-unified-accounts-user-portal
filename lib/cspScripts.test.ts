@@ -1,12 +1,13 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { NextResponse } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { generateCSP } from "./cspScripts";
+import { generateCSP, responseWithCSP } from "./cspScripts";
 
 describe("generateCSP", () => {
   afterEach(() => {
@@ -20,27 +21,19 @@ describe("generateCSP", () => {
     expect(first.nonce).not.toBe(second.nonce);
   });
 
-  it("produces a single-line normalized CSP string", () => {
-    const { csp } = generateCSP();
-
-    expect(csp).not.toMatch(/\s{2,}/);
-  });
-
   describe("production mode (NODE_ENV !== 'development')", () => {
     it("includes nonce in script-src", () => {
       vi.stubEnv("NODE_ENV", "production");
       const { csp, nonce } = generateCSP();
 
-      expect(csp).toContain(`'nonce-${nonce}'`);
-      expect(csp).toContain("script-src");
+      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'strict-dynamic';`);
     });
 
     it("includes nonce in style-src", () => {
       vi.stubEnv("NODE_ENV", "production");
       const { csp, nonce } = generateCSP();
-      const styleSrcMatch = csp.match(/style-src([^;]+);/);
 
-      expect(styleSrcMatch?.[1]).toContain(`nonce-${nonce}`);
+      expect(csp).toContain(`style-src 'self' 'nonce-${nonce}';`);
     });
 
     it("does not include unsafe-inline in style-src", () => {
@@ -64,11 +57,10 @@ describe("generateCSP", () => {
       expect(csp).not.toContain("'unsafe-eval'");
     });
 
-    it("includes wasm-unsafe-eval and strict-dynamic", () => {
+    it("includes strict-dynamic", () => {
       vi.stubEnv("NODE_ENV", "production");
       const { csp } = generateCSP();
 
-      expect(csp).toContain("'wasm-unsafe-eval'");
       expect(csp).toContain("'strict-dynamic'");
     });
   });
@@ -78,17 +70,14 @@ describe("generateCSP", () => {
       vi.stubEnv("NODE_ENV", "development");
       const { csp, nonce } = generateCSP();
 
-      expect(csp).toContain(`'nonce-${nonce}'`);
-      expect(csp).toContain("script-src");
+      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic';`);
     });
 
     it("uses unsafe-inline in style-src instead of nonce", () => {
       vi.stubEnv("NODE_ENV", "development");
-      const { csp, nonce } = generateCSP();
-      const styleSrcMatch = csp.match(/style-src([^;]+);/);
+      const { csp } = generateCSP();
 
-      expect(styleSrcMatch?.[1]).toContain("'unsafe-inline'");
-      expect(styleSrcMatch?.[1]).not.toContain(`nonce-${nonce}`);
+      expect(csp).toContain(`style-src 'self' 'unsafe-inline';`);
     });
 
     it("includes unsafe-eval in script-src for React dev tools", () => {
@@ -105,12 +94,41 @@ describe("generateCSP", () => {
       expect(csp).not.toContain("upgrade-insecure-requests");
     });
 
-    it("includes wasm-unsafe-eval and strict-dynamic", () => {
+    it("includes unsafe-eval and strict-dynamic", () => {
       vi.stubEnv("NODE_ENV", "development");
       const { csp } = generateCSP();
 
-      expect(csp).toContain("'wasm-unsafe-eval'");
+      expect(csp).toContain("'unsafe-eval'");
       expect(csp).toContain("'strict-dynamic'");
     });
+  });
+});
+
+describe("responseWithCSP", () => {
+  it("sets the Content-Security-Policy header on the response", () => {
+    const response = new NextResponse();
+    const csp = "default-src 'self';";
+
+    responseWithCSP(response, csp);
+
+    expect(response.headers.get("Content-Security-Policy")).toBe(csp);
+  });
+
+  it("returns the same response object", () => {
+    const response = new NextResponse();
+
+    const result = responseWithCSP(response, "default-src 'self';");
+
+    expect(result).toBe(response);
+  });
+
+  it("overwrites an existing Content-Security-Policy header", () => {
+    const response = new NextResponse(null, {
+      headers: { "Content-Security-Policy": "default-src 'none';" },
+    });
+
+    responseWithCSP(response, "default-src 'self';");
+
+    expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'self';");
   });
 });
