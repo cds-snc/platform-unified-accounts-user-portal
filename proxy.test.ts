@@ -111,9 +111,11 @@ describe("proxy middleware", () => {
 
     it("sets x-nonce request header for all routes", async () => {
       const request = makeRequest("/");
-      await proxy(request);
+      const response = await proxy(request);
 
       expect(generateCSP).toHaveBeenCalledOnce();
+      expect(response.headers.get("x-middleware-request-x-nonce")).toBe("test-nonce");
+      expect(response.headers.get("x-middleware-override-headers")).toContain("x-nonce");
     });
 
     it("sets CSP on proxy path when multitenancy env vars are absent", async () => {
@@ -233,9 +235,15 @@ describe("proxy middleware", () => {
       vi.mocked(checkAuthenticationLevel).mockResolvedValue({ satisfied: true });
 
       const request = makeRequest("/password");
-      await proxy(request);
+      const response = await proxy(request);
 
       expect(getServiceUrlFromHeaders).toHaveBeenCalled();
+      expect(response.headers.get("x-middleware-override-headers")).toContain(
+        "x-zitadel-i18n-organization"
+      );
+      expect(response.headers.get("x-middleware-request-x-zitadel-i18n-organization")).toBe(
+        "test-org"
+      );
     });
 
     it("allows password route when session has user factor", async () => {
