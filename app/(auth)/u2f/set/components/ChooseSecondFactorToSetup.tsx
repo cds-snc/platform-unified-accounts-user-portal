@@ -12,12 +12,9 @@ import { useRouter } from "next/navigation";
 import { ENABLE_EMAIL_OTP } from "@root/constants/config";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { useTranslation } from "@i18n/client";
+import { MethodOptionCard } from "@components/mfa/MethodOptionCard";
 import { Button } from "@components/ui/button/Button";
 
-/*--------------------------------------------*
- * Local Relative
- *--------------------------------------------*/
-import { MethodOptionCard } from "../../components/MethodOptionCard";
 type Props = {
   checkAfter: boolean;
   requestId?: string;

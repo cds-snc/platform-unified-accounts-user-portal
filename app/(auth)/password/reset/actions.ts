@@ -31,15 +31,22 @@ export const submitUserNameForm = async (
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
   const { t } = await serverTranslation("password");
 
+  const genericErrorResponse = {
+    error: t("errors.couldNotSendResetLink"),
+  };
+
   const users = await listUsers({
     serviceUrl,
     loginName: command.loginName,
     organizationId: command.organization,
+  }).catch((_error) => {
+    logMessage.warn("Failed to look up password reset user");
+    return undefined;
   });
 
-  const genericErrorResponse = {
-    error: t("errors.couldNotSendResetLink"),
-  };
+  if (!users) {
+    return genericErrorResponse;
+  }
 
   if (!users.details || users.details.totalResult !== BigInt(1) || !users.result[0].userId) {
     return genericErrorResponse;

@@ -10,16 +10,20 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  * Internal Aliases
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
+import { getOriginalHostFromHeaders } from "@lib/server/host";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import { resolveSiteConfigByHost } from "@lib/site-config";
+import { getSerializableObject } from "@lib/utils";
+import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
-import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginU2F } from "@components/mfa/LoginU2F";
+import { LoginOTP } from "@components/mfa/LoginOTP";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("u2f");
-  return { title: t("verify.title") };
+  const { t } = await serverTranslation("otp");
+  return { title: t("verify.authAppTitle") };
 }
 
 export default async function Page() {
@@ -30,41 +34,55 @@ export default async function Page() {
   try {
     ({ sessionId, loginName, organization } = await getSessionCredentials());
   } catch {
-    redirect("/password/reset");
+    redirect("/password");
   }
 
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  const resolvedHost = getOriginalHostFromHeaders(_headers);
+  const siteConfig = resolveSiteConfigByHost(resolvedHost);
+
+  const authCheck = await checkAuthenticationLevel(
+    serviceUrl,
+    AuthLevel.PASSWORD_REQUIRED,
+    loginName,
+    organization
+  );
+
+  if (!authCheck.satisfied) {
+    redirect(authCheck.redirect || "/password");
+  }
 
   const sessionData = sessionId
     ? await loadSessionById(serviceUrl, sessionId, organization)
     : await loadSessionByLoginname(serviceUrl, loginName, organization);
 
-  if (!sessionData.authMethods?.includes(AuthenticationMethodType.U2F)) {
-    redirect("/password/reset/verify");
+  if (!sessionData.authMethods?.includes(AuthenticationMethodType.TOTP)) {
+    redirect("/password/change/verify");
   }
+
+  const loginSettings = await getLoginSettings({
+    serviceUrl,
+    organization: organization ?? sessionData.factors?.user?.organizationId,
+  }).then((obj) => getSerializableObject(obj));
 
   return (
     <AuthPanel
-      titleI18nKey="verify.title"
+      titleI18nKey="verify.authAppTitle"
       descriptionI18nKey="none"
-      namespace="u2f"
-      imageSrc="/img/key-icon.png"
+      namespace="otp"
+      imageSrc="/img/auth-app-icon.png"
     >
-      <UserAvatar
+      <LoginOTP
         loginName={loginName ?? sessionData.factors?.user?.loginName}
+        sessionId={sessionId}
+        organization={organization ?? sessionData.factors?.user?.organizationId}
+        method="time-based"
+        loginSettings={loginSettings}
+        redirect="/password/change"
         displayName={sessionData.factors?.user?.displayName}
-        showDropdown={false}
+        siteConfig={siteConfig}
       />
-      <div className="w-full">
-        <LoginU2F
-          loginName={loginName}
-          sessionId={sessionId}
-          organization={organization}
-          login={false}
-          redirect="/password/reset/set"
-        />
-      </div>
     </AuthPanel>
   );
 }

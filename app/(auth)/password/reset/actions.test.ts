@@ -114,6 +114,15 @@ describe("submitUserNameForm", () => {
     expect(passwordResetWithReturn).not.toHaveBeenCalled();
   });
 
+  it("returns a generic error when user lookup fails", async () => {
+    vi.mocked(listUsers).mockRejectedValue(new Error("HTTP 503"));
+
+    const response = await submitUserNameForm({ loginName: "person@canada.ca" });
+
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
+    expect(passwordResetWithReturn).not.toHaveBeenCalled();
+  });
+
   it("returns a generic error when user has no email", async () => {
     vi.mocked(listUsers).mockResolvedValue({
       details: { totalResult: BigInt(1) },

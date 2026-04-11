@@ -13,12 +13,9 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 import { buildUrlWithRequestId } from "@lib/utils";
 import { cn } from "@lib/utils";
 import { useTranslation } from "@i18n/client";
+import { MethodOptionCard } from "@components/mfa/MethodOptionCard";
 import { Button } from "@components/ui/button/Button";
 
-/*--------------------------------------------*
- * Local Relative
- *--------------------------------------------*/
-import { MethodOptionCard } from "./MethodOptionCard";
 type Props = {
   loginName?: string;
   sessionId?: string;

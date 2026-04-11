@@ -18,11 +18,7 @@ import { getSerializableObject } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
-
-/*--------------------------------------------*
- * Parent Relative
- *--------------------------------------------*/
-import { LoginOTP } from "../../../../otp/[method]/components/LoginOTP";
+import { LoginOTP } from "@components/mfa/LoginOTP";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("otp");
