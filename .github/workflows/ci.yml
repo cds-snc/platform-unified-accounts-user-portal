@@ -56,7 +56,7 @@ jobs:
 
       - name: Coverage Comment
         if: github.event_name == 'pull_request'
-        uses: davelosert/vitest-coverage-report-action@c0c9b09c93750ee1d8335d14e94ce3d6fc61df50 # v2.11.0
+        uses: davelosert/vitest-coverage-report-action@3c50566c523e04813df28de8f7c48dd97d663f1c # v2.11.2
         with:
           json-summary-path: ./coverage/coverage-summary.json
 
