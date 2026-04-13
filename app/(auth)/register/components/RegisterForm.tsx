@@ -97,7 +97,7 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
             <Label className="required" htmlFor="firstname" required>
               {t("labels.firstname")}
             </Label>
-            {getError("firstname", state.validationErrors) && (
+            {hasError("firstname", state.validationErrors) && (
               <ErrorMessage id={"errorMessageFirstname"}>
                 {getError("firstname", state.validationErrors)}
               </ErrorMessage>
@@ -144,7 +144,7 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               {t("labels.email")}
             </Label>
             <Hint id="email-hint">{t("emailInputHint")}</Hint>
-            {getError("email", state.validationErrors) && (
+            {hasError("email", state.validationErrors) && (
               <ErrorMessage id={"errorMessageEmail"}>
                 {getError("email", state.validationErrors)}
               </ErrorMessage>
