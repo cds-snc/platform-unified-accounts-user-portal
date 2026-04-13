@@ -12,6 +12,7 @@ import {
 } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
+import { verifyU2FLogin } from "@root/app/(auth)/u2f/actions";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -19,11 +20,6 @@ import { updateSession } from "@lib/server/session";
 import { coerceToArrayBuffer, coerceToBase64Url } from "@lib/utils/base64";
 import { useTranslation } from "@i18n";
 import { Alert, ErrorStatus } from "@components/ui/form";
-
-/*--------------------------------------------*
- * Parent Relative
- *--------------------------------------------*/
-import { verifyU2FLogin } from "../actions";
 
 type PublicKeyCredentialRequestOptionsData = {
   challenge: BufferSource | string;
@@ -34,7 +30,6 @@ type PublicKeyCredentialRequestOptionsData = {
   [key: string]: unknown;
 };
 
-// either loginName or sessionId must be provided
 type Props = {
   loginName?: string;
   sessionId?: string;
@@ -54,7 +49,6 @@ async function getCredentialAssertionData(
       (listItem: PublicKeyCredentialDescriptor) => ({
         ...listItem,
         id: coerceToArrayBuffer(listItem.id, "publicKey.allowCredentials.id"),
-        // Only allow hardware key transports (USB, NFC, BLE) - excludes platform/internal transports
         transports: ["usb", "ble", "nfc"] as AuthenticatorTransport[],
       })
     ),
@@ -170,7 +164,6 @@ export function LoginU2F({
       return router.push(response.redirect);
     }
 
-    // If we got here, something went wrong - no redirect or error was returned
     if (!response) {
       setError(t("verify.errors.noResponseReceived"));
     } else {

@@ -10,9 +10,8 @@ import { redirect } from "next/navigation";
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { loadMfaSetupSession } from "@lib/server/mfa-setup";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { loadSessionById } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -33,34 +32,25 @@ export default async function Page(props: {
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
 
-  const { sessionId, loginName, organization, requestId } = await getSessionCredentials();
+  let sessionId: string | undefined;
+  let loginName: string | undefined;
+  let organization: string | undefined;
+  let requestId: string | undefined;
 
-  const authCheck = await checkAuthenticationLevel(
+  try {
+    ({ sessionId, loginName, organization, requestId } = await getSessionCredentials());
+  } catch {
+    redirect("/password");
+  }
+
+  const sessionFactors = await loadMfaSetupSession({
     serviceUrl,
-    AuthLevel.PASSWORD_REQUIRED,
+    sessionId,
     loginName,
-    organization
-  );
-
-  if (!authCheck.satisfied) {
-    logMessage.debug({
-      message: "U2F setup page auth check failed",
-      reason: authCheck.reason,
-      redirect: authCheck.redirect,
-    });
-    redirect(authCheck.redirect || "/password");
-  }
-
-  const sessionFactors = await loadSessionById(serviceUrl, sessionId, organization);
-
-  if (!sessionFactors) {
-    logMessage.debug({
-      message: "U2F setup page missing session factors",
-      hasSessionId: !!sessionId,
-      hasOrganization: !!organization,
-    });
-    redirect("/mfa/set");
-  }
+    organization,
+    pageName: "U2F setup page",
+    missingSessionRedirect: "/mfa/set",
+  });
 
   if (!loginName || !sessionFactors.id) {
     logMessage.debug({

@@ -10,15 +10,16 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  * Internal Aliases
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
-import { logMessage } from "@lib/logger";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
+import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { StrongFactorSelection } from "@components/mfa/StrongFactorSelection";
+import { LoginU2F } from "@components/mfa/LoginU2F";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("mfa");
+  const { t } = await serverTranslation("u2f");
   return { title: t("verify.title") };
 }
 
@@ -30,32 +31,52 @@ export default async function Page() {
   try {
     ({ sessionId, loginName, organization } = await getSessionCredentials());
   } catch {
-    redirect("/password/reset");
+    redirect("/password");
   }
 
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
 
+  const authCheck = await checkAuthenticationLevel(
+    serviceUrl,
+    AuthLevel.PASSWORD_REQUIRED,
+    loginName,
+    organization
+  );
+
+  if (!authCheck.satisfied) {
+    redirect(authCheck.redirect || "/password");
+  }
+
   const sessionData = sessionId
     ? await loadSessionById(serviceUrl, sessionId, organization)
     : await loadSessionByLoginname(serviceUrl, loginName, organization);
 
-  const canUseTotp = sessionData.authMethods?.includes(AuthenticationMethodType.TOTP) ?? false;
-  const canUseU2F = sessionData.authMethods?.includes(AuthenticationMethodType.U2F) ?? false;
-
-  if (!sessionData.factors?.user?.id || (!canUseTotp && !canUseU2F)) {
-    logMessage.info("Password reset recovery requires at least one strong MFA method");
-    redirect("/password/reset");
+  if (!sessionData.authMethods?.includes(AuthenticationMethodType.U2F)) {
+    redirect("/password/change/verify");
   }
 
   return (
-    <AuthPanel titleI18nKey="verify.title" descriptionI18nKey="verify.description" namespace="mfa">
-      <StrongFactorSelection
-        canUseTotp={canUseTotp}
-        canUseU2F={canUseU2F}
-        totpUrl="/password/reset/verify/time-based"
-        u2fUrl="/password/reset/verify/u2f"
+    <AuthPanel
+      titleI18nKey="verify.title"
+      descriptionI18nKey="none"
+      namespace="u2f"
+      imageSrc="/img/key-icon.png"
+    >
+      <UserAvatar
+        loginName={loginName ?? sessionData.factors?.user?.loginName}
+        displayName={sessionData.factors?.user?.displayName}
+        showDropdown={false}
       />
+      <div className="w-full">
+        <LoginU2F
+          loginName={loginName}
+          sessionId={sessionId}
+          organization={organization}
+          login={false}
+          redirect="/password/change"
+        />
+      </div>
     </AuthPanel>
   );
 }

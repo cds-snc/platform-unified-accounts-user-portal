@@ -9,10 +9,9 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
+import { loadMfaVerificationSession } from "@lib/server/mfa-verify";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { StrongFactorSelection } from "@components/mfa/StrongFactorSelection";
@@ -23,29 +22,21 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
-  let organization: string | undefined;
-
-  try {
-    ({ sessionId, loginName, organization } = await getSessionCredentials());
-  } catch {
-    redirect("/password/reset");
-  }
-
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
 
-  const sessionData = sessionId
-    ? await loadSessionById(serviceUrl, sessionId, organization)
-    : await loadSessionByLoginname(serviceUrl, loginName, organization);
+  const { sessionData } = await loadMfaVerificationSession({
+    serviceUrl,
+    pageName: "MFA setup verify page",
+    missingSessionRedirect: "/mfa/set",
+  });
 
   const canUseTotp = sessionData.authMethods?.includes(AuthenticationMethodType.TOTP) ?? false;
   const canUseU2F = sessionData.authMethods?.includes(AuthenticationMethodType.U2F) ?? false;
 
   if (!sessionData.factors?.user?.id || (!canUseTotp && !canUseU2F)) {
-    logMessage.info("Password reset recovery requires at least one strong MFA method");
-    redirect("/password/reset");
+    logMessage.info("MFA setup verification requires at least one configured strong MFA method");
+    redirect("/mfa/set");
   }
 
   return (
@@ -53,8 +44,8 @@ export default async function Page() {
       <StrongFactorSelection
         canUseTotp={canUseTotp}
         canUseU2F={canUseU2F}
-        totpUrl="/password/reset/verify/time-based"
-        u2fUrl="/password/reset/verify/u2f"
+        totpUrl="/mfa/set/verify/time-based"
+        u2fUrl="/mfa/set/verify/u2f"
       />
     </AuthPanel>
   );

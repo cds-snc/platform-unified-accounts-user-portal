@@ -4,16 +4,15 @@
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { loadMfaSetupSession } from "@lib/server/mfa-setup";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { checkSessionFactorValidity, loadSessionById } from "@lib/session";
+import { checkSessionFactorValidity } from "@lib/session";
 import { getSerializableLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -31,49 +30,25 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page() {
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
-  const { sessionId, loginName, organization, requestId } = await getSessionCredentials();
+  let sessionId: string | undefined;
+  let loginName: string | undefined;
+  let organization: string | undefined;
+  let requestId: string | undefined;
 
-  const passwordAuthCheck = await checkAuthenticationLevel(
+  try {
+    ({ sessionId, loginName, organization, requestId } = await getSessionCredentials());
+  } catch {
+    redirect("/password");
+  }
+
+  const sessionFactors = await loadMfaSetupSession({
     serviceUrl,
-    AuthLevel.PASSWORD_REQUIRED,
+    sessionId,
     loginName,
-    organization
-  );
-
-  if (!passwordAuthCheck.satisfied) {
-    logMessage.debug({
-      message: "MFA set page auth check failed",
-      reason: passwordAuthCheck.reason,
-      redirect: passwordAuthCheck.redirect,
-    });
-    redirect(passwordAuthCheck.redirect || "/password");
-  }
-
-  const sessionFactors = await loadSessionById(serviceUrl, sessionId, organization);
-
-  if (!sessionFactors) {
-    logMessage.debug({
-      message: "MFA set page missing session factors",
-      hasSessionId: !!sessionId,
-      hasOrganization: !!organization,
-    });
-    redirect("/");
-  }
-
-  const hasConfiguredStrongMFA = [AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F].some(
-    (method) => sessionFactors.authMethods?.includes(method)
-  );
-
-  const fullyAuthenticatedCheck = await checkAuthenticationLevel(
-    serviceUrl,
-    AuthLevel.ANY_MFA_REQUIRED,
-    loginName,
-    organization
-  );
-
-  if (!fullyAuthenticatedCheck.satisfied && hasConfiguredStrongMFA) {
-    redirect(fullyAuthenticatedCheck.redirect || "/mfa");
-  }
+    organization,
+    pageName: "MFA set page",
+    missingSessionRedirect: "/",
+  });
 
   const loginSettings = await getSerializableLoginSettings({
     serviceUrl,

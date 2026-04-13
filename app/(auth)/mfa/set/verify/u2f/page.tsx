@@ -9,11 +9,10 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
+import { loadMfaVerificationSession } from "@lib/server/mfa-verify";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
-import { UserAvatar } from "@components/account/user-avatar";
+import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { LoginU2F } from "@components/mfa/LoginU2F";
 
@@ -23,25 +22,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
-  let organization: string | undefined;
-
-  try {
-    ({ sessionId, loginName, organization } = await getSessionCredentials());
-  } catch {
-    redirect("/password/reset");
-  }
-
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
 
-  const sessionData = sessionId
-    ? await loadSessionById(serviceUrl, sessionId, organization)
-    : await loadSessionByLoginname(serviceUrl, loginName, organization);
+  const { sessionId, loginName, organization, sessionData } = await loadMfaVerificationSession({
+    serviceUrl,
+    pageName: "U2F verify page",
+    missingSessionRedirect: "/mfa/set/verify",
+  });
 
   if (!sessionData.authMethods?.includes(AuthenticationMethodType.U2F)) {
-    redirect("/password/reset/verify");
+    redirect("/mfa/set/verify");
   }
 
   return (
@@ -62,7 +53,7 @@ export default async function Page() {
           sessionId={sessionId}
           organization={organization}
           login={false}
-          redirect="/password/reset/set"
+          redirect="/mfa/set"
         />
       </div>
     </AuthPanel>

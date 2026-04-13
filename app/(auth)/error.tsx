@@ -28,6 +28,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
           width={200}
           height={200}
           className="mx-auto mb-6"
+          style={{ height: "auto" }}
           priority
         />
       </div>

@@ -6,16 +6,21 @@ import { headers } from "next/headers";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { logMessage } from "@lib/logger";
 import { loadSessionsFromCookies } from "@lib/server/session";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { isSessionValid } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
 import { LogoutButton } from "@components/auth/LogoutButton";
+
 export const Logout = async ({ className }: { className?: string }) => {
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
   const { t } = await serverTranslation("header");
-  const allSessions = await loadSessionsFromCookies({ serviceUrl });
+  const allSessions = await loadSessionsFromCookies({ serviceUrl }).catch((_error) => {
+    logMessage.warn("Failed to load sessions for logout state");
+    return [];
+  });
 
   // Filter to only fully authenticated sessions (isSessionValid is async)
   const validSessions = await Promise.all(

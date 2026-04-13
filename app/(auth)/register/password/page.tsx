@@ -3,13 +3,15 @@
  *--------------------------------------------*/
 import { Metadata } from "next";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
+import { logMessage } from "@lib/logger";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { getLegalAndSupportSettings, getPasswordComplexitySettings } from "@lib/zitadel";
+import { getPasswordComplexitySettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -27,16 +29,17 @@ export default async function Page() {
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
 
   const organization = ZITADEL_ORGANIZATION;
-
-  const legal = await getLegalAndSupportSettings({
-    serviceUrl,
-    organization,
-  });
-
   const passwordComplexitySettings = await getPasswordComplexitySettings({
     serviceUrl,
     organization,
+  }).catch((_error) => {
+    logMessage.warn("Failed to load password complexity settings for registration");
+    return undefined;
   });
+
+  if (!passwordComplexitySettings) {
+    redirect("/register");
+  }
 
   return (
     <AuthPanel
@@ -44,9 +47,7 @@ export default async function Page() {
       descriptionI18nKey="password.description"
       namespace="register"
     >
-      {legal && passwordComplexitySettings && (
-        <PasswordPageClient passwordComplexitySettings={passwordComplexitySettings} />
-      )}
+      <PasswordPageClient passwordComplexitySettings={passwordComplexitySettings} />
     </AuthPanel>
   );
 }

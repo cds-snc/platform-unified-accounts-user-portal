@@ -11,6 +11,7 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
@@ -30,11 +31,22 @@ export default async function Page() {
   try {
     ({ sessionId, loginName, organization } = await getSessionCredentials());
   } catch {
-    redirect("/password/reset");
+    redirect("/password");
   }
 
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+
+  const authCheck = await checkAuthenticationLevel(
+    serviceUrl,
+    AuthLevel.PASSWORD_REQUIRED,
+    loginName,
+    organization
+  );
+
+  if (!authCheck.satisfied) {
+    redirect(authCheck.redirect || "/password");
+  }
 
   const sessionData = sessionId
     ? await loadSessionById(serviceUrl, sessionId, organization)
@@ -44,8 +56,8 @@ export default async function Page() {
   const canUseU2F = sessionData.authMethods?.includes(AuthenticationMethodType.U2F) ?? false;
 
   if (!sessionData.factors?.user?.id || (!canUseTotp && !canUseU2F)) {
-    logMessage.info("Password reset recovery requires at least one strong MFA method");
-    redirect("/password/reset");
+    logMessage.info("Password change requires at least one configured strong MFA method");
+    redirect("/account");
   }
 
   return (
@@ -53,8 +65,8 @@ export default async function Page() {
       <StrongFactorSelection
         canUseTotp={canUseTotp}
         canUseU2F={canUseU2F}
-        totpUrl="/password/reset/verify/time-based"
-        u2fUrl="/password/reset/verify/u2f"
+        totpUrl="/password/change/verify/time-based"
+        u2fUrl="/password/change/verify/u2f"
       />
     </AuthPanel>
   );

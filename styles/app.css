@@ -7,6 +7,44 @@
 @import "@gcforms/core/styles/gc-header.css";
 @import "react-toastify/dist/ReactToastify.css";
 
+.Toastify__toast.gc-toast {
+  color: inherit;
+}
+
+.Toastify__toast.gc-toast svg {
+  fill: currentColor;
+}
+
+.Toastify__toast.gc-toast--success,
+.Toastify__toast.Toastify__toast--success {
+  background: var(--color-gcds-green-50) !important;
+  color: var(--color-gcds-green-800) !important;
+}
+
+.Toastify__toast.gc-toast--error,
+.Toastify__toast.Toastify__toast--error {
+  background: var(--color-gcds-red-100) !important;
+  color: var(--color-gcds-red-800) !important;
+}
+
+.Toastify__toast.gc-toast--info,
+.Toastify__toast.Toastify__toast--info {
+  background: var(--color-gcds-blue-50) !important;
+  color: var(--color-gcds-blue-800) !important;
+}
+
+.Toastify__toast.gc-toast--warn,
+.Toastify__toast.gc-toast--warning,
+.Toastify__toast.Toastify__toast--warning {
+  background: var(--color-gcds-yellow-50) !important;
+  color: var(--color-gcds-yellow-800) !important;
+}
+
+.Toastify__toast.gc-toast--default {
+  background: var(--color-white-default) !important;
+  color: var(--color-black-default) !important;
+}
+
 @custom-variant xxl (@media (max-width: 1200px));
 @custom-variant xl (@media (max-width: 992px));
 @custom-variant lg (@media (max-width: 768px));

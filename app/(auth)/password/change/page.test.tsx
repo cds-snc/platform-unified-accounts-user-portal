@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { render, screen } from "@testing-library/react";
+import { create } from "@zitadel/client";
+import { SessionSchema } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getSessionCredentials } from "@lib/cookies";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { AuthLevel, checkAuthenticationLevel, hasStrongMFA } from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
 
@@ -31,6 +33,7 @@ vi.mock("@lib/server/route-protection", () => ({
     PASSWORD_REQUIRED: "password_required",
   },
   checkAuthenticationLevel: vi.fn(),
+  hasStrongMFA: vi.fn(),
 }));
 
 vi.mock("@lib/zitadel", () => ({
@@ -66,6 +69,23 @@ vi.mock("./components/ChangePasswordForm", () => ({
 }));
 
 describe("password/change page", () => {
+  const strongMfaSession = create(SessionSchema, {
+    id: "session-123",
+    factors: {
+      user: { id: "user-123", loginName: "person@canada.ca", organizationId: "org-1" },
+      password: { verifiedAt: { seconds: BigInt(1), nanos: 0 } },
+      totp: { verifiedAt: { seconds: BigInt(1), nanos: 0 } },
+    },
+  });
+
+  const passwordOnlySession = create(SessionSchema, {
+    id: "session-123",
+    factors: {
+      user: { id: "user-123", loginName: "person@canada.ca", organizationId: "org-1" },
+      password: { verifiedAt: { seconds: BigInt(1), nanos: 0 } },
+    },
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -79,7 +99,9 @@ describe("password/change page", () => {
 
     vi.mocked(checkAuthenticationLevel).mockResolvedValue({
       satisfied: true,
+      session: strongMfaSession,
     } as never);
+    vi.mocked(hasStrongMFA).mockReturnValue(true);
 
     vi.mocked(getPasswordComplexitySettings).mockResolvedValue({} as never);
 
@@ -114,6 +136,18 @@ describe("password/change page", () => {
 
     await expect(Page()).rejects.toThrow("NEXT_REDIRECT");
     expect(redirect).toHaveBeenCalledWith("/password");
+  });
+
+  it("redirects to strong MFA verification when only password is verified", async () => {
+    vi.mocked(checkAuthenticationLevel).mockResolvedValue({
+      satisfied: true,
+      session: passwordOnlySession,
+    } as never);
+    vi.mocked(hasStrongMFA).mockReturnValue(false);
+
+    await expect(Page()).rejects.toThrow("NEXT_REDIRECT");
+
+    expect(redirect).toHaveBeenCalledWith("/password/change/verify");
   });
 
   it("renders change password form when auth and session context are valid", async () => {

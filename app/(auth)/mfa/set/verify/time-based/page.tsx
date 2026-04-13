@@ -9,10 +9,9 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { getOriginalHostFromHeaders } from "@lib/server/host";
+import { loadMfaVerificationSession } from "@lib/server/mfa-verify";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { resolveSiteConfigByHost } from "@lib/site-config";
 import { getSerializableObject } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
@@ -26,27 +25,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
-  let organization: string | undefined;
-
-  try {
-    ({ sessionId, loginName, organization } = await getSessionCredentials());
-  } catch {
-    redirect("/password/reset");
-  }
-
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
-  const sessionData = sessionId
-    ? await loadSessionById(serviceUrl, sessionId, organization)
-    : await loadSessionByLoginname(serviceUrl, loginName, organization);
+  const { sessionId, loginName, organization, sessionData } = await loadMfaVerificationSession({
+    serviceUrl,
+    pageName: "TOTP verify page",
+    missingSessionRedirect: "/mfa/set/verify",
+  });
 
   if (!sessionData.authMethods?.includes(AuthenticationMethodType.TOTP)) {
-    redirect("/password/reset/verify");
+    redirect("/mfa/set/verify");
   }
 
   const loginSettings = await getLoginSettings({
@@ -67,7 +58,7 @@ export default async function Page() {
         organization={organization ?? sessionData.factors?.user?.organizationId}
         method="time-based"
         loginSettings={loginSettings}
-        redirect="/password/reset/set"
+        redirect="/mfa/set"
         displayName={sessionData.factors?.user?.displayName}
         siteConfig={siteConfig}
       />

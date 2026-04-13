@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { AuthLevel, checkAuthenticationLevel, hasStrongMFA } from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -40,6 +40,10 @@ export default async function Page() {
 
   if (!authCheck.satisfied) {
     redirect(authCheck.redirect || "/password");
+  }
+
+  if (!hasStrongMFA(authCheck.session ?? null)) {
+    redirect("/password/change/verify");
   }
 
   const passwordComplexitySettings = await getPasswordComplexitySettings({

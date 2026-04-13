@@ -10,6 +10,7 @@ import Image from "next/image";
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/imageUrl";
 import { cn } from "@lib/utils";
+
 type Props = {
   method: string;
   title: string;
@@ -63,7 +64,7 @@ export function MethodOptionCard({
               {isDefault && (
                 <>
                   {" "}
-                  — <span className="italic">{defaultText}</span>
+                  <span className="italic">{defaultText}</span>
                 </>
               )}
             </div>

@@ -13,16 +13,18 @@ import { useTranslation } from "@i18n/client";
 import { Button } from "@components/ui/button/Button";
 
 /*--------------------------------------------*
- * Parent Relative
+ * Local Relative
  *--------------------------------------------*/
-import { MethodOptionCard } from "../../../../u2f/components/MethodOptionCard";
+import { MethodOptionCard } from "./MethodOptionCard";
 
 type Props = {
   canUseTotp: boolean;
   canUseU2F: boolean;
+  totpUrl: string;
+  u2fUrl: string;
 };
 
-export function PasswordResetSecondFactor({ canUseTotp, canUseU2F }: Props) {
+export function StrongFactorSelection({ canUseTotp, canUseU2F, totpUrl, u2fUrl }: Props) {
   const router = useRouter();
   const { t } = useTranslation("mfa");
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export function PasswordResetSecondFactor({ canUseTotp, canUseU2F }: Props) {
             title={t("set.authenticator.title")}
             icon="/img/verified_user_24px.png"
             description={t("set.authenticator.description")}
-            url="/password/reset/verify/time-based"
+            url={totpUrl}
             isSelected={selectedMethod === "authenticator"}
             onSelect={handleMethodSelect}
           />
@@ -53,7 +55,7 @@ export function PasswordResetSecondFactor({ canUseTotp, canUseU2F }: Props) {
             title={t("set.securityKey.title")}
             icon="/img/fingerprint_24px.png"
             description={t("set.securityKey.description")}
-            url="/password/reset/verify/u2f"
+            url={u2fUrl}
             isSelected={selectedMethod === "securityKey"}
             onSelect={handleMethodSelect}
           />

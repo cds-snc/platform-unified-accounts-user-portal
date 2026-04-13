@@ -3,12 +3,16 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useActionState } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 
+import {
+  FormState,
+  handleOTPFormSubmit,
+  updateSessionForOTPChallenge,
+} from "@root/app/(auth)/otp/[method]/actions";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -23,11 +27,6 @@ import { Alert, ErrorStatus } from "@components/ui/form";
 import { CodeEntry } from "@components/ui/form/CodeEntry";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 
-/*--------------------------------------------*
- * Local Relative
- *--------------------------------------------*/
-import { FormState, handleOTPFormSubmit, updateSessionForOTPChallenge } from "../actions";
-
 export function LoginOTP({
   loginName,
   sessionId,
@@ -40,7 +39,7 @@ export function LoginOTP({
   redirect,
   displayName,
 }: {
-  loginName?: string; // either loginName or sessionId must be provided
+  loginName?: string;
   sessionId?: string;
   requestId?: string;
   organization?: string;
@@ -87,8 +86,8 @@ export function LoginOTP({
   }, []);
 
   const localFormAction = async (_: FormState, formData?: FormData) => {
-    const code = (formData?.get("code") as string) ?? "";
-    const result = await handleOTPFormSubmit(code, {
+    const enteredCode = (formData?.get("code") as string) ?? "";
+    const result = await handleOTPFormSubmit(enteredCode, {
       loginName,
       sessionId,
       organization,
