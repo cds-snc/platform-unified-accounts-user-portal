@@ -10,7 +10,11 @@ import { redirect } from "next/navigation";
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import {
+  AuthLevel,
+  checkAuthenticationLevel,
+  requiresStrongMfaSetupVerification,
+} from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById } from "@lib/session";
 import { serverTranslation } from "@i18n/server";
@@ -60,6 +64,13 @@ export default async function Page(props: {
       hasOrganization: !!organization,
     });
     redirect("/mfa/set");
+  }
+
+  if (requiresStrongMfaSetupVerification(sessionFactors)) {
+    logMessage.debug({
+      message: "U2F setup requires strong MFA re-verification",
+    });
+    redirect("/mfa/set/verify");
   }
 
   if (!loginName || !sessionFactors.id) {

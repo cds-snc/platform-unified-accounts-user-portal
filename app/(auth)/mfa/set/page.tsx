@@ -4,14 +4,17 @@
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import {
+  AuthLevel,
+  checkAuthenticationLevel,
+  requiresStrongMfaSetupVerification,
+} from "@lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { checkSessionFactorValidity, loadSessionById } from "@lib/session";
 import { getSerializableLoginSettings } from "@lib/zitadel";
@@ -60,14 +63,7 @@ export default async function Page() {
     redirect("/");
   }
 
-  const hasConfiguredStrongMFA = [AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F].some(
-    (method) => sessionFactors.authMethods?.includes(method)
-  );
-
-  const hasVerifiedStrongMFA =
-    !!sessionFactors.factors?.totp?.verifiedAt || !!sessionFactors.factors?.webAuthN?.verifiedAt;
-
-  if (hasConfiguredStrongMFA && !hasVerifiedStrongMFA) {
+  if (requiresStrongMfaSetupVerification(sessionFactors)) {
     redirect("/mfa/set/verify");
   }
 

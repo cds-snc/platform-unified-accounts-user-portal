@@ -1,4 +1,5 @@
 import { timestampDate } from "@zitadel/client";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { loadMostRecentSession } from "@lib/session";
@@ -10,6 +11,7 @@ import {
   getSmartRedirect,
   hasAnyMFA,
   hasStrongMFA,
+  requiresStrongMfaSetupVerification,
 } from "./route-protection";
 
 vi.mock("@zitadel/client", () => ({
@@ -54,6 +56,39 @@ describe("route-protection", () => {
 
     expect(hasAnyMFA(otpEmailSession)).toBe(true);
     expect(hasStrongMFA(otpEmailSession)).toBe(false);
+  });
+
+  it("requires strong MFA re-verification before MFA setup when a strong method is configured", () => {
+    expect(
+      requiresStrongMfaSetupVerification({
+        authMethods: [AuthenticationMethodType.TOTP],
+        factors: {
+          user: { id: "user-123" },
+          password: { verifiedAt: {} },
+        },
+      } as never)
+    ).toBe(true);
+
+    expect(
+      requiresStrongMfaSetupVerification({
+        authMethods: [AuthenticationMethodType.TOTP],
+        factors: {
+          user: { id: "user-123" },
+          password: { verifiedAt: {} },
+          totp: { verifiedAt: {} },
+        },
+      } as never)
+    ).toBe(false);
+
+    expect(
+      requiresStrongMfaSetupVerification({
+        authMethods: [],
+        factors: {
+          user: { id: "user-123" },
+          password: { verifiedAt: {} },
+        },
+      } as never)
+    ).toBe(false);
   });
 
   it("allows open routes without loading session", async () => {

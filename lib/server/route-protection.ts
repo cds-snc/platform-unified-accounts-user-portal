@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 import { timestampDate } from "@zitadel/client";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -111,6 +112,37 @@ export function hasAnyMFA(session: Session | null): boolean {
   if (!session) return false;
   const factors = checkSessionFactors(session);
   return factors.totpVerified || factors.u2fVerified || factors.otpEmailVerified;
+}
+
+type SetupProtectionSession = {
+  authMethods?: AuthenticationMethodType[];
+  factors?: Session["factors"];
+};
+
+/**
+ * Users who already configured a strong MFA factor must re-verify it before adding more MFA methods.
+ */
+export function requiresStrongMfaSetupVerification(
+  session: SetupProtectionSession | null | undefined
+): boolean {
+  if (!session) {
+    return false;
+  }
+
+  const hasConfiguredStrongMFA =
+    session.authMethods?.some(
+      (method) =>
+        method === AuthenticationMethodType.TOTP || method === AuthenticationMethodType.U2F
+    ) ?? false;
+
+  if (!hasConfiguredStrongMFA) {
+    return false;
+  }
+
+  const hasVerifiedStrongMFA =
+    !!session.factors?.totp?.verifiedAt || !!session.factors?.webAuthN?.verifiedAt;
+
+  return !hasVerifiedStrongMFA;
 }
 
 /**

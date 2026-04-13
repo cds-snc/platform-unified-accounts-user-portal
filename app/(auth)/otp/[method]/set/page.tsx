@@ -12,7 +12,11 @@ import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_s
 import { LOGGED_IN_HOME_PAGE } from "@root/constants/config";
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import {
+  AuthLevel,
+  checkAuthenticationLevel,
+  requiresStrongMfaSetupVerification,
+} from "@lib/server/route-protection";
 import { protectedAddOTPEmail } from "@lib/server/zitadel-protected";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadMostRecentSession } from "@lib/session";
@@ -72,6 +76,14 @@ export default async function Page(props: {
       organization,
     },
   });
+
+  if (requiresStrongMfaSetupVerification(session)) {
+    logMessage.debug({
+      message: "OTP setup requires strong MFA re-verification",
+      method,
+    });
+    redirect("/mfa/set/verify");
+  }
 
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,

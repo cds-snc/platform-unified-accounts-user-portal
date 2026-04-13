@@ -15,8 +15,10 @@ import {
   AuthLevel,
   checkAuthenticationLevel,
   getSmartRedirect,
+  requiresStrongMfaSetupVerification,
 } from "./lib/server/route-protection";
 import { getServiceUrlFromHeaders } from "./lib/service-url";
+import { loadSessionById } from "./lib/session";
 
 export const config = {
   matcher: [
@@ -52,6 +54,19 @@ async function loadSecuritySettings(request: NextRequest): Promise<SecuritySetti
   }
 
   return response.settings;
+}
+
+function isMfaSetupRoute(pathname: string): boolean {
+  return (
+    pathname === "/mfa/set" ||
+    pathname.startsWith("/mfa/set/") ||
+    pathname === "/u2f/set" ||
+    pathname.startsWith("/u2f/set/") ||
+    pathname === "/otp/email/set" ||
+    pathname.startsWith("/otp/email/set/") ||
+    pathname === "/otp/time-based/set" ||
+    pathname.startsWith("/otp/time-based/set/")
+  );
 }
 
 export async function proxy(request: NextRequest) {
@@ -163,6 +178,24 @@ export async function proxy(request: NextRequest) {
       const hasPassword = session?.factors?.password?.verifiedAt;
 
       if (hasPassword) {
+        if (isMfaSetupRoute(pathname) && session?.id) {
+          try {
+            const setupSession = await loadSessionById(
+              serviceUrl,
+              session.id,
+              ZITADEL_ORGANIZATION
+            );
+
+            if (requiresStrongMfaSetupVerification(setupSession)) {
+              const verifyUrl = request.nextUrl.clone();
+              verifyUrl.pathname = "/mfa/set/verify";
+              return NextResponse.redirect(verifyUrl);
+            }
+          } catch {
+            // Let the page-level guard handle failures fetching the enriched session.
+          }
+        }
+
         // Allow access to MFA flow pages when password is already verified
         return NextResponse.next({
           request: { headers: requestHeaders },
