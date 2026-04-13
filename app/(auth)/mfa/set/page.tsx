@@ -64,15 +64,11 @@ export default async function Page() {
     (method) => sessionFactors.authMethods?.includes(method)
   );
 
-  const fullyAuthenticatedCheck = await checkAuthenticationLevel(
-    serviceUrl,
-    AuthLevel.ANY_MFA_REQUIRED,
-    loginName,
-    organization
-  );
+  const hasVerifiedStrongMFA =
+    !!sessionFactors.factors?.totp?.verifiedAt || !!sessionFactors.factors?.webAuthN?.verifiedAt;
 
-  if (!fullyAuthenticatedCheck.satisfied && hasConfiguredStrongMFA) {
-    redirect(fullyAuthenticatedCheck.redirect || "/mfa");
+  if (hasConfiguredStrongMFA && !hasVerifiedStrongMFA) {
+    redirect("/mfa/set/verify");
   }
 
   const loginSettings = await getSerializableLoginSettings({

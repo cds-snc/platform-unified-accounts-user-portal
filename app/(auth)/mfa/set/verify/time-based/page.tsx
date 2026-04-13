@@ -1,0 +1,88 @@
+/*--------------------------------------------*
+ * Framework and Third-Party
+ *--------------------------------------------*/
+import { Metadata } from "next";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
+
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { getSessionCredentials } from "@lib/cookies";
+import { getOriginalHostFromHeaders } from "@lib/server/host";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { getServiceUrlFromHeaders } from "@lib/service-url";
+import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import { resolveSiteConfigByHost } from "@lib/site-config";
+import { getSerializableObject } from "@lib/utils";
+import { getLoginSettings } from "@lib/zitadel";
+import { serverTranslation } from "@i18n/server";
+import { AuthPanel } from "@components/auth/AuthPanel";
+import { LoginOTP } from "@components/mfa/LoginOTP";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await serverTranslation("otp");
+  return { title: t("verify.authAppTitle") };
+}
+
+export default async function Page() {
+  let sessionId: string | undefined;
+  let loginName: string | undefined;
+  let organization: string | undefined;
+
+  try {
+    ({ sessionId, loginName, organization } = await getSessionCredentials());
+  } catch {
+    redirect("/password");
+  }
+
+  const _headers = await headers();
+  const { serviceUrl } = getServiceUrlFromHeaders(_headers);
+  const resolvedHost = getOriginalHostFromHeaders(_headers);
+  const siteConfig = resolveSiteConfigByHost(resolvedHost);
+
+  const authCheck = await checkAuthenticationLevel(
+    serviceUrl,
+    AuthLevel.PASSWORD_REQUIRED,
+    loginName,
+    organization
+  );
+
+  if (!authCheck.satisfied) {
+    redirect(authCheck.redirect || "/password");
+  }
+
+  const sessionData = sessionId
+    ? await loadSessionById(serviceUrl, sessionId, organization)
+    : await loadSessionByLoginname(serviceUrl, loginName, organization);
+
+  if (!sessionData.authMethods?.includes(AuthenticationMethodType.TOTP)) {
+    redirect("/mfa/set/verify");
+  }
+
+  const loginSettings = await getLoginSettings({
+    serviceUrl,
+    organization: organization ?? sessionData.factors?.user?.organizationId,
+  }).then((obj) => getSerializableObject(obj));
+
+  return (
+    <AuthPanel
+      titleI18nKey="verify.authAppTitle"
+      descriptionI18nKey="none"
+      namespace="otp"
+      imageSrc="/img/auth-app-icon.png"
+    >
+      <LoginOTP
+        loginName={loginName ?? sessionData.factors?.user?.loginName}
+        sessionId={sessionId}
+        organization={organization ?? sessionData.factors?.user?.organizationId}
+        method="time-based"
+        loginSettings={loginSettings}
+        redirect="/mfa/set"
+        displayName={sessionData.factors?.user?.displayName}
+        siteConfig={siteConfig}
+      />
+    </AuthPanel>
+  );
+}
