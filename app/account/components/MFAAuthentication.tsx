@@ -127,6 +127,7 @@ export const MFAAuthentication = ({
                 width={24}
                 height={24}
                 className="mr-1"
+                style={{ width: "24px", height: "24px" }}
               />{" "}
               <Link href="/mfa/set">{t("mfaAuthentication.addlMethods")}</Link>
             </div>

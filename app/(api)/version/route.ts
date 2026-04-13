@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { getVersion } from "@lib/version";
+
 export const dynamic = "force-static";
 
-// Prefer GIT_SHA if it is available and fallback to the build timestamp
-// This provides a stable version string for each build
-const VERSION = process.env.GIT_SHA ?? new Date().toISOString();
+const VERSION = getVersion();
 
 export function GET() {
   return new NextResponse(VERSION, {
