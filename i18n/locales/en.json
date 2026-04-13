@@ -48,6 +48,12 @@
     },
     "ariaLabel": "Footer"
   },
+  "versionUpdater": {
+    "title": "New version available",
+    "description": "A new version of the app is available. It is recommended to refresh the page to get the latest updates and avoid any issues.",
+    "close": "Close",
+    "refreshNow": "Reload and Update"
+  },
   "account": {
     "title": "Account settings",
     "navigation": {

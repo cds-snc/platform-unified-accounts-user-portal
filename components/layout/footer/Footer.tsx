@@ -8,7 +8,7 @@ export const Footer = async ({ children }: { children?: React.ReactNode }) => {
   return (
     <footer
       className={cn(
-        "mt-16 flex-none border-0 bg-gray-100 px-[1rem] py-0 tablet:px-[4rem] laptop:px-32 lg:mt-10"
+        "mt-16 flex-none border-0 bg-gray-100 px-4 py-0 tablet:px-16 laptop:px-32 lg:mt-10"
       )}
       data-server="true"
       data-testid="footer"
@@ -21,7 +21,7 @@ export const Footer = async ({ children }: { children?: React.ReactNode }) => {
           <Version />
         </div>
 
-        <div className="min-w-[168px]">
+        <div className="min-w-42">
           <picture>
             <img className="h-10 lg:h-8" alt="fip.text" src={getImageUrl("/img/wmms-blk.svg")} />
           </picture>

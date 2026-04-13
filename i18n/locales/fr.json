@@ -53,6 +53,12 @@
     },
     "ariaLabel": "Pied de page"
   },
+  "versionUpdater": {
+    "title": "Nouvelle version disponible",
+    "description": "Une nouvelle version de l'application est disponible. Il est recommandé d'actualiser la page pour obtenir les plus récentes mises à jour et éviter tout problème.",
+    "close": "Fermer",
+    "refreshNow": "Recharger et mettre à jour"
+  },
   "account": {
     "title": "Paramètres du compte",
     "navigation": {
