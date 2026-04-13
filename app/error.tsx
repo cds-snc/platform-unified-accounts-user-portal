@@ -19,7 +19,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
   return (
     <div className="">
       <div className="text-center">
-        <h1 className="mt-8 !mb-6">
+        <h1 className="mt-8 mb-6!">
           <I18n i18nKey="title" namespace="error" />
         </h1>
         <Image
@@ -28,6 +28,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
           width={200}
           height={200}
           className="mx-auto mb-6"
+          style={{ height: "auto" }}
           priority
         />
       </div>

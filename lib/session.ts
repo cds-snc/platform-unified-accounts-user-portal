@@ -59,7 +59,7 @@ export async function loadMostRecentSession({
   }).then((resp: GetSessionResponse) => resp.session);
 }
 
-type SessionWithAuthData = {
+export type SessionWithAuthData = {
   id?: string;
   factors?: Session["factors"];
   authMethods: AuthenticationMethodType[];

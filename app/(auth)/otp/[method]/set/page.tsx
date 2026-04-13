@@ -12,14 +12,9 @@ import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_s
 import { LOGGED_IN_HOME_PAGE } from "@root/constants/config";
 import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import {
-  AuthLevel,
-  checkAuthenticationLevel,
-  requiresStrongMfaSetupVerification,
-} from "@lib/server/route-protection";
+import { loadMfaSetupSession } from "@lib/server/mfa-setup";
 import { protectedAddOTPEmail } from "@lib/server/zitadel-protected";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
-import { loadMostRecentSession } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { registerTOTP } from "@lib/zitadel";
 import { getZitadelUiError } from "@lib/zitadel-errors";
@@ -43,7 +38,17 @@ export default async function Page(props: {
   const params = await props.params;
   const searchParams = await props.searchParams;
 
-  const { loginName, organization, requestId } = await getSessionCredentials();
+  let sessionId: string | undefined;
+  let loginName: string | undefined;
+  let organization: string | undefined;
+  let requestId: string | undefined;
+
+  try {
+    ({ sessionId, loginName, organization, requestId } = await getSessionCredentials());
+  } catch {
+    redirect("/password");
+  }
+
   const checkAfter = searchParams.checkAfter === "true";
 
   const { method } = params;
@@ -52,38 +57,14 @@ export default async function Page(props: {
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
 
-  const authCheck = await checkAuthenticationLevel(
+  const session = await loadMfaSetupSession({
     serviceUrl,
-    AuthLevel.PASSWORD_REQUIRED,
+    sessionId,
     loginName,
-    organization
-  );
-
-  if (!authCheck.satisfied) {
-    logMessage.debug({
-      message: "OTP setup page auth check failed",
-      method,
-      reason: authCheck.reason,
-      redirect: authCheck.redirect,
-    });
-    redirect(authCheck.redirect || "/password");
-  }
-
-  const session = await loadMostRecentSession({
-    serviceUrl,
-    sessionParams: {
-      loginName,
-      organization,
-    },
+    organization,
+    pageName: "OTP setup page",
+    missingSessionRedirect: "/mfa/set",
   });
-
-  if (requiresStrongMfaSetupVerification(session)) {
-    logMessage.debug({
-      message: "OTP setup requires strong MFA re-verification",
-      method,
-    });
-    redirect("/mfa/set/verify");
-  }
 
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,
