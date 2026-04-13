@@ -138,7 +138,7 @@ export function PasswordValidationForm({
               <Label htmlFor="code" required>
                 {t("reset.labels.confirmationCode")}
               </Label>
-              {getError("code", state.validationErrors) && (
+              {hasError("code", state.validationErrors) && (
                 <ErrorMessage id={"errorMessageCode"}>
                   {t(getError("code", state.validationErrors))}
                 </ErrorMessage>
@@ -194,7 +194,7 @@ export function PasswordValidationForm({
             <Label htmlFor="confirmPassword" required>
               {t("create.labels.confirmPassword")}
             </Label>
-            {getError("confirmPassword", state.validationErrors) && (
+            {hasError("confirmPassword", state.validationErrors) && (
               <ErrorMessage id={"errorMessageConfirmPassword"}>
                 {getError("confirmPassword", state.validationErrors)}
               </ErrorMessage>

@@ -163,7 +163,7 @@ export const PersonalDetails = ({
                 <Label className="required" htmlFor="firstname" required>
                   {t("personalDetails.firstName")}
                 </Label>
-                {getError("firstname", state.validationErrors) && (
+                {hasError("firstname", state.validationErrors) && (
                   <ErrorMessage id={"errorMessageFirstname"}>
                     {getError("firstname", state.validationErrors)}
                   </ErrorMessage>
@@ -188,7 +188,7 @@ export const PersonalDetails = ({
                 <Label htmlFor="lastname" required>
                   {t("personalDetails.lastName")}
                 </Label>
-                {getError("lastname", state.validationErrors) && (
+                {hasError("lastname", state.validationErrors) && (
                   <ErrorMessage id={"errorMessageLastname"}>
                     {getError("lastname", state.validationErrors)}
                   </ErrorMessage>

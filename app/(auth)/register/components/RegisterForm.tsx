@@ -121,7 +121,7 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
             <Label htmlFor="lastname" required>
               {t("labels.lastname")}
             </Label>
-            {getError("lastname", state.validationErrors) && (
+            {hasError("lastname", state.validationErrors) && (
               <ErrorMessage id={"errorMessageLastname"}>
                 {getError("lastname", state.validationErrors)}
               </ErrorMessage>

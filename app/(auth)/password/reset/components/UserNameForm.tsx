@@ -125,7 +125,7 @@ export const UserNameForm = ({ organization, requestId }: Props) => {
             <div className="mb-4 text-sm text-black" id="login-description">
               {t("form.description")}
             </div>
-            {getError("username", state.validationErrors) && (
+            {hasError("username", state.validationErrors) && (
               <ErrorMessage id={"errorMessageUsername"}>
                 {getError("username", state.validationErrors)}
               </ErrorMessage>

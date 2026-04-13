@@ -35,7 +35,7 @@ export const CodeEntry = ({
         <Hint id="codeHint">
           <I18n i18nKey="hint" namespace="verify" />
         </Hint>
-        {getError("code", state.validationErrors) && (
+        {hasError("code", state.validationErrors) && (
           <ErrorMessage id={"errorMessageCode"}>
             {getError("code", state.validationErrors)}
           </ErrorMessage>
