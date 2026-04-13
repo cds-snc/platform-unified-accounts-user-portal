@@ -1,23 +1,33 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 /**
  * Generates a Content Security Policy header with a nonce for inline scripts and styles.
- * This prevents XSS attacks by requiring all inline scripts/styles to have a matching nonce.
  *
+ * In production, Next.js automatically attaches the nonce to its own inline styles.
+ * In development, React devtools and HMR inject styles without nonces, so
+ * 'unsafe-inline' is used instead.
+ *
+ * @see https://nextjs.org/docs/app/guides/content-security-policy
  * @returns Object containing CSP header string and base64-encoded nonce
  */
 export const generateCSP = (): { csp: string; nonce: string } => {
   // Generate a random nonce and base64 encode it
   const nonce = Buffer.from(randomUUID()).toString("base64");
 
-  // Construct CSP header with nonce
-  // script-src 'strict-dynamic' enables the browser to ignore unsafe-inline for scripts with nonce
+  // 'unsafe-eval' is required in development for React's enhanced error overlays
+  const isDev = process.env.NODE_ENV === "development";
+  const scriptSrc = isDev
+    ? `'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic'`
+    : `'self' 'nonce-${nonce}' 'strict-dynamic'`;
+  const styleSrc = isDev ? `'self' 'unsafe-inline'` : `'self' 'nonce-${nonce}'`;
+
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'wasm-unsafe-eval' 'strict-dynamic';
-    style-src 'self' 'nonce-${nonce}';
+    script-src ${scriptSrc};
+    style-src ${styleSrc};
     img-src 'self' blob: data:;
     font-src 'self';
     object-src 'none';
@@ -25,8 +35,7 @@ export const generateCSP = (): { csp: string; nonce: string } => {
     form-action 'self';
     frame-ancestors 'none';
     connect-src 'self';
-    block-all-mixed-content;
-    upgrade-insecure-requests;
+    ${isDev ? "" : "upgrade-insecure-requests;"}
   `;
 
   // Normalize whitespace and return
@@ -35,3 +44,8 @@ export const generateCSP = (): { csp: string; nonce: string } => {
     nonce,
   };
 };
+
+export function responseWithCSP(response: NextResponse, csp: string): NextResponse {
+  response.headers.set("Content-Security-Policy", csp);
+  return response;
+}
