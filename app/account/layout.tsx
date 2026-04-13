@@ -11,6 +11,7 @@ import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { resolveSiteConfigByHost } from "@lib/site-config";
 import { serverTranslation } from "@i18n/server";
 import { Logout } from "@components/auth/Logout";
+import { VersionUpdater } from "@components/auth/VersionUpdater";
 import { Footer } from "@components/layout/footer/Footer";
 import { FooterLinks } from "@components/layout/footer/FooterLinks";
 import { SiteHeader } from "@components/layout/site-header/SiteHeader";
@@ -47,7 +48,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
           <LanguageToggle />
         </div>
       </SiteHeader>
-      <main id="content" className="mx-auto max-w-[71.25rem] px-6 py-2 laptop:px-0">
+      <main id="content" className="mx-auto max-w-285 px-6 py-2 laptop:px-0">
         <div className="mb-20 grid items-start gap-6 py-4 tablet:grid-cols-[22rem_1fr] tablet:gap-8">
           <aside className="w-full">
             <AccountNavigation siteConfig={siteConfig} />
@@ -55,6 +56,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
           <section className="min-w-0">{children}</section>
         </div>
       </main>
+      <VersionUpdater />
       <Footer>
         <FooterLinks siteConfig={siteConfig} />
       </Footer>
