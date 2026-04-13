@@ -21,7 +21,7 @@ import { WarningIcon } from "@components/icons/WarningIcon";
 const contextClass = {
   success: {
     classes: "gc-toast gc-toast--success",
-    icon: <CircleCheckIcon className="fill-green-800 my-2 mr-2 size-6" />,
+    icon: <CircleCheckIcon className="my-2 mr-2 size-6 fill-green-800" />,
   },
   error: {
     classes: "gc-toast gc-toast--error",

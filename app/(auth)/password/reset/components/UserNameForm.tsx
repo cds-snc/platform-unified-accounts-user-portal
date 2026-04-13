@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { validateUsername } from "@lib/validationSchemas";
+import { getError, hasError } from "@lib/validators";
 import { useTranslation } from "@i18n/client";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -92,10 +93,6 @@ export const UserNameForm = ({ organization, requestId }: Props) => {
     validationErrors: undefined,
   });
 
-  const getError = (fieldKey: string) => {
-    return state.validationErrors?.find((e) => e.fieldKey === fieldKey)?.fieldValue || "";
-  };
-
   return (
     <div>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
@@ -128,15 +125,22 @@ export const UserNameForm = ({ organization, requestId }: Props) => {
             <div className="mb-4 text-sm text-black" id="login-description">
               {t("form.description")}
             </div>
-            {getError("username") && (
-              <ErrorMessage id={"errorMessageUsername"}>{getError("username")}</ErrorMessage>
+            {hasError("username", state.validationErrors) && (
+              <ErrorMessage id={"errorMessageUsername"}>
+                {getError("username", state.validationErrors)}
+              </ErrorMessage>
             )}
             <TextInput
               type={"email"}
               id={"username"}
               required
               defaultValue={state.formData?.username || ""}
-              ariaDescribedbyIds={getError("username") ? ["errorMessageUsername"] : undefined}
+              ariaDescribedbyIds={
+                hasError("username", state.validationErrors)
+                  ? ["login-description", "errorMessageUsername"]
+                  : "login-description"
+              }
+              invalid={hasError("username", state.validationErrors)}
             />
           </div>
         </div>

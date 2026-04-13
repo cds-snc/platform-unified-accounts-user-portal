@@ -111,9 +111,7 @@ export function VersionUpdater() {
 
       <div className="mt-8 flex justify-end">
         <Button
-          buttonRef={(element) => {
-            refreshButtonRef.current = element;
-          }}
+          buttonRef={refreshButtonRef}
           onClick={() => {
             window.location.reload();
           }}

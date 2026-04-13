@@ -33,6 +33,8 @@ export async function generateMetadata(): Promise<Metadata> {
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
+import { NavMenu } from "@components/ui/nav-menu/NavMenu";
+
 import { AccountNavigation } from "./components/AccountNavigation";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
@@ -43,12 +45,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen bg-gray-soft">
       <SiteHeader>
-        <div className="flex items-center gap-4">
-          <Logout className="mr-2 text-sm" />
+        <NavMenu>
+          <Logout />
           <LanguageToggle />
-        </div>
+        </NavMenu>
       </SiteHeader>
-      <main id="content" className="mx-auto max-w-285 px-6 py-2 laptop:px-0">
+      <main id="content" className="mx-auto max-w-285 px-6 py-2 laptop:px-0" tabIndex={-1}>
         <div className="mb-20 grid items-start gap-6 py-4 tablet:grid-cols-[22rem_1fr] tablet:gap-8">
           <aside className="w-full">
             <AccountNavigation siteConfig={siteConfig} />

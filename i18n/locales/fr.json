@@ -76,6 +76,7 @@
       "change": "Modifier",
       "cancel": "Annuler",
       "updateAccount": "Mettre à jour",
+      "updateDetails": "[FR]Update your personal details",
       "success": {
         "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
@@ -218,7 +219,7 @@
       "required": "Ce champ est obligatoire.",
       "requiredPassword": "Le mot de passe est obligatoire.",
       "requiredConfirmPassword": "La confirmation du mot de passe est obligatoire.",
-      "minLength": "Au moins 8 caractères",
+      "minLength": "Au moins {{minLength}} caractères",
       "hasNumber": "Un chiffre",
       "hasUppercase": "Une lettre majuscule",
       "hasLowercase": "Une lettre minuscule",

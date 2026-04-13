@@ -1,7 +1,6 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import LanguageToggle from "@components/ui/language-toggle/LanguageToggle";
 import { SkipLink } from "@components/ui/skip-link/SkipLink";
 
 /*--------------------------------------------*
@@ -9,14 +8,13 @@ import { SkipLink } from "@components/ui/skip-link/SkipLink";
  *--------------------------------------------*/
 import { BrandContainer } from "./BrandContainer";
 import { Fip } from "./Fip";
+
 export const GcdsHeader = ({
   language,
-  showLanguageToggle = true,
   skipLink = true,
   children,
 }: {
   language: string;
-  showLanguageToggle?: boolean;
   skipLink?: boolean;
   children?: React.ReactNode;
 }) => {
@@ -26,10 +24,7 @@ export const GcdsHeader = ({
         {skipLink && <SkipLink />}
         <BrandContainer>
           <Fip language={language} />
-          <div className="brand__toggle">
-            {children}
-            {showLanguageToggle && <LanguageToggle />}
-          </div>
+          <div className="brand__toggle">{children}</div>
         </BrandContainer>
       </header>
     </div>

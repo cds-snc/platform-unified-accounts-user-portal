@@ -4,6 +4,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useActionState, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@lib/utils";
@@ -11,6 +12,7 @@ import { cn } from "@lib/utils";
  * Internal Aliases
  *--------------------------------------------*/
 import { validatePersonalDetails } from "@lib/validationSchemas";
+import { getError, hasError } from "@lib/validators";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -46,12 +48,27 @@ export const PersonalDetails = ({
   const { t } = useTranslation("account");
   const [editMode, setEditMode] = useState(false);
   const firstNameRef = useRef<HTMLInputElement>(null);
+  const changeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (editMode) {
       firstNameRef.current?.focus();
     }
   }, [editMode]);
+
+  const handleEditModeClose = () => {
+    // wait for React to flush state (closing the form) before moving focus back to the
+    // change button to prevent focus conflicts
+    flushSync(() => setEditMode(false));
+    changeButtonRef.current?.focus();
+  };
+
+  const handleEscape = (e: React.KeyboardEvent) => {
+    // Treat like a dialog with escape "closing" edit mode
+    if (e.key === "Escape") {
+      handleEditModeClose();
+    }
+  };
 
   const localFormAction = async (_: FormState, formData: FormData) => {
     const formEntries = {
@@ -85,7 +102,7 @@ export const PersonalDetails = ({
     }
 
     toast.success(t("personalDetails.success.updateSuccess"), "account-details");
-    setEditMode(false);
+    handleEditModeClose();
     return {
       formData: formEntries,
     };
@@ -98,10 +115,6 @@ export const PersonalDetails = ({
       lastname: lastName || "",
     },
   });
-
-  const getError = (fieldKey: string) => {
-    return state.validationErrors?.find((e) => e.fieldKey === fieldKey)?.fieldValue || "";
-  };
 
   return (
     <>
@@ -118,6 +131,7 @@ export const PersonalDetails = ({
               aria-expanded={editMode}
               aria-controls="personal-details-form"
               disabled={editMode}
+              buttonRef={changeButtonRef}
             >
               {t("personalDetails.change")}
             </Button>
@@ -142,14 +156,17 @@ export const PersonalDetails = ({
           </div>
         )}
         {editMode && (
-          <form id="personal-details-form" action={formAction} noValidate>
+          <form id="personal-details-form" action={formAction} onKeyDown={handleEscape} noValidate>
+            <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
             <div className="mb-4 flex flex-col gap-4">
               <div className="gcds-input-wrapper">
                 <Label className="required" htmlFor="firstname" required>
                   {t("personalDetails.firstName")}
                 </Label>
-                {getError("firstname") && (
-                  <ErrorMessage id={"errorMessageFirstname"}>{getError("firstname")}</ErrorMessage>
+                {hasError("firstname", state.validationErrors) && (
+                  <ErrorMessage id={"errorMessageFirstname"}>
+                    {getError("firstname", state.validationErrors)}
+                  </ErrorMessage>
                 )}
                 <TextInput
                   className="w-full"
@@ -159,15 +176,22 @@ export const PersonalDetails = ({
                   ref={firstNameRef}
                   required
                   defaultValue={state.formData?.firstname ?? ""}
-                  ariaDescribedbyIds={getError("firstname") ? ["errorMessageFirstname"] : undefined}
+                  ariaDescribedbyIds={
+                    hasError("firstname", state.validationErrors)
+                      ? ["errorMessageFirstname"]
+                      : undefined
+                  }
+                  invalid={hasError("firstname", state.validationErrors)}
                 />
               </div>
               <div className="gcds-input-wrapper">
                 <Label htmlFor="lastname" required>
                   {t("personalDetails.lastName")}
                 </Label>
-                {getError("lastname") && (
-                  <ErrorMessage id={"errorMessageLastname"}>{getError("lastname")}</ErrorMessage>
+                {hasError("lastname", state.validationErrors) && (
+                  <ErrorMessage id={"errorMessageLastname"}>
+                    {getError("lastname", state.validationErrors)}
+                  </ErrorMessage>
                 )}
                 <TextInput
                   className="w-full"
@@ -176,14 +200,21 @@ export const PersonalDetails = ({
                   required
                   id="lastname"
                   defaultValue={state.formData?.lastname ?? ""}
-                  ariaDescribedbyIds={getError("lastname") ? ["errorMessageLastname"] : undefined}
+                  ariaDescribedbyIds={
+                    hasError("lastname", state.validationErrors)
+                      ? ["errorMessageLastname"]
+                      : undefined
+                  }
+                  invalid={hasError("lastname", state.validationErrors)}
                 />
               </div>
             </div>
-
             <div className="flex gap-4">
-              <SubmitButtonAction>{t("personalDetails.updateAccount")}</SubmitButtonAction>
-              <Button theme="secondary" onClick={() => setEditMode(!editMode)}>
+              {/* Could also specify the first and or last name being updated but this is probably clear enough */}
+              <SubmitButtonAction ariaDescribedBy="personal-details-title">
+                {t("personalDetails.updateAccount")}
+              </SubmitButtonAction>
+              <Button theme="secondary" onClick={handleEditModeClose}>
                 {t("personalDetails.cancel")}
               </Button>
             </div>

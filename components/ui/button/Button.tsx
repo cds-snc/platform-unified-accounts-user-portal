@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import React, { type JSX, ReactElement } from "react";
+import React, { type JSX, ReactElement, RefObject } from "react";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -27,7 +27,7 @@ interface ButtonProps {
   "aria-label"?: string;
   theme?: Theme;
   tabIndex?: number;
-  buttonRef?: (el: HTMLButtonElement) => void;
+  buttonRef?: RefObject<HTMLButtonElement | null>;
   dataTestId?: string;
   loading?: boolean;
 }
@@ -66,8 +66,8 @@ export const Button = ({
       disabled={disabled}
       aria-label={ariaLabel}
       {...(tabIndex && { tabIndex })}
-      ref={buttonRef}
       data-testid={dataTestId}
+      ref={buttonRef}
       {...rest}
     >
       {icon && <div className={cn(theme !== "icon" && "mr-2 -ml-2 w-8")}>{icon}</div>}

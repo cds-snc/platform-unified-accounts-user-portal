@@ -1,6 +1,7 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { getError, hasError } from "@lib/validators";
 import { I18n } from "@i18n";
 
 /*--------------------------------------------*
@@ -14,12 +15,6 @@ type FormState = {
   error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: Record<string, string>;
-};
-
-// Pulls the error keys out of form state. Note that the validationErrors must be
-// populated with the translated strings for this to work.
-const getError = (fieldKey: string, state: FormState) => {
-  return state.validationErrors?.find((e) => e.fieldKey === fieldKey)?.fieldValue || "";
 };
 
 export const CodeEntry = ({
@@ -40,17 +35,22 @@ export const CodeEntry = ({
         <Hint id="codeHint">
           <I18n i18nKey="hint" namespace="verify" />
         </Hint>
-        {getError("code", state) && (
-          <ErrorMessage id={"errorMessageCode"}>{getError("code", state)}</ErrorMessage>
+        {hasError("code", state.validationErrors) && (
+          <ErrorMessage id={"errorMessageCode"}>
+            {getError("code", state.validationErrors)}
+          </ErrorMessage>
         )}
         <TextInput
           type="text"
           id="code"
           defaultValue={state.formData?.code ?? code ?? ""}
           autoComplete="one-time-code"
-          ariaDescribedbyIds={["codeHint", "errorMessageCode"]}
+          ariaDescribedbyIds={
+            hasError("code", state.validationErrors) ? ["errorMessageCode", "codeHint"] : "codeHint"
+          }
           className="!w-36"
           required
+          invalid={hasError("code", state.validationErrors)}
         />
       </div>
     </div>

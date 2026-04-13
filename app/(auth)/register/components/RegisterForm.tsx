@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateAccount } from "@lib/validationSchemas";
+import { getError, hasError } from "@lib/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -87,10 +88,6 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
     },
   });
 
-  const getError = (fieldKey: string) => {
-    return state.validationErrors?.find((e) => e.fieldKey === fieldKey)?.fieldValue || "";
-  };
-
   return (
     <>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
@@ -100,8 +97,10 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
             <Label className="required" htmlFor="firstname" required>
               {t("labels.firstname")}
             </Label>
-            {getError("firstname") && (
-              <ErrorMessage id={"errorMessageFirstname"}>{getError("firstname")}</ErrorMessage>
+            {hasError("firstname", state.validationErrors) && (
+              <ErrorMessage id={"errorMessageFirstname"}>
+                {getError("firstname", state.validationErrors)}
+              </ErrorMessage>
             )}
             <TextInput
               className="w-full"
@@ -110,15 +109,22 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               autoComplete="given-name"
               required
               defaultValue={state.formData?.firstname ?? ""}
-              ariaDescribedbyIds={getError("firstname") ? ["errorMessageFirstname"] : undefined}
+              ariaDescribedbyIds={
+                hasError("firstname", state.validationErrors)
+                  ? ["errorMessageFirstname"]
+                  : undefined
+              }
+              invalid={hasError("firstname", state.validationErrors)}
             />
           </div>
           <div className="gcds-input-wrapper">
             <Label htmlFor="lastname" required>
               {t("labels.lastname")}
             </Label>
-            {getError("lastname") && (
-              <ErrorMessage id={"errorMessageLastname"}>{getError("lastname")}</ErrorMessage>
+            {hasError("lastname", state.validationErrors) && (
+              <ErrorMessage id={"errorMessageLastname"}>
+                {getError("lastname", state.validationErrors)}
+              </ErrorMessage>
             )}
             <TextInput
               className="w-full"
@@ -127,16 +133,21 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               required
               id="lastname"
               defaultValue={state.formData?.lastname ?? ""}
-              ariaDescribedbyIds={getError("lastname") ? ["errorMessageLastname"] : undefined}
+              ariaDescribedbyIds={
+                hasError("lastname", state.validationErrors) ? ["errorMessageLastname"] : undefined
+              }
+              invalid={hasError("lastname", state.validationErrors)}
             />
           </div>
           <div className="gcds-input-wrapper col-span-2">
             <Label htmlFor="email" required>
               {t("labels.email")}
             </Label>
-            <Hint>{t("emailInputHint")}</Hint>
-            {getError("email") && (
-              <ErrorMessage id={"errorMessageEmail"}>{getError("email")}</ErrorMessage>
+            <Hint id="email-hint">{t("emailInputHint")}</Hint>
+            {hasError("email", state.validationErrors) && (
+              <ErrorMessage id={"errorMessageEmail"}>
+                {getError("email", state.validationErrors)}
+              </ErrorMessage>
             )}
             <TextInput
               className="w-full"
@@ -145,7 +156,12 @@ export function RegisterForm({ organization, requestId, siteConfig }: Props) {
               required
               id="email"
               defaultValue={state.formData?.email ?? ""}
-              ariaDescribedbyIds={getError("email") ? ["errorMessageEmail"] : undefined}
+              ariaDescribedbyIds={
+                hasError("email", state.validationErrors)
+                  ? ["errorMessageEmail", "hint-email-hint"]
+                  : "hint-email-hint"
+              }
+              invalid={hasError("email", state.validationErrors)}
             />
           </div>
         </div>

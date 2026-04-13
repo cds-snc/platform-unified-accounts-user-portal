@@ -11,6 +11,7 @@ import * as v from "valibot";
  * Internal Aliases
  *--------------------------------------------*/
 import { codeSchema, confirmPasswordSchema, passwordSchema } from "@lib/validationSchemas";
+import { getError, hasError } from "@lib/validators";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -97,7 +98,9 @@ export function PasswordValidationForm({
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`complexity.${issue.message}`),
+          fieldValue: t(`complexity.${issue.message}`, {
+            minLength: passwordComplexitySettings.minLength || 8,
+          }),
         })),
         formData: formEntries,
       };
@@ -123,10 +126,6 @@ export function PasswordValidationForm({
     },
   });
 
-  const getError = (fieldKey: string) => {
-    return state.validationErrors?.find((e) => e.fieldKey === fieldKey)?.fieldValue || "";
-  };
-
   const [dirty, setDirty] = useState(false);
 
   return (
@@ -139,8 +138,10 @@ export function PasswordValidationForm({
               <Label htmlFor="code" required>
                 {t("reset.labels.confirmationCode")}
               </Label>
-              {getError("code") && (
-                <ErrorMessage id={"errorMessageCode"}>{t(getError("code"))}</ErrorMessage>
+              {hasError("code", state.validationErrors) && (
+                <ErrorMessage id={"errorMessageCode"}>
+                  {t(getError("code", state.validationErrors))}
+                </ErrorMessage>
               )}
               <TextInput
                 id="code"
@@ -148,6 +149,7 @@ export function PasswordValidationForm({
                 type="text"
                 required
                 autoComplete="one-time-code"
+                invalid={hasError("code", state.validationErrors)}
               />
             </div>
           )}
@@ -155,8 +157,10 @@ export function PasswordValidationForm({
             <Label htmlFor="password" required>
               {t("create.labels.password")}
             </Label>
-            {getError("password") && (
-              <ErrorMessage id={"errorMessagePassword"}>{t(getError("password"))}</ErrorMessage>
+            {getError("password", state.validationErrors) && (
+              <ErrorMessage id={"errorMessagePassword"}>
+                {t(getError("password", state.validationErrors))}
+              </ErrorMessage>
             )}
             <Hint>
               <div className="mb-2">
@@ -176,18 +180,23 @@ export function PasswordValidationForm({
               className="w-full"
               type="password"
               required
-              ariaDescribedbyIds={["password-complexity-requirements"]}
+              ariaDescribedbyIds={
+                hasError("password", state.validationErrors)
+                  ? ["errorMessagePassword", "password-complexity-requirements"]
+                  : "password-complexity-requirements"
+              }
               defaultValue={state.formData?.password ?? ""}
               onChange={(e) => setWatchPassword(e.target.value)}
+              invalid={hasError("password", state.validationErrors)}
             />
           </div>
           <div className="gcds-input-wrapper">
             <Label htmlFor="confirmPassword" required>
               {t("create.labels.confirmPassword")}
             </Label>
-            {getError("confirmPassword") && (
+            {hasError("confirmPassword", state.validationErrors) && (
               <ErrorMessage id={"errorMessageConfirmPassword"}>
-                {getError("confirmPassword")}
+                {getError("confirmPassword", state.validationErrors)}
               </ErrorMessage>
             )}
             <TextInput
@@ -195,7 +204,13 @@ export function PasswordValidationForm({
               className="w-full"
               type="password"
               required
+              ariaDescribedbyIds={
+                hasError("confirmPassword", state.validationErrors)
+                  ? "errorMessageConfirmPassword"
+                  : undefined
+              }
               defaultValue={state.formData?.confirmPassword ?? ""}
+              invalid={hasError("confirmPassword", state.validationErrors)}
             />
           </div>
         </div>

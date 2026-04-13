@@ -53,6 +53,7 @@ interface ButtonProps {
   describeLoading?: string;
   type?: "submit" | "button";
   disabled?: boolean;
+  ariaDescribedBy?: string;
 }
 
 interface SubmitButtonProps extends ButtonProps {
@@ -71,6 +72,7 @@ export const SubmitButton = ({
   describeLoading,
   type = "submit",
   disabled = false,
+  ariaDescribedBy,
   ...rest
 }: SubmitButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) => {
   const { t } = useTranslation("common");
@@ -104,6 +106,7 @@ export const SubmitButton = ({
       // TODO do more testing on aria-disabled, doesn't seem to do much with AT... worth even
       // using with a submit button?
       aria-disabled={loading}
+      {...(ariaDescribedBy && { "aria-describedby": ariaDescribedBy })}
       {...rest}
     >
       {icon && <div className={cn(theme !== "icon" && "mr-2 -ml-2 w-8")}>{icon}</div>}

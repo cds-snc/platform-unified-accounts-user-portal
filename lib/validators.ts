@@ -85,3 +85,32 @@ export const containsSymbol = (field: string): boolean => {
   }
   return true;
 };
+
+export type ValidationError = { fieldKey: string; fieldValue: string };
+
+/**
+ * Helper to get the realted error key if one exists.
+ * Requires that validationErrors has been populated with translated strings.
+ * @param fieldKey - The form field key to look up
+ * @param validationErrors - The array of validation errors from form state
+ * @returns The error key to be used with translate, or an empty string if no error exists
+ */
+export const getError = (
+  fieldKey: string,
+  validationErrors: ValidationError[] | undefined
+): string => {
+  return validationErrors?.find((e) => e.fieldKey === fieldKey)?.fieldValue || "";
+};
+
+/**
+ * Helter to check whether a given field key has a validation error.
+ * @param fieldKey - The form field key to check
+ * @param validationErrors - The array of validation errors from form state
+ * @returns True if an error exists for the field, false otherwise
+ */
+export const hasError = (
+  fieldKey: string,
+  validationErrors: ValidationError[] | undefined
+): boolean => {
+  return Boolean(validationErrors?.find((e) => e.fieldKey === fieldKey));
+};
