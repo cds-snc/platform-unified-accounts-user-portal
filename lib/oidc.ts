@@ -13,6 +13,7 @@ import { toAuthRequestId, toOidcRequestId } from "@lib/oidc-request-id";
 import { sendLoginname, SendLoginnameCommand } from "@lib/server/loginname";
 import { createCallback, getAuthRequest, getLoginSettings } from "@lib/zitadel";
 
+import { logMessage } from "./logger";
 import { isSessionValid } from "./session";
 
 type LoginWithOIDCAndSession = {
@@ -32,22 +33,24 @@ export async function loginWithOIDCAndSession({
   const authRequestId = toAuthRequestId(authRequest);
   const oidcRequestId = toOidcRequestId(authRequest);
 
-  console.log(`Login with session: ${sessionId} and authRequest: ${authRequest}`);
+  logMessage.debug(`OIDC login attempt for requestId: ${oidcRequestId}`);
 
   const selectedSession = sessions.find((s) => s.id === sessionId);
 
   if (selectedSession && selectedSession.id) {
-    console.log(`Found session ${selectedSession.id}`);
+    logMessage.debug(`Found session ${selectedSession.id} for OIDC requestId: ${oidcRequestId}`);
 
     const isValid = await isSessionValid({
       serviceUrl,
       session: selectedSession,
     });
 
-    console.log("Session is valid:", isValid);
+    logMessage.debug(`OIDC session validity for requestId ${oidcRequestId}: ${isValid}`);
 
     if (!isValid && selectedSession.factors?.user) {
-      console.log("Session is not valid, need to re-authenticate user");
+      logMessage.info(
+        `OIDC session expired for requestId: ${oidcRequestId}, redirecting for re-authentication`
+      );
       // if the session is not valid anymore, we need to redirect the user to re-authenticate /
       // TODO: handle IDP intent direcly if available
       const command: SendLoginnameCommand = {
@@ -59,7 +62,7 @@ export async function loginWithOIDCAndSession({
       const res = await sendLoginname(command);
 
       if (res && "redirect" in res && res?.redirect) {
-        console.log("Redirecting to re-authenticate:", res.redirect);
+        logMessage.debug(`Re-authentication redirect initiated for requestId: ${oidcRequestId}`);
         return { redirect: res.redirect };
       }
     }
@@ -84,14 +87,14 @@ export async function loginWithOIDCAndSession({
           }),
         });
         if (callbackUrl) {
-          console.log("Redirecting to callback URL:", callbackUrl);
+          logMessage.info(`OIDC authentication complete for requestId: ${oidcRequestId}`);
           return { redirect: callbackUrl };
         } else {
           return { error: "An error occurred!" };
         }
       } catch (error: unknown) {
         // handle already handled gracefully as these could come up if old emails with requestId are used (reset password, register emails etc.)
-        console.error(error);
+        logMessage.error(error);
         if (error && typeof error === "object" && "code" in error && error?.code === 9) {
           // Already-handled auth requests can happen due to retries or duplicate RSC renders.
           // In that case, recover with a deterministic redirect to the relying party when possible.

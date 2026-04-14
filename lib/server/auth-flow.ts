@@ -5,6 +5,7 @@
  *--------------------------------------------*/
 import { headers } from "next/headers";
 
+import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -27,6 +28,10 @@ export async function completeAuthFlow(
   command: AuthFlowParams
 ): Promise<{ error: string } | { redirect: string }> {
   const { sessionId, requestId } = command;
+
+  logMessage.info(
+    `Completing ${requestId.startsWith("oidc_") ? "OIDC" : requestId.startsWith("saml_") ? "SAML" : "unknown"} auth flow for requestId: ${requestId}`
+  );
 
   const _headers = await headers();
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
@@ -52,11 +57,15 @@ export async function completeAuthFlow(
       typeof result !== "object" ||
       (!("redirect" in result) && !("error" in result))
     ) {
+      logMessage.warn(
+        `OIDC auth flow returned unexpected result structure for requestId: ${requestId}`
+      );
       return { error: "Authentication completed but navigation failed" };
     }
 
     return result;
   }
 
+  logMessage.warn("Auth flow received invalid requestId format");
   return { error: "Invalid request ID format" };
 }

@@ -46,6 +46,7 @@ import {
 import { serverTranslation } from "@i18n/server";
 
 import { getUserAgent } from "./fingerprint";
+import { logMessage } from "./logger";
 import { createServiceForHost } from "./service";
 import { getSerializableObject } from "./utils";
 
@@ -344,7 +345,11 @@ export async function createSessionForUserIdAndIdpIntent({
   };
   lifetime: Duration;
 }) {
-  console.log("Creating session for userId and IDP intent", { userId, idpIntent, lifetime });
+  logMessage.debug({
+    message: "Creating IDP intent session",
+    userId,
+    hasIdpIntentId: !!idpIntent.idpIntentId,
+  });
   const sessionService: Client<typeof SessionService> = await createServiceForHost(
     SessionService,
     serviceUrl
@@ -1492,7 +1497,9 @@ export function createServerTransport(token: string, baseUrl: string) {
                 if (kv > 0) {
                   req.header.set(header.slice(0, kv).trim(), header.slice(kv + 1).trim());
                 } else {
-                  console.warn(`Skipping malformed header: ${header}`);
+                  logMessage.warn(
+                    `Skipping malformed CUSTOM_REQUEST_HEADERS entry (expected key:value format)`
+                  );
                 }
               });
               return next(req);

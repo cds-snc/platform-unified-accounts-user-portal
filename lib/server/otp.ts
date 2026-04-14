@@ -25,6 +25,7 @@ import {
   getSessionCookieById,
   getSessionCookieByLoginName,
 } from "../cookies";
+import { logMessage } from "../logger";
 
 type SendOtpEmailCommand = {
   loginName?: string;
@@ -84,7 +85,9 @@ export async function sendOtpEmail(command: SendOtpEmailCommand) {
     requestId,
     lifetime: lifetime as Duration,
   }).catch((error) => {
-    console.error("Could not set session for OTP challenge", error);
+    logMessage.error(
+      `Could not set session for OTP challenge: ${error instanceof Error ? error.message : String(error)}`
+    );
     return null;
   });
 
@@ -96,7 +99,7 @@ export async function sendOtpEmail(command: SendOtpEmailCommand) {
   const otpCode = session.challenges?.otpEmail;
 
   if (!otpCode) {
-    console.error("No OTP code returned from Zitadel");
+    logMessage.error("No OTP code returned from Zitadel");
     return { error: t("errors.couldNotGenerateOtp") };
   }
 
@@ -113,7 +116,7 @@ export async function sendOtpEmail(command: SendOtpEmailCommand) {
   const templateId = process.env.TEMPLATE_ID;
 
   if (!apiKey || !templateId) {
-    console.error("Missing NOTIFY_API_KEY or TEMPLATE_ID environment variables");
+    logMessage.error("Missing NOTIFY_API_KEY or TEMPLATE_ID environment variables");
     return { error: t("errors.emailConfigurationError") };
   }
 
@@ -127,7 +130,9 @@ export async function sendOtpEmail(command: SendOtpEmailCommand) {
       factors: session.factors,
     };
   } catch (error) {
-    console.error("Failed to send OTP email via GC Notify", error);
+    logMessage.error(
+      `Failed to send OTP email via GC Notify: ${error instanceof Error ? error.message : String(error)}`
+    );
     return { error: t("errors.emailSendFailed") };
   }
 }
