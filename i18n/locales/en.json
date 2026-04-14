@@ -87,7 +87,7 @@
     "verifiedAccount": {
       "title": "Verified account",
       "email": "Email address",
-      "changeMessage": "<0>Cannot be changed</0> <1>create new account</1> or <2>contact the support team</2>",
+      "changeMessage": "<0>Cannot be changed</0><1>Create a new account</1> to use a different email.",
       "cannotBeChanged": "Cannot be changed",
       "createNewAccount": "create new account"
     },
