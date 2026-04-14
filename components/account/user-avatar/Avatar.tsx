@@ -1,14 +1,10 @@
 "use client";
 
 /*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-import Image from "next/image";
-
-/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { cn } from "@lib/utils";
+import { Image } from "@components/ui/image/Image";
 interface AvatarProps {
   name: string | null | undefined;
   loginName: string;
@@ -67,7 +63,6 @@ export function Avatar({ size = "base", name, loginName, imageUrl, shadow }: Ava
           alt="avatar"
           className="size-full rounded-lg border"
           src={imageUrl}
-          style={{ color: "" }}
         />
       ) : (
         <span className={cn("uppercase", size === "large" ? "text-xl" : "text-13px")}>

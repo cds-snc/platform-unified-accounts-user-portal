@@ -1,15 +1,11 @@
 "use client";
 
 /*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-import Image from "next/image";
-
-/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/imageUrl";
 import { cn } from "@lib/utils";
+import { Image } from "@components/ui/image/Image";
 
 type Props = {
   method: string;
@@ -57,14 +53,7 @@ export function MethodOptionCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <Image
-            src={getImageUrl(icon)}
-            alt={title}
-            width={32}
-            height={32}
-            className="mt-1"
-            style={{ color: "" }}
-          />
+          <Image src={getImageUrl(icon)} alt={title} width={32} height={32} className="mt-1" />
           <div>
             <div className="font-bold">
               {title}

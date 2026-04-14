@@ -2,7 +2,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import Image from "next/image";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -16,6 +15,7 @@ import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { CircleCheckIcon } from "@components/icons/CircleCheckIcon";
 import { LinkButton } from "@components/ui/button/LinkButton";
+import { Image } from "@components/ui/image/Image";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("allSet");
@@ -52,7 +52,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
               width={352}
               height={261}
               className="h-auto w-full max-w-[250px]"
-              style={{ color: "" }}
             />
           </div>
 

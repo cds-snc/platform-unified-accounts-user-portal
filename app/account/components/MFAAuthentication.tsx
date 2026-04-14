@@ -3,7 +3,6 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
@@ -13,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { getImageUrl } from "@lib/imageUrl";
 import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button/Button";
+import { Image } from "@components/ui/image/Image";
 import { ToastContainer } from "@components/ui/toast/Toast";
 import { toast } from "@components/ui/toast/Toast";
 
@@ -83,7 +83,6 @@ export const MFAAuthentication = ({
                             width={32}
                             height={32}
                             className="inline-block"
-                            style={{ color: "" }}
                           />
                           <div id={id} className="flex items-center gap-1">
                             <span className="font-semibold">
@@ -111,7 +110,6 @@ export const MFAAuthentication = ({
                       width={32}
                       height={32}
                       className="inline-block"
-                      style={{ color: "" }}
                     />
                     <span className="font-semibold">{t("mfaAuthentication.authenticatorApp")}</span>
                     <span>&#8226;</span>

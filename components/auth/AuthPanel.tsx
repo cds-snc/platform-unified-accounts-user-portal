@@ -2,13 +2,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { ReactNode } from "react";
-import Image from "next/image";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/imageUrl";
 import { I18n } from "@i18n";
+import { Image } from "@components/ui/image/Image";
 
 /*--------------------------------------------*
  * Local Relative
@@ -38,7 +38,7 @@ export const AuthPanel = ({
     <div id={wide ? "auth-panel-wide" : "auth-panel"}>
       {imageSrc && (
         <div className="mb-6 flex justify-center">
-          <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} style={{ color: "" }} />
+          <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} />
         </div>
       )}
 
