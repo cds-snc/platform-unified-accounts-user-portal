@@ -27,8 +27,8 @@ export default function Error({ error }: { error: Error & { digest?: string } })
           alt="Goose"
           width={200}
           height={200}
-          className="mx-auto mb-6"
-          style={{ height: "auto" }}
+          className="mx-auto mb-6 h-auto"
+          style={{ color: "" }}
           priority
         />
       </div>

@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 import { Viewport } from "next";
 import { Lato, Noto_Sans } from "next/font/google";
+import { headers } from "next/headers";
 import { dir } from "i18next";
 
 /*--------------------------------------------*
@@ -34,9 +35,13 @@ export const viewport: Viewport = {
 };
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const {
-    i18n: { language },
-  } = await serverTranslation(["fip"]);
+  const [
+    {
+      i18n: { language },
+    },
+    requestHeaders,
+  ] = await Promise.all([serverTranslation(["fip"]), headers()]);
+  const nonce = requestHeaders.get("x-nonce") ?? undefined;
 
   return (
     <html lang={language} dir={dir(language)} className={`${notoSans.variable} ${lato.variable}`}>
@@ -50,7 +55,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
           sizes="32x32"
         />
         {process.env.NEXT_PUBLIC_BASE_PATH && (
-          <style>
+          <style nonce={nonce}>
             {`@font-face {
   font-family: "gcds-icons";
   src: url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.eot");

@@ -38,7 +38,7 @@ export const AuthPanel = ({
     <div id={wide ? "auth-panel-wide" : "auth-panel"}>
       {imageSrc && (
         <div className="mb-6 flex justify-center">
-          <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} />
+          <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} style={{ color: "" }} />
         </div>
       )}
 

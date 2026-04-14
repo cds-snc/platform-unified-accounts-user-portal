@@ -29,6 +29,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           width={704 / 2}
           height={522 / 2}
           className="mx-auto mb-4"
+          style={{ color: "" }}
         />
 
         <LinkButton.Primary href={buildUrlWithRequestId("/mfa/set", requestId)} className="mt-10">

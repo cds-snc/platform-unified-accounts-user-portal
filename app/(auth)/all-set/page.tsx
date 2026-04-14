@@ -52,6 +52,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
               width={352}
               height={261}
               className="h-auto w-full max-w-[250px]"
+              style={{ color: "" }}
             />
           </div>
 

@@ -83,6 +83,7 @@ export const MFAAuthentication = ({
                             width={32}
                             height={32}
                             className="inline-block"
+                            style={{ color: "" }}
                           />
                           <div id={id} className="flex items-center gap-1">
                             <span className="font-semibold">
@@ -110,6 +111,7 @@ export const MFAAuthentication = ({
                       width={32}
                       height={32}
                       className="inline-block"
+                      style={{ color: "" }}
                     />
                     <span className="font-semibold">{t("mfaAuthentication.authenticatorApp")}</span>
                     <span>&#8226;</span>
@@ -127,7 +129,7 @@ export const MFAAuthentication = ({
                 width={24}
                 height={24}
                 className="mr-1"
-                style={{ width: "24px", height: "24px" }}
+                style={{ color: "" }}
               />{" "}
               <Link href="/mfa/set">{t("mfaAuthentication.addlMethods")}</Link>
             </div>

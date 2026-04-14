@@ -56,13 +56,11 @@ type ToastContext = {
 
 export const ToastContainer = ({
   autoClose = 3000,
-  width = "",
   containerId = "",
   limit,
   ariaLabel,
 }: {
   autoClose?: number | false | undefined;
-  width?: string;
   containerId?: string;
   limit?: number;
   ariaLabel?: string;
@@ -74,7 +72,6 @@ export const ToastContainer = ({
         return `${context?.defaultClassName || ""} ${contextClass[context?.type || "default"]["classes"]} 
         relative drop-shadow-md p-1 rounded-md justify-between overflow-hidden p-4 cursor-pointer text-base`;
       }}
-      style={{ width: width }}
       position="top-center"
       autoClose={autoClose}
       hideProgressBar={true}
