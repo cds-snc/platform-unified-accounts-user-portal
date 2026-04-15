@@ -88,7 +88,8 @@ export async function proxy(request: NextRequest) {
   if (!ENABLE_EMAIL_OTP && (pathname === "/otp/email" || pathname.startsWith("/otp/email/"))) {
     const url = request.nextUrl.clone();
     url.pathname = pathname.startsWith("/otp/email/set") ? "/mfa/set" : "/mfa";
-    return NextResponse.redirect(url);
+
+    return responseWithCSP(NextResponse.redirect(url), csp);
   }
 
   // Only run the proxy logic for OIDC paths
