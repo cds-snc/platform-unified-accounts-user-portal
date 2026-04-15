@@ -162,7 +162,7 @@ describe("proxy middleware", () => {
     });
   });
 
-  describe("proxy path (OIDC/SAML)", () => {
+  describe("proxy path (OIDC)", () => {
     it("rewrites to Zitadel when env vars are set", async () => {
       process.env.ZITADEL_API_URL = "https://idp.example.com";
       process.env.ZITADEL_SERVICE_USER_TOKEN = "token";

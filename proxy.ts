@@ -82,11 +82,11 @@ export async function proxy(request: NextRequest) {
   const { csp, nonce } = generateCSP();
   requestHeaders.set("x-nonce", nonce);
 
-  // Only run the proxy logic for OIDC/SAML paths
-  const proxyPaths = ["/.well-known/", "/oauth/", "/oidc/", "/idps/callback/", "/saml/"];
+  // Only run the proxy logic for OIDC paths
+  const proxyPaths = ["/.well-known/", "/oauth/", "/oidc/", "/idps/callback/"];
   const isProxyPath = proxyPaths.some((prefix) => pathname.startsWith(prefix));
 
-  // Handle OIDC/SAML proxy paths
+  // Handle OIDC proxy paths
   if (isProxyPath) {
     // escape proxy if the environment is not setup for multitenancy
     if (!process.env.ZITADEL_API_URL || !process.env.ZITADEL_SERVICE_USER_TOKEN) {

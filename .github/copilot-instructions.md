@@ -1,7 +1,7 @@
 # GC Forms Identity Portal - Copilot Instructions
 
 ## Overview
-This is a **Next.js 16 App Router** identity portal for GC Forms, integrating with **Zitadel** for authentication. It handles login, registration, password management, and MFA (TOTP, U2F, Email OTP). Supports both OIDC and SAML authentication flows.
+This is a **Next.js 16 App Router** identity portal for GC Forms, integrating with **Zitadel** for authentication. It handles login, registration, password management, and MFA (TOTP, U2F, Email OTP). Supports OIDC authentication flows.
 
 ## Key Architecture
 
@@ -11,7 +11,7 @@ This is a **Next.js 16 App Router** identity portal for GC Forms, integrating wi
 - **Path aliases** (see [tsconfig.json](../tsconfig.json)): `@lib/*`, `@components/*`, `@i18n`, `@root/*`
 
 ### Authentication Flow
-1. `/login` route handles OIDC/SAML request initiation ([app/(api)/login/route.ts](../app/(api)/login/route.ts))
+1. `/login` route handles OIDC request initiation ([app/(api)/login/route.ts](../app/(api)/login/route.ts))
 2. Session state managed via HTTP-only cookies ([lib/cookies.ts](../lib/cookies.ts))
 3. Auth completion via server actions ([lib/server/auth-flow.ts](../lib/server/auth-flow.ts))
 4. Zitadel API integration in [lib/zitadel.ts](../lib/zitadel.ts) (1500+ lines - search first, read specific functions)

@@ -13,7 +13,6 @@ import {
 import { CreateCallbackRequest, OIDCService } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { Organization } from "@zitadel/proto/zitadel/org/v2/org_pb";
 import { OrganizationService } from "@zitadel/proto/zitadel/org/v2/org_service_pb";
-import { CreateResponseRequest, SAMLService } from "@zitadel/proto/zitadel/saml/v2/saml_service_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Checks, SessionService } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
@@ -22,7 +21,7 @@ import {
   ReturnEmailVerificationCodeSchema,
   SendEmailVerificationCodeSchema,
 } from "@zitadel/proto/zitadel/user/v2/email_pb";
-import type { FormData, RedirectURLsJson } from "@zitadel/proto/zitadel/user/v2/idp_pb";
+import type { RedirectURLsJson } from "@zitadel/proto/zitadel/user/v2/idp_pb";
 import {
   NotificationType,
   ReturnPasswordResetCodeSchema,
@@ -47,7 +46,6 @@ import {
 import { serverTranslation } from "@i18n/server";
 
 import { getUserAgent } from "./fingerprint";
-import { setSAMLFormCookie } from "./saml";
 import { createServiceForHost } from "./service";
 import { getSerializableObject } from "./utils";
 
@@ -1064,42 +1062,6 @@ export async function startIdentityProviderFlow({
     .then(async (resp) => {
       if (resp.nextStep.case === "authUrl" && resp.nextStep.value) {
         return resp.nextStep.value;
-      } else if (resp.nextStep.case === "formData" && resp.nextStep.value) {
-        const formData: FormData = resp.nextStep.value;
-        const redirectUrl = "/saml-post";
-
-        try {
-          // Log the attempt with structure inspection
-          console.log("Attempting to stringify formData.fields:", {
-            fields: formData.fields,
-            fieldsType: typeof formData.fields,
-            fieldsKeys: Object.keys(formData.fields || {}),
-            fieldsEntries: Object.entries(formData.fields || {}),
-          });
-
-          const stringifiedFields = JSON.stringify(formData.fields);
-          console.log(
-            "Successfully stringified formData.fields, length:",
-            stringifiedFields.length
-          );
-
-          // Check cookie size limits (typical limit is 4KB)
-          if (stringifiedFields.length > 4000) {
-            console.warn(
-              `SAML form cookie value is large (${stringifiedFields.length} characters), may exceed browser limits`
-            );
-          }
-
-          const dataId = await setSAMLFormCookie(stringifiedFields);
-          const params = new URLSearchParams({ url: formData.url, id: dataId });
-
-          return `${redirectUrl}?${params.toString()}`;
-        } catch (stringifyError) {
-          console.error("JSON serialization failed:", stringifyError);
-          throw new Error(
-            `Failed to serialize SAML form data: ${stringifyError instanceof Error ? stringifyError.message : String(stringifyError)}`
-          );
-        }
       } else {
         return null;
       }
@@ -1197,32 +1159,6 @@ export async function createCallback({
   const oidcService = await createServiceForHost(OIDCService, serviceUrl);
 
   return oidcService.createCallback(req);
-}
-
-export async function getSAMLRequest({
-  serviceUrl,
-  samlRequestId,
-}: {
-  serviceUrl: string;
-  samlRequestId: string;
-}) {
-  const samlService = await createServiceForHost(SAMLService, serviceUrl);
-
-  return samlService.getSAMLRequest({
-    samlRequestId,
-  });
-}
-
-export async function createResponse({
-  serviceUrl,
-  req,
-}: {
-  serviceUrl: string;
-  req: CreateResponseRequest;
-}) {
-  const samlService = await createServiceForHost(SAMLService, serviceUrl);
-
-  return samlService.createResponse(req);
 }
 
 export async function verifyEmail({
