@@ -35,7 +35,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     } else if (method === "u2f") {
       continueUrl = buildUrlWithRequestId("/u2f", requestId);
     }
-  } else if (requestId && (requestId.startsWith("oidc_") || requestId.startsWith("saml_"))) {
+  } else if (requestId && requestId.startsWith("oidc_")) {
     // Defer callback completion to click-time to avoid consuming one-time state during SSR.
     continueUrl = buildUrlWithRequestId("/login", requestId);
   }

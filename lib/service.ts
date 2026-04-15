@@ -5,7 +5,6 @@ import { createClientFor } from "@zitadel/client";
 import { IdentityProviderService } from "@zitadel/proto/zitadel/idp/v2/idp_service_pb";
 import { OIDCService } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { OrganizationService } from "@zitadel/proto/zitadel/org/v2/org_service_pb";
-import { SAMLService } from "@zitadel/proto/zitadel/saml/v2/saml_service_pb";
 import { SessionService } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { SettingsService } from "@zitadel/proto/zitadel/settings/v2/settings_service_pb";
 import { UserService } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
@@ -20,8 +19,7 @@ type ServiceClass =
   | typeof OrganizationService
   | typeof SessionService
   | typeof OIDCService
-  | typeof SettingsService
-  | typeof SAMLService;
+  | typeof SettingsService;
 
 export async function createServiceForHost<T extends ServiceClass>(service: T, serviceUrl: string) {
   // if we are running in a multitenancy context, use the system user token

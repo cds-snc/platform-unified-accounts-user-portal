@@ -44,7 +44,7 @@ const ROUTE_PATTERNS: Record<string, AuthLevel> = {
  */
 const PUBLIC_ROUTES = [
   "/", // Login/username entry
-  "/login", // OIDC/SAML initiation
+  "/login", // OIDC initiation
   "/register", // User registratio (accessed via email link with userId)
   "/healthy", // Health check
   "/security", // Security settings (cached)

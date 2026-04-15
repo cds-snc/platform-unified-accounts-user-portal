@@ -12,19 +12,15 @@ type FinishFlowCommand =
 
 /**
  * Complete authentication flow or get next URL for navigation
- * - For OIDC/SAML flows with sessionId+requestId: completes flow directly via server action
+ * - For OIDC flows with sessionId+requestId: completes flow directly via server action
  * - For other cases: returns default redirect or fallback URL
  */
 export async function completeFlowOrGetUrl(
   command: FinishFlowCommand & { organization?: string },
   defaultRedirectUri?: string
 ): Promise<{ redirect: string } | { error: string }> {
-  // Complete OIDC/SAML flows directly with server action
-  if (
-    "sessionId" in command &&
-    "requestId" in command &&
-    (command.requestId.startsWith("saml_") || command.requestId.startsWith("oidc_"))
-  ) {
+  // Complete OIDC flows directly with server action
+  if ("sessionId" in command && "requestId" in command && command.requestId.startsWith("oidc_")) {
     // This completes the flow and returns a redirect URL or error
     const result = await completeAuthFlow({
       sessionId: command.sessionId,
@@ -42,7 +38,7 @@ export async function completeFlowOrGetUrl(
 
 /**
  * Returns the next URL for navigation after successful authentication
- * Note: OIDC/SAML flows now use completeAuthFlowAction() instead of URL navigation
+ * Note: OIDC flows now use completeAuthFlowAction() instead of URL navigation
  * @param command
  * @returns
  */
@@ -51,7 +47,7 @@ export async function getNextUrl(
   defaultRedirectUri?: string,
   requestId?: string
 ): Promise<string> {
-  // OIDC/SAML flows are now handled by completeAuthFlowAction() server action
+  // OIDC flows are now handled by completeAuthFlowAction() server action
 
   if (defaultRedirectUri) {
     return defaultRedirectUri;
