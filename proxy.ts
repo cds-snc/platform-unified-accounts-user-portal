@@ -75,12 +75,6 @@ export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const isAuthFlowRoute = matchesPattern(pathname, AUTH_FLOW_ROUTES);
 
-  if (!ENABLE_EMAIL_OTP && (pathname === "/otp/email" || pathname.startsWith("/otp/email/"))) {
-    const url = request.nextUrl.clone();
-    url.pathname = pathname.startsWith("/otp/email/set") ? "/mfa/set" : "/mfa";
-    return NextResponse.redirect(url);
-  }
-
   // Add the original URL as a header to all requests
   const requestHeaders = new Headers(request.headers);
 
@@ -90,6 +84,12 @@ export async function proxy(request: NextRequest) {
   // Generate CSP once for this request; propagate nonce to layouts via request header
   const { csp, nonce } = generateCSP();
   requestHeaders.set("x-nonce", nonce);
+
+  if (!ENABLE_EMAIL_OTP && (pathname === "/otp/email" || pathname.startsWith("/otp/email/"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.startsWith("/otp/email/set") ? "/mfa/set" : "/mfa";
+    return NextResponse.redirect(url);
+  }
 
   // Only run the proxy logic for OIDC paths
   const proxyPaths = ["/.well-known/", "/oauth/", "/oidc/", "/idps/callback/"];
