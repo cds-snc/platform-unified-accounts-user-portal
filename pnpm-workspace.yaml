@@ -7,3 +7,6 @@ ignoredBuiltDependencies:
 
 blockExoticSubdeps: true
 minimumReleaseAge: 10080 # 7 days
+minimumReleaseAgeExclude:
+  # Renovate security update: next@16.2.3
+  - next@16.2.3
