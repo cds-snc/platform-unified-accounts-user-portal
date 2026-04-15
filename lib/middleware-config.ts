@@ -48,7 +48,6 @@ const PUBLIC_ROUTES = [
   "/register", // User registratio (accessed via email link with userId)
   "/healthy", // Health check
   "/security", // Security settings (cached)
-  "/logout-session", // Session termination
   "/error", // Error pages
 ];
 
@@ -74,7 +73,7 @@ export const AUTH_FLOW_ROUTES = [
  * API routes that should not be processed by auth middleware
  * (Static assets and Next.js internals are already excluded by matcher)
  */
-export const API_ROUTES = ["/api", "/healthy", "/security", "/login", "/logout-session"];
+export const API_ROUTES = ["/healthy", "/security", "/login"];
 
 /**
  * Check if a pathname matches any pattern in a list
