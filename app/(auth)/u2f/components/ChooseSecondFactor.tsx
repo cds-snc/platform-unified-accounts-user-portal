@@ -10,6 +10,7 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { ENABLE_EMAIL_OTP } from "@root/constants/config";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { cn } from "@lib/utils";
 import { useTranslation } from "@i18n/client";
@@ -37,6 +38,9 @@ export function ChooseSecondFactor({ userMethods, requestId }: Props) {
 
   const authMehods = userMethods.filter((method) => {
     if (method === AuthenticationMethodType.PASSWORD) {
+      return false;
+    }
+    if (method === AuthenticationMethodType.OTP_EMAIL && !ENABLE_EMAIL_OTP) {
       return false;
     }
     // Only allow email OTP if user already has a strong factor (TOTP or U2F)
