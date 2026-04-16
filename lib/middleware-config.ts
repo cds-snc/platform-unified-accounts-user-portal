@@ -80,11 +80,6 @@ export const API_ROUTES = ["/healthy", "/security", "/login"];
  */
 export function matchesPattern(pathname: string, patterns: string[]): boolean {
   return patterns.some((pattern) => {
-    if (pattern.endsWith("*")) {
-      // Wildcard match
-      const prefix = pattern.slice(0, -1);
-      return pathname.startsWith(prefix);
-    }
     return pathname === pattern || pathname.startsWith(pattern + "/");
   });
 }
