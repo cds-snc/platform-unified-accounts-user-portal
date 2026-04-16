@@ -3,7 +3,6 @@
  *--------------------------------------------*/
 import { Timestamp, timestampDate } from "@zitadel/client";
 import { AuthRequest } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
-import { SAMLRequest } from "@zitadel/proto/zitadel/saml/v2/authorization_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { GetSessionResponse } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
@@ -227,12 +226,10 @@ export async function findValidSession({
   serviceUrl,
   sessions,
   authRequest,
-  samlRequest,
 }: {
   serviceUrl: string;
   sessions: Session[];
   authRequest?: AuthRequest;
-  samlRequest?: SAMLRequest;
 }): Promise<Session | undefined> {
   const sessionsWithHint = sessions.filter((s) => {
     if (authRequest && authRequest.hintUserId) {
@@ -240,11 +237,6 @@ export async function findValidSession({
     }
     if (authRequest && authRequest.loginHint) {
       return s.factors?.user?.loginName === authRequest.loginHint;
-    }
-    if (samlRequest) {
-      // SAML requests don't contain user hints like OIDC (hintUserId/loginHint)
-      // so we return all sessions for further processing
-      return true;
     }
     return true;
   });

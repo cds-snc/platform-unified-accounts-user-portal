@@ -8,11 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Internal Aliases
  *--------------------------------------------*/
 import { isRSCRequest, validateAuthRequest } from "@lib/auth-utils";
-import {
-  FlowInitiationParams,
-  handleOIDCFlowInitiation,
-  handleSAMLFlowInitiation,
-} from "@lib/server/flow-initiation";
+import { FlowInitiationParams, handleOIDCFlowInitiation } from "@lib/server/flow-initiation";
 import { loadSessionsWithCookies } from "@lib/server/session";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 
@@ -54,8 +50,6 @@ export async function GET(request: NextRequest) {
 
   if (requestId.startsWith("oidc_")) {
     return handleOIDCFlowInitiation(flowParams);
-  } else if (requestId.startsWith("saml_")) {
-    return handleSAMLFlowInitiation(flowParams);
   } else {
     return NextResponse.json({ error: "Invalid request ID format" }, { status: 400 });
   }

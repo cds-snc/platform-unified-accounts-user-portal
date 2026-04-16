@@ -407,9 +407,9 @@ export async function sendPassword(
   }
 
   if (command.requestId && session.id) {
-    // OIDC/SAML flow - use completeFlowOrGetUrl for proper handling
+    // OIDC flow - use completeFlowOrGetUrl for proper handling
     console.log(
-      "Password auth: OIDC/SAML flow with requestId:",
+      "Password auth: OIDC flow with requestId:",
       command.requestId,
       "sessionId:",
       session.id
@@ -422,7 +422,7 @@ export async function sendPassword(
       },
       loginSettings?.defaultRedirectUri
     );
-    console.log("Password auth: OIDC/SAML flow result:", result);
+    console.log("Password auth: OIDC flow result:", result);
 
     // Safety net - ensure we always return a valid object
     if (
@@ -430,7 +430,7 @@ export async function sendPassword(
       typeof result !== "object" ||
       (!("redirect" in result) && !("error" in result))
     ) {
-      console.error("Password auth: Invalid result from completeFlowOrGetUrl (OIDC/SAML):", result);
+      console.error("Password auth: Invalid result from completeFlowOrGetUrl (OIDC):", result);
       return { error: "Authentication completed but navigation failed" };
     }
 

@@ -44,11 +44,10 @@ const ROUTE_PATTERNS: Record<string, AuthLevel> = {
  */
 const PUBLIC_ROUTES = [
   "/", // Login/username entry
-  "/login", // OIDC/SAML initiation
+  "/login", // OIDC initiation
   "/register", // User registratio (accessed via email link with userId)
   "/healthy", // Health check
   "/security", // Security settings (cached)
-  "/logout-session", // Session termination
   "/error", // Error pages
 ];
 
@@ -74,18 +73,13 @@ export const AUTH_FLOW_ROUTES = [
  * API routes that should not be processed by auth middleware
  * (Static assets and Next.js internals are already excluded by matcher)
  */
-export const API_ROUTES = ["/api", "/healthy", "/security", "/login", "/logout-session"];
+export const API_ROUTES = ["/healthy", "/security", "/login"];
 
 /**
- * Check if a pathname matches any pattern in a list
+ * Check if a pathname matches or begins with any pattern in a list
  */
 export function matchesPattern(pathname: string, patterns: string[]): boolean {
   return patterns.some((pattern) => {
-    if (pattern.endsWith("*")) {
-      // Wildcard match
-      const prefix = pattern.slice(0, -1);
-      return pathname.startsWith(prefix);
-    }
     return pathname === pattern || pathname.startsWith(pattern + "/");
   });
 }
@@ -112,7 +106,6 @@ export function getRequiredAuthLevel(pathname: string): AuthLevel {
     }
   }
 
-  // Default to open for unmatched routes
-  // In production, you might want to default to BASIC_SESSION for safety
-  return AuthLevel.OPEN;
+  // Default to highest level of auth (Strong MFA) for unmatched routes for safety
+  return AuthLevel.STRONG_MFA_REQUIRED;
 }

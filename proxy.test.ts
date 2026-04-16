@@ -34,6 +34,7 @@ vi.mock("@lib/logger", () => ({
 }));
 
 vi.mock("@root/constants/config", () => ({
+  ENABLE_EMAIL_OTP: true,
   ZITADEL_ORGANIZATION: "test-org",
 }));
 
@@ -149,6 +150,18 @@ describe("proxy middleware", () => {
       expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'self';");
     });
 
+    it("sets the MFA flow cookie on satisfied MFA flow responses with password verification", async () => {
+      vi.mocked(checkAuthenticationLevel).mockResolvedValue({
+        satisfied: true,
+        session: { factors: { password: { verifiedAt: {} } } } as never,
+      });
+
+      const request = makeRequest("/mfa");
+      const response = await proxy(request);
+
+      expect(response.cookies.get("mfa-flow-authorized")?.value).toBe("1");
+    });
+
     it("sets CSP on auth flow route when password is verified", async () => {
       vi.mocked(checkAuthenticationLevel).mockResolvedValue({
         satisfied: false,
@@ -160,9 +173,23 @@ describe("proxy middleware", () => {
 
       expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'self';");
     });
+
+    it("sets CSP on email OTP route when the MFA flow cookie is present", async () => {
+      vi.mocked(checkAuthenticationLevel).mockResolvedValue({
+        satisfied: false,
+        session: {
+          factors: { user: { id: "user-123" } },
+        } as never,
+      });
+
+      const request = makeRequest("/otp/email", { cookie: "mfa-flow-authorized=1" });
+      const response = await proxy(request);
+
+      expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'self';");
+    });
   });
 
-  describe("proxy path (OIDC/SAML)", () => {
+  describe("proxy path (OIDC)", () => {
     it("rewrites to Zitadel when env vars are set", async () => {
       process.env.ZITADEL_API_URL = "https://idp.example.com";
       process.env.ZITADEL_SERVICE_USER_TOKEN = "token";

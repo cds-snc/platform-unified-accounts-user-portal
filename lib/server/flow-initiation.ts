@@ -8,7 +8,6 @@ import {
   CreateCallbackRequestSchema,
   SessionSchema,
 } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
-import { CreateResponseRequestSchema } from "@zitadel/proto/zitadel/saml/v2/saml_service_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { IdentityProviderType } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 
@@ -21,11 +20,9 @@ import { findValidSession } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import {
   createCallback,
-  createResponse,
   getActiveIdentityProviders,
   getAuthRequest,
   getOrgsByDomain,
-  getSAMLRequest,
   startIdentityProviderFlow,
 } from "@lib/zitadel";
 
@@ -75,19 +72,16 @@ async function safeFindValidSession({
   serviceUrl,
   sessions,
   authRequest,
-  samlRequest,
 }: {
   serviceUrl: string;
   sessions: Session[];
   authRequest?: Awaited<ReturnType<typeof getAuthRequest>>["authRequest"];
-  samlRequest?: Awaited<ReturnType<typeof getSAMLRequest>>["samlRequest"];
 }): Promise<Session | undefined> {
   try {
     return await findValidSession({
       serviceUrl,
       sessions,
       authRequest,
-      samlRequest,
     });
   } catch (error) {
     console.error("Failed to resolve valid session during flow initiation:", error);
@@ -379,104 +373,4 @@ export async function handleOIDCFlowInitiation(
       requestId: oidcRequestId,
     });
   }
-}
-
-/**
- * Handle SAML flow initiation
- */
-export async function handleSAMLFlowInitiation(
-  params: FlowInitiationParams
-): Promise<NextResponse> {
-  const { serviceUrl, requestId, sessions, sessionCookies, request } = params;
-
-  const { samlRequest } = await getSAMLRequest({
-    serviceUrl,
-    samlRequestId: requestId.replace("saml_", ""),
-  });
-
-  if (!samlRequest) {
-    return NextResponse.json({ error: "No samlRequest found" }, { status: 400 });
-  }
-
-  // Early return: No sessions available - redirect to login
-  if (sessions.length === 0) {
-    const loginNameUrl = constructUrl(request, "/");
-    loginNameUrl.searchParams.set("requestId", requestId);
-    return NextResponse.redirect(loginNameUrl);
-  }
-
-  // Try to find a valid session
-  const selectedSession = await safeFindValidSession({
-    serviceUrl,
-    sessions,
-    samlRequest,
-  });
-
-  // Early return: No valid session found - show account selection
-  if (!selectedSession || !selectedSession.id) {
-    return gotoAccounts({
-      request,
-      requestId,
-    });
-  }
-
-  const cookie = sessionCookies.find((cookie) => cookie.id === selectedSession.id);
-
-  // Early return: No valid cookie/token found - show account selection
-  // Note: We need the session token from the cookie to authenticate API calls
-  if (!cookie || !cookie.id || !cookie.token) {
-    return gotoAccounts({
-      request,
-      requestId,
-    });
-  }
-
-  // Valid session and cookie found - attempt to complete SAML flow
-  const session = {
-    sessionId: cookie.id,
-    sessionToken: cookie.token,
-  };
-
-  try {
-    const { url, binding } = await createResponse({
-      serviceUrl,
-      req: create(CreateResponseRequestSchema, {
-        samlRequestId: requestId.replace("saml_", ""),
-        responseKind: {
-          case: "session",
-          value: session,
-        },
-      }),
-    });
-
-    if (url && binding.case === "redirect") {
-      return NextResponse.redirect(url);
-    } else if (url && binding.case === "post") {
-      const html = `
-        <html>
-          <body onload="document.forms[0].submit()">
-            <form action="${url}" method="post">
-              <input type="hidden" name="RelayState" value="${binding.value.relayState}" />
-              <input type="hidden" name="SAMLResponse" value="${binding.value.samlResponse}" />
-              <noscript>
-                <button type="submit">Continue</button>
-              </noscript>
-            </form>
-          </body>
-        </html>
-      `;
-
-      return new NextResponse(html, {
-        headers: { "Content-Type": "text/html" },
-      });
-    }
-  } catch (error) {
-    console.error("SAML createResponse failed:", error);
-  }
-
-  // Final fallback: SAML response creation failed - show account selection
-  return gotoAccounts({
-    request,
-    requestId,
-  });
 }

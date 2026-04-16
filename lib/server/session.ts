@@ -85,7 +85,7 @@ export async function loadSessionsFromCookies({
 
 /**
  * Load sessions with their corresponding cookies
- * Useful when you need both Session objects and cookie tokens (e.g., for OIDC/SAML callbacks)
+ * Useful when you need both Session objects and cookie tokens (e.g., for OIDC callbacks)
  * @param serviceUrl - The Zitadel service URL
  * @param cleanup - Whether to filter out expired sessions (default: true)
  * @returns Object containing both sessions and sessionCookies arrays

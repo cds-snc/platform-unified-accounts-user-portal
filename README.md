@@ -35,6 +35,12 @@ pnpm test        # run tests
 - `ZITADEL_API_URL`
 - `NEXT_PUBLIC_BASE_PATH`
 
+## Optional environment variables
+
+- `NEXT_PUBLIC_ENABLE_EMAIL_OTP`
+
+Set `NEXT_PUBLIC_ENABLE_EMAIL_OTP=true` to enable the email OTP flow. It defaults to `false` when unset.
+
 ## Stack
 
 - Next.js 16

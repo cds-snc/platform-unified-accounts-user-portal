@@ -3,16 +3,19 @@
  *--------------------------------------------*/
 import { Metadata } from "next";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { ENABLE_EMAIL_OTP } from "@root/constants/config";
 import { getSessionCredentials } from "@lib/cookies";
 import { getSafeRedirectUrl } from "@lib/redirect-validator";
 import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { getServiceUrlFromHeaders } from "@lib/service-url";
 import { loadSessionById, loadSessionByLoginname } from "@lib/session";
 import { resolveSiteConfigByHost } from "@lib/site-config";
+import { buildUrlWithRequestId } from "@lib/utils";
 import { getSerializableObject, SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -35,10 +38,14 @@ export default async function Page(props: {
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
-  const { code, redirect } = searchParams;
+  const { code, redirect: redirectParam } = searchParams;
 
   // Method =  `/otp/email` or `/otp/time-based` (authenticator app)
   const { method } = params;
+
+  if (method === "email" && !ENABLE_EMAIL_OTP) {
+    return redirect(buildUrlWithRequestId("/mfa", requestId));
+  }
 
   const sessionData = sessionId
     ? await loadSessionById(serviceUrl, sessionId, organization)
@@ -49,7 +56,7 @@ export default async function Page(props: {
     ? { factors: sessionData.factors, expirationDate: sessionData.expirationDate }
     : undefined;
 
-  const safeRedirect = getSafeRedirectUrl(redirect);
+  const safeRedirect = getSafeRedirectUrl(redirectParam);
 
   const loginSettings = await getLoginSettings({
     serviceUrl,

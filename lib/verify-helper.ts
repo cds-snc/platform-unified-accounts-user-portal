@@ -12,6 +12,11 @@ import crypto from "crypto";
 import moment from "moment";
 
 /*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { ENABLE_EMAIL_OTP } from "@root/constants/config";
+
+/*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
 import { getFingerprintIdCookie } from "./fingerprint";
@@ -113,7 +118,7 @@ export async function checkMFAFactors(
     (m: AuthenticationMethodType) =>
       m === AuthenticationMethodType.TOTP ||
       m === AuthenticationMethodType.U2F ||
-      m === AuthenticationMethodType.OTP_EMAIL
+      (m === AuthenticationMethodType.OTP_EMAIL && ENABLE_EMAIL_OTP)
   );
 
   // If no strong factor exists, redirect to setup
