@@ -63,6 +63,7 @@ jobs:
         run: |
           docker buildx build \
             --push \
+            --provenance=false \
             --platform linux/arm64 \
             --build-arg GIT_SHA=$GITHUB_SHA \
             -t "$REGISTRY_PREFIX/$IMAGE:pr-$PR_NUMBER-$GITHUB_SHA" \
@@ -94,9 +95,16 @@ jobs:
         run: echo "PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_ENV
 
       - name: Deploy the review environment
-        run: .github/workflows/scripts/pr-review-deploy.sh \
-          "${{ secrets.PR_REVIEW_ENV_SUBNET_IDS }}" \
-          "${{ secrets.PR_REVIEW_ENV_SECURITY_GROUP_IDS }}" > /dev/null 2>&1
+        run: |
+          URL=$(.github/workflows/scripts/pr-review-deploy.sh \
+            "$FUNCTION_NAME-$PR_NUMBER" \
+            "$REGISTRY_PREFIX/$IMAGE:pr-$PR_NUMBER-$GITHUB_SHA" \
+            "$ROLE_ARN" \
+            "${{ secrets.PR_REVIEW_ENV_SUBNET_IDS }}" \
+            "${{ secrets.PR_REVIEW_ENV_SECURITY_GROUP_IDS }}")
+          if [[ -n "$URL" && "$URL" == https://* ]]; then
+            echo "URL=$URL" >> $GITHUB_ENV
+          fi
 
       - name: Update PR
         if: env.URL != ''
