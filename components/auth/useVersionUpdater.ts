@@ -5,9 +5,21 @@
  *--------------------------------------------*/
 import { useEffect, useEffectEvent, useState } from "react";
 
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { getShortVersion } from "@lib/version";
+
+/*--------------------------------------------*
+ * Local Relative
+ *--------------------------------------------*/
+import { useLeaderTab } from "./useLeaderTab";
+
 type VersionUpdateState = {
   latestVersion: string | null;
   previousVersion: string | null;
+  latestShortVersion: string | null;
+  previousShortVersion: string | null;
   didChange: boolean;
 };
 
@@ -17,9 +29,15 @@ const POLL_INTERVAL_MS =
   Number(process.env.NEXT_PUBLIC_VERSION_POLL_INTERVAL_SECONDS || "60") * 1000;
 
 export function useVersionUpdater(): VersionUpdateState {
+  const { isLeaderTab } = useLeaderTab({
+    enabled: true,
+    coordinationKey: "version-updater",
+  });
   const [state, setState] = useState<VersionUpdateState>({
     latestVersion: null,
     previousVersion: null,
+    latestShortVersion: null,
+    previousShortVersion: null,
     didChange: false,
   });
 
@@ -28,9 +46,12 @@ export function useVersionUpdater(): VersionUpdateState {
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
       const response = await fetch(`${basePath}/version`, {
         cache: "no-store",
+        redirect: "manual",
       });
 
-      if (!response.ok) {
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!response.ok || !contentType.startsWith("text/plain")) {
         setState((previousState) => ({
           ...previousState,
           didChange: false,
@@ -38,15 +59,28 @@ export function useVersionUpdater(): VersionUpdateState {
         return;
       }
 
-      const latestVersion = await response.text();
+      const latestVersion = (await response.text()).trim();
+
+      if (!latestVersion) {
+        setState((previousState) => ({
+          ...previousState,
+          didChange: false,
+        }));
+        return;
+      }
+
       const previousVersion = currentVersion;
       currentVersion = latestVersion;
+      const latestShortVersion = getShortVersion(latestVersion);
+      const previousShortVersion = previousVersion ? getShortVersion(previousVersion) : null;
 
       const didChange = previousVersion !== null && latestVersion !== previousVersion;
 
       setState({
         latestVersion,
         previousVersion,
+        latestShortVersion,
+        previousShortVersion,
         didChange,
       });
     } catch {
@@ -58,6 +92,10 @@ export function useVersionUpdater(): VersionUpdateState {
   });
 
   useEffect(() => {
+    if (!isLeaderTab) {
+      return;
+    }
+
     void checkVersion();
 
     const intervalId = window.setInterval(() => {
@@ -67,7 +105,7 @@ export function useVersionUpdater(): VersionUpdateState {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, []);
+  }, [isLeaderTab]);
 
   return state;
 }
