@@ -10,7 +10,6 @@ import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { ENABLE_EMAIL_OTP } from "@root/constants/config";
 import { completeFlowOrGetUrl } from "@lib/client";
 import { logMessage } from "@lib/logger";
 import { sendOtpEmail } from "@lib/server/otp";
@@ -62,10 +61,6 @@ export async function updateSessionForOTPChallenge(
   params: OTPChallengeParams
 ): Promise<{ error?: string; response?: SessionResponse }> {
   const { loginName, sessionId, organization, requestId, method } = params;
-
-  if (method === "email" && !ENABLE_EMAIL_OTP) {
-    return { error: "OTP email is disabled" };
-  }
 
   logMessage.debug({
     message: "Requesting OTP challenge",
@@ -156,14 +151,6 @@ export async function handleOTPFormSubmit(
   const { t } = await serverTranslation("otp");
   const { loginSettings, ...submitParams } = params;
   const normalizedCode = code.trim();
-
-  if (submitParams.method === "email" && !ENABLE_EMAIL_OTP) {
-    return {
-      validationErrors: undefined,
-      error: t("set.genericError"),
-      formData: { code: normalizedCode },
-    };
-  }
 
   try {
     if (submitParams.method === "time-based") {
