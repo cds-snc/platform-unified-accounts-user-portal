@@ -55,7 +55,7 @@ vi.mock("./lib/service-url", () => ({
 }));
 
 vi.mock("./lib/middleware-config", () => ({
-  API_ROUTES: ["/api", "/healthy", "/security", "/login", "/logout-session"],
+  API_ROUTES: ["/api", "/healthy", "/security", "/version", "/login", "/logout-session"],
   AUTH_FLOW_ROUTES: [
     "/password",
     "/password/reset",
@@ -107,6 +107,14 @@ describe("proxy middleware", () => {
       const request = makeRequest("/healthy");
       const response = await proxy(request);
 
+      expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'self';");
+    });
+
+    it("allows the version endpoint to bypass auth redirects", async () => {
+      const request = makeRequest("/version");
+      const response = await proxy(request);
+
+      expect(response.status).toBe(200);
       expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'self';");
     });
 
