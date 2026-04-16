@@ -76,7 +76,7 @@ export const AUTH_FLOW_ROUTES = [
 export const API_ROUTES = ["/healthy", "/security", "/login"];
 
 /**
- * Check if a pathname matches any pattern in a list
+ * Check if a pathname matches or begins with any pattern in a list
  */
 export function matchesPattern(pathname: string, patterns: string[]): boolean {
   return patterns.some((pattern) => {
