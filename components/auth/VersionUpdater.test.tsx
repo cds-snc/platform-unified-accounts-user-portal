@@ -24,12 +24,15 @@ describe("VersionUpdater", () => {
     vi.mocked(useVersionUpdater).mockReturnValue({
       latestVersion: "abc1234",
       previousVersion: null,
+      latestShortVersion: "abc1234",
+      previousShortVersion: null,
       didChange: false,
     });
 
     render(<VersionUpdater />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("version-updater-debug")).not.toBeInTheDocument();
   });
 
   it("shows a refresh dialog and reloads when the user confirms", async () => {
@@ -45,12 +48,15 @@ describe("VersionUpdater", () => {
     vi.mocked(useVersionUpdater).mockReturnValue({
       latestVersion: "def5678",
       previousVersion: "abc1234",
+      latestShortVersion: "def5678",
+      previousShortVersion: "abc1234",
       didChange: true,
     });
 
     render(<VersionUpdater />);
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("version-updater-debug")).toHaveTextContent("def5678:abc1234");
 
     await userEvent.click(screen.getByRole("button", { name: "refreshNow" }));
 
@@ -61,6 +67,8 @@ describe("VersionUpdater", () => {
     vi.mocked(useVersionUpdater).mockReturnValue({
       latestVersion: "def5678",
       previousVersion: "abc1234",
+      latestShortVersion: "def5678",
+      previousShortVersion: "abc1234",
       didChange: true,
     });
 
@@ -71,5 +79,6 @@ describe("VersionUpdater", () => {
     await userEvent.click(screen.getByRole("button", { name: "close" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("version-updater-debug")).not.toBeInTheDocument();
   });
 });

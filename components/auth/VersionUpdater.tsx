@@ -36,13 +36,20 @@ function closeDialog(dialog: HTMLDialogElement) {
   dialog.removeAttribute("open");
 }
 
-export function VersionUpdater() {
+function VersionUpdaterDialog({
+  didChange,
+  latestShortVersion,
+  previousShortVersion,
+  onDismiss,
+}: {
+  didChange: boolean;
+  latestShortVersion: string | null;
+  previousShortVersion: string | null;
+  onDismiss: () => void;
+}) {
   const { t } = useTranslation("versionUpdater");
-  const { didChange } = useVersionUpdater();
-  const [dismissed, setDismissed] = useState(false);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const refreshButtonRef = useRef<HTMLButtonElement | null>(null);
-  const showDialog = didChange && !dismissed;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -51,19 +58,17 @@ export function VersionUpdater() {
       return;
     }
 
-    if (showDialog && !dialog.open) {
+    if (!dialog.open) {
       openDialog(dialog);
       refreshButtonRef.current?.focus();
     }
 
-    if (!showDialog && dialog.open) {
-      closeDialog(dialog);
-    }
-  }, [showDialog]);
-
-  if (!showDialog || dismissed) {
-    return null;
-  }
+    return () => {
+      if (dialog.open) {
+        closeDialog(dialog);
+      }
+    };
+  }, []);
 
   return (
     <dialog
@@ -71,13 +76,13 @@ export function VersionUpdater() {
       aria-labelledby="version-updater-title"
       aria-describedby="version-updater-description"
       className="fixed inset-0 m-auto w-full max-w-2xl rounded-2xl border border-gray-300 bg-white p-8 shadow-xl backdrop:bg-black/45"
-      onCancel={() => {
-        setDismissed(true);
-      }}
+      onCancel={onDismiss}
       onClose={() => {
         if (!didChange) {
-          setDismissed(false);
+          return;
         }
+
+        onDismiss();
       }}
     >
       <div className="flex items-start justify-between gap-4">
@@ -90,26 +95,24 @@ export function VersionUpdater() {
               {t("title")}
             </h2>
           </div>
-          <p id="version-updater-description" className="text-base text-gray-700">
+
+          <p id="version-updater-description" className="max-w-xl text-base text-gray-700">
             {t("description")}
           </p>
         </div>
 
-        <Button
-          theme="link"
-          aria-label={t("close")}
-          className="group shrink-0"
-          onClick={() => {
-            setDismissed(true);
-          }}
-        >
+        <Button theme="link" aria-label={t("close")} className="group shrink-0" onClick={onDismiss}>
           <span className="block">
             <Close className="inline-block size-6 fill-black group-hover:fill-gcds-blue-vivid group-focus:fill-white-default group-active:fill-white-default" />
           </span>
         </Button>
       </div>
 
-      <div className="mt-8 flex justify-end">
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <div className="text-xs text-gray-500" data-testid="version-updater-debug">
+          {latestShortVersion ?? "unknown"}:{previousShortVersion ?? "unknown"}
+        </div>
+
         <Button
           buttonRef={refreshButtonRef}
           onClick={() => {
@@ -121,4 +124,22 @@ export function VersionUpdater() {
       </div>
     </dialog>
   );
+}
+
+export function VersionUpdater() {
+  const { didChange, latestVersion, latestShortVersion, previousShortVersion } =
+    useVersionUpdater();
+  const [dismissedVersion, setDismissedVersion] = useState<string | null>(null);
+  const showDialog = didChange && latestVersion !== null && latestVersion !== dismissedVersion;
+
+  return showDialog ? (
+    <VersionUpdaterDialog
+      didChange={didChange}
+      latestShortVersion={latestShortVersion}
+      previousShortVersion={previousShortVersion}
+      onDismiss={() => {
+        setDismissedVersion(latestVersion);
+      }}
+    />
+  ) : null;
 }
