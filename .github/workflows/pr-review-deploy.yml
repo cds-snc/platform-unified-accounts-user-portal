@@ -114,7 +114,6 @@ jobs:
             "$ROLE_ARN" \
             "${{ secrets.PR_REVIEW_ENV_SUBNET_IDS }}" \
             "${{ secrets.PR_REVIEW_ENV_SECURITY_GROUP_IDS }}")
-          echo $URL
           if [[ -n "$URL" && "$URL" == https://* ]]; then
             echo "URL=$URL" >> $GITHUB_ENV
           fi

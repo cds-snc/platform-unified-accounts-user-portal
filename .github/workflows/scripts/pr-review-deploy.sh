@@ -40,7 +40,7 @@ else
     --action lambda:InvokeFunction \
     --principal "*" > /dev/null 2>&1
 
-  URL="$(aws lambda create-function-url-config --function-name "$FUNCTION_NAME" --auth-type NONE | jq .FunctionUrl)"
+  URL="$(aws lambda create-function-url-config --function-name "$FUNCTION_NAME" --auth-type NONE | jq -r .FunctionUrl)"
   echo "$URL"
 
   aws lambda update-function-configuration \
