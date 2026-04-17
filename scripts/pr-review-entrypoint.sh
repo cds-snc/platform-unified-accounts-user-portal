@@ -35,7 +35,7 @@ load_non_existing_envs() {
     key="${line%%=*}"
     value="${line#*=}" 
 
-    if [ -z "$(var_expand "$key")" ]; then # Check if environment variable doesn't exist
+    if [ -z "$(var_expand "$key")" ] && [ $key != "NEXT_PUBLIC_BASE_PATH" ]; then
       export "${key}=${value}"
     fi
   done < $TMP_ENV_FILE

@@ -28,7 +28,7 @@ function parseHostHeader(value: string | null): string | undefined {
 function isLocalHost(host: string): boolean {
   const hostname = new URL(`http://${host}`).hostname;
 
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
 }
 
 function isLambdaPRReviewHost(host: string): boolean {
