@@ -31,6 +31,12 @@ function isLocalHost(host: string): boolean {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
 }
 
+function isLambdaPRReviewHost(host: string): boolean {
+  const hostname = new URL(`http://${host}`).hostname;
+
+  return hostname.endsWith(".lambda-url.ca-central-1.on.aws");
+}
+
 export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
   const host =
     parseHostHeader(_headers.get("x-forwarded-host")) ??
@@ -42,7 +48,7 @@ export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
     throw new Error("No host found in headers");
   }
 
-  if (!isLocalHost(host) && !isTrustedSiteHost(host)) {
+  if (!isLocalHost(host) && !isLambdaPRReviewHost(host) && !isTrustedSiteHost(host)) {
     throw new Error(`Untrusted host header: ${host}`);
   }
 
