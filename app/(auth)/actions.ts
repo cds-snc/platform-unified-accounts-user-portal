@@ -80,6 +80,7 @@ export const submitLoginForm = async (
     session = await createSessionAndUpdateCookie({
       checks,
       requestId: command.requestId,
+      lifetime: loginSettings?.passwordCheckLifetime,
     });
   } catch (error: unknown) {
     // Handle authentication failures with generic error message
