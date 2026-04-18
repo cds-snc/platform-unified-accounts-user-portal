@@ -77,7 +77,9 @@ export const logMessage: AppLogger = {
       }
     } catch {
       const typeName = cause?.constructor?.name ?? typeof cause;
-      pinoLogger.error(`Failed to serialize error payload [${typeName}]: ${String(cause)}`);
+      pinoLogger.error(
+        `Failed to serialize error payload: ${message}: [${typeName}]: ${String(cause)}`
+      );
     }
   },
 };

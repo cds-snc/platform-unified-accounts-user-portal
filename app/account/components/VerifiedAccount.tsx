@@ -42,9 +42,7 @@ export const VerifiedAccount = ({
         throw new Error(result.error);
       }
     } catch (error) {
-      logMessage.info(
-        `Failed to log out user when redirecting to registration. Errors: ${JSON.stringify(error)}`
-      );
+      logMessage.error("Failed to logout user when redirecting to registration", error);
     }
   };
 
