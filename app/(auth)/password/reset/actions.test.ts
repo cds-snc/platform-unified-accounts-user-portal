@@ -68,6 +68,7 @@ describe("submitUserNameForm", () => {
             value: {
               email: {
                 email: "person@canada.ca",
+                isVerified: true,
               },
             },
           },
@@ -132,6 +133,31 @@ describe("submitUserNameForm", () => {
           type: {
             case: "human",
             value: {},
+          },
+        },
+      ],
+    } as never);
+
+    const response = await submitUserNameForm({ loginName: "person@canada.ca" });
+
+    expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
+    expect(passwordResetWithReturn).not.toHaveBeenCalled();
+  });
+
+  it("returns a generic error when user email is not verified", async () => {
+    vi.mocked(listUsers).mockResolvedValue({
+      details: { totalResult: BigInt(1) },
+      result: [
+        {
+          userId: "user-123",
+          type: {
+            case: "human",
+            value: {
+              email: {
+                email: "person@canada.ca",
+                isVerified: false,
+              },
+            },
           },
         },
       ],
