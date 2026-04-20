@@ -49,8 +49,7 @@ export const AuthenticatedAction = <Input extends unknown[], Return>(
       const credentials = await getSessionCredentials();
       return await action(credentials, ...args);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Authentication failed";
-      logMessage.error(`AuthenticatedAction error: ${errorMessage}`);
+      logMessage.error(`AuthenticatedAction failure in ${action.name || "unknown"}`, error);
       return { error: "Unauthorized" };
     }
   };

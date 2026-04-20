@@ -86,9 +86,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       redirect(loginRedirect);
     }
   } catch (error) {
-    logMessage.error(
-      `Error validating session, redirecting to login. Errors: ${JSON.stringify(error)}`
-    );
+    logMessage.error("Error validating session, redirecting to login", error);
     redirect(loginRedirect);
   }
 

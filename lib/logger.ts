@@ -29,39 +29,33 @@ export type AppLogger = {
   debug(message: string | Record<string, unknown>): void;
   info(message: string): void;
   warn(message: string): void;
-  error(message: unknown): void;
+  error(message: string, cause?: unknown): void;
 };
 
 /**
  * App logger instance.
  * @example
- * // ✅ Correct - string message
- * logMessage.error(`Failed to load user: ${error.message}`);
- * logMessage.info("User loaded successfully");
+ * // ✅ Correct - message only
+ * logMessage.error("Could not load session");
  *
- * // ✅ Correct - Error object with error method
- * logMessage.error(error); // Automatically extracts error.message
+ * // ✅ Correct - message + Error cause (preserves stack trace)
+ * logMessage.error("Failed to get user", error);
  *
- * // ✅ Correct - unknown from catch blocks
- * logMessage.error(e); // Handles Error, string, or other types
+ * // ✅ Correct - message + unknown from catch blocks
+ * logMessage.error("Failed to get user", e);
  *
  * // ✅ Correct - serialized object with debug
  * logMessage.debug({ userId: 123, action: "login" });
  *
- * // ❌ Incorrect - objects not allowed for info/warn/error
+ * // ❌ Incorrect - objects not allowed for info/warn
  * logMessage.info({ user }); // Type error
- * logMessage.error({ error }, "msg"); // Type error
+ * logMessage.warn({ user }); // Type error
  */
 export const logMessage: AppLogger = {
   debug: (message: string | Record<string, unknown>) => {
     try {
       pinoLogger.debug(message);
     } catch {
-      if (typeof message === "string") {
-        pinoLogger.debug(message);
-        return;
-      }
-
       try {
         pinoLogger.debug(JSON.stringify(message));
       } catch {
@@ -71,17 +65,21 @@ export const logMessage: AppLogger = {
   },
   info: (message: string) => pinoLogger.info(message),
   warn: (message: string) => pinoLogger.warn(message),
-  error: (message: unknown) => {
+  error: (message: string, cause?: unknown) => {
     try {
-      if (message instanceof Error) {
-        pinoLogger.error(message.message);
-      } else if (typeof message === "string") {
-        pinoLogger.error(message);
+      if (cause instanceof Error) {
+        pinoLogger.error({ err: cause }, message);
+      } else if (cause !== undefined) {
+        const serialized = typeof cause === "string" ? cause : JSON.stringify(cause);
+        pinoLogger.error(`${message}: ${serialized}`);
       } else {
-        pinoLogger.error(JSON.stringify(message));
+        pinoLogger.error(message);
       }
     } catch {
-      pinoLogger.error("Failed to serialize error log payload");
+      const typeName = cause?.constructor?.name ?? typeof cause;
+      pinoLogger.error(
+        `Failed to serialize error payload: ${message}: [${typeName}]: ${String(cause)}`
+      );
     }
   },
 };

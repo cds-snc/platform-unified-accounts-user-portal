@@ -44,9 +44,7 @@ export const protectedGetUserByID = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.getUserByID({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to get user ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to get user ${userId}`, error);
       return { error: "Failed to retrieve user" };
     }
   }
@@ -76,9 +74,7 @@ export const protectedListIDPLinks = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.listIDPLinks({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to list IDP links for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to list IDP links for ${userId}`, error);
       return { error: "Failed to list IDP links" };
     }
   }
@@ -108,9 +104,7 @@ export const protectedRegisterTOTP = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.registerTOTP({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to register TOTP for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to register TOTP for ${userId}`, error);
       return { error: "Failed to register TOTP" };
     }
   }
@@ -140,9 +134,7 @@ export const protectedVerifyTOTPRegistration = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.verifyTOTPRegistration({ serviceUrl, userId, code });
     } catch (error) {
-      logMessage.error(
-        `Failed to verify TOTP for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to verify TOTP for ${userId}`, error);
       return { error: "Failed to verify TOTP" };
     }
   }
@@ -172,9 +164,7 @@ export const protectedAddOTPEmail = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.addOTPEmail({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to add OTP email for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to add OTP email for ${userId}`, error);
       return { error: "Failed to add OTP email" };
     }
   }
@@ -204,9 +194,7 @@ export const protectedAddOTPSMS = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.addOTPSMS({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to add OTP SMS for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to add OTP SMS for ${userId}`, error);
       return { error: "Failed to add OTP SMS" };
     }
   }
@@ -236,9 +224,7 @@ export const protectedRegisterU2F = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.registerU2F({ serviceUrl, userId, domain });
     } catch (error) {
-      logMessage.error(
-        `Failed to register U2F for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to register U2F for ${userId}`, error);
       return { error: "Failed to register U2F" };
     }
   }
@@ -280,9 +266,7 @@ export const protectedVerifyU2FRegistration = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.verifyU2FRegistration({ serviceUrl, request });
     } catch (error) {
-      logMessage.error(
-        `Failed to verify U2F for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to verify U2F for ${userId}`, error);
       return { error: "Failed to verify U2F" };
     }
   }
@@ -312,9 +296,7 @@ export const protectedRemoveU2F = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.removeU2F({ serviceUrl, userId, u2fId });
     } catch (error) {
-      logMessage.error(
-        `Failed to remove U2F for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to remove U2F for ${userId}`, error);
       return { error: "Failed to remove U2F" };
     }
   }
@@ -344,9 +326,7 @@ export const protectedRemoveTOTP = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.removeTOTP({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to remove TOTP for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to remove TOTP for ${userId}`, error);
       return { error: "Failed to remove TOTP" };
     }
   }
@@ -376,9 +356,7 @@ export const protectedGetTOTPStatus = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.getTOTPStatus({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to get TOTP status for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to get TOTP status for ${userId}`, error);
       return { error: "Failed to get TOTP status" };
     }
   }
@@ -408,9 +386,7 @@ export const protectedGetU2FList = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.getU2FList({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to get U2F list for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to get U2F list for ${userId}`, error);
       return { error: "Failed to get U2F list" };
     }
   }
@@ -440,9 +416,7 @@ export const protectedListAuthenticationMethodTypes = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.listAuthenticationMethodTypes({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to list auth methods for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to list auth methods for ${userId}`, error);
       return { error: "Failed to list auth methods" };
     }
   }
@@ -472,9 +446,7 @@ export const protectedHumanMFAInitSkipped = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.humanMFAInitSkipped({ serviceUrl, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to mark MFA init skipped for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to mark MFA init skipped for ${userId}`, error);
       return { error: "Failed to mark MFA init skipped" };
     }
   }
@@ -508,9 +480,7 @@ export const protectedAddIDPLink = AuthenticatedAction(
       const { serviceUrl } = getServiceUrlFromHeaders(_headers);
       return await z.addIDPLink({ serviceUrl, idp, userId });
     } catch (error) {
-      logMessage.error(
-        `Failed to add IDP link for ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to add IDP link for ${userId}`, error);
       return { error: "Failed to add IDP link" };
     }
   }
@@ -536,9 +506,7 @@ export const protectedGetPasswordExpirySettings = AuthenticatedAction(
         orgId: credentials.organization,
       });
     } catch (error) {
-      logMessage.error(
-        `Failed to get password expiry settings: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error("Failed to get password expiry settings", error);
       return { error: "Failed to get password expiry settings" };
     }
   }
@@ -585,9 +553,7 @@ export const protectedUpdatePersonalDetails = AuthenticatedAction(
       });
       return await z.updateHuman({ serviceUrl, request });
     } catch (error) {
-      logMessage.error(
-        `Failed to update user ${userId}: ${error instanceof Error ? error.message : String(error)}`
-      );
+      logMessage.error(`Failed to update user ${userId}`, error);
       return { error: "Failed to update user" };
     }
   }

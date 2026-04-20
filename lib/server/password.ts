@@ -127,7 +127,7 @@ export async function resetPassword(command: ResetPasswordCommand) {
 
   const { t } = await serverTranslation("password");
 
-  // Get the original host that the user sees with protocol
+  logMessage.info("Password reset requested");
   const hostWithProtocol = await getOriginalHostWithProtocol();
 
   const users = await listUsers({
@@ -408,12 +408,11 @@ export async function sendPassword(
 
   if (command.requestId && session.id) {
     // OIDC flow - use completeFlowOrGetUrl for proper handling
-    console.log(
-      "Password auth: OIDC flow with requestId:",
-      command.requestId,
-      "sessionId:",
-      session.id
-    );
+    logMessage.debug({
+      message: "Password auth: OIDC flow with requestId",
+      requestId: command.requestId,
+      sessionId: session.id,
+    });
     const result = await completeFlowOrGetUrl(
       {
         sessionId: session.id,
@@ -422,7 +421,10 @@ export async function sendPassword(
       },
       loginSettings?.defaultRedirectUri
     );
-    console.log("Password auth: OIDC flow result:", result);
+    logMessage.debug({
+      message: "Password auth: OIDC flow result",
+      result,
+    });
 
     // Safety net - ensure we always return a valid object
     if (
@@ -430,7 +432,7 @@ export async function sendPassword(
       typeof result !== "object" ||
       (!("redirect" in result) && !("error" in result))
     ) {
-      console.error("Password auth: Invalid result from completeFlowOrGetUrl (OIDC):", result);
+      logMessage.error("Password auth: Invalid result from completeFlowOrGetUrl (OIDC)", result);
       return { error: "Authentication completed but navigation failed" };
     }
 
@@ -438,7 +440,7 @@ export async function sendPassword(
   }
 
   // Regular flow (no requestId) - return URL for client-side navigation
-  console.log("Password auth: Regular flow with loginName:", session.factors.user.loginName);
+  logMessage.debug("Password auth: completing regular flow");
   const result = await completeFlowOrGetUrl(
     {
       loginName: session.factors.user.loginName,
@@ -446,11 +448,10 @@ export async function sendPassword(
     },
     loginSettings?.defaultRedirectUri
   );
-  console.log("Password auth: Regular flow result:", result);
 
   // Safety net - ensure we always return a valid object
   if (!result || typeof result !== "object" || (!("redirect" in result) && !("error" in result))) {
-    console.error("Password auth: Invalid result from completeFlowOrGetUrl:", result);
+    logMessage.error("Password auth: Invalid result from completeFlowOrGetUrl");
     return { error: "Authentication completed but navigation failed" };
   }
 
@@ -537,6 +538,7 @@ export async function changePassword(command: { code?: string; userId: string; p
 
     // Send password changed email notification
     if (didPasswordChangeSucceed(result)) {
+      logMessage.info("Password changed successfully");
       await sendPasswordChangedEmail({ userId }).catch((error) => {
         logMessage.debug({
           error: error instanceof Error ? error.message : error,
@@ -574,7 +576,7 @@ export async function checkSessionAndSetPassword({
   try {
     sessionCookie = await getSessionCookieById({ sessionId });
   } catch (error) {
-    console.error("Error getting session cookie:", error);
+    logMessage.error("Could not load session cookie", error);
     return { error: "Could not load session cookie" };
   }
 
@@ -587,7 +589,7 @@ export async function checkSessionAndSetPassword({
     });
     session = sessionResponse.session;
   } catch (error) {
-    console.error("Error getting session:", error);
+    logMessage.error("Could not load session", error);
     return { error: "Could not load session" };
   }
 
@@ -610,7 +612,7 @@ export async function checkSessionAndSetPassword({
       userId: session.factors.user.id,
     });
   } catch (error) {
-    console.error("Error getting auth methods:", error);
+    logMessage.error("Could not load auth methods", error);
     return { error: "Could not load auth methods" };
   }
 
@@ -625,7 +627,7 @@ export async function checkSessionAndSetPassword({
       organization: session.factors.user.organizationId,
     });
   } catch (error) {
-    console.error("Error getting login settings:", error);
+    logMessage.error("Could not load login settings", error);
     return { error: "Could not load login settings" };
   }
 
@@ -633,8 +635,8 @@ export async function checkSessionAndSetPassword({
 
   // if the user has no MFA but MFA is enforced, we can set a password otherwise we use the token of the user
   if (forceMfa) {
-    console.log(
-      "Set password using service account due to enforced MFA without existing MFA methods"
+    logMessage.info(
+      "Setting password via service account due to enforced MFA without existing MFA methods"
     );
     return setPassword({ serviceUrl, payload })
       .then(async (result) => {
@@ -691,7 +693,7 @@ export async function checkSessionAndSetPassword({
         return result;
       })
       .catch((error: ConnectError) => {
-        console.log(error);
+        logMessage.error("Could not set password", error);
         if (error.code === 7) {
           return { error: t("errors.sessionNotValid") };
         }

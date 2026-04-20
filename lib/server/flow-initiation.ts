@@ -26,6 +26,8 @@ import {
   startIdentityProviderFlow,
 } from "@lib/zitadel";
 
+import { logMessage } from "../logger";
+
 const ORG_SCOPE_REGEX = /urn:zitadel:iam:org:id:([0-9]+)/;
 const ORG_DOMAIN_SCOPE_REGEX = /urn:zitadel:iam:org:domain:primary:(.+)/;
 const IDP_SCOPE_REGEX = /urn:zitadel:iam:org:idp:id:(.+)/;
@@ -84,7 +86,7 @@ async function safeFindValidSession({
       authRequest,
     });
   } catch (error) {
-    console.error("Failed to resolve valid session during flow initiation:", error);
+    logMessage.error("Failed to resolve valid session during flow initiation", error);
     return undefined;
   }
 }
@@ -125,8 +127,8 @@ export async function handleOIDCFlowInitiation(
         const matched = ORG_DOMAIN_SCOPE_REGEX.exec(orgDomainScope);
         const orgDomain = matched?.[1] ?? "";
 
-        console.log("Extracted org domain:", orgDomain);
         if (orgDomain) {
+          logMessage.debug(`Extracted org domain for OIDC requestId: ${requestId}`);
           const orgs = await getOrgsByDomain({
             serviceUrl,
             domain: orgDomain,
@@ -256,7 +258,7 @@ export async function handleOIDCFlowInitiation(
             return NextResponse.redirect(absoluteUrl.toString());
           }
         } catch (error) {
-          console.error("Failed to execute sendLoginname:", error);
+          logMessage.error("sendLoginname failed during OIDC login hint flow", error);
         }
       }
 
@@ -352,14 +354,16 @@ export async function handleOIDCFlowInitiation(
         if (callbackUrl) {
           return NextResponse.redirect(callbackUrl);
         } else {
-          console.log("could not create callback, redirect user to login");
+          logMessage.warn(
+            `Could not create OIDC callback, redirecting to login for requestId: ${oidcRequestId}`
+          );
           return gotoLogin({
             request,
             requestId: oidcRequestId,
           });
         }
       } catch (error) {
-        console.error(error);
+        logMessage.error("Flow initiation failed, redirecting to login", error);
         return gotoLogin({
           request,
           requestId: oidcRequestId,

@@ -62,6 +62,7 @@ export async function registerUser(command: RegisterUserCommand) {
   });
 
   if (!addResponse) {
+    logMessage.error("Failed to create user account during registration");
     return { error: t("errors.couldNotCreateUser") };
   }
 
@@ -82,6 +83,7 @@ export async function registerUser(command: RegisterUserCommand) {
   });
 
   if (!session || !session.factors?.user) {
+    logMessage.error("Failed to create session after registration");
     return { error: t("errors.couldNotCreateSession") };
   }
 
@@ -91,6 +93,7 @@ export async function registerUser(command: RegisterUserCommand) {
   });
 
   if (!userResponse.user) {
+    logMessage.error("Failed to fetch user after registration");
     return { error: t("errors.userNotFound") };
   }
 
@@ -108,6 +111,7 @@ export async function registerUser(command: RegisterUserCommand) {
     return emailVerificationCheck;
   }
 
+  logMessage.info("User registered successfully");
   return completeFlowOrGetUrl(
     command.requestId && session.id
       ? {

@@ -34,9 +34,7 @@ export async function removeU2FAction(userId: string, u2fId: string) {
     revalidatePath("/account");
     return { success: true };
   } catch (error) {
-    logMessage.error(
-      `Failed to remove U2F: ${error instanceof Error ? error.message : String(error)}`
-    );
+    logMessage.error("Failed to remove U2F", error);
     return { error: error instanceof Error ? error.message : "Failed to remove security key" };
   }
 }
@@ -58,9 +56,7 @@ export async function removeTOTPAction(userId: string) {
     revalidatePath("/account");
     return { success: true };
   } catch (error) {
-    logMessage.error(
-      `Failed to remove TOTP: ${error instanceof Error ? error.message : String(error)}`
-    );
+    logMessage.error("Failed to remove TOTP", error);
     return { error: "Failed to remove Authentication method" };
   }
 }
@@ -90,9 +86,7 @@ export async function updatePersonalDetailsAction({
     revalidatePath("/account");
     return { success: true };
   } catch (error) {
-    logMessage.error(
-      `Failed to update account: ${error instanceof Error ? error.message : String(error)}`
-    );
+    logMessage.error("Failed to update account", error);
     return { error: "Failed to update account" };
   }
 }
