@@ -1,4 +1,4 @@
-FROM node:24-alpine AS base
+FROM node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f AS base
 
 ARG GIT_SHA
 
@@ -16,7 +16,7 @@ RUN corepack enable
 RUN pnpm install
 RUN pnpm build
 
-FROM node:24-alpine AS final
+FROM node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f AS final
 LABEL maintainer="-"
 
 ARG GIT_SHA

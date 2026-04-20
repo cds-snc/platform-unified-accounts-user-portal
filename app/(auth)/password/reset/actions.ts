@@ -56,12 +56,20 @@ export const submitUserNameForm = async (
   const userId = user.userId;
 
   let email: string | undefined;
+  let emailVerified = false;
+
   if (user.type.case === "human") {
     email = user.type.value.email?.email;
+    emailVerified = user.type.value.email?.isVerified ?? false;
   }
 
   if (!email) {
     logMessage.info("Password reset requested for user without email address");
+    return genericErrorResponse;
+  }
+
+  if (!emailVerified) {
+    logMessage.info("Password reset requested for user with unverified email address");
     return genericErrorResponse;
   }
 
@@ -95,8 +103,6 @@ export const submitUserNameForm = async (
     return genericErrorResponse;
   }
 
-  // Establish a recovery session tied to the identified user so a strong factor
-  // can be challenged before the reset form is shown.
   const session = await createSessionAndUpdateCookie({
     checks: create(ChecksSchema, {
       user: {
