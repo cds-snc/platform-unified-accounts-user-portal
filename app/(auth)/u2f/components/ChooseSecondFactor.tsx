@@ -30,20 +30,11 @@ export function ChooseSecondFactor({ userMethods, requestId }: Props) {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [nextUrl, setNextUrl] = useState<string>("");
 
-  // Check if user has at least one strong MFA method (TOTP or U2F)
-  const hasStrongFactor = userMethods.some(
-    (m) => m === AuthenticationMethodType.TOTP || m === AuthenticationMethodType.U2F
-  );
-
   const authMehods = userMethods.filter((method) => {
-    if (method === AuthenticationMethodType.PASSWORD) {
-      return false;
+    if (method === AuthenticationMethodType.U2F || AuthenticationMethodType.TOTP) {
+      return true;
     }
-    // Only allow email OTP if user already has a strong factor (TOTP or U2F)
-    if (method === AuthenticationMethodType.OTP_EMAIL && !hasStrongFactor) {
-      return false;
-    }
-    return true;
+    return false;
   });
 
   const handleMethodSelect = (method: string, url: string) => {
@@ -82,17 +73,6 @@ export function ChooseSecondFactor({ userMethods, requestId }: Props) {
                   description={t("set.securityKey.description")}
                   url={buildUrlWithRequestId("/u2f", requestId)}
                   isSelected={selectedMethod === "securityKey"}
-                  onSelect={handleMethodSelect}
-                />
-              )}
-              {method === AuthenticationMethodType.OTP_EMAIL && (
-                <MethodOptionCard
-                  method="email"
-                  title={t("set.email.title")}
-                  icon="/img/email_24px.png"
-                  description={t("set.email.description")}
-                  url={buildUrlWithRequestId("/otp/email", requestId)}
-                  isSelected={selectedMethod === "email"}
                   onSelect={handleMethodSelect}
                 />
               )}

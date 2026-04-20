@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { ENABLE_EMAIL_OTP } from "@root/constants/config";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { useTranslation } from "@i18n/client";
 import { MethodOptionCard } from "@components/mfa/MethodOptionCard";
@@ -47,24 +46,6 @@ export function ChooseSecondFactorToSetup({ checkAfter, requestId }: Props) {
   return (
     <>
       <div className="grid w-full grid-cols-1 gap-5 pt-4">
-        {/* Email - OTP_EMAIL (Default) */}
-        {ENABLE_EMAIL_OTP && (
-          <MethodOptionCard
-            method="email"
-            title={t("set.email.title")}
-            icon="/img/email_24px.png"
-            description={t("set.email.description")}
-            url={
-              buildUrlWithRequestId("/otp/email/set", requestId) +
-              (params.toString() ? (requestId ? "&" : "?") + params : "")
-            }
-            isSelected={selectedMethod === "email"}
-            isDefault={true}
-            defaultText={t("set.byDefault")}
-            onSelect={handleMethodSelect}
-          />
-        )}
-
         {/* Authentication App - TOTP */}
         <MethodOptionCard
           method="authenticator"

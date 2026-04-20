@@ -63,8 +63,6 @@ export const AUTH_FLOW_ROUTES = [
   "/mfa/set",
   "/otp/time-based",
   "/otp/time-based/set",
-  "/otp/email",
-  "/otp/email/set",
   "/u2f",
   "/u2f/set",
   "/verify",

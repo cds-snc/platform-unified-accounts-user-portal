@@ -31,7 +31,7 @@ export async function completeFlowOrGetUrl(
 
   // For all other cases, return URL for navigation
   const requestId = "requestId" in command ? command.requestId : undefined;
-  const url = await getNextUrl(command, defaultRedirectUri, requestId);
+  const url = await getNextUrl(defaultRedirectUri, requestId);
   const result = { redirect: url };
   return result;
 }
@@ -42,11 +42,7 @@ export async function completeFlowOrGetUrl(
  * @param command
  * @returns
  */
-export async function getNextUrl(
-  command: FinishFlowCommand & { organization?: string },
-  defaultRedirectUri?: string,
-  requestId?: string
-): Promise<string> {
+export async function getNextUrl(defaultRedirectUri?: string, requestId?: string): Promise<string> {
   // OIDC flows are now handled by completeAuthFlowAction() server action
 
   if (defaultRedirectUri) {

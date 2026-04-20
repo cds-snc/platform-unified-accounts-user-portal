@@ -19,7 +19,7 @@ import { getSerializableObject } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginOTP } from "@components/mfa/LoginOTP";
+import { LoginTOTP } from "@components/mfa/LoginTOTP";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("otp");
@@ -73,7 +73,7 @@ export default async function Page() {
       namespace="otp"
       imageSrc="/img/auth-app-icon.png"
     >
-      <LoginOTP
+      <LoginTOTP
         loginName={loginName ?? sessionData.factors?.user?.loginName}
         sessionId={sessionId}
         organization={organization ?? sessionData.factors?.user?.organizationId}

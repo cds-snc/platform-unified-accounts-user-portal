@@ -62,8 +62,6 @@ function isMfaSetupRoute(pathname: string): boolean {
     pathname.startsWith("/mfa/set/") ||
     pathname === "/u2f/set" ||
     pathname.startsWith("/u2f/set/") ||
-    pathname === "/otp/email/set" ||
-    pathname.startsWith("/otp/email/set/") ||
     pathname === "/otp/time-based/set" ||
     pathname.startsWith("/otp/time-based/set/")
   );

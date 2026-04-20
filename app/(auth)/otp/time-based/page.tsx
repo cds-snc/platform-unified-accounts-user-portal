@@ -17,28 +17,22 @@ import { getSerializableObject, SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginOTP } from "@components/mfa/LoginOTP";
+import { LoginTOTP } from "@components/mfa/LoginTOTP";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("otp");
   return { title: t("verify.title") };
 }
 
-export default async function Page(props: {
-  searchParams: Promise<SearchParams>;
-  params: Promise<Record<string | number | symbol, string | undefined>>;
-}) {
-  const [params, searchParams, _headers, { sessionId, loginName, organization, requestId }] =
-    await Promise.all([props.params, props.searchParams, headers(), getSessionCredentials()]);
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const [searchParams, _headers, { sessionId, loginName, organization, requestId }] =
+    await Promise.all([props.searchParams, headers(), getSessionCredentials()]);
 
   const { serviceUrl } = getServiceUrlFromHeaders(_headers);
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
   const { code, redirect } = searchParams;
-
-  // Method =  `/otp/email` or `/otp/time-based` (authenticator app)
-  const { method } = params;
 
   const sessionData = sessionId
     ? await loadSessionById(serviceUrl, sessionId, organization)
@@ -58,18 +52,18 @@ export default async function Page(props: {
 
   return (
     <AuthPanel
-      titleI18nKey={method === "time-based" ? "verify.authAppTitle" : "verify.title"}
+      titleI18nKey={"verify.authAppTitle"}
       descriptionI18nKey="none"
       namespace="otp"
-      imageSrc={method === "time-based" ? "/img/auth-app-icon.png" : undefined}
+      imageSrc={"/img/auth-app-icon.png"}
     >
-      {method && sessionFactors && (
-        <LoginOTP
+      {sessionFactors && (
+        <LoginTOTP
           loginName={loginName ?? sessionFactors.factors?.user?.loginName}
           sessionId={sessionId}
           organization={organization ?? sessionFactors?.factors?.user?.organizationId}
           requestId={requestId}
-          method={method}
+          method="time-based"
           loginSettings={loginSettings}
           code={code}
           redirect={safeRedirect}

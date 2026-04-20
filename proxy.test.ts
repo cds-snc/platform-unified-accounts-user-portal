@@ -61,7 +61,6 @@ vi.mock("./lib/middleware-config", () => ({
     "/mfa",
     "/mfa/set",
     "/otp/time-based",
-    "/otp/email",
     "/u2f",
     "/verify",
   ],
