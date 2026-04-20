@@ -42,6 +42,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <div className="min-h-screen bg-gray-soft">
       <SiteHeader>
@@ -58,7 +60,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
           <section className="min-w-0">{children}</section>
         </div>
       </main>
-      <VersionUpdater />
+      {!isDev && <VersionUpdater />}
       <Footer>
         <FooterLinks siteConfig={siteConfig} />
       </Footer>
