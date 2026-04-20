@@ -25,6 +25,8 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     i18n: { language },
   } = await serverTranslation(["fip"]);
 
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <div className="flex min-h-full flex-col bg-gray-soft">
       <GcdsHeader language={language}>
@@ -49,7 +51,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           </div>
         </div>
       </div>
-      <VersionUpdater />
+      {!isDev && <VersionUpdater />}
       <Footer>
         <FooterLinks siteConfig={siteConfig} />
       </Footer>
