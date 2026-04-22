@@ -16,7 +16,6 @@ import crypto from "crypto";
  *--------------------------------------------*/
 import { getPasswordChangedTemplate, getSecurityCodeTemplate } from "@lib/emailTemplates";
 import {
-  addOTPEmail,
   getLoginSettings,
   getSession,
   getUserByID,
@@ -94,17 +93,6 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
 
   if (!verifyResponse) {
     return { error: t("errors.couldNotVerify") };
-  }
-
-  // Automatically add OTPEmail as an authentication method after email verification
-  try {
-    await addOTPEmail({
-      serviceUrl,
-      userId: command.userId,
-    });
-  } catch (error) {
-    logMessage.debug({ error, message: "Failed to add OTPEmail" });
-    return { error: t("errors.failedToAddOTPEmail") };
   }
 
   let session: Session | undefined;
