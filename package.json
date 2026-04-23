@@ -25,7 +25,8 @@
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "upgrade": "next upgrade",
-    "prepare": "husky"
+    "prepare": "husky",
+    "knip": "knip"
   },
   "dependencies": {
     "@gcforms/connectors": "^2.2.16",
@@ -75,6 +76,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
+    "knip": "^6.4.1",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
