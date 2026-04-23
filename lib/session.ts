@@ -190,33 +190,28 @@ export async function isSessionValid({
   const mfaValid = totpValid || u2fValid || optEmail;
 
   if (!mfaValid) {
-    logMessage.debug("Session has no valid MFA factor (TOTP, U2F, or OTP Email required)");
+    logMessage.debug("Session has no valid MFA factor (TOTP, U2F required)");
     return false;
   }
 
-  // Check email verification if EMAIL_VERIFICATION environment variable is enabled
-  if (process.env.EMAIL_VERIFICATION === "true") {
-    try {
-      const userResponse = await getUserByID({
-        serviceUrl,
-        userId: session.factors.user.id,
-      });
+  try {
+    const userResponse = await getUserByID({
+      serviceUrl,
+      userId: session.factors.user.id,
+    });
 
-      const humanUser =
-        userResponse?.user?.type.case === "human" ? userResponse?.user.type.value : undefined;
+    const humanUser =
+      userResponse?.user?.type.case === "human" ? userResponse?.user.type.value : undefined;
 
-      if (humanUser && !humanUser.email?.isVerified) {
-        logMessage.info(
-          `Session invalid: Email not verified and EMAIL_VERIFICATION is enabled for user: ${session.factors.user.id}`
-        );
-        return false;
-      }
-    } catch (error) {
-      logMessage.info(
-        `Session invalid: Could not load user ${session.factors.user.id} while validating email verification`
-      );
+    if (humanUser && !humanUser.email?.isVerified) {
+      logMessage.info(`Session invalid: Email not verified for user: ${session.factors.user.id}`);
       return false;
     }
+  } catch (error) {
+    logMessage.info(
+      `Session invalid: Could not load user ${session.factors.user.id} while validating email verification`
+    );
+    return false;
   }
 
   return true;

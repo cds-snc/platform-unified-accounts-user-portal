@@ -141,36 +141,6 @@ export const protectedVerifyTOTPRegistration = AuthenticatedAction(
 );
 
 /**
- * Protected wrapper for addOTPEmail.
- * Ensures user can only enable OTP email for their own account.
- *
- * @security Requires authenticated session. OTP credentials are sensitive.
- */
-export const protectedAddOTPEmail = AuthenticatedAction(
-  async (credentials: SessionCredentials, userId: string) => {
-    if (!validateSessionCredentials(credentials)) {
-      return { error: "Invalid session credentials" };
-    }
-
-    if (!validateUserCanAccessUserId(credentials.userId, userId)) {
-      logMessage.warn(
-        `Unauthorized attempt to add OTP email for userId ${userId} by user ${credentials.loginName}`
-      );
-      return { error: "Unauthorized" };
-    }
-
-    try {
-      const _headers = await headers();
-      const { serviceUrl } = getServiceUrlFromHeaders(_headers);
-      return await z.addOTPEmail({ serviceUrl, userId });
-    } catch (error) {
-      logMessage.error(`Failed to add OTP email for ${userId}`, error);
-      return { error: "Failed to add OTP email" };
-    }
-  }
-);
-
-/**
  * Protected wrapper for addOTPSMS.
  * Ensures user can only enable OTP SMS for their own account.
  *

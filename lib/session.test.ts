@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { getUserByID } from "../lib/zitadel";
 
@@ -11,15 +11,7 @@ vi.mock("../lib/zitadel", () => ({
 }));
 
 describe("isSessionValid", () => {
-  const originalEmailVerification = process.env.EMAIL_VERIFICATION;
-
-  afterEach(() => {
-    process.env.EMAIL_VERIFICATION = originalEmailVerification;
-    vi.clearAllMocks();
-  });
-
   it("returns false instead of throwing when user lookup fails during email verification", async () => {
-    process.env.EMAIL_VERIFICATION = "true";
     vi.mocked(getUserByID).mockRejectedValue(new Error("[not_found] User could not be found"));
 
     const validSession = {

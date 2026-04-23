@@ -134,7 +134,7 @@ describe("route-protection", () => {
     });
   });
 
-  it("satisfies any-mfa level with OTP email after password verification", async () => {
+  it("satisfies any-mfa level after password verification", async () => {
     vi.mocked(loadMostRecentSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },
@@ -151,7 +151,7 @@ describe("route-protection", () => {
     expect(result.satisfied).toBe(true);
   });
 
-  it("fails strong-mfa level with OTP email only", async () => {
+  it("fails strong-mfa level", async () => {
     vi.mocked(loadMostRecentSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },

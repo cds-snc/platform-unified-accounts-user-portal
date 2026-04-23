@@ -76,7 +76,7 @@ export function checkEmailVerification(
   organization?: string,
   requestId?: string
 ) {
-  if (!humanUser?.email?.isVerified && process.env.EMAIL_VERIFICATION === "true") {
+  if (!humanUser?.email?.isVerified) {
     const params = new URLSearchParams({
       userId: session.factors?.user?.id as string,
       send: "true", // set this to true as we dont expect old email codes to be valid anymore

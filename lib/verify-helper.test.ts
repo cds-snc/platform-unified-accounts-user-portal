@@ -1,17 +1,9 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { checkEmailVerification } from "./verify-helper";
 
 describe("checkEmailVerification", () => {
-  const originalEmailVerification = process.env.EMAIL_VERIFICATION;
-
-  afterEach(() => {
-    process.env.EMAIL_VERIFICATION = originalEmailVerification;
-  });
-
   it("preserves user and organization context for verify redirects", () => {
-    process.env.EMAIL_VERIFICATION = "true";
-
     const redirect = checkEmailVerification(
       {
         factors: {
