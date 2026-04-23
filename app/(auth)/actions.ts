@@ -110,7 +110,7 @@ export const submitLoginForm = async (
     }
 
     // Always return generic error (don't reveal if user exists or password is wrong)
-    logMessage.info("Authentication failed, returning generic error");
+    logMessage.info("Authentication failed, returning generic message");
     return { error: t("validation.invalidCredentials") };
   }
 
