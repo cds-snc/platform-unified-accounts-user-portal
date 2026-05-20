@@ -11,6 +11,7 @@ module.exports = defineConfig({
   workers: 1,
   use: {
     headless: true,
+    screenshot: "only-on-failure",
     trace: "on-first-retry",
     extraHTTPHeaders: {
       "waf-geo-restriction-bypass": `${process.env.WAF_GEO_RESTRICTION_BYPASS ?? ""}`,

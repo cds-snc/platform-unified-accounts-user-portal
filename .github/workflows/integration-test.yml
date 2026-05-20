@@ -3,6 +3,15 @@ name: Integration test
 on:
   workflow_call:
     inputs:
+      account_id:
+        required: true
+        type: string
+      account_region:
+        required: true
+        type: string
+      bucket_name:
+        required: true
+        type: string
       idp_url:
         required: true
         type: string
@@ -22,6 +31,7 @@ on:
         required: true
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -56,6 +66,7 @@ jobs:
           cache: pnpm
 
       - name: Run integration tests
+        id: test
         env:
           IDP_URL: ${{ inputs.idp_url }}
           PORTAL_URL: ${{ inputs.portal_url }}
@@ -66,3 +77,17 @@ jobs:
           ZITADEL_BEARER_TOKEN: ${{ secrets.zitadel_bearer_token }}
         run: 
           pnpm test:playwright
+
+      - name: Configure AWS credentials using OIDC
+        if: steps.test.outcome == 'failure'
+        uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.account_id }}:role/platform-unified-accounts-integration-tests
+          role-session-name: IntegrationTests
+          aws-region: ${{ inputs.account_region }}
+
+      - name: Upload test results
+        if: steps.test.outcome == 'failure'
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          aws s3 cp ./test-results s3://${{ inputs.bucket_name }}/${DATE}/${{ github.run_id }} --recursive
