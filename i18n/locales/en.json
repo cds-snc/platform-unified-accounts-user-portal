@@ -139,6 +139,7 @@
     },
     "session": {
       "otherAccount": "Different account",
+      "continueWithAccount": "Continue with {{account}}",
       "continueWithOther": "Continue with different account"
     }
   },

@@ -3,12 +3,13 @@
  *--------------------------------------------*/
 import type { Cookie } from "@lib/cookies";
 import { cn } from "@lib/utils";
+import { useTranslation } from "@i18n";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { useTranslation } from "@i18n";
-import { ArrowRightNav } from "@components/icons/ArrowRightNav";
-import { Button } from "@components/ui/button/Button";
+import { Avatar } from "@components/account/user-avatar/Avatar";
+import { ArrowRightSelector } from "@components/icons/ArrowRightSelector";
+import { OtherAccountIcon } from "@components/icons/OtherAccountIcon";
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
@@ -19,62 +20,65 @@ type SessionSelectProps = {
 
 export const SessionSelect = ({ sessions, selectSession }: SessionSelectProps) => {
   const { t } = useTranslation("start");
+
   return (
     <div className="flex flex-col">
       {Array.from(sessions.entries()).map(([id, session], index) => (
         <SessionTile
           key={id}
+          ariaLabel={t("session.continueWithAccount", { account: session.loginName })}
           session={session}
           first={index === 0}
-          last={sessions.size === index + 1}
-          select={selectSession}
+          select={() => selectSession(id)}
         />
       ))}
-      <div className="flex flex-row items-center rounded-b-2xl border-x-2.5 border-b-2.5 border-gcds-grayscale-400 p-4">
-        <div className="grow">{t("session.otherAccount")}</div>
-        <div className="float-right">
-          <Button
-            type="button"
-            aria-label={t("session.continueWithOther")}
-            onClick={() => selectSession("other")}
-          >
-            <ArrowRightNav />
-          </Button>
-        </div>
-      </div>
+      <SessionTile
+        label={t("session.otherAccount")}
+        ariaLabel={t("session.continueWithOther")}
+        last
+        select={() => selectSession("other")}
+      />
     </div>
   );
 };
 
 const SessionTile = ({
+  label,
+  ariaLabel,
   session,
   first,
   last,
   select,
 }: {
-  session: Cookie;
-  first: boolean;
-  last: boolean;
-  select: (id: string) => void;
+  label?: string;
+  ariaLabel?: string;
+  session?: Cookie;
+  first?: boolean;
+  last?: boolean;
+  select: () => void;
 }) => {
   return (
-    <div
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      onClick={select}
       className={cn([
-        "flex flex-row items-center border-x-2.5 border-t-2.5 border-gcds-blue-200 p-4",
+        "group flex w-full cursor-pointer items-center gap-4 border-x border-t border-gcds-grayscale-400 bg-white p-4 text-left transition-colors duration-200 hover:border-indigo-700 hover:bg-indigo-50 focus-visible:border-indigo-700 focus-visible:bg-indigo-50 focus-visible:outline-none",
         first && "rounded-t-2xl",
-        last && "border-b-2.5",
+        last && "rounded-b-2xl border-b",
       ])}
     >
-      <div className="grow">{session.loginName}</div>
-      <div className="float-right">
-        <Button
-          type="button"
-          aria-label={`Continue with ${session.loginName}`}
-          onClick={() => select(session.id)}
-        >
-          <ArrowRightNav />
-        </Button>
+      {session ? (
+        <Avatar name={session.loginName} loginName={session.loginName} />
+      ) : (
+        <OtherAccountIcon className="size-9.5 text-gcds-grayscale-600 transition-colors duration-200 group-hover:text-indigo-700 group-focus-visible:text-indigo-700" />
+      )}
+      <span className="grow text-xl font-normal text-gcds-grayscale-900">
+        {label ?? session?.loginName}
+      </span>
+      <div className="text-gcds-grayscale-600 transition-colors duration-200 group-hover:text-indigo-700 group-focus-visible:text-indigo-700">
+        <ArrowRightSelector className="size-6" />
       </div>
-    </div>
+    </button>
   );
 };

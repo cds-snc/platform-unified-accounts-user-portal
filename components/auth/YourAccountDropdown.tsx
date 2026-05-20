@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -47,6 +47,8 @@ export const YourAccountDropdown = ({
 }: YourAccountDropdownProps) => {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [triggerWidth, setTriggerWidth] = useState<number>();
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const { t } = useTranslation("header");
   const pathname = usePathname();
 
@@ -80,21 +82,30 @@ export const YourAccountDropdown = ({
   return (
     <>
       <div>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
-            <div
+        <DropdownMenu.Root
+          onOpenChange={(open) => {
+            if (open && triggerRef.current) {
+              setTriggerWidth(triggerRef.current.getBoundingClientRect().width);
+            }
+          }}
+        >
+          <DropdownMenu.Trigger asChild>
+            <button
+              ref={triggerRef}
+              type="button"
               className="flex cursor-pointer rounded border-1 border-slate-500 px-3 py-1 hover:bg-gray-600 hover:text-white-default focus:bg-gray-600 focus:text-white-default hover:[&_svg]:fill-white focus:[&_svg]:fill-white"
               data-testid="yourAccountDropdown"
             >
               <span className="mr-1 inline-block">{userName}</span>
               <ChevronDown className="mt-0.5" />
-            </div>
+            </button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content
               data-testid="yourAccountDropdownContent"
               align="end"
-              className={`z-1000 mt-1.5 min-w-57.5 rounded-lg border-1 border-slate-500 bg-white px-1.5 py-1 shadow-md`}
+              className="z-1000 mt-1.5 rounded-lg border-1 border-slate-500 bg-white px-1.5 py-1 shadow-md"
+              style={triggerWidth ? { width: triggerWidth } : undefined}
             >
               <DropdownMenuItem href={`/`} text={t("switchAccount")} />
               <DropdownMenuItem href="#" onClick={handleLogout} text={t("logout")} />
