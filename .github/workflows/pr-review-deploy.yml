@@ -141,6 +141,9 @@ jobs:
     needs: pr-review-deploy
     uses: ./.github/workflows/integration-test.yml
     with:
+      account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
+      account_region: ca-central-1
+      bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
       portal_url: ${{ needs.pr-review-deploy.outputs.url }}ui/v2
     secrets:

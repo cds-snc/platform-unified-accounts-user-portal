@@ -10,6 +10,7 @@ on:
       - main
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -17,6 +18,9 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/integration-test.yml
     with:
+      account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
+      account_region: ca-central-1
+      bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
       portal_url: ${{ vars.STAGING_INTEGRATION_TEST_PORTAL_URL }}
     secrets:
