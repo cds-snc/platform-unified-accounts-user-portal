@@ -1,6 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { redirect, RedirectType } from "next/navigation";
 import { Timestamp, timestampDate } from "@zitadel/client";
 import { AuthRequest } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
@@ -15,7 +16,7 @@ import { getSession, getUserByID, listAuthenticationMethodTypes } from "../lib/z
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { getMostRecentCookieWithLoginname, getSessionCookieById } from "./cookies";
+import { getActiveSessionCookie, getSessionCookieById } from "./cookies";
 import { logMessage } from "./logger";
 export function checkSessionFactorValidity(session: Partial<Session>): {
   valid: boolean;
@@ -34,32 +35,33 @@ export function checkSessionFactorValidity(session: Partial<Session>): {
   return { valid, verifiedAt };
 }
 
-type LoadMostRecentSessionParams = {
-  sessionParams: {
-    loginName?: string;
-  };
-};
+export async function loadActiveSession(): Promise<SessionWithAuthData> {
+  const active = await getActiveSessionCookie();
+  // If there is no active user session throw so it can be caught and handled
+  if (!active) {
+    throw new Error("No active session found");
+  }
 
-export async function loadMostRecentSession({
-  sessionParams,
-}: LoadMostRecentSessionParams): Promise<Session | undefined> {
-  const recent = await getMostRecentCookieWithLoginname({
-    loginName: sessionParams.loginName,
-  });
+  const session = await getSession(active.id, active.token).then(
+    (resp: GetSessionResponse) => resp.session
+  );
 
-  return getSession({
-    sessionId: recent.id,
-    sessionToken: recent.token,
-  }).then((resp: GetSessionResponse) => resp.session);
+  // If the selected session no longer exists on the server redirect to start a new session
+  if (!session) {
+    redirect("/", RedirectType.push);
+  }
+
+  const requestId = active.requestId;
+
+  const enhancedSession = await getAuthMethodsAndUser(session);
+  return { ...enhancedSession, requestId };
 }
 
-export type SessionWithAuthData = {
-  id?: string;
-  factors?: Session["factors"];
+export type SessionWithAuthData = Session & {
   authMethods: AuthenticationMethodType[];
   phoneVerified: boolean;
   emailVerified: boolean;
-  expirationDate?: Session["expirationDate"];
+  requestId?: string;
 };
 
 async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuthData> {
@@ -69,39 +71,23 @@ async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuth
     throw Error("Could not get user id from session");
   }
 
-  const methods = await listAuthenticationMethodTypes({
-    userId,
-  });
+  const methods = await listAuthenticationMethodTypes(userId);
 
-  const user = await getUserByID({ userId });
+  const user = await getUserByID(userId);
   const humanUser = user.user?.type.case === "human" ? user.user?.type.value : undefined;
 
   return {
-    id: session?.id,
-    factors: session?.factors,
+    ...session,
     authMethods: methods.authMethodTypes ?? [],
     phoneVerified: humanUser?.phone?.isVerified ?? false,
     emailVerified: humanUser?.email?.isVerified ?? false,
-    expirationDate: session?.expirationDate,
   };
 }
 
 export async function loadSessionById(sessionId: string): Promise<SessionWithAuthData> {
   const recent = await getSessionCookieById({ sessionId });
-  const sessionResponse = await getSession({
-    sessionId: recent.id,
-    sessionToken: recent.token,
-  });
+  const sessionResponse = await getSession(recent.id, recent.token);
   return getAuthMethodsAndUser(sessionResponse.session);
-}
-
-export async function loadSessionByLoginname(loginName?: string): Promise<SessionWithAuthData> {
-  const session = await loadMostRecentSession({
-    sessionParams: {
-      loginName,
-    },
-  });
-  return getAuthMethodsAndUser(session);
 }
 
 /**
@@ -148,9 +134,7 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   }
 
   try {
-    const userResponse = await getUserByID({
-      userId: session.factors.user.id,
-    });
+    const userResponse = await getUserByID(session.factors.user.id);
 
     const humanUser =
       userResponse?.user?.type.case === "human" ? userResponse?.user.type.value : undefined;

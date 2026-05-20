@@ -1,14 +1,14 @@
+import { redirect } from "next/navigation";
 import { timestampDate } from "@zitadel/client";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { loadMostRecentSession } from "@lib/session";
+import { loadActiveSession } from "@lib/session";
 
 import {
   AuthLevel,
   checkAuthenticationLevel,
   checkSessionFactors,
-  getSmartRedirect,
   hasAnyMFA,
   hasStrongMFA,
   requiresStrongMfaSetupVerification,
@@ -20,12 +20,16 @@ vi.mock("@zitadel/client", () => ({
 
 vi.mock("@lib/session", () => ({
   loadMostRecentSession: vi.fn(),
+  loadActiveSession: vi.fn(),
 }));
 
 vi.mock("@lib/logger", () => ({
   logMessage: {
     debug: vi.fn(),
   },
+}));
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(),
 }));
 
 describe("route-protection", () => {
@@ -94,40 +98,30 @@ describe("route-protection", () => {
   it("allows open routes without loading session", async () => {
     const result = await checkAuthenticationLevel(AuthLevel.OPEN);
 
-    expect(result).toEqual({ satisfied: true });
-    expect(loadMostRecentSession).not.toHaveBeenCalled();
+    expect(result).toEqual({ session: null });
+    expect(loadActiveSession).not.toHaveBeenCalled();
   });
 
   it("fails basic session level when no session exists", async () => {
-    vi.mocked(loadMostRecentSession).mockResolvedValue(undefined as never);
+    vi.mocked(loadActiveSession).mockResolvedValue(undefined as never);
 
-    const result = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, "person@canada.ca");
-
-    expect(result).toMatchObject({
-      satisfied: false,
-      redirect: "/",
-      reason: "No session found",
-    });
+    await checkAuthenticationLevel(AuthLevel.BASIC_SESSION);
+    expect(redirect).toHaveBeenCalledWith("/");
   });
 
   it("fails password-required level when password is not verified", async () => {
-    vi.mocked(loadMostRecentSession).mockResolvedValue({
+    vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },
       },
     } as never);
 
-    const result = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED);
-
-    expect(result).toMatchObject({
-      satisfied: false,
-      redirect: "/password",
-      reason: "Password not verified",
-    });
+    await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED);
+    expect(redirect).toHaveBeenCalledWith("/password");
   });
 
   it("satisfies any-mfa level after password verification", async () => {
-    vi.mocked(loadMostRecentSession).mockResolvedValue({
+    vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },
         password: { verifiedAt: {} },
@@ -137,11 +131,11 @@ describe("route-protection", () => {
 
     const result = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED);
 
-    expect(result.satisfied).toBe(true);
+    expect(result.session).not.toBe(null);
   });
 
   it("fails strong-mfa level", async () => {
-    vi.mocked(loadMostRecentSession).mockResolvedValue({
+    vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },
         password: { verifiedAt: {} },
@@ -149,43 +143,7 @@ describe("route-protection", () => {
       },
     } as never);
 
-    const result = await checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED);
-
-    expect(result).toMatchObject({
-      satisfied: false,
-      redirect: "/mfa",
-      reason: "Strong MFA not verified",
-    });
-  });
-
-  it("builds smart redirect URLs based on factors and preserves requestId", () => {
-    const params = new URLSearchParams("requestId=req-123");
-
-    expect(getSmartRedirect(null, params)).toBe("/?requestId=req-123");
-
-    const noPasswordSession = {
-      factors: {
-        user: { id: "user-123" },
-      },
-    } as never;
-    expect(getSmartRedirect(noPasswordSession, params)).toBe("/password?requestId=req-123");
-
-    const noStrongMfaSession = {
-      factors: {
-        user: { id: "user-123" },
-        password: { verifiedAt: {} },
-        otpEmail: { verifiedAt: {} },
-      },
-    } as never;
-    expect(getSmartRedirect(noStrongMfaSession, params)).toBe("/mfa?requestId=req-123");
-
-    const strongMfaSession = {
-      factors: {
-        user: { id: "user-123" },
-        password: { verifiedAt: {} },
-        totp: { verifiedAt: {} },
-      },
-    } as never;
-    expect(getSmartRedirect(strongMfaSession, params)).toBe("/account");
+    await checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED);
+    expect(redirect).toHaveBeenCalledWith("/mfa");
   });
 });

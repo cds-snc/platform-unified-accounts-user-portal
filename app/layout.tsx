@@ -2,7 +2,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { Suspense } from "react";
 import { Viewport } from "next";
 import { Lato, Noto_Sans } from "next/font/google";
 import { cookies, headers } from "next/headers";
@@ -12,6 +11,7 @@ import { dir } from "i18next";
  * Internal Aliases
  *--------------------------------------------*/
 import { languages } from "@i18n/settings";
+import RouterDebugger from "@components/debugging/RouterDebugger";
 
 /*--------------------------------------------*
  * Styles
@@ -36,14 +36,6 @@ export const viewport: Viewport = {
 };
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <Suspense fallback={null}>
-      <InnerRootLayout>{children}</InnerRootLayout>
-    </Suspense>
-  );
-}
-
-const InnerRootLayout = async ({ children }: { children: React.ReactNode }) => {
   const [requestCookies, requestHeaders] = await Promise.all([cookies(), headers()]);
   const locale = requestCookies.get("i18next")?.value ?? languages[0];
   const nonce = requestHeaders.get("x-nonce") ?? undefined;
@@ -76,7 +68,10 @@ const InnerRootLayout = async ({ children }: { children: React.ReactNode }) => {
           </style>
         )}
       </head>
-      <body>{children}</body>
+      <body>
+        {process.env.DEBUG && <RouterDebugger />}
+        {children}
+      </body>
     </html>
   );
-};
+}

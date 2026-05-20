@@ -19,7 +19,8 @@
   },
   "header": {
     "lang-toggle": "Language selection",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "switchAccount": "Switch accounts"
   },
   "fip": {
     "link": "http://canada.ca/en.html",
@@ -135,6 +136,10 @@
       "validGovEmail": "Enter a valid individual Government of Canada email address.",
       "requiredPassword": "Password is required.",
       "invalidCredentials": "Invalid email address or password. Please try again."
+    },
+    "session": {
+      "otherAccount": "Different account",
+      "continueWithOther": "Continue with different account"
     }
   },
   "password": {

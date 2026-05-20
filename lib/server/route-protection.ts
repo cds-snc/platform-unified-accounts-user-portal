@@ -1,6 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { redirect } from "next/navigation";
 import { timestampDate } from "@zitadel/client";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
@@ -9,7 +10,8 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { loadMostRecentSession } from "@lib/session";
+import { loadActiveSession, SessionWithAuthData } from "@lib/session";
+import { buildUrlWithRequestId } from "@lib/utils";
 /**
  * Authentication levels for route protection
  */
@@ -25,26 +27,20 @@ export enum AuthLevel {
  * Result of authentication level check
  */
 type AuthCheckResult = {
-  satisfied: boolean;
-  session?: Session | null;
-  redirect?: string;
-  reason?: string;
+  session: SessionWithAuthData | null;
 };
 
 /**
  * Safe wrapper around loadMostRecentSession that returns null instead of throwing
  */
-async function getSessionFromCookies(loginName?: string): Promise<Session | null> {
+async function getActiveSessionFromCookies() {
   try {
-    const session = await loadMostRecentSession({
-      sessionParams: { loginName },
-    });
+    const session = await loadActiveSession();
     return session || null;
   } catch (error) {
     logMessage.debug({
       error,
       message: "Failed to get session from cookies",
-      loginName,
     });
     return null;
   }
@@ -144,132 +140,92 @@ export function requiresStrongMfaSetupVerification(
  */
 export async function checkAuthenticationLevel(
   requiredLevel: AuthLevel,
-  loginName?: string
+  requestId?: string
 ): Promise<AuthCheckResult> {
   // Open routes always pass
   if (requiredLevel === AuthLevel.OPEN) {
-    return { satisfied: true };
+    return { session: null };
   }
 
   // Get session from cookies (non-throwing)
-  const session = await getSessionFromCookies(loginName);
+  const session = await getActiveSessionFromCookies();
+  // Get requestId from session cookie as backup in case it was not passed in
+  const requestIdRef = requestId || session?.requestId;
 
   // Basic session check - just verify cookie exists
   if (requiredLevel === AuthLevel.BASIC_SESSION) {
     if (!session) {
-      return {
-        satisfied: false,
-        redirect: "/",
-        reason: "No session found",
-      };
+      logMessage.debug(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: No session found, Redirecting: "/"`
+      );
+      return redirect(buildUrlWithRequestId("/", requestIdRef));
     }
-    return { satisfied: true, session };
+    return { session };
   }
 
   // For password and MFA checks, verify session factors
   const factors = checkSessionFactors(session);
 
   if (!factors.hasUser || !factors.notExpired) {
-    return {
-      satisfied: false,
-      session,
-      redirect: "/",
-      reason: factors.hasUser ? "Session expired" : "No user in session",
-    };
+    logMessage.debug(
+      `[Authentication Level] Required: ${requiredLevel}, Reason: ${factors.hasUser ? "Session expired" : "No user in session"}, Redirecting: "/"`
+    );
+
+    return redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
   }
 
   // Password required check
   if (requiredLevel === AuthLevel.PASSWORD_REQUIRED) {
     if (!factors.passwordVerified) {
-      return {
-        satisfied: false,
-        session,
-        redirect: "/password",
-        reason: "Password not verified",
-      };
+      logMessage.debug(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
+      );
+
+      return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
-    return { satisfied: true, session };
+    return { session };
   }
 
   // Any MFA required check
   if (requiredLevel === AuthLevel.ANY_MFA_REQUIRED) {
     if (!factors.passwordVerified) {
-      return {
-        satisfied: false,
-        session,
-        redirect: "/password",
-        reason: "Password not verified",
-      };
+      logMessage.debug(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
+      );
+
+      return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
     if (!hasAnyMFA(session)) {
-      return {
-        satisfied: false,
-        session,
-        redirect: "/mfa",
-        reason: "MFA not verified",
-      };
+      logMessage.debug(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password"`
+      );
+
+      return redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
     }
-    return { satisfied: true, session };
+
+    return { session };
   }
 
   // Strong MFA required check
   if (requiredLevel === AuthLevel.STRONG_MFA_REQUIRED) {
     if (!factors.passwordVerified) {
-      return {
-        satisfied: false,
-        session,
-        redirect: "/password",
-        reason: "Password not verified",
-      };
+      logMessage.debug(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
+      );
+
+      return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
     if (!hasStrongMFA(session)) {
-      return {
-        satisfied: false,
-        session,
-        redirect: "/mfa",
-        reason: "Strong MFA not verified",
-      };
+      logMessage.debug(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/password"`
+      );
+
+      return redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
     }
-    return { satisfied: true, session };
+    return { session };
   }
-
-  return { satisfied: false, reason: "Unknown auth level" };
-}
-
-/**
- * Get smart redirect URL based on current auth state and destination
- * Preserves requestId and organization params
- */
-export function getSmartRedirect(session: Session | null, searchParams?: URLSearchParams): string {
-  const factors = checkSessionFactors(session);
-  const params = new URLSearchParams();
-
-  // Preserve important params
-  if (searchParams) {
-    const requestId = searchParams.get("requestId");
-
-    if (requestId) params.set("requestId", requestId);
-  }
-
-  // No session at all - go to login
-  if (!session || !factors.hasUser || !factors.notExpired) {
-    const queryString = params.toString();
-    return queryString ? `/?${queryString}` : "/";
-  }
-
-  // Has session but no password - go to password entry
-  if (!factors.passwordVerified) {
-    const queryString = params.toString();
-    return queryString ? `/password?${queryString}` : "/password";
-  }
-
-  // Has password but needs MFA for destination - go to MFA check
-  if (!hasStrongMFA(session)) {
-    const queryString = params.toString();
-    return queryString ? `/mfa?${queryString}` : "/mfa";
-  }
-
-  // All factors satisfied but still redirecting - something's wrong
-  // Fall back to account page as safe destination
-  return "/account";
+  logMessage.error(
+    `[Authentication Level] Required: ${requiredLevel}, Reason: Unknown auth level requested, Redirecting: "/"`
+  );
+  return redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
 }

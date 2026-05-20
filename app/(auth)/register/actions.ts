@@ -71,9 +71,7 @@ export async function registerUser(command: RegisterUserCommand) {
     return { error: t("errors.couldNotCreateSession") };
   }
 
-  const userResponse = await getUserByID({
-    userId: session?.factors?.user?.id,
-  });
+  const userResponse = await getUserByID(session?.factors?.user?.id);
 
   if (!userResponse.user) {
     logMessage.error("Failed to fetch user after registration");

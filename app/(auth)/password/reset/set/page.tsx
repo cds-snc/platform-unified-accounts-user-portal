@@ -7,9 +7,9 @@ import { redirect } from "next/navigation";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { checkSessionFactors, hasStrongMFA } from "@lib/server/route-protection";
-import { loadMostRecentSession } from "@lib/session";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { buildUrlWithRequestId, type SearchParams } from "@lib/utils";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -24,20 +24,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("reset.title") };
 }
 
-export default async function Page() {
-  let loginName: string | undefined;
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const { requestId } = await props.searchParams;
+  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
-  try {
-    ({ loginName } = await getSessionCredentials());
-  } catch {
-    redirect("/password/reset");
-  }
-
-  const session = await loadMostRecentSession({
-    sessionParams: { loginName },
-  }).catch(() => undefined);
-
-  const factors = checkSessionFactors(session ?? null);
+  const factors = checkSessionFactors(session);
 
   // Password reset recovery is intentionally gated by a verified strong factor,
   // but does not require a previously verified password.
@@ -47,8 +47,8 @@ export default async function Page() {
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
 
-  if (!session?.factors?.user?.id || !passwordComplexitySettings) {
-    redirect("/password/reset");
+  if (!session.factors?.user?.id || !passwordComplexitySettings) {
+    redirect(buildUrlWithRequestId("/password/reset", requestId));
   }
 
   return (

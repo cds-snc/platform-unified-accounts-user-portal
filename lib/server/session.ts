@@ -26,11 +26,10 @@ import { serverTranslation } from "@i18n/server";
 
 import {
   Cookie,
+  getActiveSessionCookie,
   getAllSessionCookieIds,
   getAllSessions,
-  getMostRecentSessionCookie,
   getSessionCookieById,
-  getSessionCookieByLoginName,
   removeSessionFromCookie,
 } from "../cookies";
 
@@ -170,15 +169,13 @@ type UpdateSessionCommand = {
 };
 
 export async function updateSession(options: UpdateSessionCommand) {
-  const { loginName, sessionId, checks, requestId, challenges } = options;
+  const { sessionId, checks, requestId, challenges } = options;
   try {
-    const recentSession = sessionId
+    const activeSession = sessionId
       ? await getSessionCookieById({ sessionId })
-      : loginName
-        ? await getSessionCookieByLoginName({ loginName })
-        : await getMostRecentSessionCookie();
+      : await getActiveSessionCookie();
 
-    if (!recentSession) {
+    if (!activeSession) {
       return {
         error: "Could not find session",
       };
@@ -215,7 +212,7 @@ export async function updateSession(options: UpdateSessionCommand) {
 
     try {
       session = await setSessionAndUpdateCookie({
-        recentCookie: recentSession,
+        activeCookie: activeSession,
         checks,
         challenges,
         requestId,
@@ -243,9 +240,7 @@ export async function updateSession(options: UpdateSessionCommand) {
     // if password, check if user has MFA methods
     let authMethods;
     if (checks && checks.password && session.factors?.user?.id) {
-      const response = await listAuthenticationMethodTypes({
-        userId: session.factors.user.id,
-      });
+      const response = await listAuthenticationMethodTypes(session.factors.user.id);
       if (response.authMethodTypes && response.authMethodTypes.length) {
         authMethods = response.authMethodTypes;
       }
@@ -307,13 +302,13 @@ export async function logoutCurrentSession(
   const { postLogoutRedirectUri } = options;
 
   try {
-    const mostRecentSession = await getMostRecentSessionCookie();
+    const activeSession = await getActiveSessionCookie();
 
-    if (!mostRecentSession?.id) {
+    if (!activeSession?.id) {
       return { error: "No active session found" };
     }
 
-    await clearSession({ sessionId: mostRecentSession.id });
+    await clearSession({ sessionId: activeSession.id });
 
     // Determine redirect URL
     if (postLogoutRedirectUri) {

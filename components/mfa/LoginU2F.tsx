@@ -82,14 +82,7 @@ async function getCredentialAssertionData(
   } as JsonObject;
 }
 
-export function LoginU2F({
-  loginName,
-  sessionId,
-  requestId,
-
-  login = true,
-  redirect,
-}: Props) {
+export function LoginU2F({ loginName, sessionId, requestId, login = true, redirect }: Props) {
   const [error, setError] = useState<string>("");
 
   const { t } = useTranslation("u2f");
@@ -143,7 +136,6 @@ export function LoginU2F({
       response = await verifyU2FLogin({
         loginName,
         sessionId,
-
         checks: { webAuthN: { credentialAssertionData: data } } as Checks,
         requestId,
         redirect,

@@ -53,7 +53,7 @@ export async function verifyU2FLogin({
 
   // Actually verify the U2F credential by updating the session with the checks
   const updatedSession = await setSessionAndUpdateCookie({
-    recentCookie: sessionCookie,
+    activeCookie: sessionCookie,
     checks,
     requestId,
     lifetime: lifetime as Duration,

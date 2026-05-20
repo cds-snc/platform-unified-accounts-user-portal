@@ -6,7 +6,7 @@ import { SessionSchema } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getSessionCredentials } from "@lib/cookies";
-import { AuthLevel, checkAuthenticationLevel, hasStrongMFA } from "@lib/server/route-protection";
+import { checkAuthenticationLevel, hasStrongMFA } from "@lib/server/route-protection";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
 
 import Page from "./page";
@@ -61,6 +61,10 @@ vi.mock("./components/ChangePasswordForm", () => ({
   ),
 }));
 
+const PageParams = {
+  searchParams: Promise.resolve({ requestId: "request_12345" }),
+};
+
 describe("password/change page", () => {
   const strongMfaSession = create(SessionSchema, {
     id: "session-123",
@@ -89,7 +93,6 @@ describe("password/change page", () => {
     } as never);
 
     vi.mocked(checkAuthenticationLevel).mockResolvedValue({
-      satisfied: true,
       session: strongMfaSession,
     } as never);
     vi.mocked(hasStrongMFA).mockReturnValue(true);
@@ -101,45 +104,19 @@ describe("password/change page", () => {
     });
   });
 
-  it("redirects when authentication level is not satisfied", async () => {
-    vi.mocked(checkAuthenticationLevel).mockResolvedValue({
-      satisfied: false,
-      redirect: "/mfa",
-    } as never);
-
-    await expect(Page()).rejects.toThrow("NEXT_REDIRECT");
-
-    expect(checkAuthenticationLevel).toHaveBeenCalledWith(
-      AuthLevel.PASSWORD_REQUIRED,
-      "person@canada.ca"
-    );
-    expect(redirect).toHaveBeenCalledWith("/mfa");
-  });
-
-  it("redirects when required session context is missing", async () => {
-    vi.mocked(getSessionCredentials).mockResolvedValue({
-      sessionId: "",
-      loginName: "person@canada.ca",
-    } as never);
-
-    await expect(Page()).rejects.toThrow("NEXT_REDIRECT");
-    expect(redirect).toHaveBeenCalledWith("/password");
-  });
-
   it("redirects to strong MFA verification when only password is verified", async () => {
     vi.mocked(checkAuthenticationLevel).mockResolvedValue({
-      satisfied: true,
       session: passwordOnlySession,
     } as never);
     vi.mocked(hasStrongMFA).mockReturnValue(false);
 
-    await expect(Page()).rejects.toThrow("NEXT_REDIRECT");
+    await expect(Page(PageParams)).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(redirect).toHaveBeenCalledWith("/password/change/verify");
+    expect(redirect).toHaveBeenCalledWith("/password/change/verify?requestId=request_12345");
   });
 
   it("renders change password form when auth and session context are valid", async () => {
-    const view = await Page();
+    const view = await Page(PageParams);
     render(view);
 
     expect(

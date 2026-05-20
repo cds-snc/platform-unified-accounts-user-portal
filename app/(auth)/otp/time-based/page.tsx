@@ -7,12 +7,11 @@ import { headers } from "next/headers";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { getSafeRedirectUrl } from "@lib/redirect-validator";
 import { getOriginalHostFromHeaders } from "@lib/server/host";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { resolveSiteConfigByHost } from "@lib/site-config";
-import { getSerializableObject, SearchParams } from "@lib/utils";
+import { SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -24,29 +23,33 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
-  const [searchParams, _headers, { sessionId, loginName, requestId }] = await Promise.all([
-    props.searchParams,
-    headers(),
-    getSessionCredentials(),
-  ]);
+  const [searchParams, _headers] = await Promise.all([props.searchParams, headers()]);
+
+  const { requestId, redirect } = searchParams;
+  const {
+    id: sessionId,
+    factors,
+    expirationDate,
+  } = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then((result) => {
+    if (result.session === null) {
+      throw new Error(
+        "This should never throw but used as a type check in checkAuthenticationLevel"
+      );
+    }
+    return result.session;
+  });
+
+  const loginName = factors?.user?.loginName;
 
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
-  const { redirect } = searchParams;
-
-  const sessionData = sessionId
-    ? await loadSessionById(sessionId)
-    : await loadSessionByLoginname(loginName);
-
   // Extract just the session factors from the session data
-  const sessionFactors = sessionData
-    ? { factors: sessionData.factors, expirationDate: sessionData.expirationDate }
-    : undefined;
+  const sessionFactors = { factors, expirationDate };
 
   const safeRedirect = getSafeRedirectUrl(redirect);
 
-  const loginSettings = await getLoginSettings().then((obj) => getSerializableObject(obj));
+  const loginSettings = await getLoginSettings();
 
   return (
     <AuthPanel

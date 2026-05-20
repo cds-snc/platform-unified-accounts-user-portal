@@ -8,40 +8,32 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import type { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { LoginU2F } from "@components/mfa/LoginU2F";
-
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("u2f");
   return { title: t("verify.title") };
 }
 
-export default async function Page() {
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const { requestId } = await props.searchParams;
 
-  try {
-    ({ sessionId, loginName } = await getSessionCredentials());
-  } catch {
-    redirect("/password");
-  }
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
-  const authCheck = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, loginName);
-
-  if (!authCheck.satisfied) {
-    redirect(authCheck.redirect || "/password");
-  }
-
-  const sessionData = sessionId
-    ? await loadSessionById(sessionId)
-    : await loadSessionByLoginname(loginName);
-
-  if (!sessionData.authMethods?.includes(AuthenticationMethodType.U2F)) {
+  if (session.authMethods?.includes(AuthenticationMethodType.U2F)) {
     redirect("/password/change/verify");
   }
 
@@ -53,16 +45,17 @@ export default async function Page() {
       imageSrc="/img/key-icon.png"
     >
       <UserAvatar
-        loginName={loginName ?? sessionData.factors?.user?.loginName}
-        displayName={sessionData.factors?.user?.displayName}
+        loginName={session.factors?.user?.loginName}
+        displayName={session.factors?.user?.displayName}
         showDropdown={false}
       />
       <div className="w-full">
         <LoginU2F
-          loginName={loginName}
-          sessionId={sessionId}
+          loginName={session.factors?.user?.loginName}
+          sessionId={session.id}
           login={false}
           redirect="/password/change"
+          requestId={requestId}
         />
       </div>
     </AuthPanel>

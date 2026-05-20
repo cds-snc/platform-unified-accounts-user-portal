@@ -7,9 +7,13 @@ import { redirect } from "next/navigation";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { loadMfaSetupSession } from "@lib/server/mfa-setup";
+import {
+  AuthLevel,
+  checkAuthenticationLevel,
+  requiresStrongMfaSetupVerification,
+} from "@lib/server/route-protection";
+import { buildUrlWithRequestId } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -25,33 +29,32 @@ export default async function Page(props: {
   searchParams: Promise<Record<string | number | symbol, string | undefined>>;
 }) {
   const searchParams = await props.searchParams;
-  const { checkAfter } = searchParams;
+  const { checkAfter, requestId } = searchParams;
 
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
-  let requestId: string | undefined;
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
-  try {
-    ({ sessionId, loginName, requestId } = await getSessionCredentials());
-  } catch {
-    redirect("/password");
+  if (requiresStrongMfaSetupVerification(session)) {
+    logMessage.debug({
+      message: "OTPsetup page requires strong MFA re-verification",
+    });
+    redirect(buildUrlWithRequestId("/mfa", requestId));
   }
 
-  const sessionFactors = await loadMfaSetupSession({
-    sessionId,
-    loginName,
-
-    pageName: "U2F setup page",
-    missingSessionRedirect: "/mfa/set",
-  });
-
-  if (!loginName || !sessionFactors.id) {
+  if (!session.factors?.user?.loginName) {
     logMessage.debug({
       message: "U2F setup page missing required user context",
-      hasLoginName: !!loginName,
-      hasSessionFactorId: !!sessionFactors.id,
+      hasLoginName: !!session.factors?.user?.loginName,
     });
-    redirect("/mfa/set");
+    redirect(buildUrlWithRequestId("/mfa/set", requestId));
   }
 
   return (
@@ -63,14 +66,14 @@ export default async function Page(props: {
     >
       <div className="mb-6">
         <UserAvatar
-          loginName={loginName ?? sessionFactors.factors?.user?.loginName}
-          displayName={sessionFactors.factors?.user?.displayName}
+          loginName={session.factors.user.loginName}
+          displayName={session.factors.user.displayName}
           showDropdown={false}
         ></UserAvatar>
       </div>
 
       <RegisterU2f
-        sessionId={sessionFactors.id}
+        sessionId={session.id}
         requestId={requestId}
         checkAfter={checkAfter === "true"}
       />

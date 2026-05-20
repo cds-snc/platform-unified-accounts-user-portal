@@ -30,18 +30,6 @@ import { logMessage } from "../logger";
 
 const IDP_SCOPE_REGEX = /urn:zitadel:iam:org:idp:id:(.+)/;
 
-const gotoAccounts = ({
-  request,
-  requestId,
-}: {
-  request: NextRequest;
-  requestId: string;
-}): NextResponse<unknown> => {
-  const accountsUrl = constructUrl(request, buildUrlWithRequestId("/account", requestId));
-
-  return NextResponse.redirect(accountsUrl);
-};
-
 const gotoLogin = ({
   request,
   requestId,
@@ -177,22 +165,11 @@ export async function handleOIDCFlowInitiation(
     // Only route to account selection if we have at least one valid reusable session.
     // Otherwise, send the user to login to establish a fresh session.
     if (authRequest.prompt.includes(Prompt.SELECT_ACCOUNT)) {
-      const selectedSession = await safeFindValidSession({
-        sessions,
-        authRequest,
-      });
-
-      if (!selectedSession?.id) {
-        return gotoLogin({
-          request,
-          requestId: oidcRequestId,
-        });
-      }
-
-      return gotoAccounts({
+      return gotoLogin({
         request,
         requestId: oidcRequestId,
       });
+
       // OIDC prompt=login requires active re-authentication.
       // Prefer known login hint flow when available, otherwise show login page.
     } else if (authRequest.prompt.includes(Prompt.LOGIN)) {

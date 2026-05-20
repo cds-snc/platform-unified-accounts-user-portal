@@ -56,7 +56,6 @@ export function LoginTOTP({
     const result = await handleOTPFormSubmit(enteredCode, {
       loginName,
       sessionId,
-
       requestId,
       loginSettings,
       redirect,

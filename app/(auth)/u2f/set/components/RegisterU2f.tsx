@@ -5,18 +5,11 @@
  *--------------------------------------------*/
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { create, JsonObject } from "@zitadel/client";
-import {
-  RequestChallengesSchema,
-  UserVerificationRequirement as ZitadelUserVerificationRequirement,
-} from "@zitadel/proto/zitadel/session/v2/challenge_pb";
-import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { RegisterU2FResponse } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { coerceToArrayBuffer, coerceToBase64Url } from "@lib/utils/base64";
 import { I18n } from "@i18n";
@@ -106,7 +99,6 @@ export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
       setLoading(false);
       return;
     }
-    setLoading(false);
 
     if (response && "error" in response && response?.error) {
       setError(response?.error);
@@ -216,113 +208,7 @@ export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
       }
 
       if (checkAfter) {
-        // Step 1: request a WebAuthn assertion challenge for the active session.
-        const challengeResponse = await updateSession({
-          sessionId,
-          requestId,
-          challenges: create(RequestChallengesSchema, {
-            webAuthN: {
-              domain: "",
-              userVerificationRequirement: ZitadelUserVerificationRequirement.DISCOURAGED,
-            },
-          }),
-        }).catch(() => {
-          setError("set.errors.sessionVerificationFailed");
-          return;
-        });
-
-        if (
-          !challengeResponse ||
-          ("error" in challengeResponse && challengeResponse.error) ||
-          !challengeResponse.challenges?.webAuthN?.publicKeyCredentialRequestOptions?.publicKey
-        ) {
-          setError("set.errors.sessionVerificationFailed");
-          return;
-        }
-
-        const publicKeyCredentialRequestOptions = challengeResponse.challenges.webAuthN
-          .publicKeyCredentialRequestOptions
-          .publicKey as unknown as PublicKeyCredentialRequestOptions;
-
-        publicKeyCredentialRequestOptions.challenge = coerceToArrayBuffer(
-          publicKeyCredentialRequestOptions.challenge,
-          "publicKey.challenge"
-        );
-
-        if (publicKeyCredentialRequestOptions.allowCredentials) {
-          publicKeyCredentialRequestOptions.allowCredentials.map(
-            (listItem: PublicKeyCredentialDescriptor) => {
-              listItem.id = coerceToArrayBuffer(listItem.id, "publicKey.allowCredentials.id");
-              listItem.transports = ["usb", "ble", "nfc"] as AuthenticatorTransport[];
-              return listItem;
-            }
-          );
-        }
-
-        // Step 2: run navigator.credentials.get() to produce assertion data.
-        const credential = await navigator.credentials
-          .get({
-            publicKey: publicKeyCredentialRequestOptions,
-          } as CredentialRequestOptions)
-          .catch(() => {
-            setError("set.errors.sessionVerificationFailed");
-            return;
-          });
-
-        if (!credential) {
-          setError("set.errors.sessionVerificationFailed");
-          return;
-        }
-
-        const assertedCredential = credential as PublicKeyCredential;
-        const assertionResponse = assertedCredential.response as AuthenticatorAssertionResponse;
-        const authData = new Uint8Array(assertionResponse.authenticatorData);
-        const clientDataJSON = new Uint8Array(assertionResponse.clientDataJSON);
-        const rawId = new Uint8Array(assertedCredential.rawId);
-        const sig = new Uint8Array(assertionResponse.signature);
-        const userHandle = new Uint8Array(assertionResponse.userHandle || []);
-
-        const assertionData = {
-          id: assertedCredential.id,
-          rawId: coerceToBase64Url(rawId, "rawId"),
-          type: assertedCredential.type,
-          response: {
-            authenticatorData: coerceToBase64Url(authData, "authData"),
-            clientDataJSON: coerceToBase64Url(clientDataJSON, "clientDataJSON"),
-            signature: coerceToBase64Url(sig, "sig"),
-            userHandle: coerceToBase64Url(userHandle, "userHandle"),
-          },
-        } as JsonObject;
-
-        // Step 3: submit the assertion as WebAuthN session checks.
-        const verificationResponse = await updateSession({
-          sessionId,
-          requestId,
-          checks: create(ChecksSchema, {
-            webAuthN: {
-              credentialAssertionData: assertionData,
-            },
-          }),
-        }).catch(() => {
-          setError("set.errors.sessionVerificationFailed");
-          return;
-        });
-
-        if (
-          !verificationResponse ||
-          ("error" in verificationResponse && verificationResponse.error)
-        ) {
-          setError("set.errors.sessionVerificationFailed");
-          return;
-        }
-
-        // Session is verified inline, so continue without a separate /u2f verify hop.
-        const params = new URLSearchParams({});
-        if (requestId) {
-          params.append("requestId", requestId);
-        }
-
-        return router.push(`/all-set?` + params);
+        router.push(buildUrlWithRequestId("/u2f", requestId));
       } else {
         // Redirect to all-set page after successful setup
         return router.push(buildUrlWithRequestId("/all-set", requestId));

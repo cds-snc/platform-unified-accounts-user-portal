@@ -1,5 +1,3 @@
-"use client";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -7,6 +5,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { Cookie } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -26,6 +25,7 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 import { submitLoginForm } from "../actions";
 type Props = {
   requestId?: string;
+  session?: Cookie;
 };
 
 type FormState = {
@@ -37,7 +37,7 @@ type FormState = {
   validationErrors?: { fieldKey: string; fieldValue: string }[];
 };
 
-export function LoginForm({ requestId }: Props) {
+export function LoginForm({ requestId, session }: Props) {
   const { t } = useTranslation(["start", "common"]);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
@@ -100,7 +100,7 @@ export function LoginForm({ requestId }: Props) {
 
   const [state, formAction] = useActionState(localFormAction, {
     formData: {
-      username: "",
+      username: session?.loginName ?? "",
       password: "",
     },
   });
@@ -141,13 +141,14 @@ export function LoginForm({ requestId }: Props) {
               id={"username"}
               required
               autoComplete={"email"}
-              defaultValue={state.formData?.username || ""}
+              defaultValue={state.formData?.username}
               ariaDescribedbyIds={
                 hasError("username", state.validationErrors)
                   ? ["login-description", "errorMessageUsername"]
                   : "login-description"
               }
               invalid={hasError("password", state.validationErrors)}
+              readonly={Boolean(session?.loginName)}
             />
           </div>
         </div>

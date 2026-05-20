@@ -7,9 +7,10 @@ import { redirect } from "next/navigation";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel, hasStrongMFA } from "@lib/server/route-protection";
+import { buildUrlWithRequestId } from "@lib/utils";
+import { SearchParams } from "@lib/utils";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -23,31 +24,36 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("change.title") };
 }
 
-export default async function Page() {
-  const { sessionId, loginName } = await getSessionCredentials();
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const { requestId } = await props.searchParams;
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
-  // Page-level authentication check - defense in depth
-  const authCheck = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, loginName);
-
-  if (!authCheck.satisfied) {
-    redirect(authCheck.redirect || "/password");
-  }
-
-  if (!hasStrongMFA(authCheck.session ?? null)) {
-    redirect("/password/change/verify");
+  if (!hasStrongMFA(session)) {
+    redirect(buildUrlWithRequestId("/password/change/verify", requestId));
   }
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
+  const loginName = session.factors?.user?.loginName;
 
-  if (!loginName || !sessionId || !passwordComplexitySettings) {
+  if (!loginName || !passwordComplexitySettings) {
     logMessage.debug({
       message: "Password change page missing required session context",
       hasLoginName: !!loginName,
-      hasSessionId: !!sessionId,
 
       hasPasswordComplexitySettings: !!passwordComplexitySettings,
     });
-    redirect(authCheck.redirect || "/password");
+    throw new Error(
+      "Missing Password Complexity Settings for Password Change page.  Check Zitadel configuration"
+    );
   }
 
   return (
@@ -57,7 +63,7 @@ export default async function Page() {
       namespace="password"
     >
       <ChangePasswordForm
-        sessionId={sessionId}
+        sessionId={session.id}
         loginName={loginName}
         passwordComplexitySettings={passwordComplexitySettings}
       />

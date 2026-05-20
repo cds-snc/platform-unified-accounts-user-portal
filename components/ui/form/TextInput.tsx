@@ -19,6 +19,7 @@ export const TextInput = ({
   defaultValue = "",
   ref,
   invalid,
+  readonly,
 }: {
   id: string;
   type: string;
@@ -31,8 +32,9 @@ export const TextInput = ({
   defaultValue?: string;
   ref?: React.Ref<HTMLInputElement>;
   invalid?: boolean;
+  readonly?: boolean;
 }): React.ReactElement => {
-  const classes = cn("gc-input-text", className);
+  const classes = cn("gc-input-text", className, readonly && "bg-gcds-grayscale-200!");
 
   return (
     <>
@@ -54,6 +56,7 @@ export const TextInput = ({
         })}
         ref={ref}
         {...(invalid !== undefined && { "aria-invalid": invalid })}
+        {...(readonly && { readOnly: true })}
       />
     </>
   );

@@ -10,9 +10,12 @@ import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_s
  * Internal Aliases
  *--------------------------------------------*/
 import { LOGGED_IN_HOME_PAGE } from "@root/constants/config";
-import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
-import { loadMfaSetupSession } from "@lib/server/mfa-setup";
+import {
+  AuthLevel,
+  checkAuthenticationLevel,
+  requiresStrongMfaSetupVerification,
+} from "@lib/server/route-protection";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { registerTOTP } from "@lib/zitadel";
 import { getZitadelUiError } from "@lib/zitadel-errors";
@@ -34,36 +37,39 @@ export default async function Page(props: {
   params: Promise<Record<string | number | symbol, string | undefined>>;
 }) {
   const params = await props.params;
+
   const searchParams = await props.searchParams;
+  const { requestId } = searchParams;
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
-
-  let requestId: string | undefined;
-
-  try {
-    ({ sessionId, loginName, requestId } = await getSessionCredentials());
-  } catch {
-    redirect("/password");
+  if (requiresStrongMfaSetupVerification(session)) {
+    logMessage.debug({
+      message: "OTPsetup page requires strong MFA re-verification",
+    });
+    redirect(buildUrlWithRequestId("/mfa", requestId));
   }
+
+  const loginName = session.factors?.user?.loginName;
+  const displayName = session.factors?.user?.displayName;
 
   const checkAfter = searchParams.checkAfter === "true";
 
   const { method } = params;
   const { t } = await serverTranslation("otp");
 
-  const session = await loadMfaSetupSession({
-    sessionId,
-    loginName,
-
-    pageName: "OTP setup page",
-    missingSessionRedirect: "/mfa/set",
-  });
-
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,
     mappedUiError: ReturnType<typeof getZitadelUiError>;
-  if (session && session.factors?.user?.id) {
+  if (session.factors?.user?.id) {
     const userId = session.factors.user.id;
 
     try {
@@ -90,13 +96,13 @@ export default async function Page(props: {
       method,
       hasLoginName: !!loginName,
     });
-    redirect("/mfa/set");
+    redirect(buildUrlWithRequestId("/", requestId));
   }
 
   let urlToContinue = buildUrlWithRequestId(LOGGED_IN_HOME_PAGE, requestId);
 
   if (checkAfter) {
-    urlToContinue = `/otp/${method}?`;
+    urlToContinue = buildUrlWithRequestId(`/otp/${method}`, requestId);
   } else if (loginName) {
     urlToContinue = buildUrlWithRequestId(LOGGED_IN_HOME_PAGE, requestId);
   }
@@ -123,13 +129,11 @@ export default async function Page(props: {
           </div>
         )}
 
-        {session && (
-          <UserAvatar
-            loginName={loginName ?? session.factors?.user?.loginName}
-            displayName={session.factors?.user?.displayName}
-            showDropdown={false}
-          ></UserAvatar>
-        )}
+        <UserAvatar
+          loginName={loginName}
+          displayName={displayName}
+          showDropdown={false}
+        ></UserAvatar>
       </AuthPanel>
 
       <div className="w-full">

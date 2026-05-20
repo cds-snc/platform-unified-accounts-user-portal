@@ -8,11 +8,9 @@ import { redirect } from "next/navigation";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
 import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { isSessionValid, loadMostRecentSession, loadSessionById } from "@lib/session";
 import { resolveSiteConfigByHost } from "@lib/site-config";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { getTOTPStatus, getU2FList, getUserByID } from "@lib/zitadel";
@@ -36,28 +34,23 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const requestId = searchParams.requestId;
   const loginRedirect = buildUrlWithRequestId("/", requestId);
 
+  const session = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
+
   const _headers = await headers();
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
-  // Attempt to get session credentials from cookies
-  let sessionId, loginName;
-  try {
-    ({ sessionId, loginName } = await getSessionCredentials());
-  } catch (error) {
-    redirect(loginRedirect);
-  }
-
-  // Page-level authentication check - defense in depth
-  const authCheck = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, loginName);
-
-  if (!authCheck.satisfied) {
-    redirect(buildUrlWithRequestId(authCheck.redirect || "/", requestId));
-  }
-
-  const session = await loadSessionById(sessionId);
   const userId = session.factors?.user?.id;
-  const userResponse = await getUserByID({ userId: userId! });
+  const userResponse = await getUserByID(userId!);
   const user = userResponse.user?.type.case === "human" ? userResponse.user?.type.value : undefined;
   const firstName = user?.profile?.givenName;
   const lastName = user?.profile?.familyName;
@@ -66,19 +59,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   if (!hasRequiredProfile || !userId) {
     logMessage.info("Missing required user information, redirecting to login");
-    redirect(loginRedirect);
-  }
-
-  try {
-    const authSession = await loadMostRecentSession({
-      sessionParams: { loginName },
-    });
-
-    if (!authSession || !(await isSessionValid({ session: authSession }))) {
-      redirect(loginRedirect);
-    }
-  } catch (error) {
-    logMessage.error("Error validating session, redirecting to login", error);
     redirect(loginRedirect);
   }
 

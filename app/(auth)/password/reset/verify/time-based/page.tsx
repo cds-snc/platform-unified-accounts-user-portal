@@ -9,11 +9,11 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { getOriginalHostFromHeaders } from "@lib/server/host";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { resolveSiteConfigByHost } from "@lib/site-config";
-import { getSerializableObject } from "@lib/utils";
+import type { SearchParams } from "@lib/utils";
+import { buildUrlWithRequestId, getSerializableObject } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -24,26 +24,25 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("verify.authAppTitle") };
 }
 
-export default async function Page() {
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
-
-  try {
-    ({ sessionId, loginName } = await getSessionCredentials());
-  } catch {
-    redirect("/password/reset");
-  }
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const { requestId } = await props.searchParams;
+  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
   const _headers = await headers();
   const resolvedHost = getOriginalHostFromHeaders(_headers);
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
-  const sessionData = sessionId
-    ? await loadSessionById(sessionId)
-    : await loadSessionByLoginname(loginName);
-
-  if (!sessionData.authMethods?.includes(AuthenticationMethodType.TOTP)) {
-    redirect("/password/reset/verify");
+  if (!session.authMethods?.includes(AuthenticationMethodType.TOTP)) {
+    redirect(buildUrlWithRequestId("/password/reset/verify", requestId));
   }
 
   const loginSettings = await getLoginSettings().then((obj) => getSerializableObject(obj));
@@ -56,11 +55,11 @@ export default async function Page() {
       imageSrc="/img/auth-app-icon.png"
     >
       <LoginTOTP
-        loginName={loginName ?? sessionData.factors?.user?.loginName}
-        sessionId={sessionId}
+        loginName={session.factors?.user?.loginName}
+        sessionId={session.id}
         loginSettings={loginSettings}
         redirect="/password/reset/set"
-        displayName={sessionData.factors?.user?.displayName}
+        displayName={session.factors?.user?.displayName}
         siteConfig={siteConfig}
       />
     </AuthPanel>

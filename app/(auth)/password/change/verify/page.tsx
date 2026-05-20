@@ -8,10 +8,9 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { loadSessionById, loadSessionByLoginname } from "@lib/session";
+import type { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { StrongFactorSelection } from "@components/mfa/StrongFactorSelection";
@@ -21,30 +20,24 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("verify.title") };
 }
 
-export default async function Page() {
-  let sessionId: string | undefined;
-  let loginName: string | undefined;
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const { requestId } = await props.searchParams;
 
-  try {
-    ({ sessionId, loginName } = await getSessionCredentials());
-  } catch {
-    redirect("/password");
-  }
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
+    (result) => {
+      if (result.session === null) {
+        throw new Error(
+          "This should never throw but used as a type check in checkAuthenticationLevel"
+        );
+      }
+      return result.session;
+    }
+  );
 
-  const authCheck = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, loginName);
+  const canUseTotp = session.authMethods?.includes(AuthenticationMethodType.TOTP) ?? false;
+  const canUseU2F = session.authMethods?.includes(AuthenticationMethodType.U2F) ?? false;
 
-  if (!authCheck.satisfied) {
-    redirect(authCheck.redirect || "/password");
-  }
-
-  const sessionData = sessionId
-    ? await loadSessionById(sessionId)
-    : await loadSessionByLoginname(loginName);
-
-  const canUseTotp = sessionData.authMethods?.includes(AuthenticationMethodType.TOTP) ?? false;
-  const canUseU2F = sessionData.authMethods?.includes(AuthenticationMethodType.U2F) ?? false;
-
-  if (!sessionData.factors?.user?.id || (!canUseTotp && !canUseU2F)) {
+  if (session.factors?.user?.id || (!canUseTotp && !canUseU2F)) {
     logMessage.info("Password change requires at least one configured strong MFA method");
     redirect("/account");
   }
@@ -56,6 +49,7 @@ export default async function Page() {
         canUseU2F={canUseU2F}
         totpUrl="/password/change/verify/time-based"
         u2fUrl="/password/change/verify/u2f"
+        requestId={requestId}
       />
     </AuthPanel>
   );

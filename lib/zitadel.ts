@@ -1,9 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
 import { cache } from "react";
-import { cacheLife } from "next/cache";
 import type {
   StreamRequest,
   StreamResponse,
@@ -44,70 +42,53 @@ import { logMessage } from "./logger";
 import { getServiceForHost } from "./service";
 import { getSerializableObject } from "./utils";
 
-export async function getLoginSettings() {
-  "use cache";
-  cacheLife("minutes");
-
+export const getLoginSettings = cache(async () => {
+  // TODO - cache in mem or Redis
   const settingsService = await getServiceForHost("SettingsService");
   return settingsService
     .getLoginSettings({ ctx: makeReqCtx(ZITADEL_ORGANIZATION) }, {})
-    .then((resp) => (resp.settings ? resp.settings : undefined));
-}
+    .then((resp) => (resp.settings ? getSerializableObject(resp.settings) : undefined));
+});
 
-export async function getSerializableLoginSettings() {
-  const loginSettings = await getLoginSettings().then((obj) => getSerializableObject(obj));
-
-  if (!loginSettings) {
-    throw new Error("No login settings found");
-  }
-
-  return loginSettings;
-}
-
-export async function getSecuritySettings() {
-  "use cache";
-  cacheLife("minutes");
+export const getSecuritySettings = cache(async () => {
+  // TODO - cache in mem or Redis
 
   const settingsService = await getServiceForHost("SettingsService");
-
   return settingsService
     .getSecuritySettings({})
-    .then((resp) => (resp.settings ? resp.settings : undefined));
-}
+    .then((resp) => (resp.settings ? getSerializableObject(resp.settings) : undefined));
+});
 
-export async function getLockoutSettings() {
-  "use cache";
-  cacheLife("minutes");
+export const getLockoutSettings = cache(async () => {
+  // TODO - cache in mem or Redis
 
   const settingsService = await getServiceForHost("SettingsService");
   return settingsService
     .getLockoutSettings({ ctx: makeReqCtx(ZITADEL_ORGANIZATION) }, {})
-    .then((resp) => (resp.settings ? resp.settings : undefined));
-}
+    .then((resp) => (resp.settings ? getSerializableObject(resp.settings) : undefined));
+});
 
 /**
  * @security Requires authenticated session. Use protectedGetPasswordExpirySettings from lib/server/zitadel-protected.ts
  */
-export async function getPasswordExpirySettings() {
-  "use cache";
-  cacheLife("minutes");
+export const getPasswordExpirySettings = cache(async () => {
+  // TODO - cache in mem or Redis
 
   const settingsService = await getServiceForHost("SettingsService");
   return settingsService
     .getPasswordExpirySettings({ ctx: makeReqCtx(ZITADEL_ORGANIZATION) }, {})
-    .then((resp) => (resp.settings ? resp.settings : undefined));
-}
+    .then((resp) => (resp.settings ? getSerializableObject(resp.settings) : undefined));
+});
 
 /**
  * @security Requires authenticated session. Use protectedListIDPLinks from lib/server/zitadel-protected.ts
  */
 export async function listIDPLinks({ userId }: { userId: string }) {
-  "use cache";
-  cacheLife("minutes");
+  // TODO - cache in mem or Redis
 
   const userService = await getServiceForHost("UserService");
 
-  return userService.listIDPLinks({ userId }, {});
+  return userService.listIDPLinks({ userId }, {}).then((obj) => getSerializableObject(obj));
 }
 
 /**
@@ -119,12 +100,13 @@ export async function registerTOTP({ userId }: { userId: string }) {
   return userService.registerTOTP({ userId }, {});
 }
 
-export async function getPasswordComplexitySettings() {
+export const getPasswordComplexitySettings = cache(async () => {
+  // TODO - cache in mem or Redis
   const settingsService = await getServiceForHost("SettingsService");
   return settingsService
     .getPasswordComplexitySettings({ ctx: makeReqCtx(ZITADEL_ORGANIZATION) })
     .then((resp) => (resp.settings ? resp.settings : undefined));
-}
+});
 
 /**
  * @security Creates authenticated session after auth checks pass. Internal use in auth flow.
@@ -177,12 +159,13 @@ export async function setSession({
 /**
  * @security Requires authenticated session tokens. Internal use only.
  */
-export const getSession = cache(
-  async ({ sessionId, sessionToken }: { sessionId: string; sessionToken: string }) => {
-    const sessionService = await getServiceForHost("SessionService");
-    return sessionService.getSession({ sessionId, sessionToken }, {});
-  }
-);
+export const getSession = cache(async (sessionId: string, sessionToken: string) => {
+  logMessage.debug(`Getting session ${sessionId} with token ${sessionToken}`);
+  const sessionService = await getServiceForHost("SessionService");
+  return sessionService
+    .getSession({ sessionId, sessionToken }, {})
+    .then((obj) => getSerializableObject(obj));
+});
 
 /**
  * @security Requires authenticated session tokens. Logout operation.
@@ -280,11 +263,11 @@ export async function verifyTOTPRegistration({ code, userId }: { code: string; u
 /**
  * @security Requires authenticated session. Use protectedGetUserByID from lib/server/zitadel-protected.ts
  */
-export async function getUserByID({ userId }: { userId: string }) {
+export const getUserByID = cache(async (userId: string) => {
   const userService = await getServiceForHost("UserService");
 
-  return userService.getUserByID({ userId }, {});
-}
+  return userService.getUserByID({ userId }, {}).then((obj) => getSerializableObject(obj));
+});
 
 export async function sendEmailCodeWithReturn({
   userId,
@@ -754,7 +737,7 @@ export async function getActiveIdentityProviders({
 /**
  * @security Requires authenticated session. Use protectedListAuthenticationMethodTypes from lib/server/zitadel-protected.ts
  */
-export const listAuthenticationMethodTypes = cache(async ({ userId }: { userId: string }) => {
+export const listAuthenticationMethodTypes = cache(async (userId: string) => {
   const userService = await getServiceForHost("UserService");
 
   return userService.listAuthenticationMethodTypes({

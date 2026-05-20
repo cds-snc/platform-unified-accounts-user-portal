@@ -62,10 +62,7 @@ export async function addU2F(command: RegisterU2FCommand) {
     return { error: U2F_ERRORS.SESSION_NOT_FOUND };
   }
 
-  const session = await getSession({
-    sessionId: sessionCookie.id,
-    sessionToken: sessionCookie.token,
-  });
+  const session = await getSession(sessionCookie.id, sessionCookie.token);
 
   const [hostname] = host.split(":");
 
@@ -122,10 +119,7 @@ export async function verifyU2F(command: VerifyU2FCommand) {
     return { error: U2F_ERRORS.SESSION_NOT_FOUND };
   }
 
-  const session = await getSession({
-    sessionId: sessionCookie.id,
-    sessionToken: sessionCookie.token,
-  });
+  const session = await getSession(sessionCookie.id, sessionCookie.token);
 
   const userId = session?.session?.factors?.user?.id;
 

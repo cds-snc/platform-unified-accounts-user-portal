@@ -11,8 +11,8 @@ import { headers } from "next/headers";
 import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { resolveSiteConfigByHost } from "@lib/site-config";
 import { serverTranslation } from "@i18n/server";
-import { Logout } from "@components/auth/Logout";
 import { VersionUpdater } from "@components/auth/VersionUpdater";
+import { YourAccount } from "@components/auth/YourAccount";
 import { Footer, FooterSkeleton } from "@components/layout/footer/Footer";
 import { FooterLinks } from "@components/layout/footer/FooterLinks";
 import { SiteHeader, SiteHeaderSkeleton } from "@components/layout/site-header/SiteHeader";
@@ -50,7 +50,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <Suspense fallback={<SiteHeaderSkeleton />}>
         <SiteHeader>
           <NavMenu>
-            <Logout />
+            <YourAccount />
             <LanguageToggle />
           </NavMenu>
         </SiteHeader>

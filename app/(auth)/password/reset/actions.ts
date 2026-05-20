@@ -68,9 +68,7 @@ export const submitUserNameForm = async (
     return genericErrorResponse;
   }
 
-  const response = await listAuthenticationMethodTypes({
-    userId: userId,
-  });
+  const response = await listAuthenticationMethodTypes(userId);
 
   const authMethods = response.authMethodTypes ?? [];
   const canUseTotp = authMethods.includes(AuthenticationMethodType.TOTP);

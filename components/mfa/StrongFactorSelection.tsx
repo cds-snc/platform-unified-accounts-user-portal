@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { buildUrlWithRequestId } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -22,9 +23,16 @@ type Props = {
   canUseU2F: boolean;
   totpUrl: string;
   u2fUrl: string;
+  requestId?: string;
 };
 
-export function StrongFactorSelection({ canUseTotp, canUseU2F, totpUrl, u2fUrl }: Props) {
+export function StrongFactorSelection({
+  canUseTotp,
+  canUseU2F,
+  totpUrl,
+  u2fUrl,
+  requestId,
+}: Props) {
   const router = useRouter();
   const { t } = useTranslation("mfa");
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -63,7 +71,11 @@ export function StrongFactorSelection({ canUseTotp, canUseU2F, totpUrl, u2fUrl }
       </div>
 
       <div className="mt-8 flex justify-start">
-        <Button theme="primary" disabled={!selectedMethod} onClick={() => router.push(nextUrl)}>
+        <Button
+          theme="primary"
+          disabled={!selectedMethod}
+          onClick={() => router.push(buildUrlWithRequestId(nextUrl, requestId))}
+        >
           {t("set.continue")}
         </Button>
       </div>

@@ -2,23 +2,19 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import Link from "next/link";
-import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
-import { isSessionValid, loadMostRecentSession } from "@lib/session";
+import { getAllSessions } from "@lib/cookies";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
-import { I18n } from "@i18n";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { LoginForm } from "./components/LoginForm";
+import { SignIn } from "./components/SignIn";
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("start");
   return { title: t("title") };
@@ -28,39 +24,15 @@ export default async function LoginPage(props: { searchParams: Promise<SearchPar
   const searchParams = await props.searchParams;
   const requestId = searchParams.requestId;
 
-  // Check if user is already authenticated
-  let isAuthenticated = false;
-  try {
-    const { loginName } = await getSessionCredentials();
-
-    const session = await loadMostRecentSession({
-      sessionParams: { loginName },
-    });
-
-    isAuthenticated = session ? await isSessionValid({ session }) : false;
-  } catch (error) {
-    // No valid session, continue to login form
-  }
-
-  if (isAuthenticated) {
-    // User is already logged in, redirect to account page
-    redirect(buildUrlWithRequestId("/account", requestId));
-  }
+  const allPreviousSessions = await getAllSessions(false).then(
+    async (sessions) => new Map(sessions.map((session) => [session.id, session]))
+  );
 
   const registerLink = buildUrlWithRequestId("/register", requestId);
 
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="none" namespace="start">
-      <LoginForm requestId={requestId} />
-
-      <p className="mt-10">
-        <I18n i18nKey="register" namespace="start" />
-        &nbsp;
-        <Link href={registerLink}>
-          <I18n i18nKey="registerLinkText" namespace="start" />
-        </Link>
-        .
-      </p>
+      <SignIn requestId={requestId} registerLink={registerLink} allSessions={allPreviousSessions} />
     </AuthPanel>
   );
 }

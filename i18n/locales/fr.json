@@ -19,7 +19,8 @@
   },
   "header": {
     "lang-toggle": "Sélection de la langue",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "switchAccount": "Changer de compte"
   },
   "fip": {
     "link": "http://canada.ca/fr.html",
@@ -140,6 +141,10 @@
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada.",
       "requiredPassword": "Le mot de passe est obligatoire.",
       "invalidCredentials": "Adresse courriel ou mot de passe invalide. Veuillez réessayer."
+    },
+    "session": {
+      "otherAccount": "Autre compte",
+      "continueWithOther": "Continuer avec un autre compte"
     }
   },
   "password": {

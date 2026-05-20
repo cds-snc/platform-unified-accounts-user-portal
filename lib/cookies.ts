@@ -25,33 +25,20 @@ export type Cookie = {
   expirationTs: string;
   changeTs: string;
   requestId?: string; // if its linked to an OIDC flow
+  selectedSession?: boolean;
 };
 
 type SessionCookie<T> = Cookie & T;
 
-async function setSessionHttpOnlyCookie<T>(
-  sessions: SessionCookie<T>[],
-  iFrameEnabled: boolean = false
-): Promise<void> {
+async function setSessionHttpOnlyCookie<T>(sessions: SessionCookie<T>[]): Promise<void> {
   const cookiesList = await cookies();
 
-  // "none" is required for iframe embedding (with secure flag)
-  let resolvedSameSite: "lax" | "strict" | "none";
-
-  if (iFrameEnabled) {
-    // When embedded in iframe, must use "none" with secure flag
-    resolvedSameSite = "none";
-  } else {
-    // This allows cookies during top-level navigation while blocking cross-origin requests
-    resolvedSameSite = "lax";
-  }
-
-  await cookiesList.set({
+  cookiesList.set({
     name: "sessions",
     value: JSON.stringify(sessions),
     httpOnly: true,
     path: "/",
-    sameSite: resolvedSameSite,
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
 }
@@ -59,11 +46,9 @@ async function setSessionHttpOnlyCookie<T>(
 export async function addSessionToCookie<T>({
   session,
   cleanup,
-  iFrameEnabled,
 }: {
   session: SessionCookie<T>;
   cleanup?: boolean;
-  iFrameEnabled?: boolean;
 }): Promise<void> {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
@@ -71,6 +56,13 @@ export async function addSessionToCookie<T>({
   let currentSessions: SessionCookie<T>[] = stringifiedCookie?.value
     ? JSON.parse(stringifiedCookie?.value)
     : [];
+
+  // Set all current sessions to non-active session
+  currentSessions.forEach((session) => {
+    session.selectedSession = false;
+  });
+  // Set current session as active
+  session.selectedSession = true;
 
   const index = currentSessions.findIndex((s) => s.loginName === session.loginName);
 
@@ -96,9 +88,9 @@ export async function addSessionToCookie<T>({
         ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
         : true
     );
-    await setSessionHttpOnlyCookie(filteredSessions, iFrameEnabled);
+    await setSessionHttpOnlyCookie(filteredSessions);
   } else {
-    await setSessionHttpOnlyCookie(currentSessions, iFrameEnabled);
+    await setSessionHttpOnlyCookie(currentSessions);
   }
 }
 
@@ -106,12 +98,10 @@ export async function updateSessionCookie<T>({
   id,
   session,
   cleanup,
-  iFrameEnabled,
 }: {
   id: string;
   session: SessionCookie<T>;
   cleanup?: boolean;
-  iFrameEnabled?: boolean;
 }): Promise<void> {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
@@ -119,6 +109,13 @@ export async function updateSessionCookie<T>({
   const sessions: SessionCookie<T>[] = stringifiedCookie?.value
     ? JSON.parse(stringifiedCookie?.value)
     : [session];
+
+  // Set all current sessions to non-active session
+  sessions.forEach((session) => {
+    session.selectedSession = false;
+  });
+  // Set current session as active
+  session.selectedSession = true;
 
   const foundIndex = sessions.findIndex((session) => session.id === id);
 
@@ -131,9 +128,9 @@ export async function updateSessionCookie<T>({
           ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
           : true
       );
-      await setSessionHttpOnlyCookie(filteredSessions, iFrameEnabled);
+      await setSessionHttpOnlyCookie(filteredSessions);
     } else {
-      await setSessionHttpOnlyCookie(sessions, iFrameEnabled);
+      await setSessionHttpOnlyCookie(sessions);
     }
   } else {
     throw "updateSessionCookie<T>: session id now found";
@@ -143,7 +140,6 @@ export async function updateSessionCookie<T>({
 export async function removeSessionFromCookie<T>({
   session,
   cleanup,
-  iFrameEnabled,
 }: {
   session: SessionCookie<T>;
   cleanup?: boolean;
@@ -164,27 +160,27 @@ export async function removeSessionFromCookie<T>({
         ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
         : true
     );
-    await setSessionHttpOnlyCookie(filteredSessions, iFrameEnabled);
+    await setSessionHttpOnlyCookie(filteredSessions);
   } else {
-    await setSessionHttpOnlyCookie(reducedSessions, iFrameEnabled);
+    await setSessionHttpOnlyCookie(reducedSessions);
   }
 }
 
-export async function getMostRecentSessionCookie<T>(): Promise<SessionCookie<T>> {
+export async function getActiveSessionCookie() {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
   if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
+    const sessions: Cookie[] = JSON.parse(stringifiedCookie?.value);
 
-    const latest = sessions.reduce((prev, current) => {
-      return prev.changeTs > current.changeTs ? prev : current;
-    });
-
-    return latest;
-  } else {
-    return Promise.reject("no session cookie found");
+    const activeSession = sessions.filter((session) => session.selectedSession);
+    if (activeSession.length) {
+      const sessionCookie = activeSession[0];
+      return sessionCookie;
+    }
   }
+
+  throw new Error("No active Session cookie found");
 }
 
 export async function getSessionCookieById<T>({
@@ -297,22 +293,14 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
  * @param organization optional organization to filter cookies
  * @returns most recent session
  */
-export async function getMostRecentCookieWithLoginname<T>({
-  loginName,
-}: {
-  loginName?: string;
-}): Promise<SessionCookie<T>> {
+export async function getMostRecentCookie<T>(): Promise<SessionCookie<T>> {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
   if (stringifiedCookie?.value) {
     const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
     let filtered = sessions;
-    if (loginName) {
-      filtered = sessions.filter((cookie) => {
-        return loginName ? cookie.loginName === loginName : true;
-      });
-    }
+
     filtered = filtered.filter((cookie) => {
       return cookie.organization === ZITADEL_ORGANIZATION;
     });
@@ -338,17 +326,33 @@ export async function getMostRecentCookieWithLoginname<T>({
  * Get session credentials from the http-only session cookie
  * @returns sessionId, loginName, organization, and requestId (if linked to OIDC flow)
  */
+// TODO - Refactor to see if we still need this transformative function
 export async function getSessionCredentials() {
   try {
-    const sessionCookie = await getMostRecentSessionCookie();
+    const { id, loginName, userId, organization, requestId } = await getActiveSessionCookie();
+
     return {
-      sessionId: sessionCookie.id,
-      loginName: sessionCookie.loginName,
-      userId: sessionCookie.userId,
-      organization: sessionCookie.organization,
-      requestId: sessionCookie.requestId, // Include requestId for OIDC flows
+      sessionId: id,
+      loginName,
+      userId,
+      organization,
+      requestId, // Include requestId for OIDC flows
     };
   } catch (error) {
     throw new Error("No session found in cookies");
   }
+}
+
+export async function setSelectedSession(sessionId: string) {
+  const cookiesList = await cookies();
+  const stringifiedCookie = cookiesList.get("sessions");
+
+  const sessions: Cookie[] = stringifiedCookie?.value ? JSON.parse(stringifiedCookie?.value) : [];
+
+  await setSessionHttpOnlyCookie(
+    sessions.map((session) => ({
+      ...session,
+      selectedSession: session.id === sessionId,
+    }))
+  );
 }

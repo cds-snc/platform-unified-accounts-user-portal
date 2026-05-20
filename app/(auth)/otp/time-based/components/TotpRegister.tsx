@@ -63,7 +63,7 @@ export function TotpRegister({ uri, loginName, requestId, checkAfter }: Props) {
       };
     }
 
-    return verifyTOTP(normalizedCode, loginName)
+    return verifyTOTP(normalizedCode)
       .then(async (verifyResponse) => {
         if (verifyResponse && "error" in verifyResponse && verifyResponse.error) {
           throw verifyResponse.error;
