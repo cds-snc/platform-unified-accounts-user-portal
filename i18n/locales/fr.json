@@ -144,6 +144,7 @@
     },
     "session": {
       "otherAccount": "Autre compte",
+      "continueWithAccount": "Continuer avec {{account}}",
       "continueWithOther": "Continuer avec un autre compte"
     }
   },

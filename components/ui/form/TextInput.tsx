@@ -34,7 +34,7 @@ export const TextInput = ({
   invalid?: boolean;
   readonly?: boolean;
 }): React.ReactElement => {
-  const classes = cn("gc-input-text", className, readonly && "bg-gcds-grayscale-200!");
+  const classes = cn("gc-input-text", className, readonly && "bg-gcds-grayscale-100!");
 
   return (
     <>
