@@ -50,7 +50,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
   const userId = session.factors?.user?.id;
-  const userResponse = await getUserByID({ userId: userId! });
+  const userResponse = await getUserByID(userId!);
   const user = userResponse.user?.type.case === "human" ? userResponse.user?.type.value : undefined;
   const firstName = user?.profile?.givenName;
   const lastName = user?.profile?.familyName;

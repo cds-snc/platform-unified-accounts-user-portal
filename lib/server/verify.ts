@@ -81,9 +81,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
   }
 
   let session: Session | undefined;
-  const userResponse = await getUserByID({
-    userId: command.userId,
-  });
+  const userResponse = await getUserByID(command.userId);
 
   if (!userResponse || !userResponse.user) {
     return { error: t("errors.couldNotLoadUser") };
@@ -98,10 +96,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
   });
 
   if (sessionCookie) {
-    session = await getSession({
-      sessionId: sessionCookie.id,
-      sessionToken: sessionCookie.token,
-    }).then((response) => {
+    session = await getSession(sessionCookie.id, sessionCookie.token).then((response) => {
       if (response?.session) {
         return response.session;
       }
@@ -109,9 +104,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
   }
 
   // load auth methods for user
-  const authMethodResponse = await listAuthenticationMethodTypes({
-    userId: user.userId,
-  });
+  const authMethodResponse = await listAuthenticationMethodTypes(user.userId);
 
   if (!authMethodResponse || !authMethodResponse.authMethodTypes) {
     return { error: t("errors.couldNotLoadAuthenticators") };
@@ -231,9 +224,7 @@ export async function sendVerificationEmail(command: SendVerificationEmailComman
   }
 
   // Get user's email address
-  const userResponse = await getUserByID({
-    userId: command.userId,
-  });
+  const userResponse = await getUserByID(command.userId);
 
   if (!userResponse?.user) {
     return { error: t("errors.couldNotLoadUser") };
@@ -281,9 +272,7 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
   const { t } = await serverTranslation("password");
 
   // Get user's email address
-  const userResponse = await getUserByID({
-    userId: command.userId,
-  });
+  const userResponse = await getUserByID(command.userId);
 
   if (!userResponse?.user) {
     return { error: t("errors.couldNotLoadUser") };

@@ -42,10 +42,9 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
     throw new Error("No active session found");
   }
 
-  const session = await getSession({
-    sessionId: active.id,
-    sessionToken: active.token,
-  }).then((resp: GetSessionResponse) => resp.session);
+  const session = await getSession(active.id, active.token).then(
+    (resp: GetSessionResponse) => resp.session
+  );
 
   // If the selected session no longer exists on the server redirect to start a new session
   if (!session) {
@@ -72,11 +71,9 @@ async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuth
     throw Error("Could not get user id from session");
   }
 
-  const methods = await listAuthenticationMethodTypes({
-    userId,
-  });
+  const methods = await listAuthenticationMethodTypes(userId);
 
-  const user = await getUserByID({ userId });
+  const user = await getUserByID(userId);
   const humanUser = user.user?.type.case === "human" ? user.user?.type.value : undefined;
 
   return {
@@ -89,10 +86,7 @@ async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuth
 
 export async function loadSessionById(sessionId: string): Promise<SessionWithAuthData> {
   const recent = await getSessionCookieById({ sessionId });
-  const sessionResponse = await getSession({
-    sessionId: recent.id,
-    sessionToken: recent.token,
-  });
+  const sessionResponse = await getSession(recent.id, recent.token);
   return getAuthMethodsAndUser(sessionResponse.session);
 }
 
@@ -140,9 +134,7 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   }
 
   try {
-    const userResponse = await getUserByID({
-      userId: session.factors.user.id,
-    });
+    const userResponse = await getUserByID(session.factors.user.id);
 
     const humanUser =
       userResponse?.user?.type.case === "human" ? userResponse?.user.type.value : undefined;

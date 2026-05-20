@@ -107,9 +107,7 @@ export const submitLoginForm = async (
   }
 
   // Fetch user details
-  const userResponse = await getUserByID({
-    userId: session.factors.user.id,
-  });
+  const userResponse = await getUserByID(session.factors.user.id);
 
   if (!userResponse.user) {
     logMessage.error("User not found after successful authentication");
@@ -133,9 +131,7 @@ export const submitLoginForm = async (
   }
 
   // Get authentication methods for MFA check
-  const response = await listAuthenticationMethodTypes({
-    userId: session.factors.user.id,
-  });
+  const response = await listAuthenticationMethodTypes(session.factors.user.id);
 
   const authMethods = response.authMethodTypes ?? [];
 

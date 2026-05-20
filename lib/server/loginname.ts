@@ -263,9 +263,7 @@ export async function sendLoginname(command: SendLoginnameCommand) {
       return { error: t("errors.initialUserNotSupported") };
     }
 
-    const methods = await listAuthenticationMethodTypes({
-      userId: session.factors?.user?.id,
-    });
+    const methods = await listAuthenticationMethodTypes(session.factors?.user?.id);
 
     // always resend invite if user has no auth method set
     if (!methods.authMethodTypes || !methods.authMethodTypes.length) {

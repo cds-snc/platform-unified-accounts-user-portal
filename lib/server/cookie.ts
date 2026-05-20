@@ -55,42 +55,41 @@ export async function createSessionAndUpdateCookie(command: {
   });
 
   if (createdSession) {
-    return getSession({
-      sessionId: createdSession.sessionId,
-      sessionToken: createdSession.sessionToken,
-    }).then(async (response) => {
-      if (response?.session && response.session?.factors?.user?.loginName) {
-        const sessionCookie: Cookie = {
-          id: createdSession.sessionId,
-          token: createdSession.sessionToken,
-          creationTs: response.session.creationDate
-            ? `${timestampMs(response.session.creationDate)}`
-            : "",
-          expirationTs: response.session.expirationDate
-            ? `${timestampMs(response.session.expirationDate)}`
-            : "",
-          changeTs: response.session.changeDate
-            ? `${timestampMs(response.session.changeDate)}`
-            : "",
-          loginName: response.session.factors.user.loginName ?? "",
-          userId: response.session.factors.user.id ?? "",
-        };
+    return getSession(createdSession.sessionId, createdSession.sessionToken).then(
+      async (response) => {
+        if (response?.session && response.session?.factors?.user?.loginName) {
+          const sessionCookie: Cookie = {
+            id: createdSession.sessionId,
+            token: createdSession.sessionToken,
+            creationTs: response.session.creationDate
+              ? `${timestampMs(response.session.creationDate)}`
+              : "",
+            expirationTs: response.session.expirationDate
+              ? `${timestampMs(response.session.expirationDate)}`
+              : "",
+            changeTs: response.session.changeDate
+              ? `${timestampMs(response.session.changeDate)}`
+              : "",
+            loginName: response.session.factors.user.loginName ?? "",
+            userId: response.session.factors.user.id ?? "",
+          };
 
-        if (command.requestId) {
-          sessionCookie.requestId = command.requestId;
+          if (command.requestId) {
+            sessionCookie.requestId = command.requestId;
+          }
+
+          if (response.session.factors.user.organizationId) {
+            sessionCookie.organization = response.session.factors.user.organizationId;
+          }
+
+          await addSessionToCookie({ session: sessionCookie });
+
+          return response.session as Session;
+        } else {
+          throw "could not get session or session does not have loginName";
         }
-
-        if (response.session.factors.user.organizationId) {
-          sessionCookie.organization = response.session.factors.user.organizationId;
-        }
-
-        await addSessionToCookie({ session: sessionCookie });
-
-        return response.session as Session;
-      } else {
-        throw "could not get session or session does not have loginName";
       }
-    });
+    );
   } else {
     throw "Could not create session";
   }
@@ -130,10 +129,7 @@ export async function setSessionAndUpdateCookie(command: {
           sessionCookie.requestId = command.requestId;
         }
 
-        return getSession({
-          sessionId: sessionCookie.id,
-          sessionToken: sessionCookie.token,
-        }).then(async (response) => {
+        return getSession(sessionCookie.id, sessionCookie.token).then(async (response) => {
           if (!response?.session || !response.session.factors?.user?.loginName) {
             throw "could not get session or session does not have loginName";
           }

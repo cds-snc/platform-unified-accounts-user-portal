@@ -240,9 +240,7 @@ export async function updateSession(options: UpdateSessionCommand) {
     // if password, check if user has MFA methods
     let authMethods;
     if (checks && checks.password && session.factors?.user?.id) {
-      const response = await listAuthenticationMethodTypes({
-        userId: session.factors.user.id,
-      });
+      const response = await listAuthenticationMethodTypes(session.factors.user.id);
       if (response.authMethodTypes && response.authMethodTypes.length) {
         authMethods = response.authMethodTypes;
       }

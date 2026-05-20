@@ -200,9 +200,7 @@ export async function sendPassword(
     return { error: t("errors.couldNotCreateSessionForUser") };
   }
 
-  const userResponse = await getUserByID({
-    userId: session.factors.user.id,
-  });
+  const userResponse = await getUserByID(session.factors.user.id);
 
   if (!userResponse.user) {
     return { error: t("errors.userNotFound") };
@@ -249,9 +247,7 @@ export async function sendPassword(
   // if password, check if user has MFA methods
   let authMethods;
   if (command.checks && command.checks.password && session.factors?.user?.id) {
-    const response = await listAuthenticationMethodTypes({
-      userId: session.factors.user.id,
-    });
+    const response = await listAuthenticationMethodTypes(session.factors.user.id);
     if (response.authMethodTypes && response.authMethodTypes.length) {
       authMethods = response.authMethodTypes;
     }
@@ -369,9 +365,7 @@ export async function changePassword(command: { code?: string; userId: string; p
   }
 
   // check for init state
-  const userResponse = await getUserByID({
-    userId: command.userId,
-  }).catch(() => undefined);
+  const userResponse = await getUserByID(command.userId).catch(() => undefined);
 
   const user = userResponse?.user;
 
@@ -386,9 +380,7 @@ export async function changePassword(command: { code?: string; userId: string; p
 
   // check if the user has no password set in order to set a password
   if (!normalizedCode) {
-    const authmethods = await listAuthenticationMethodTypes({
-      userId,
-    });
+    const authmethods = await listAuthenticationMethodTypes(userId);
 
     // if the user has no authmethods set, we need to check if the user was verified
     if (authmethods.authMethodTypes.length !== 0) {
@@ -470,10 +462,7 @@ export async function checkSessionAndSetPassword({
 
   let session;
   try {
-    const sessionResponse = await getSession({
-      sessionId: sessionCookie.id,
-      sessionToken: sessionCookie.token,
-    });
+    const sessionResponse = await getSession(sessionCookie.id, sessionCookie.token);
     session = sessionResponse.session;
   } catch (error) {
     logMessage.error("Could not load session", error);
@@ -494,9 +483,7 @@ export async function checkSessionAndSetPassword({
   // check if the user has no password set in order to set a password
   let authmethods;
   try {
-    authmethods = await listAuthenticationMethodTypes({
-      userId: session.factors.user.id,
-    });
+    authmethods = await listAuthenticationMethodTypes(session.factors.user.id);
   } catch (error) {
     logMessage.error("Could not load auth methods", error);
     return { error: "Could not load auth methods" };
