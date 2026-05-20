@@ -124,7 +124,7 @@ export function TotpRegister({ uri, loginName, requestId, checkAfter }: Props) {
             </Link>
             <CopyToClipboard value={uri}></CopyToClipboard>
           </div>
-          <form className="w-full" action={formAction}>
+          <form id="totp-form" className="w-full" action={formAction}>
             {!isPending && state.error && (
               <div className="py-4">
                 <Alert type={ErrorStatus.ERROR} focussable>

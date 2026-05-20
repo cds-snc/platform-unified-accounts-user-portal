@@ -45,7 +45,7 @@ export function ChooseSecondFactorToSetup({ checkAfter, requestId }: Props) {
 
   return (
     <>
-      <div className="grid w-full grid-cols-1 gap-5 pt-4">
+      <div id="mfa-select" className="grid w-full grid-cols-1 gap-5 pt-4">
         {/* Authentication App - TOTP */}
         <MethodOptionCard
           method="authenticator"
@@ -76,7 +76,12 @@ export function ChooseSecondFactorToSetup({ checkAfter, requestId }: Props) {
       </div>
 
       <div className="mt-8 flex justify-start">
-        <Button theme="primary" disabled={!selectedMethod} onClick={handleContinue}>
+        <Button
+          id="mfa-continue"
+          theme="primary"
+          disabled={!selectedMethod}
+          onClick={handleContinue}
+        >
           {t("set.continue") || "Continue"}
         </Button>
       </div>

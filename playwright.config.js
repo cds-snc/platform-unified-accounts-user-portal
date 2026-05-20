@@ -6,6 +6,8 @@ module.exports = defineConfig({
   expect: {
     timeout: 20000,
   },
+  reporter: "list",
+  retries: process.env.CI ? 2 : 0,
   workers: 1,
   use: {
     headless: true,

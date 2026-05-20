@@ -188,7 +188,7 @@ export function VerifyEmailForm({
       )}
 
       <div className="w-full">
-        <form action={formAction} noValidate>
+        <form id="verify-form" action={formAction} noValidate>
           <CodeEntry state={state} code={code ?? ""} className="mt-10" />
 
           <div className="mt-8 mb-6 flex items-center gap-4">

@@ -50,6 +50,7 @@ export function MethodOptionCard({
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      data-type={method}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">

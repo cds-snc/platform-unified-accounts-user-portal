@@ -6,6 +6,9 @@ on:
       idp_url:
         required: true
         type: string
+      portal_url:
+        required: true
+        type: string
     secrets:
       username:
         required: true
@@ -14,6 +17,8 @@ on:
       totp_secret:
         required: true
       waf_geo_restriction_bypass:
+        required: true
+      zitadel_bearer_token:
         required: true
 
 permissions:
@@ -53,9 +58,11 @@ jobs:
       - name: Run integration tests
         env:
           IDP_URL: ${{ inputs.idp_url }}
+          PORTAL_URL: ${{ inputs.portal_url }}
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
           WAF_GEO_RESTRICTION_BYPASS: ${{ secrets.waf_geo_restriction_bypass }}
+          ZITADEL_BEARER_TOKEN: ${{ secrets.zitadel_bearer_token }}
         run: 
           pnpm test:playwright

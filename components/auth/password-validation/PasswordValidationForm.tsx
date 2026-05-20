@@ -131,7 +131,13 @@ export function PasswordValidationForm({
   return (
     <>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
-      <form className="w-full" action={formAction} noValidate onChange={() => setDirty(true)}>
+      <form
+        id="password-form"
+        className="w-full"
+        action={formAction}
+        noValidate
+        onChange={() => setDirty(true)}
+      >
         <div className="mb-4 grid grid-cols-1 gap-4 pt-4">
           {requireConfirmationCode && (
             <div className="gcds-input-wrapper">

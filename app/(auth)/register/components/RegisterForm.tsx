@@ -89,7 +89,7 @@ export function RegisterForm({ requestId, siteConfig }: Props) {
   return (
     <>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
-      <form action={formAction} noValidate>
+      <form id="register-form" action={formAction} noValidate>
         <div className="mb-4 flex flex-col gap-4">
           <div className="gcds-input-wrapper">
             <Label className="required" htmlFor="firstname" required>
