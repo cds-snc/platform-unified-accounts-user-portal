@@ -25,6 +25,10 @@ export function checkPasswordChangeRequired(
   let isOutdated = false;
   if (expirySettings?.maxAgeDays && humanUser?.passwordChanged) {
     const maxAgeDays = Number(expirySettings.maxAgeDays); // Convert bigint to number
+    // If maxAgeDays is 0 then the policy is not defined, return early
+    if (maxAgeDays === 0) {
+      return;
+    }
     const passwordChangedDate = moment(timestampDate(humanUser.passwordChanged));
     const outdatedPassword = passwordChangedDate.add(maxAgeDays, "days");
     isOutdated = moment().isAfter(outdatedPassword);
