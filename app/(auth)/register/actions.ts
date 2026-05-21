@@ -9,12 +9,11 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
 import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
-import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
+import { addHumanUser, getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 type RegisterUserCommand = {
   email: string;
@@ -71,32 +70,7 @@ export async function registerUser(command: RegisterUserCommand) {
     return { error: t("errors.couldNotCreateSession") };
   }
 
-  const userResponse = await getUserByID(session?.factors?.user?.id);
-
-  if (!userResponse.user) {
-    logMessage.error("Failed to fetch user after registration");
-    return { error: t("errors.userNotFound") };
-  }
-
-  const humanUser =
-    userResponse.user.type.case === "human" ? userResponse.user.type.value : undefined;
-
-  const emailVerificationCheck = checkEmailVerification(session, humanUser, command.requestId);
-
-  if (emailVerificationCheck?.redirect) {
-    return emailVerificationCheck;
-  }
-
-  logMessage.info("User registered successfully");
-  return completeFlowOrGetUrl(
-    command.requestId && session.id
-      ? {
-          sessionId: session.id,
-          requestId: command.requestId,
-        }
-      : {
-          loginName: session.factors.user.loginName,
-        },
-    loginSettings?.defaultRedirectUri
-  );
+  // An undefined humanUser is passed as the newly created user will not have their
+  // email verified yet so the behaviour we want is to trigger the email verification flow.
+  return checkEmailVerification(session, undefined, command.requestId);
 }

@@ -1,11 +1,10 @@
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { completeFlowOrGetUrl } from "@lib/client";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
-import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
+import { addHumanUser, getLoginSettings } from "@lib/zitadel";
 
 import { setupServerActionContext } from "../../../test/helpers/serverAction";
 
@@ -17,10 +16,6 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@zitadel/client", () => ({
   create: vi.fn(),
-}));
-
-vi.mock("@lib/client", () => ({
-  completeFlowOrGetUrl: vi.fn(),
 }));
 
 vi.mock("@lib/server/cookie", () => ({
@@ -42,7 +37,6 @@ vi.mock("@lib/verify-helper", () => ({
 vi.mock("@lib/zitadel", () => ({
   addHumanUser: vi.fn(),
   getLoginSettings: vi.fn(),
-  getUserByID: vi.fn(),
 }));
 
 vi.mock("@i18n/server", () => ({
@@ -87,20 +81,6 @@ describe("registerUser", () => {
         },
       },
     } as never);
-
-    vi.mocked(getUserByID).mockResolvedValue({
-      user: {
-        type: {
-          case: "human",
-          value: {},
-        },
-      },
-    } as never);
-
-    vi.mocked(checkEmailVerification).mockReturnValue(undefined);
-    vi.mocked(completeFlowOrGetUrl).mockResolvedValue({
-      redirect: "/account?requestId=req-123",
-    } as never);
   });
 
   it("returns generic error when validation fails", async () => {
@@ -128,14 +108,6 @@ describe("registerUser", () => {
     expect(response).toEqual({ error: "translated:errors.couldNotCreateSession" });
   });
 
-  it("returns not-found error when created user cannot be fetched", async () => {
-    vi.mocked(getUserByID).mockResolvedValue({ user: undefined } as never);
-
-    const response = await registerUser(baseCommand);
-
-    expect(response).toEqual({ error: "translated:errors.userNotFound" });
-  });
-
   it("returns email verification redirect when required", async () => {
     vi.mocked(checkEmailVerification).mockReturnValue({
       redirect: "/verify?requestId=req-123",
@@ -144,34 +116,5 @@ describe("registerUser", () => {
     const response = await registerUser(baseCommand);
 
     expect(response).toEqual({ redirect: "/verify?requestId=req-123" });
-    expect(completeFlowOrGetUrl).not.toHaveBeenCalled();
-  });
-
-  it("completes flow with session when requestId exists", async () => {
-    const response = await registerUser(baseCommand);
-
-    expect(response).toEqual({ redirect: "/account?requestId=req-123" });
-    expect(completeFlowOrGetUrl).toHaveBeenCalledWith(
-      {
-        sessionId: "session-123",
-        requestId: "req-123",
-      },
-      "https://forms.example"
-    );
-  });
-
-  it("completes flow with loginName when requestId is missing", async () => {
-    const response = await registerUser({
-      ...baseCommand,
-      requestId: undefined,
-    });
-
-    expect(response).toEqual({ redirect: "/account?requestId=req-123" });
-    expect(completeFlowOrGetUrl).toHaveBeenCalledWith(
-      {
-        loginName: "person@canada.ca",
-      },
-      "https://forms.example"
-    );
   });
 });
