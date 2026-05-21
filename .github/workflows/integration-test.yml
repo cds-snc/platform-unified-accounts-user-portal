@@ -19,6 +19,10 @@ on:
         required: true
         type: string
     secrets:
+      log_analytics_workspace_id:
+        required: true
+      log_analytics_workspace_key:
+        required: true
       username:
         required: true
       password:
@@ -46,8 +50,8 @@ jobs:
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0
         env:
           DNS_PROXY_FORWARDTOSENTINEL: "true"
-          DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}"
-          DNS_PROXY_LOGANALYTICSSHAREDKEY: "${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}"
+          DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.log_analytics_workspace_id }}"
+          DNS_PROXY_LOGANALYTICSSHAREDKEY: "${{ secrets.log_analytics_workspace_key }}"
           DNS_PROXY_SAFELIST: "${{ vars.DNS_PROXY_SAFELIST }}"
           DNS_PROXY_WILDCARDGREEDY: "true"
 
