@@ -1,6 +1,8 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { getOriginalHostFromHeaders } from "./host";
+
+vi.mock("next/headers");
 
 function makeHeaders(map: Record<string, string | null>): { get: (name: string) => string | null } {
   return { get: (name: string) => map[name] ?? null };

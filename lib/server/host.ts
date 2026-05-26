@@ -3,12 +3,40 @@
  *--------------------------------------------*/
 import { headers } from "next/headers";
 
+import { TRUSTED_DOMAINS } from "@root/constants/site-config";
 import { logMessage } from "@lib/logger";
-
-import { isTrustedSiteHost } from "../site-config";
 
 type HeaderReader = {
   get: (name: string) => string | null;
+};
+
+const TRUSTED_SITE_HOSTS = Object.values(TRUSTED_DOMAINS).map((config) => {
+  return normalizeHost(config.baseUrl);
+});
+
+export function normalizeHost(rawHost: string): string {
+  return (
+    rawHost
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .split("/")[0]
+      .replace(/:\d+$/, "") || ""
+  );
+}
+
+export const isTrustedSiteHost = (rawHost: string): boolean => {
+  const normalizedHost = normalizeHost(rawHost);
+
+  // Check for exact match
+  if (TRUSTED_SITE_HOSTS.includes(normalizedHost)) {
+    return true;
+  }
+
+  // Check if it's a subdomain of a trusted host
+  return TRUSTED_SITE_HOSTS.some((trustedHost) => {
+    return normalizedHost.endsWith(`.${trustedHost}`);
+  });
 };
 
 function parseHostHeader(value: string | null): string | undefined {

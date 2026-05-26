@@ -39,7 +39,9 @@ vi.mock("../context/RegistrationContext", () => ({
 }));
 
 vi.mock("@components/contexts/SiteConfigContext", () => ({
-  useSiteconfig: vi.fn(),
+  useSiteConfig: vi.fn(() => ({
+    getSiteLink: vi.fn(),
+  })),
 }));
 
 describe("RegisterForm", () => {

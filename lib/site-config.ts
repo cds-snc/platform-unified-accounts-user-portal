@@ -4,21 +4,7 @@
 import { TRUSTED_DOMAINS, ZITADEL_ORGANIZATION } from "@root/constants/config";
 import type { SiteConfig, SiteId, TrustedDomainConfig } from "@root/constants/site-config";
 
-import { getOriginalHost } from "./server/host";
-function normalizeHost(rawHost: string): string {
-  return (
-    rawHost
-      .trim()
-      .toLowerCase()
-      .replace(/^https?:\/\//, "")
-      .split("/")[0]
-      .replace(/:\d+$/, "") || ""
-  );
-}
-
-const TRUSTED_SITE_HOSTS = Object.values(TRUSTED_DOMAINS).map((config) => {
-  return normalizeHost(config.baseUrl);
-});
+import { getOriginalHost, normalizeHost } from "./server/host";
 
 export class SiteConfigService {
   private static instance: SiteConfigService;
@@ -67,17 +53,3 @@ const siteConfig = await SiteConfigService.getInstance();
 export const requestHost = (): SiteId => siteConfig.requestHost();
 
 export const resolveSiteConfigByHost = (): SiteConfig => siteConfig.resolve();
-
-export const isTrustedSiteHost = (rawHost: string): boolean => {
-  const normalizedHost = normalizeHost(rawHost);
-
-  // Check for exact match
-  if (TRUSTED_SITE_HOSTS.includes(normalizedHost)) {
-    return true;
-  }
-
-  // Check if it's a subdomain of a trusted host
-  return TRUSTED_SITE_HOSTS.some((trustedHost) => {
-    return normalizedHost.endsWith(`.${trustedHost}`);
-  });
-};
