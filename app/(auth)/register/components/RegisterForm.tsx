@@ -7,14 +7,14 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-/*--------------------------------------------*
- * Internal Aliases
- *--------------------------------------------*/
-import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateAccount } from "@lib/validationSchemas";
 import { getError, hasError } from "@lib/validators";
 import { useTranslation } from "@i18n";
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
@@ -38,12 +38,12 @@ type FormState = {
 
 type Props = {
   requestId?: string;
-  siteConfig: SiteConfig;
 };
 
-export function RegisterForm({ requestId, siteConfig }: Props) {
-  const { t, i18n } = useTranslation(["register", "validation", "errorSummary", "common"]);
-  const termsOfUseLink = getSiteLink(siteConfig, "termsOfUse", i18n.language);
+export function RegisterForm({ requestId }: Props) {
+  const { t } = useTranslation(["register", "validation", "errorSummary", "common"]);
+  const { getSiteLink } = useSiteConfig();
+  const termsOfUseLink = getSiteLink("termsOfUse");
   const { setRegistrationData } = useRegistration();
   const router = useRouter();
 

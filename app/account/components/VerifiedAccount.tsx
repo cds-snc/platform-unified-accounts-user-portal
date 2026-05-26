@@ -12,26 +12,16 @@ import { Trans, useTranslation } from "react-i18next";
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
 import { logoutCurrentSession } from "@lib/server/session";
-import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { cn } from "@lib/utils";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Button } from "@components/ui/button/Button";
 
-export const VerifiedAccount = ({
-  email,
-  className,
-  siteConfig,
-}: {
-  email: string;
-  className?: string;
-  siteConfig: SiteConfig;
-}) => {
+export const VerifiedAccount = ({ email, className }: { email: string; className?: string }) => {
   const router = useRouter();
-  const {
-    t,
-    i18n: { language },
-  } = useTranslation("account");
+  const { t } = useTranslation("account");
+  const { getSiteLink } = useSiteConfig();
 
-  const supportLink = getSiteLink(siteConfig, "support", language);
+  const supportLink = getSiteLink("support");
 
   const logoutAndRedirectToRegister = async () => {
     try {

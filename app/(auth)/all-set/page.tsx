@@ -62,7 +62,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
               alt="All set"
               width={352}
               height={261}
-              className="h-auto w-full max-w-[250px]"
+              className="h-auto w-full max-w-62.5"
             />
           </div>
 
@@ -70,7 +70,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           <div className="flex flex-col justify-center">
             {/* Title with checkmark icon */}
             <div className="mb-8 flex items-center gap-3">
-              <h1 className="!mb-0 text-4xl font-bold">
+              <h1 className="mb-0! text-4xl font-bold">
                 <I18n i18nKey="title" namespace="allSet" />
               </h1>
               <CircleCheckIcon className="size-10 text-gcds-green-700" />

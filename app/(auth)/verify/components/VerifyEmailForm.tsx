@@ -12,9 +12,9 @@ import { useRouter } from "next/navigation";
  * Internal Aliases
  *--------------------------------------------*/
 import { sendVerification, sendVerificationEmail } from "@lib/server/verify";
-import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { validateCode } from "@lib/validationSchemas";
 import { I18n, useTranslation } from "@i18n";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Alert as AlertNotification } from "@components/ui/alert/Alert";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
@@ -36,25 +36,21 @@ export function VerifyEmailForm({
   requestId,
   code,
   children,
-  siteConfig,
 }: {
   userId: string;
   loginName?: string;
   code?: string;
   requestId?: string;
   children?: React.ReactNode;
-  siteConfig: SiteConfig;
 }) {
   const router = useRouter();
   const processedCodeRef = useRef<string | null>(null);
   const emailSentRef = useRef<boolean>(false);
+  const { getSiteLink } = useSiteConfig();
 
-  const {
-    t,
-    i18n: { language },
-  } = useTranslation("verify");
+  const { t } = useTranslation("verify");
 
-  const supportLink = getSiteLink(siteConfig, "support", language);
+  const supportLink = getSiteLink("support");
 
   const [error, setError] = useState<string>("");
 

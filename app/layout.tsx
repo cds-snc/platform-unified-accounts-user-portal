@@ -7,10 +7,12 @@ import { Lato, Noto_Sans } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { dir } from "i18next";
 
+import { resolveSiteConfigByHost } from "@lib/site-config";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { languages } from "@i18n/settings";
+import { SiteConfigProvider } from "@components/contexts/SiteConfigContext";
 import RouterDebugger from "@components/debugging/RouterDebugger";
 
 /*--------------------------------------------*
@@ -70,7 +72,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       </head>
       <body>
         {process.env.DEBUG && <RouterDebugger />}
-        {children}
+        <SiteConfigProvider siteConfig={resolveSiteConfigByHost()}>{children}</SiteConfigProvider>
       </body>
     </html>
   );

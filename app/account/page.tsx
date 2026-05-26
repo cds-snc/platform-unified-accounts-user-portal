@@ -2,16 +2,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { resolveSiteConfigByHost } from "@lib/site-config";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { getTOTPStatus, getU2FList, getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -45,10 +42,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     }
   );
 
-  const _headers = await headers();
-  const resolvedHost = getOriginalHostFromHeaders(_headers);
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
-
   const userId = session.factors?.user?.id;
   const userResponse = await getUserByID(userId!);
   const user = userResponse.user?.type.case === "human" ? userResponse.user?.type.value : undefined;
@@ -74,7 +67,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   return (
     <>
       <PersonalDetails userId={userId} firstName={firstName} lastName={lastName} className="mb-4" />
-      <VerifiedAccount email={email} className="mb-4" siteConfig={siteConfig} />
+      <VerifiedAccount email={email} className="mb-4" />
       <PasswordAuthentication className="mb-4" />
       <MFAAuthentication
         u2fList={u2fList}

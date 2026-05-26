@@ -2,15 +2,12 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { headers } from "next/headers";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeRedirectUrl } from "@lib/redirect-validator";
-import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { resolveSiteConfigByHost } from "@lib/site-config";
 import { SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -23,8 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
-  const [searchParams, _headers] = await Promise.all([props.searchParams, headers()]);
-
+  const searchParams = await props.searchParams;
   const { requestId, redirect } = searchParams;
   const {
     id: sessionId,
@@ -40,9 +36,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   });
 
   const loginName = factors?.user?.loginName;
-
-  const resolvedHost = getOriginalHostFromHeaders(_headers);
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
 
   // Extract just the session factors from the session data
   const sessionFactors = { factors, expirationDate };
@@ -66,7 +59,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           loginSettings={loginSettings}
           redirect={safeRedirect}
           displayName={sessionFactors.factors?.user?.displayName}
-          siteConfig={siteConfig}
         />
       )}
     </AuthPanel>

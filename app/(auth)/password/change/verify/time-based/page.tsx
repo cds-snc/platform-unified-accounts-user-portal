@@ -2,16 +2,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { resolveSiteConfigByHost } from "@lib/site-config";
 import type { SearchParams } from "@lib/utils";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
@@ -24,10 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
-  const [{ requestId }, _headers] = await Promise.all([props.searchParams, headers()]);
-
-  const resolvedHost = getOriginalHostFromHeaders(_headers);
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
+  const { requestId } = await props.searchParams;
 
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
     (result) => {
@@ -59,7 +53,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         loginSettings={loginSettings}
         redirect="/password/change"
         displayName={session.factors?.user?.displayName}
-        siteConfig={siteConfig}
       />
     </AuthPanel>
   );

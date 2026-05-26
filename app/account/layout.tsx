@@ -3,13 +3,10 @@
  *--------------------------------------------*/
 import { Suspense } from "react";
 import { Metadata } from "next";
-import { headers } from "next/headers";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getOriginalHostFromHeaders } from "@lib/server/host";
-import { resolveSiteConfigByHost } from "@lib/site-config";
 import { serverTranslation } from "@i18n/server";
 import { VersionUpdater } from "@components/auth/VersionUpdater";
 import { YourAccount } from "@components/auth/YourAccount";
@@ -39,10 +36,6 @@ import { NavMenu } from "@components/ui/nav-menu/NavMenu";
 import { AccountNavigation } from "./components/AccountNavigation";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const _headers = await headers();
-  const resolvedHost = getOriginalHostFromHeaders(_headers);
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
-
   const isDev = process.env.NODE_ENV === "development";
 
   return (
@@ -58,7 +51,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <main id="content" className="mx-auto max-w-285 px-6 py-2 laptop:px-0" tabIndex={-1}>
         <div className="mb-20 grid items-start gap-6 py-4 tablet:grid-cols-[22rem_1fr] tablet:gap-8">
           <aside className="w-full">
-            <AccountNavigation siteConfig={siteConfig} />
+            <AccountNavigation />
           </aside>
           <section className="min-w-0">{children}</section>
         </div>

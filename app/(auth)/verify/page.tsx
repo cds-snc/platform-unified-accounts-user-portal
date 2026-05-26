@@ -2,14 +2,11 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { headers } from "next/headers";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { resolveSiteConfigByHost } from "@lib/site-config";
 import { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
@@ -44,11 +41,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     }
   );
 
-  const _headers = await headers();
-
-  const resolvedHost = getOriginalHostFromHeaders(_headers);
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
-
   if (!session.factors?.user?.id) {
     throw new Error("Used as a type guard to ensure user has id property");
   }
@@ -60,7 +52,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         userId={session.factors.user.id}
         code={code}
         requestId={requestId}
-        siteConfig={siteConfig}
       >
         <div className="my-8">
           <UserAvatar

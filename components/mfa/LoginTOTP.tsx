@@ -13,9 +13,9 @@ import { FormState, handleOTPFormSubmit } from "@root/app/(auth)/otp/time-based/
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
-import { getSiteLink, SiteConfig } from "@lib/site-config";
 import { I18n, useTranslation } from "@i18n";
 import { UserAvatar } from "@components/account/user-avatar";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { BackButton } from "@components/ui/button/BackButton";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus } from "@components/ui/form";
@@ -26,7 +26,6 @@ export function LoginTOTP({
   loginName,
   sessionId,
   requestId,
-  siteConfig,
   loginSettings,
   redirect,
   displayName,
@@ -34,17 +33,13 @@ export function LoginTOTP({
   loginName?: string;
   sessionId?: string;
   requestId?: string;
-  siteConfig: SiteConfig;
   loginSettings?: LoginSettings;
   redirect?: string | null;
   displayName?: string;
 }) {
-  const {
-    t,
-    i18n: { language },
-  } = useTranslation("otp");
-
-  const supportLink = getSiteLink(siteConfig, "support", language);
+  const { t } = useTranslation("otp");
+  const { getSiteLink } = useSiteConfig();
+  const supportLink = getSiteLink("support");
 
   const genericErrorMessage = t("set.genericError");
   const invalidCodeMessage = t("set.invalidCode");
