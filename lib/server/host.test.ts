@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, it, test, vi } from "vitest";
 
-import { getOriginalHostFromHeaders } from "./host";
+import { getOriginalHostFromHeaders, isTrustedSiteHost } from "./host";
 
 vi.mock("next/headers");
 
@@ -113,5 +113,56 @@ describe("host helpers", () => {
     expect(() =>
       getOriginalHostFromHeaders(makeHeaders({ host: "abc123.lambda-url.us-east-1.on.aws" }))
     ).toThrow("Untrusted host header");
+  });
+  describe("isTrustedSiteHost", () => {
+    it("trusts exact matches for localhost", () => {
+      expect(isTrustedSiteHost("localhost:3000")).toBe(true);
+      expect(isTrustedSiteHost("http://localhost:3000")).toBe(true);
+    });
+
+    it("trusts exact matches for auth-staging", () => {
+      expect(isTrustedSiteHost("auth.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.cdssandbox.xyz/ui/v2")).toBe(true);
+    });
+
+    it("trusts exact matches for forms-staging", () => {
+      expect(isTrustedSiteHost("forms-staging.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
+    });
+
+    it("trusts exact matches for forms-production", () => {
+      expect(isTrustedSiteHost("forms-formulaires.alpha.canada.ca")).toBe(true);
+      expect(isTrustedSiteHost("https://forms-formulaires.alpha.canada.ca")).toBe(true);
+    });
+
+    it("trusts subdomains of auth-staging", () => {
+      expect(isTrustedSiteHost("auth.auth.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.auth.cdssandbox.xyz/ui/v2")).toBe(true);
+      expect(isTrustedSiteHost("my-custom.auth.cdssandbox.xyz")).toBe(true);
+    });
+
+    it("trusts subdomains of forms-staging", () => {
+      expect(isTrustedSiteHost("auth.forms-staging.cdssandbox.xyz")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
+      expect(isTrustedSiteHost("my-custom.forms-staging.cdssandbox.xyz")).toBe(true);
+    });
+
+    it("trusts subdomains of forms-production", () => {
+      expect(isTrustedSiteHost("auth.forms-formulaires.alpha.canada.ca")).toBe(true);
+      expect(isTrustedSiteHost("https://auth.forms-formulaires.alpha.canada.ca")).toBe(true);
+    });
+
+    it("rejects untrusted hosts", () => {
+      expect(isTrustedSiteHost("evil.com")).toBe(false);
+      expect(isTrustedSiteHost("forms-staging.evil.com")).toBe(false);
+      expect(isTrustedSiteHost("https://malicious.xyz")).toBe(false);
+    });
+
+    it("normalizes hosts before checking trust", () => {
+      expect(isTrustedSiteHost("HTTPS://AUTH.FORMS-STAGING.CDSSANDBOX.XYZ")).toBe(true);
+      expect(isTrustedSiteHost("  forms-staging.cdssandbox.xyz  ")).toBe(true);
+    });
   });
 });
