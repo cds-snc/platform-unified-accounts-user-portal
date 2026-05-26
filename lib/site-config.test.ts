@@ -1,29 +1,46 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
+import { getOriginalHost } from "@lib/server/host";
 
-import { isTrustedSiteHost, requestHost, resolveSiteConfigByHost } from "./site-config";
+import { isTrustedSiteHost, SiteConfigService } from "./site-config";
+
+vi.mock("./server/host", () => ({
+  getOriginalHost: vi.fn(async () => ""),
+}));
 
 describe("site-config", () => {
-  it("classifies localhost hosts as dev", () => {
-    expect(requestHost("localhost")).toBe("dev");
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+  it("classifies localhost hosts as dev", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("localhost");
+    const mocked = await SiteConfigService.getInstance();
+    expect(mocked.requestHost()).toBe("dev");
   });
 
-  it("classifies auth-staging hosts as staging", () => {
-    expect(requestHost("auth.cdssandbox.xyz")).toBe("authStaging");
+  it("classifies auth-staging hosts as staging", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("auth.cdssandbox.xyz");
+    const mocked = await SiteConfigService.getInstance();
+    expect(mocked.requestHost()).toBe("authStaging");
   });
 
-  it("classifies forms-staging hosts as staging", () => {
-    expect(requestHost("forms-staging.cdssandbox.xyz")).toBe("formsStaging");
+  it("classifies forms-staging hosts as staging", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("forms-staging.cdssandbox.xyz");
+    const mocked = await SiteConfigService.getInstance();
+    expect(mocked.requestHost()).toBe("formsStaging");
   });
 
-  it("classifies forms-production hosts as production", () => {
-    expect(requestHost("forms-formulaires.alpha.canada.ca")).toBe("formsProduction");
+  it("classifies forms-production hosts as production", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("forms-formulaires.alpha.canada.ca");
+    const mocked = await SiteConfigService.getInstance();
+    expect(mocked.requestHost()).toBe("formsProduction");
   });
 
-  it("resolves dev baseUrl from localhost host", () => {
-    const config = resolveSiteConfigByHost("localhost:3002");
-
+  it("resolves dev baseUrl from localhost host", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("localhost:3000");
+    const mocked = await SiteConfigService.getInstance();
+    const config = mocked.resolve();
     expect(config).toEqual({
       id: "dev",
       baseUrl: "http://localhost:3000",
@@ -31,9 +48,10 @@ describe("site-config", () => {
     });
   });
 
-  it("resolves auth-staging baseUrl from auth-staging host", () => {
-    const config = resolveSiteConfigByHost("auth.cdssandbox.xyz");
-
+  it("resolves auth-staging baseUrl from auth-staging host", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("auth.cdssandbox.xyz");
+    const mocked = await SiteConfigService.getInstance();
+    const config = mocked.resolve();
     expect(config).toEqual({
       id: "authStaging",
       baseUrl: "https://auth.cdssandbox.xyz",
@@ -41,9 +59,10 @@ describe("site-config", () => {
     });
   });
 
-  it("resolves forms-staging baseUrl from forms-staging host", () => {
-    const config = resolveSiteConfigByHost("https://forms-staging.cdssandbox.xyz/some/path");
-
+  it("resolves forms-staging baseUrl from forms-staging host", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("https://forms-staging.cdssandbox.xyz/some/path");
+    const mocked = await SiteConfigService.getInstance();
+    const config = mocked.resolve();
     expect(config).toEqual({
       id: "formsStaging",
       baseUrl: "https://forms-staging.cdssandbox.xyz",
@@ -51,9 +70,10 @@ describe("site-config", () => {
     });
   });
 
-  it("resolves forms-production baseUrl from production host", () => {
-    const config = resolveSiteConfigByHost("forms-formulaires.alpha.canada.ca");
-
+  it("resolves forms-production baseUrl from production host", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("forms-formulaires.alpha.canada.ca");
+    const mocked = await SiteConfigService.getInstance();
+    const config = mocked.resolve();
     expect(config).toEqual({
       id: "formsProduction",
       baseUrl: "https://forms-formulaires.alpha.canada.ca",

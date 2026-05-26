@@ -20,16 +20,17 @@ const TRUSTED_SITE_HOSTS = Object.values(TRUSTED_DOMAINS).map((config) => {
   return normalizeHost(config.baseUrl);
 });
 
-class SiteConfigService {
+export class SiteConfigService {
   private static instance: SiteConfigService;
   private static resolvedHost: string;
 
-  private constructor(private readonly configById: Record<SiteId, TrustedDomainConfig>) {}
+  protected constructor(private readonly configById: Record<SiteId, TrustedDomainConfig>) {}
 
   static async getInstance() {
-    if (!this.instance) {
+    // When running unit tests we need to recreate the instance
+    if (!this.instance || process.env.NODE_ENV === "test") {
       this.instance = new SiteConfigService(TRUSTED_DOMAINS);
-      SiteConfigService.resolvedHost = await getOriginalHost();
+      SiteConfigService.resolvedHost = await getOriginalHost().then((host) => normalizeHost(host));
     }
 
     return this.instance;
