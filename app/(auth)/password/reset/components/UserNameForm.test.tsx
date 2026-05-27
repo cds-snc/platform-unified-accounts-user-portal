@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { validateUsername } from "@lib/validationSchemas";
+import { validateUsername } from "@lib/client/validationSchemas";
 import { useTranslation } from "@i18n/client";
 
 import { submitUserNameForm } from "../actions";

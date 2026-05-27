@@ -8,7 +8,7 @@ import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/p
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { validateAccount } from "@lib/validationSchemas";
+import { validateAccount } from "@lib/client/validationSchemas";
 import { useTranslation } from "@i18n";
 import { PasswordValidationForm } from "@components/auth/password-validation/PasswordValidationForm";
 import { Alert, ErrorStatus } from "@components/ui/form";

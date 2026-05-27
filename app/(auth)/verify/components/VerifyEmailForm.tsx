@@ -8,11 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { validateCode } from "@lib/client/validationSchemas";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { sendVerification, sendVerificationEmail } from "@lib/server/verify";
-import { validateCode } from "@lib/validationSchemas";
 import { I18n, useTranslation } from "@i18n";
 import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Alert as AlertNotification } from "@components/ui/alert/Alert";

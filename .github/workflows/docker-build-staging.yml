@@ -25,7 +25,7 @@ jobs:
             directory: .
           - image: idp-load-test
             directory: ./test/perf
-    
+
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0

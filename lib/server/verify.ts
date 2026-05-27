@@ -28,7 +28,7 @@ import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
 import { createSessionAndUpdateCookie } from "../../lib/server/cookie";
-import { completeFlowOrGetUrl } from "../client";
+import { completeFlowOrGetUrl } from "../client/flow";
 import { getSessionCookieByLoginName } from "../cookies";
 import { getOrSetFingerprintId } from "../fingerprint";
 import { loadActiveSession } from "../session";

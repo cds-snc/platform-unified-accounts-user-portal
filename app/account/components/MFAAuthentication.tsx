@@ -6,11 +6,11 @@
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
-import { cn } from "@lib/utils";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { Button } from "@components/ui/button/Button";
 import { Image } from "@components/ui/image/Image";
 import { ToastContainer } from "@components/ui/toast/Toast";

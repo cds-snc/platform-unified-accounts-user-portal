@@ -3,12 +3,12 @@
  *--------------------------------------------*/
 import { Metadata } from "next";
 
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { I18n } from "@i18n";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar/UserAvatar";

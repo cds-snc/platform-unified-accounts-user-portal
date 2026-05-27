@@ -12,7 +12,7 @@ import {
   containsSymbol,
   containsUpperCaseCharacter,
   isValidGovEmail,
-} from "@lib/validators";
+} from "@lib/client/validators";
 
 const firstnameSchema = () => ({
   firstname: v.pipe(

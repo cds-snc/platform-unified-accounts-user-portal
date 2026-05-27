@@ -4,6 +4,7 @@
  *--------------------------------------------*/
 import { revalidatePath } from "next/cache";
 
+import { validatePersonalDetails } from "@lib/client/validationSchemas";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -15,7 +16,6 @@ import {
   protectedRemoveU2F,
   protectedUpdatePersonalDetails,
 } from "@lib/server/zitadel-protected";
-import { validatePersonalDetails } from "@lib/validationSchemas";
 
 export async function removeU2FAction(userId: string, u2fId: string) {
   try {

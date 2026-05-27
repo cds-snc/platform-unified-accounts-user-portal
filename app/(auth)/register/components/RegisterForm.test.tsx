@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RegisterForm } from "@root/app/(auth)/register/components/RegisterForm";
-import { validateAccount } from "@lib/validationSchemas";
+import { validateAccount } from "@lib/client/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../test/helpers/client";

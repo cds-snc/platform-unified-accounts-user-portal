@@ -9,10 +9,10 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
+import { completeFlowOrGetUrl } from "@lib/client/flow";
+import { validateAccountWithPassword } from "@lib/client/validationSchemas";
 import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
-import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";

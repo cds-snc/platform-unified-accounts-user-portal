@@ -29,7 +29,7 @@ import {
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
-import { completeFlowOrGetUrl } from "../client";
+import { completeFlowOrGetUrl } from "../client/flow";
 import { getSessionCookieById, getSessionCookieByLoginName } from "../cookies";
 import { loadActiveSession } from "../session";
 import {

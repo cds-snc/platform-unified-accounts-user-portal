@@ -1,8 +1,8 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
 import { cn } from "@lib/utils";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { Version } from "@components/layout/footer/Version";
 export const Footer = async ({ children }: { children?: React.ReactNode }) => {
   return (

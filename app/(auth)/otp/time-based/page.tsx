@@ -3,12 +3,12 @@
  *--------------------------------------------*/
 import { Metadata } from "next";
 
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { SearchParams } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSafeRedirectUrl } from "@lib/redirect-validator";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { SearchParams } from "@lib/utils";
+import { getSafeRedirectUrl } from "@lib/utils/redirect-validator";
 import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";

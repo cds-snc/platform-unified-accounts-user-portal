@@ -8,7 +8,7 @@ import { useEffect } from "react";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { I18n } from "@i18n";
 import { Image } from "@components/ui/image/Image";
 export default function Error({ error }: { error: Error & { digest?: string } }) {

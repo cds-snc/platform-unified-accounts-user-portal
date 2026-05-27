@@ -3,8 +3,8 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
 import { cn } from "@lib/utils";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { Image } from "@components/ui/image/Image";
 
 type Props = {

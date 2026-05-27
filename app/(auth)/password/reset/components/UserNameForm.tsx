@@ -6,12 +6,12 @@
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 
+import { validateUsername } from "@lib/client/validationSchemas";
+import { getError, hasError } from "@lib/client/validators";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
-import { validateUsername } from "@lib/validationSchemas";
-import { getError, hasError } from "@lib/validators";
 import { useTranslation } from "@i18n/client";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";

@@ -10,10 +10,10 @@ import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
+import { completeFlowOrGetUrl } from "@lib/client/flow";
+import { validateTotpCode } from "@lib/client/validationSchemas";
 import { logMessage } from "@lib/logger";
 import { updateSession } from "@lib/server/session";
-import { validateTotpCode } from "@lib/validationSchemas";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 export type FormState = {

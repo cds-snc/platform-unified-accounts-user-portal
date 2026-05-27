@@ -10,13 +10,13 @@ import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { QRCodeSVG } from "qrcode.react";
 
+import { validateTotpCode } from "@lib/client/validationSchemas";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { updateSession } from "@lib/server/session";
 import { verifyTOTP } from "@lib/server/verify";
-import { validateTotpCode } from "@lib/validationSchemas";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";

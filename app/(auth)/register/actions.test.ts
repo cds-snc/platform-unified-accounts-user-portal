@@ -1,9 +1,9 @@
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { completeFlowOrGetUrl } from "@lib/client";
+import { completeFlowOrGetUrl } from "@lib/client/flow";
+import { validateAccountWithPassword } from "@lib/client/validationSchemas";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
-import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
 

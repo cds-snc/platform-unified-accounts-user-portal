@@ -12,7 +12,7 @@ import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
+import { completeFlowOrGetUrl } from "@lib/client/flow";
 import { logMessage } from "@lib/logger";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import {

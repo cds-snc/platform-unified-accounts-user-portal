@@ -8,9 +8,9 @@ import { redirect } from "next/navigation";
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { getSafeRedirectUrl } from "@lib/redirect-validator";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { getSafeRedirectUrl } from "@lib/utils/redirect-validator";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";

@@ -8,6 +8,7 @@ import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
+import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
 import { setSelectedSession } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
@@ -16,7 +17,6 @@ import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie, CreateSessionFailedError } from "@lib/server/cookie";
 import { isSessionValid, loadActiveSession } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
-import { validateUsernameAndPassword } from "@lib/validationSchemas";
 import { checkEmailVerification, checkMFAFactors } from "@lib/verify-helper";
 import {
   getLockoutSettings,
