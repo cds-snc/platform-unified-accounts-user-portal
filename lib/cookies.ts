@@ -235,35 +235,6 @@ export async function getSessionCookieByLoginName<T>({
  * @param cleanup when true, removes all expired sessions, default true
  * @returns Session Cookies
  */
-export async function getAllSessionCookieIds<T>(cleanup: boolean = false): Promise<string[]> {
-  const cookiesList = await cookies();
-  const stringifiedCookie = cookiesList.get("sessions");
-
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
-
-    if (cleanup) {
-      const now = new Date();
-      return sessions
-        .filter((session) =>
-          session.expirationTs
-            ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
-            : true
-        )
-        .map((session) => session.id);
-    } else {
-      return sessions.map((session) => session.id);
-    }
-  } else {
-    return [];
-  }
-}
-
-/**
- *
- * @param cleanup when true, removes all expired sessions, default true
- * @returns Session Cookies
- */
 export async function getAllSessions<T>(cleanup: boolean = false): Promise<SessionCookie<T>[]> {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
@@ -284,41 +255,6 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
   } else {
     logMessage.info("getAllSessions: No session cookie found, returning empty array");
     return [];
-  }
-}
-
-/**
- * Returns most recent session filtered by optinal loginName
- * @param loginName optional loginName to filter cookies, if non provided, returns most recent session
- * @param organization optional organization to filter cookies
- * @returns most recent session
- */
-export async function getMostRecentCookie<T>(): Promise<SessionCookie<T>> {
-  const cookiesList = await cookies();
-  const stringifiedCookie = cookiesList.get("sessions");
-
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
-    let filtered = sessions;
-
-    filtered = filtered.filter((cookie) => {
-      return cookie.organization === ZITADEL_ORGANIZATION;
-    });
-
-    const latest =
-      filtered && filtered.length
-        ? filtered.reduce((prev, current) => {
-            return prev.changeTs > current.changeTs ? prev : current;
-          })
-        : undefined;
-
-    if (latest) {
-      return latest;
-    } else {
-      return Promise.reject("Could not get the context or retrieve a session");
-    }
-  } else {
-    return Promise.reject("Could not read session cookie");
   }
 }
 

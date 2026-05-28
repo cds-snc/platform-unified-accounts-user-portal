@@ -27,7 +27,6 @@ import { serverTranslation } from "@i18n/server";
 import {
   Cookie,
   getActiveSessionCookie,
-  getAllSessionCookieIds,
   getAllSessions,
   getSessionCookieById,
   removeSessionFromCookie,
@@ -46,27 +45,6 @@ async function loadSessionsByIds({ ids }: { ids: string[] }): Promise<Session[]>
   });
 
   return response?.sessions ?? [];
-}
-
-/**
- * Load sessions for all cookie IDs
- * @param cleanup - Whether to filter out expired sessions (default: true)
- * @returns Array of Session objects
- */
-export async function loadSessionsFromCookies({
-  cleanup = true,
-}: {
-  cleanup?: boolean;
-} = {}): Promise<Session[]> {
-  const cookieIds = await getAllSessionCookieIds(cleanup);
-
-  if (cookieIds && cookieIds.length) {
-    return loadSessionsByIds({
-      ids: cookieIds.filter((id) => !!id) as string[],
-    });
-  }
-
-  return [];
 }
 
 /**

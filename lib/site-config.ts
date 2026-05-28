@@ -50,6 +50,4 @@ export class SiteConfigService {
 
 const siteConfig = await SiteConfigService.getInstance();
 
-export const requestHost = (): SiteId => siteConfig.requestHost();
-
 export const resolveSiteConfigByHost = (): SiteConfig => siteConfig.resolve();

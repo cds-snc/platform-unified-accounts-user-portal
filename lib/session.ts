@@ -16,7 +16,7 @@ import { getSession, getUserByID, listAuthenticationMethodTypes } from "../lib/z
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { getActiveSessionCookie, getSessionCookieById } from "./cookies";
+import { getActiveSessionCookie } from "./cookies";
 import { logMessage } from "./logger";
 export function checkSessionFactorValidity(session: Partial<Session>): {
   valid: boolean;
@@ -82,12 +82,6 @@ async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuth
     phoneVerified: humanUser?.phone?.isVerified ?? false,
     emailVerified: humanUser?.email?.isVerified ?? false,
   };
-}
-
-export async function loadSessionById(sessionId: string): Promise<SessionWithAuthData> {
-  const recent = await getSessionCookieById({ sessionId });
-  const sessionResponse = await getSession(recent.id, recent.token);
-  return getAuthMethodsAndUser(sessionResponse.session);
 }
 
 /**
