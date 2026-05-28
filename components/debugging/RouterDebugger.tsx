@@ -8,7 +8,10 @@ export default function RouterDebugger() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    console.log(`Route changed to: ${pathname}?${searchParams}`);
+    const params = searchParams.entries().reduce((prev, curr, index) => {
+      return `${prev}${index !== 0 ? "&" : "?"}${curr[0]}=${curr[1]}`;
+    }, "");
+    console.log(`Route changed to: ${pathname}${params}`);
     // You can also send this data to a logging service
   }, [pathname, searchParams]);
 
