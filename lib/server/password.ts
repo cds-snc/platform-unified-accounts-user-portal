@@ -29,7 +29,6 @@ import {
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
-import { completeFlowOrGetUrl } from "../client/flow";
 import { getSessionCookieById, getSessionCookieByLoginName } from "../cookies";
 import { loadActiveSession } from "../session";
 import {
@@ -39,6 +38,7 @@ import {
   checkUserVerification,
 } from "../verify-helper";
 
+import { completeFlowAndRedirect } from "./auth-flow";
 import { sendPasswordChangedEmail } from "./verify";
 
 /**
@@ -261,7 +261,7 @@ export async function sendPassword(
   // forcing the user back through a second MFA prompt after they set a new password.
   if (hasStrongMFA(session)) {
     if (command.requestId && session.id) {
-      const result = await completeFlowOrGetUrl(
+      const result = await completeFlowAndRedirect(
         {
           sessionId: session.id,
           requestId: command.requestId,
@@ -280,7 +280,7 @@ export async function sendPassword(
       return result;
     }
 
-    const result = await completeFlowOrGetUrl(
+    const result = await completeFlowAndRedirect(
       {
         sessionId: session.id,
         loginName: session.factors.user.loginName,
@@ -312,7 +312,7 @@ export async function sendPassword(
       requestId: command.requestId,
       sessionId: session.id,
     });
-    const result = await completeFlowOrGetUrl(
+    const result = await completeFlowAndRedirect(
       {
         sessionId: session.id,
         requestId: command.requestId,
@@ -339,7 +339,7 @@ export async function sendPassword(
 
   // Regular flow (no requestId) - return URL for client-side navigation
   logMessage.debug("Password auth: completing regular flow");
-  const result = await completeFlowOrGetUrl(
+  const result = await completeFlowAndRedirect(
     {
       loginName: session.factors.user.loginName,
     },

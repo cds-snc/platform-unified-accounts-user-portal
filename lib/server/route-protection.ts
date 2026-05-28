@@ -1,6 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { timestampDate } from "@zitadel/client";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
@@ -142,6 +143,12 @@ export async function checkAuthenticationLevel(
   requiredLevel: AuthLevel,
   requestId?: string
 ): Promise<AuthCheckResult> {
+  const headerList = await headers();
+  const pathname = headerList.get("x-current-path");
+  logMessage.debug(
+    `[Authentication Level] Checking page level authentication for ${pathname} with ${requiredLevel}`
+  );
+
   // Open routes always pass
   if (requiredLevel === AuthLevel.OPEN) {
     return { session: null };

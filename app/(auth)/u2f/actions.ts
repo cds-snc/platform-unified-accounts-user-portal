@@ -10,7 +10,7 @@ import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCookieById, getSessionCookieByLoginName } from "@lib/cookies";
+import { getActiveSessionCookie } from "@lib/cookies";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { continueWithSession } from "@lib/server/session";
 import { getLoginSettings } from "@lib/zitadel";
@@ -25,23 +25,8 @@ type VerifyU2FLoginCommand = {
   redirect?: string | null;
 };
 
-export async function verifyU2FLogin({
-  loginName,
-  sessionId,
-  checks,
-  requestId,
-  redirect,
-}: VerifyU2FLoginCommand) {
-  let sessionCookie;
-  if (sessionId) {
-    sessionCookie = await getSessionCookieById({ sessionId });
-  } else if (loginName) {
-    sessionCookie = await getSessionCookieByLoginName({ loginName });
-  }
-
-  if (!sessionCookie) {
-    return { error: U2F_ERRORS.SESSION_NOT_FOUND };
-  }
+export async function verifyU2FLogin({ checks, requestId, redirect }: VerifyU2FLoginCommand) {
+  const activeSessionCookie = await getActiveSessionCookie();
 
   // Get login settings to determine lifetime
   const loginSettings = await getLoginSettings();
@@ -53,7 +38,7 @@ export async function verifyU2FLogin({
 
   // Actually verify the U2F credential by updating the session with the checks
   const updatedSession = await setSessionAndUpdateCookie({
-    activeCookie: sessionCookie,
+    activeCookie: activeSessionCookie,
     checks,
     requestId,
     lifetime: lifetime as Duration,

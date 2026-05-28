@@ -28,12 +28,13 @@ import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
 import { createSessionAndUpdateCookie } from "../../lib/server/cookie";
-import { completeFlowOrGetUrl } from "../client/flow";
 import { getSessionCookieByLoginName } from "../cookies";
 import { getOrSetFingerprintId } from "../fingerprint";
 import { loadActiveSession } from "../session";
 import { buildUrlWithRequestId } from "../utils";
 import { checkMFAFactors } from "../verify-helper";
+
+import { completeFlowAndRedirect } from "./auth-flow";
 
 export async function verifyTOTP(code: string) {
   try {
@@ -182,7 +183,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
 
   // login user if no additional steps are required
   if (command.requestId && session.id) {
-    return completeFlowOrGetUrl(
+    return completeFlowAndRedirect(
       {
         sessionId: session.id,
         requestId: command.requestId,
@@ -192,7 +193,7 @@ export async function sendVerification(command: VerifyUserByEmailCommand) {
   }
 
   // Regular flow - return URL for client-side navigation
-  return completeFlowOrGetUrl(
+  return completeFlowAndRedirect(
     {
       loginName: session.factors.user.loginName,
     },

@@ -4,7 +4,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { create, JsonObject } from "@zitadel/client";
 import {
   RequestChallengesSchema,
@@ -31,8 +30,6 @@ type PublicKeyCredentialRequestOptionsData = {
 };
 
 type Props = {
-  loginName?: string;
-  sessionId?: string;
   requestId?: string;
   login?: boolean;
   redirect?: string | null;
@@ -82,11 +79,10 @@ async function getCredentialAssertionData(
   } as JsonObject;
 }
 
-export function LoginU2F({ loginName, sessionId, requestId, login = true, redirect }: Props) {
+export function LoginU2F({ requestId, login = true, redirect }: Props) {
   const [error, setError] = useState<string>("");
 
   const { t } = useTranslation("u2f");
-  const router = useRouter();
 
   const initialized = useRef(false);
 
@@ -98,8 +94,6 @@ export function LoginU2F({ loginName, sessionId, requestId, login = true, redire
     let session;
     try {
       session = await updateSession({
-        loginName,
-        sessionId,
         challenges: create(RequestChallengesSchema, {
           webAuthN: {
             domain: "",
@@ -134,8 +128,6 @@ export function LoginU2F({ loginName, sessionId, requestId, login = true, redire
     let response;
     try {
       response = await verifyU2FLogin({
-        loginName,
-        sessionId,
         checks: { webAuthN: { credentialAssertionData: data } } as Checks,
         requestId,
         redirect,
@@ -148,10 +140,6 @@ export function LoginU2F({ loginName, sessionId, requestId, login = true, redire
     if (response && "error" in response && response.error) {
       setError(response.error);
       return;
-    }
-
-    if (response && "redirect" in response && response.redirect) {
-      return router.push(response.redirect);
     }
 
     if (!response) {

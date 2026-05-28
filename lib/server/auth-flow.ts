@@ -1,29 +1,71 @@
-"use server";
-
 /*--------------------------------------------*
- * Framework and Third-Party
+ * Local Relative
  *--------------------------------------------*/
+
+import { redirect } from "next/navigation";
 
 import { logMessage } from "@lib/logger";
-/*--------------------------------------------*
- * Internal Aliases
- *--------------------------------------------*/
 import { loginWithOIDCAndSession } from "@lib/oidc";
-import { loadSessionsWithCookies } from "@lib/server/session";
-interface AuthFlowParams {
-  sessionId: string;
-  requestId: string;
+
+import { buildUrlWithRequestId } from "../utils";
+
+import { loadSessionsWithCookies } from "./session";
+
+type FinishFlowCommand =
+  | {
+      sessionId: string;
+      requestId: string;
+    }
+  | { loginName: string; sessionId?: string };
+
+/**
+ * Complete authentication flow or get next URL for navigation
+ * - For OIDC flows with sessionId+requestId: completes flow directly via server action
+ * - For other cases: returns default redirect or fallback URL
+ */
+export async function completeFlowAndRedirect(
+  command: FinishFlowCommand,
+  defaultRedirectUri?: string
+) {
+  // Complete OIDC flows directly with server action
+  if ("sessionId" in command && "requestId" in command && command.requestId.startsWith("oidc_")) {
+    // This completes the flow and redirects to URL or returns error
+    const result = await completeAuthFlow({
+      sessionId: command.sessionId,
+      requestId: command.requestId,
+    });
+    if ("redirect" in result) {
+      return redirect(result.redirect, "push");
+    }
+    return result;
+  }
+
+  // For all other cases, return URL for navigation
+  const requestId = "requestId" in command ? command.requestId : undefined;
+  const url = await getNextUrl(defaultRedirectUri, requestId);
+  redirect(url, "push");
 }
 
 /**
- * Server Action to complete authentication flow
- * Complete OIDC authentication flow with session
- * This is the shared logic for flow completion
- * Returns either an error or a redirect URL for client-side navigation
+ * Returns the next URL for navigation after successful authentication
+ * Note: OIDC flows now use completeAuthFlowAction() instead of URL navigation
+ * @param command
+ * @returns
  */
-export async function completeAuthFlow(
-  command: AuthFlowParams
-): Promise<{ error: string } | { redirect: string }> {
+async function getNextUrl(defaultRedirectUri?: string, requestId?: string): Promise<string> {
+  // OIDC flows are now handled by completeAuthFlowAction() server action
+
+  if (defaultRedirectUri) {
+    return defaultRedirectUri;
+  }
+
+  return buildUrlWithRequestId("/account", requestId);
+}
+
+async function completeAuthFlow(command: {
+  sessionId: string;
+  requestId: string;
+}): Promise<{ error: string } | { redirect: string }> {
   const { sessionId, requestId } = command;
 
   logMessage.info(

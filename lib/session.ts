@@ -97,7 +97,7 @@ export async function loadSessionById(sessionId: string): Promise<SessionWithAut
 export async function isSessionValid({ session }: { session: Session }): Promise<boolean> {
   // session can't be checked without user
   if (!session.factors?.user) {
-    logMessage.info("Session has no user");
+    logMessage.debug("Session has no user");
     return false;
   }
 
@@ -110,7 +110,7 @@ export async function isSessionValid({ session }: { session: Session }): Promise
     const expirationInfo = session.expirationDate
       ? timestampDate(session.expirationDate).toDateString()
       : "no expiration date";
-    logMessage.info(`Session is expired: ${expirationInfo}`);
+    logMessage.debug(`Session for ${session.factors.user.loginName} is expired: ${expirationInfo}`);
     return false;
   }
 
@@ -118,7 +118,9 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   const validPassword = !!session?.factors?.password?.verifiedAt;
 
   if (!validPassword) {
-    logMessage.info("Session has no valid password verification");
+    logMessage.debug(
+      `Session for ${session.factors.user.loginName} has no valid password verification`
+    );
     return false;
   }
 
@@ -129,7 +131,9 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   const mfaValid = totpValid || u2fValid || optEmail;
 
   if (!mfaValid) {
-    logMessage.debug("Session has no valid MFA factor (TOTP, U2F required)");
+    logMessage.debug(
+      `Session for for ${session.factors.user.loginName} has no valid MFA factor (TOTP, U2F required)`
+    );
     return false;
   }
 
@@ -140,11 +144,11 @@ export async function isSessionValid({ session }: { session: Session }): Promise
       userResponse?.user?.type.case === "human" ? userResponse?.user.type.value : undefined;
 
     if (humanUser && !humanUser.email?.isVerified) {
-      logMessage.info(`Session invalid: Email not verified for user: ${session.factors.user.id}`);
+      logMessage.debug(`Session invalid: Email not verified for user: ${session.factors.user.id}`);
       return false;
     }
   } catch (error) {
-    logMessage.info(
+    logMessage.debug(
       `Session invalid: Could not load user ${session.factors.user.id} while validating email verification`
     );
     return false;

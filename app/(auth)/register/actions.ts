@@ -6,12 +6,12 @@
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
+import { validateAccountWithPassword } from "@lib/client/validationSchemas";
+import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client/flow";
-import { validateAccountWithPassword } from "@lib/client/validationSchemas";
-import { logMessage } from "@lib/logger";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
@@ -88,7 +88,7 @@ export async function registerUser(command: RegisterUserCommand) {
   }
 
   logMessage.info("User registered successfully");
-  return completeFlowOrGetUrl(
+  return completeFlowAndRedirect(
     command.requestId && session.id
       ? {
           sessionId: session.id,

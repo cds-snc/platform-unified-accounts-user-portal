@@ -32,5 +32,8 @@ export async function proxy(request: NextRequest) {
   const { csp, nonce } = generateCSP();
   requestHeaders.set("x-nonce", nonce);
 
+  // Add the current path so it can be read in lib functions / server components
+  requestHeaders.set("x-current-path", request.nextUrl.pathname);
+
   return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
 }

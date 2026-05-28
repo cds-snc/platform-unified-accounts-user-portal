@@ -52,22 +52,20 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   return (
-    <>
-      <AuthPanel titleI18nKey="title" descriptionI18nKey="verify.description" namespace="mfa">
-        <div className="flex flex-col space-y-4">
-          <UserAvatar
-            loginName={sessionFactors?.user?.loginName}
-            displayName={sessionFactors?.user?.displayName}
-            showDropdown={false}
-          ></UserAvatar>
-        </div>
-        <ChooseSecondFactor
-          userMethods={session.authMethods ?? []}
+    <AuthPanel titleI18nKey="title" descriptionI18nKey="verify.description" namespace="mfa">
+      <div className="flex flex-col space-y-4">
+        <UserAvatar
           loginName={sessionFactors?.user?.loginName}
-          sessionId={session.id}
-          requestId={session.requestId}
-        />
-      </AuthPanel>
-    </>
+          displayName={sessionFactors?.user?.displayName}
+          showDropdown={false}
+        ></UserAvatar>
+      </div>
+      <ChooseSecondFactor
+        userMethods={session.authMethods ?? []}
+        loginName={sessionFactors?.user?.loginName}
+        sessionId={session.id}
+        requestId={session.requestId}
+      />
+    </AuthPanel>
   );
 }

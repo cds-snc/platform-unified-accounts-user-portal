@@ -78,7 +78,7 @@ export async function checkMFAFactors(
 
   // If no strong factor exists, redirect to setup
   if (!strongFactors.length) {
-    logMessage.info("Redirecting user to MFA setup - strong MFA required");
+    logMessage.debug("Redirecting user to MFA setup - strong MFA required");
     return { redirect: buildUrlWithRequestId(`/mfa/set`, requestId) };
   }
 
@@ -86,17 +86,17 @@ export async function checkMFAFactors(
   if (strongFactors.length === 1) {
     const factor = strongFactors[0];
     if (factor === AuthenticationMethodType.TOTP) {
-      logMessage.info("Redirecting user to TOTP verification");
+      logMessage.debug("Redirecting user to TOTP verification");
       return { redirect: buildUrlWithRequestId(`/otp/time-based`, requestId) };
     } else if (factor === AuthenticationMethodType.U2F) {
-      logMessage.info("Redirecting user to U2F verification");
+      logMessage.debug("Redirecting user to U2F verification");
       return { redirect: buildUrlWithRequestId(`/u2f`, requestId) };
     }
   }
 
   // Multiple MFA methods available - show selection page
   if (strongFactors.length > 1) {
-    logMessage.info("Redirecting user to MFA selection page");
+    logMessage.debug("Redirecting user to MFA selection page");
     return { redirect: buildUrlWithRequestId(`/mfa`, requestId) };
   }
 

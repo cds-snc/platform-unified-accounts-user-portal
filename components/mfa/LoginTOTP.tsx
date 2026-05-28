@@ -5,7 +5,6 @@
  *--------------------------------------------*/
 import { useActionState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 
 import { FormState, handleOTPFormSubmit } from "@root/app/(auth)/otp/time-based/actions";
@@ -44,7 +43,6 @@ export function LoginTOTP({
   const genericErrorMessage = t("set.genericError");
   const invalidCodeMessage = t("set.invalidCode");
   const invalidCodeLengthMessage = t("set.invalidCodeLength");
-  const router = useRouter();
 
   const localFormAction = async (_: FormState, formData?: FormData) => {
     const enteredCode = (formData?.get("code") as string) ?? "";
@@ -55,10 +53,6 @@ export function LoginTOTP({
       loginSettings,
       redirect,
     });
-
-    if ("redirect" in result && result.redirect) {
-      router.push(result.redirect);
-    }
 
     return result;
   };

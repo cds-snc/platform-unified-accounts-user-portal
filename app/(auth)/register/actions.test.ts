@@ -1,8 +1,8 @@
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { completeFlowOrGetUrl } from "@lib/client/flow";
 import { validateAccountWithPassword } from "@lib/client/validationSchemas";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
@@ -98,7 +98,7 @@ describe("registerUser", () => {
     } as never);
 
     vi.mocked(checkEmailVerification).mockReturnValue(undefined);
-    vi.mocked(completeFlowOrGetUrl).mockResolvedValue({
+    vi.mocked(completeFlowAndRedirect).mockResolvedValue({
       redirect: "/account?requestId=req-123",
     } as never);
   });
@@ -144,14 +144,14 @@ describe("registerUser", () => {
     const response = await registerUser(baseCommand);
 
     expect(response).toEqual({ redirect: "/verify?requestId=req-123" });
-    expect(completeFlowOrGetUrl).not.toHaveBeenCalled();
+    expect(completeFlowAndRedirect).not.toHaveBeenCalled();
   });
 
   it("completes flow with session when requestId exists", async () => {
     const response = await registerUser(baseCommand);
 
     expect(response).toEqual({ redirect: "/account?requestId=req-123" });
-    expect(completeFlowOrGetUrl).toHaveBeenCalledWith(
+    expect(completeFlowAndRedirect).toHaveBeenCalledWith(
       {
         sessionId: "session-123",
         requestId: "req-123",
@@ -167,7 +167,7 @@ describe("registerUser", () => {
     });
 
     expect(response).toEqual({ redirect: "/account?requestId=req-123" });
-    expect(completeFlowOrGetUrl).toHaveBeenCalledWith(
+    expect(completeFlowAndRedirect).toHaveBeenCalledWith(
       {
         loginName: "person@canada.ca",
       },

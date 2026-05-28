@@ -9,11 +9,11 @@ import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_p
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
+import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client/flow";
-import { logMessage } from "@lib/logger";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import {
   deleteSession,
@@ -137,7 +137,7 @@ export async function continueWithSession({
   const targetRedirect = redirect || loginSettings?.defaultRedirectUri;
 
   if (requestId && session.id && session.factors?.user) {
-    return completeFlowOrGetUrl(
+    return completeFlowAndRedirect(
       {
         sessionId: session.id,
         requestId: requestId,
@@ -146,7 +146,7 @@ export async function continueWithSession({
     );
   } else if (session.factors?.user) {
     // Always include sessionId to ensure we load the exact session that was just updated
-    return completeFlowOrGetUrl(
+    return completeFlowAndRedirect(
       {
         sessionId: session.id,
         loginName: session.factors.user.loginName,
@@ -169,11 +169,9 @@ type UpdateSessionCommand = {
 };
 
 export async function updateSession(options: UpdateSessionCommand) {
-  const { sessionId, checks, requestId, challenges } = options;
+  const { checks, requestId, challenges } = options;
   try {
-    const activeSession = sessionId
-      ? await getSessionCookieById({ sessionId })
-      : await getActiveSessionCookie();
+    const activeSession = await getActiveSessionCookie();
 
     if (!activeSession) {
       return {

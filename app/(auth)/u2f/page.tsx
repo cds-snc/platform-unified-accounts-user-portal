@@ -63,8 +63,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
       <div className="w-full">
         <LoginU2F
-          loginName={session.factors.user.loginName}
-          sessionId={session.id}
           requestId={requestId}
           login={false} // this sets the userVerificationRequirement to discouraged as its used as second factor
           redirect={safeRedirect}
