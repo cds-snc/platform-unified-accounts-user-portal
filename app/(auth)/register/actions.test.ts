@@ -1,7 +1,7 @@
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { createSessionAndUpdateCookieWithRetry } from "@lib/server/cookie";
 import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings } from "@lib/zitadel";
@@ -19,7 +19,7 @@ vi.mock("@zitadel/client", () => ({
 }));
 
 vi.mock("@lib/server/cookie", () => ({
-  createSessionAndUpdateCookie: vi.fn(),
+  createSessionAndUpdateCookieWithRetry: vi.fn(),
 }));
 
 vi.mock("@lib/service-url", () => ({
@@ -72,7 +72,7 @@ describe("registerUser", () => {
     } as never);
 
     vi.mocked(create).mockReturnValue({ checks: "value" } as never);
-    vi.mocked(createSessionAndUpdateCookie).mockResolvedValue({
+    vi.mocked(createSessionAndUpdateCookieWithRetry).mockResolvedValue({
       id: "session-123",
       factors: {
         user: {
@@ -101,11 +101,24 @@ describe("registerUser", () => {
   });
 
   it("returns session error when session cannot be created", async () => {
-    vi.mocked(createSessionAndUpdateCookie).mockResolvedValue({} as never);
+    vi.mocked(createSessionAndUpdateCookieWithRetry).mockResolvedValue({} as never);
 
     const response = await registerUser(baseCommand);
 
     expect(response).toEqual({ error: "translated:errors.couldNotCreateSession" });
+  });
+
+  it("passes the registration retry policy to the reusable cookie helper", async () => {
+    await registerUser(baseCommand);
+
+    expect(createSessionAndUpdateCookieWithRetry).toHaveBeenCalledWith(
+      {
+        checks: { checks: "value" },
+        requestId: baseCommand.requestId,
+        lifetime: BigInt(600),
+      },
+      [200, 400, 800]
+    );
   });
 
   it("returns email verification redirect when required", async () => {

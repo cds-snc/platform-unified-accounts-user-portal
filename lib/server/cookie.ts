@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import type { ConnectError } from "@connectrpc/connect";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { Duration, timestampMs } from "@zitadel/client";
 import { CredentialsCheckErrorSchema } from "@zitadel/proto/zitadel/message_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
@@ -93,6 +93,35 @@ export async function createSessionAndUpdateCookie(command: {
   } else {
     throw "Could not create session";
   }
+}
+
+export async function createSessionAndUpdateCookieWithRetry(
+  command: {
+    checks: Checks;
+    requestId: string | undefined;
+    lifetime?: Duration;
+  },
+  retryDelaysMs: readonly number[]
+): Promise<Session> {
+  const attemptCreate = async (attempt: number): Promise<Session> => {
+    try {
+      return await createSessionAndUpdateCookie(command);
+    } catch (error) {
+      const isNotFound = error instanceof ConnectError && error.code === Code.NotFound;
+      if (!isNotFound || attempt === retryDelaysMs.length) {
+        throw error;
+      }
+
+      const delay = retryDelaysMs[attempt];
+      logMessage.warn(
+        `Session creation failed with NotFound (attempt ${attempt + 1}/${retryDelaysMs.length + 1}); retrying in ${delay}ms.`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return attemptCreate(attempt + 1);
+    }
+  };
+
+  return attemptCreate(0);
 }
 
 export async function setSessionAndUpdateCookie(command: {
