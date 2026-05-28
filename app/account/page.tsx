@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
-import { getTOTPStatus, getU2FList, getUserByID } from "@lib/zitadel";
+import { getU2FList, getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 /*--------------------------------------------*
@@ -55,14 +55,9 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     redirect(loginRedirect);
   }
 
-  const [u2fList, authenticatorStatus] = await Promise.all([
-    getU2FList({
-      userId: userId!,
-    }),
-    getTOTPStatus({
-      userId: userId!,
-    }),
-  ]);
+  const u2fList = await getU2FList({
+    userId: userId!,
+  });
 
   return (
     <>
@@ -71,7 +66,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       <PasswordAuthentication className="mb-4" />
       <MFAAuthentication
         u2fList={u2fList}
-        authenticatorStatus={authenticatorStatus}
+        authenticatorStatus={session.authMethods.includes(4)}
         userId={userId}
       />
     </>
