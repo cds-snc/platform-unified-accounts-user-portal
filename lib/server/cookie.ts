@@ -95,14 +95,12 @@ export async function createSessionAndUpdateCookie(command: {
   }
 }
 
-export async function createSessionAndUpdateCookieWithRetry(
-  command: {
-    checks: Checks;
-    requestId: string | undefined;
-    lifetime?: Duration;
-  },
-  retryDelaysMs: readonly number[]
-): Promise<Session> {
+export async function createSessionAndUpdateCookieWithRetry(command: {
+  checks: Checks;
+  requestId: string | undefined;
+  lifetime?: Duration;
+}): Promise<Session> {
+  const retryDelaysMs = [200, 400, 800] as const;
   const attemptCreate = async (attempt: number): Promise<Session> => {
     try {
       return await createSessionAndUpdateCookie(command);

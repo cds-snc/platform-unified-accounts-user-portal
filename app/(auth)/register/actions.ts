@@ -59,14 +59,11 @@ export async function registerUser(command: RegisterUserCommand) {
     password: { password: command.password },
   });
 
-  const session = await createSessionAndUpdateCookieWithRetry(
-    {
-      checks,
-      requestId: command.requestId,
-      lifetime: loginSettings?.passwordCheckLifetime,
-    },
-    [200, 400, 800] // Backoff retry to give Zitadel time to create the user
-  );
+  const session = await createSessionAndUpdateCookieWithRetry({
+    checks,
+    requestId: command.requestId,
+    lifetime: loginSettings?.passwordCheckLifetime,
+  });
 
   if (!session || !session.factors?.user) {
     logMessage.error("Failed to create session after registration");

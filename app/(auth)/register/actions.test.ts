@@ -111,14 +111,11 @@ describe("registerUser", () => {
   it("passes the registration retry policy to the reusable cookie helper", async () => {
     await registerUser(baseCommand);
 
-    expect(createSessionAndUpdateCookieWithRetry).toHaveBeenCalledWith(
-      {
-        checks: { checks: "value" },
-        requestId: baseCommand.requestId,
-        lifetime: BigInt(600),
-      },
-      [200, 400, 800]
-    );
+    expect(createSessionAndUpdateCookieWithRetry).toHaveBeenCalledWith({
+      checks: { checks: "value" },
+      requestId: baseCommand.requestId,
+      lifetime: BigInt(600),
+    });
   });
 
   it("returns email verification redirect when required", async () => {

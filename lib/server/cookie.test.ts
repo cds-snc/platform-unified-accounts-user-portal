@@ -37,15 +37,15 @@ describe("createSessionAndUpdateCookieWithRetry", () => {
   });
 
   it("retries NotFound errors until the session is created", async () => {
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((
-      handler: TimerHandler
-    ) => {
-      if (typeof handler === "function") {
-        handler();
-      }
+    const setTimeoutSpy = vi
+      .spyOn(globalThis, "setTimeout")
+      .mockImplementation((handler: TimerHandler) => {
+        if (typeof handler === "function") {
+          handler();
+        }
 
-      return 0 as ReturnType<typeof setTimeout>;
-    }) as typeof setTimeout);
+        return {} as ReturnType<typeof setTimeout>;
+      });
 
     vi.mocked(createSessionFromChecks)
       .mockRejectedValueOnce(new ConnectError("not found", Code.NotFound))
@@ -69,7 +69,7 @@ describe("createSessionAndUpdateCookieWithRetry", () => {
 
     vi.mocked(addSessionToCookie).mockResolvedValue(undefined as never);
 
-    const result = await createSessionAndUpdateCookieWithRetry(command, [10, 20]);
+    const result = await createSessionAndUpdateCookieWithRetry(command);
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -84,28 +84,28 @@ describe("createSessionAndUpdateCookieWithRetry", () => {
     expect(getSession).toHaveBeenCalledTimes(1);
     expect(addSessionToCookie).toHaveBeenCalledTimes(1);
     expect(setTimeoutSpy).toHaveBeenCalledTimes(2);
-    expect(setTimeoutSpy).toHaveBeenNthCalledWith(1, expect.any(Function), 10);
-    expect(setTimeoutSpy).toHaveBeenNthCalledWith(2, expect.any(Function), 20);
+    expect(setTimeoutSpy).toHaveBeenNthCalledWith(1, expect.any(Function), 200);
+    expect(setTimeoutSpy).toHaveBeenNthCalledWith(2, expect.any(Function), 400);
 
     setTimeoutSpy.mockRestore();
   });
 
   it("does not retry non-NotFound errors", async () => {
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((
-      handler: TimerHandler
-    ) => {
-      if (typeof handler === "function") {
-        handler();
-      }
+    const setTimeoutSpy = vi
+      .spyOn(globalThis, "setTimeout")
+      .mockImplementation((handler: TimerHandler) => {
+        if (typeof handler === "function") {
+          handler();
+        }
 
-      return 0 as ReturnType<typeof setTimeout>;
-    }) as typeof setTimeout);
+        return {} as ReturnType<typeof setTimeout>;
+      });
 
     vi.mocked(createSessionFromChecks).mockRejectedValue(
       new ConnectError("internal", Code.Internal)
     );
 
-    await expect(createSessionAndUpdateCookieWithRetry(command, [10, 20])).rejects.toBeInstanceOf(
+    await expect(createSessionAndUpdateCookieWithRetry(command)).rejects.toBeInstanceOf(
       ConnectError
     );
     expect(createSessionFromChecks).toHaveBeenCalledTimes(1);
@@ -115,23 +115,23 @@ describe("createSessionAndUpdateCookieWithRetry", () => {
   });
 
   it("throws after exhausting all NotFound retries", async () => {
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((
-      handler: TimerHandler
-    ) => {
-      if (typeof handler === "function") {
-        handler();
-      }
+    const setTimeoutSpy = vi
+      .spyOn(globalThis, "setTimeout")
+      .mockImplementation((handler: TimerHandler) => {
+        if (typeof handler === "function") {
+          handler();
+        }
 
-      return 0 as ReturnType<typeof setTimeout>;
-    }) as typeof setTimeout);
+        return {} as ReturnType<typeof setTimeout>;
+      });
 
     vi.mocked(createSessionFromChecks).mockRejectedValue(
       new ConnectError("not found", Code.NotFound)
     );
 
-    await expect(
-      createSessionAndUpdateCookieWithRetry(command, [10, 20, 30])
-    ).rejects.toBeInstanceOf(ConnectError);
+    await expect(createSessionAndUpdateCookieWithRetry(command)).rejects.toBeInstanceOf(
+      ConnectError
+    );
     expect(createSessionFromChecks).toHaveBeenCalledTimes(4);
     expect(setTimeoutSpy).toHaveBeenCalledTimes(3);
 
