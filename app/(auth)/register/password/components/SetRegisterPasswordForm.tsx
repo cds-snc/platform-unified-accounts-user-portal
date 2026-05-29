@@ -2,7 +2,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/password_settings_pb";
 
 /*--------------------------------------------*
@@ -17,14 +16,13 @@ import { Alert, ErrorStatus } from "@components/ui/form";
  * Parent Relative
  *--------------------------------------------*/
 import { registerUser } from "../../actions";
-import { useRegistration } from "../../context/RegistrationContext";
+
 export function SetRegisterPasswordForm({
   passwordComplexitySettings,
   email,
   firstname,
   lastname,
   requestId,
-  onSubmitSuccess,
 }: {
   passwordComplexitySettings: PasswordComplexitySettings;
   email: string;
@@ -34,8 +32,7 @@ export function SetRegisterPasswordForm({
   onSubmitSuccess?: () => void;
 }) {
   const { t } = useTranslation(["password"]);
-  const router = useRouter();
-  const { clearRegistrationData } = useRegistration();
+
   const [error, setError] = useState("");
 
   const successCallback = async ({ password }: { password: string }) => {
@@ -58,14 +55,6 @@ export function SetRegisterPasswordForm({
     if (response && "error" in response && response.error) {
       setError(response.error);
       return;
-    }
-
-    if (response && "redirect" in response && response.redirect) {
-      // Signal successful submission before clearing data
-      onSubmitSuccess?.();
-      // Clear registration data from sessionStorage on successful registration
-      clearRegistrationData();
-      router.push(response.redirect);
     }
   };
 

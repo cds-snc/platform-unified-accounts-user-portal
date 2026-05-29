@@ -3,6 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
@@ -73,5 +74,14 @@ export async function registerUser(command: RegisterUserCommand) {
 
   // An undefined humanUser is passed as the newly created user will not have their
   // email verified yet so the behaviour we want is to trigger the email verification flow.
-  return checkEmailVerification(session, undefined, command.requestId);
+
+  const redirectUrl = checkEmailVerification(session, undefined, command.requestId);
+
+  // type check as there should always be a redirect in this use case
+  if (!redirectUrl) {
+    throw new Error(
+      `[Registration Error] Could not complete registration flow for ${session.factors.user.loginName}`
+    );
+  }
+  redirect(redirectUrl.redirect, "push");
 }
