@@ -117,4 +117,15 @@ describe("registerUser", () => {
 
     expect(response).toEqual({ redirect: "/verify?requestId=req-123" });
   });
+
+  it("creates session with retry enabled", async () => {
+    await registerUser(baseCommand);
+
+    expect(createSessionAndUpdateCookie).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestId: "req-123",
+        retry: true,
+      })
+    );
+  });
 });

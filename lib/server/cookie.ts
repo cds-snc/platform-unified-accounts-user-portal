@@ -37,6 +37,7 @@ export async function createSessionAndUpdateCookie(command: {
   checks: Checks;
   requestId: string | undefined;
   lifetime?: Duration;
+  retry?: boolean;
 }): Promise<Session> {
   let sessionLifetime = command.lifetime;
 
@@ -52,7 +53,7 @@ export async function createSessionAndUpdateCookie(command: {
   const createdSession = await createSessionFromChecks({
     checks: command.checks,
     lifetime: sessionLifetime,
-    retry: true,
+    retry: command.retry ?? false,
   });
 
   if (createdSession) {

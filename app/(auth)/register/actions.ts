@@ -63,6 +63,7 @@ export async function registerUser(command: RegisterUserCommand) {
     checks,
     requestId: command.requestId,
     lifetime: loginSettings?.passwordCheckLifetime,
+    retry: true,
   });
 
   if (!session || !session.factors?.user) {
