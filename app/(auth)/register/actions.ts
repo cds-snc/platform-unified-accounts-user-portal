@@ -10,7 +10,7 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { createSessionAndUpdateCookieWithRetry } from "@lib/server/cookie";
+import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings } from "@lib/zitadel";
@@ -59,7 +59,7 @@ export async function registerUser(command: RegisterUserCommand) {
     password: { password: command.password },
   });
 
-  const session = await createSessionAndUpdateCookieWithRetry({
+  const session = await createSessionAndUpdateCookie({
     checks,
     requestId: command.requestId,
     lifetime: loginSettings?.passwordCheckLifetime,

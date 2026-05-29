@@ -8,6 +8,7 @@ import type {
   UnaryRequest,
   UnaryResponse,
 } from "@connectrpc/connect";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { create, Duration } from "@zitadel/client";
 import { createServerTransport as libCreateServerTransport } from "@zitadel/client/node";
 import { makeReqCtx } from "@zitadel/client/v2";
@@ -114,15 +115,36 @@ export const getPasswordComplexitySettings = cache(async () => {
 export async function createSessionFromChecks({
   checks,
   lifetime,
+  retry = false,
 }: {
   checks: Checks;
   lifetime: Duration;
+  retry?: boolean;
 }) {
   const sessionService = await getServiceForHost("SessionService");
 
   const userAgent = await getUserAgent();
+  const retryDelaysMs = [200, 400, 800] as const;
 
-  return sessionService.createSession({ checks, lifetime, userAgent }, {});
+  const attemptCreate = async (attempt: number) => {
+    try {
+      return await sessionService.createSession({ checks, lifetime, userAgent }, {});
+    } catch (error) {
+      const isNotFound = error instanceof ConnectError && error.code === Code.NotFound;
+      if (!retry || !isNotFound || attempt === retryDelaysMs.length) {
+        throw error;
+      }
+
+      const delay = retryDelaysMs[attempt];
+      logMessage.warn(
+        `Session creation failed with NotFound (attempt ${attempt + 1}/${retryDelaysMs.length + 1}); retrying in ${delay}ms.`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return attemptCreate(attempt + 1);
+    }
+  };
+
+  return attemptCreate(0);
 }
 
 /**
