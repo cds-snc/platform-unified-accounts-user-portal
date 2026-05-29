@@ -19,7 +19,10 @@ import {
 } from "@zitadel/proto/zitadel/object/v2/object_pb";
 import { CreateCallbackRequest } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
-import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import {
+  Checks,
+  CreateSessionResponse,
+} from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb";
 import type { RedirectURLsJson } from "@zitadel/proto/zitadel/user/v2/idp_pb";
@@ -126,22 +129,22 @@ export async function createSessionFromChecks({
   const userAgent = await getUserAgent();
   const retryDelaysMs = [200, 400, 800] as const;
 
-  const attemptCreateSession = async (attempt: number) => {
-    try {
-      return await sessionService.createSession({ checks, lifetime, userAgent }, {});
-    } catch (error) {
-      const isNotFound = error instanceof ConnectError && error.code === Code.NotFound;
-      if (!retry || !isNotFound || attempt === retryDelaysMs.length) {
-        throw error;
-      }
+  const attemptCreateSession = async (attempt: number): Promise<CreateSessionResponse> => {
+    return sessionService
+      .createSession({ checks, lifetime, userAgent }, {})
+      .catch(async (error) => {
+        const isNotFound = error instanceof ConnectError && error.code === Code.NotFound;
+        if (!retry || !isNotFound || attempt === retryDelaysMs.length) {
+          throw error;
+        }
 
-      const delay = retryDelaysMs[attempt];
-      logMessage.warn(
-        `Session creation failed with NotFound (attempt ${attempt + 1}/${retryDelaysMs.length + 1}); retrying in ${delay}ms.`
-      );
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      return attemptCreateSession(attempt + 1);
-    }
+        const delay = retryDelaysMs[attempt];
+        logMessage.warn(
+          `Session creation failed with NotFound (attempt ${attempt + 1}/${retryDelaysMs.length + 1}); retrying in ${delay}ms.`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return attemptCreateSession(attempt + 1);
+      });
   };
 
   return attemptCreateSession(0);
