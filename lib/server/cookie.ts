@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { ConnectError } from "@connectrpc/connect";
+import type { ConnectError } from "@connectrpc/connect";
 import { Duration, timestampMs } from "@zitadel/client";
 import { CredentialsCheckErrorSchema } from "@zitadel/proto/zitadel/message_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";

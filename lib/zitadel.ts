@@ -126,7 +126,7 @@ export async function createSessionFromChecks({
   const userAgent = await getUserAgent();
   const retryDelaysMs = [200, 400, 800] as const;
 
-  const attemptCreate = async (attempt: number) => {
+  const attemptCreateSession = async (attempt: number) => {
     try {
       return await sessionService.createSession({ checks, lifetime, userAgent }, {});
     } catch (error) {
@@ -140,11 +140,11 @@ export async function createSessionFromChecks({
         `Session creation failed with NotFound (attempt ${attempt + 1}/${retryDelaysMs.length + 1}); retrying in ${delay}ms.`
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
-      return attemptCreate(attempt + 1);
+      return attemptCreateSession(attempt + 1);
     }
   };
 
-  return attemptCreate(0);
+  return attemptCreateSession(0);
 }
 
 /**
