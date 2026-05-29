@@ -18,12 +18,7 @@ import { createSessionAndUpdateCookie, CreateSessionFailedError } from "@lib/ser
 import { isSessionValid, loadActiveSession } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { checkEmailVerification, checkMFAFactors } from "@lib/verify-helper";
-import {
-  getLockoutSettings,
-  getLoginSettings,
-  getUserByID,
-  listAuthenticationMethodTypes,
-} from "@lib/zitadel";
+import { getLockoutSettings, getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 type SubmitLoginCommand = {
@@ -50,14 +45,6 @@ export const submitLoginForm = async (
     };
   }
 
-  // Get login settings for organization context
-  const loginSettings = await getLoginSettings();
-
-  if (!loginSettings) {
-    logMessage.error("Could not load login settings");
-    return { error: t("validation.invalidCredentials") };
-  }
-
   // Create session with combined username + password check
   const checks = create(ChecksSchema, {
     user: { search: { case: "loginName", value: command.username } },
@@ -70,7 +57,6 @@ export const submitLoginForm = async (
     session = await createSessionAndUpdateCookie({
       checks,
       requestId: command.requestId,
-      lifetime: loginSettings?.passwordCheckLifetime,
     });
   } catch (error: unknown) {
     // Handle authentication failures with generic error message

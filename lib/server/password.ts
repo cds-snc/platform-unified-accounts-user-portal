@@ -4,9 +4,8 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { create, Duration } from "@zitadel/client";
+import { create } from "@zitadel/client";
 import { Checks, ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
-import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 import { User, UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { SetPasswordRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
@@ -123,27 +122,13 @@ export async function sendPassword(
 
   let session;
   let user: User;
-  let loginSettings: LoginSettings | undefined;
-
+  const loginSettings = await getLoginSettings();
   if (sessionCookie) {
-    loginSettings = await getLoginSettings();
-
-    let lifetime = loginSettings?.passwordCheckLifetime;
-
-    if (!lifetime || !lifetime.seconds) {
-      logMessage.warn("No password lifetime provided, defaulting to 24 hours");
-      lifetime = {
-        seconds: BigInt(60 * 60 * 24), // default to 24 hours
-        nanos: 0,
-      } as Duration;
-    }
-
     try {
       session = await setSessionAndUpdateCookie({
         activeCookie: sessionCookie,
         checks: command.checks,
         requestId: command.requestId,
-        lifetime,
       });
     } catch (error: unknown) {
       // A failed-attempts error means the password was wrong — return the
@@ -163,8 +148,6 @@ export async function sendPassword(
   }
 
   if (!sessionCookie) {
-    loginSettings = await getLoginSettings();
-
     const users = await listUsers({
       loginName: command.loginName,
     });
@@ -181,7 +164,6 @@ export async function sendPassword(
         session = await createSessionAndUpdateCookie({
           checks,
           requestId: command.requestId,
-          lifetime: loginSettings?.passwordCheckLifetime,
         });
       } catch (error: unknown) {
         const authFailure = await handleAuthenticationFailure(error, t);
@@ -207,10 +189,6 @@ export async function sendPassword(
   }
 
   user = userResponse.user;
-
-  if (!loginSettings) {
-    loginSettings = await getLoginSettings();
-  }
 
   if (!session?.factors?.user?.id) {
     return { error: t("errors.couldNotCreateSessionForUser") };

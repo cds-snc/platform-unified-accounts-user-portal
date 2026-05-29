@@ -14,7 +14,7 @@ import { logMessage } from "@lib/logger";
  *--------------------------------------------*/
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { checkEmailVerification } from "@lib/verify-helper";
-import { addHumanUser, getLoginSettings } from "@lib/zitadel";
+import { addHumanUser } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 type RegisterUserCommand = {
   email: string;
@@ -53,8 +53,6 @@ export async function registerUser(command: RegisterUserCommand) {
     return { error: t("errors.couldNotCreateUser") };
   }
 
-  const loginSettings = await getLoginSettings();
-
   const checks = create(ChecksSchema, {
     user: { search: { case: "userId", value: addResponse.userId } },
     password: { password: command.password },
@@ -63,7 +61,6 @@ export async function registerUser(command: RegisterUserCommand) {
   const session = await createSessionAndUpdateCookie({
     checks,
     requestId: command.requestId,
-    lifetime: loginSettings?.passwordCheckLifetime,
     retry: true,
   });
 

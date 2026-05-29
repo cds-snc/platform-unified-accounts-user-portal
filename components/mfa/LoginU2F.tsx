@@ -125,27 +125,17 @@ export function LoginU2F({ requestId, login = true, redirect }: Props) {
   }
 
   async function submitLogin(data: JsonObject) {
-    let response;
-    try {
-      response = await verifyU2FLogin({
-        checks: { webAuthN: { credentialAssertionData: data } } as Checks,
-        requestId,
-        redirect,
-      });
-    } catch {
+    const result = await verifyU2FLogin({
+      checks: { webAuthN: { credentialAssertionData: data } } as Checks,
+      requestId,
+      redirect,
+    }).catch(() => {
       setError(t("verify.errors.couldNotVerifyPasskey"));
+      return {};
+    });
+    if ("error" in result) {
+      setError(result.error);
       return;
-    }
-
-    if (response && "error" in response && response.error) {
-      setError(response.error);
-      return;
-    }
-
-    if (!response) {
-      setError(t("verify.errors.noResponseReceived"));
-    } else {
-      setError(t("verify.errors.noRedirectProvided"));
     }
   }
 

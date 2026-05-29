@@ -169,32 +169,12 @@ export async function updateSession(options: UpdateSessionCommand) {
       challenges.webAuthN.domain = hostname;
     }
 
-    const loginSettings = await getLoginSettings();
-
-    let lifetime = checks?.webAuthN
-      ? loginSettings?.multiFactorCheckLifetime // TODO different lifetime for webauthn u2f/passkey
-      : checks?.otpEmail || checks?.otpSms
-        ? loginSettings?.secondFactorCheckLifetime
-        : undefined;
-
-    if (!lifetime || !lifetime.seconds) {
-      lifetime = {
-        seconds: BigInt(60 * 60 * 24), // default to 24 hours
-        nanos: 0,
-      } as Duration;
-    }
-
-    let session;
-
-    try {
-      session = await setSessionAndUpdateCookie({
-        activeCookie: activeSession,
-        checks,
-        challenges,
-        requestId,
-        lifetime,
-      });
-    } catch (error) {
+    const session = await setSessionAndUpdateCookie({
+      activeCookie: activeSession,
+      checks,
+      challenges,
+      requestId,
+    }).catch((error) => {
       const serializedError = serializeActionError(error, "Could not update session");
 
       logMessage.debug({
@@ -203,11 +183,7 @@ export async function updateSession(options: UpdateSessionCommand) {
         hasChecks: !!checks,
         hasChallenges: !!challenges,
       });
-
-      return {
-        error: serializedError,
-      };
-    }
+    });
 
     if (!session) {
       return { error: "Could not update session" };
