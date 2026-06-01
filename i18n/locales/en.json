@@ -135,7 +135,8 @@
       "requiredUsername": "Email address is required.",
       "validGovEmail": "Enter a valid individual Government of Canada email address.",
       "requiredPassword": "Password is required.",
-      "invalidCredentials": "Invalid email address or password. Please try again."
+      "invalidCredentials": "Invalid email address or password. Please try again.",
+      "lockedOut": "Contact Support - There is an issue with your account"
     },
     "session": {
       "otherAccount": "Different account",

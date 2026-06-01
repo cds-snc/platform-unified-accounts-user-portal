@@ -16,7 +16,7 @@ import { getSession, getUserByID, listAuthenticationMethodTypes } from "../lib/z
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { getActiveSessionCookie } from "./cookies";
+import { getActiveSessionCookie, removeSessionFromCookie } from "./cookies";
 import { logMessage } from "./logger";
 export function checkSessionFactorValidity(session: Partial<Session>): {
   valid: boolean;
@@ -42,9 +42,14 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
     throw new Error("No active session found");
   }
 
-  const session = await getSession(active.id, active.token).then(
-    (resp: GetSessionResponse) => resp.session
-  );
+  const session = await getSession(active.id, active.token)
+    .then((resp: GetSessionResponse) => resp.session)
+    .catch(async () => {
+      // Unhandled error, possibly locked account
+      // Remove session from cookie and redirect to start a new session
+      await removeSessionFromCookie({ sessionId: active.id });
+      return null;
+    });
 
   // If the selected session no longer exists on the server redirect to start a new session
   if (!session) {

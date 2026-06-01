@@ -5,9 +5,6 @@
  *--------------------------------------------*/
 import { useActionState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { create } from "@zitadel/client";
-import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { QRCodeSVG } from "qrcode.react";
 
 import { validateTotpCode } from "@lib/client/validationSchemas";
@@ -15,12 +12,12 @@ import { validateTotpCode } from "@lib/client/validationSchemas";
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
-import { updateSession } from "@lib/server/session";
-import { verifyTOTP } from "@lib/server/verify";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
+
+import { verifiyAndRegisterTOTP } from "../set/actions";
 
 /*--------------------------------------------*
  * Local Relative
@@ -33,13 +30,10 @@ type FormState = {
 type Props = {
   uri: string;
   secret: string;
-  loginName?: string;
   requestId?: string;
   checkAfter?: boolean;
 };
-export function TotpRegister({ uri, loginName, requestId, checkAfter }: Props) {
-  const router = useRouter();
-
+export function TotpRegister({ uri, requestId, checkAfter }: Props) {
   const { t } = useTranslation(["otp", "error"]);
   const genericErrorMessage = t("set.genericError");
   const invalidCodeMessage = t("set.invalidCode");
@@ -63,38 +57,13 @@ export function TotpRegister({ uri, loginName, requestId, checkAfter }: Props) {
       };
     }
 
-    return verifyTOTP(normalizedCode)
-      .then(async (verifyResponse) => {
-        if (verifyResponse && "error" in verifyResponse && verifyResponse.error) {
-          throw verifyResponse.error;
-        }
+    /*
+    Start here Monday
+    Move the functionality that calls multiple server side lib functions to a server action
+    so that the client stays pure.
+    */
 
-        if (checkAfter) {
-          // Reuse the just-entered TOTP code to verify the active session inline.
-          const checks = create(ChecksSchema, {
-            totp: { code: normalizedCode },
-          });
-
-          // Mark second-factor checks complete for this session during setup.
-          const sessionResponse = await updateSession({
-            loginName,
-            checks,
-            requestId,
-          });
-
-          if (sessionResponse && "error" in sessionResponse && sessionResponse.error) {
-            throw sessionResponse.error;
-          }
-        }
-
-        // Setup (and optional inline verification) succeeded; continue to all-set.
-        const params = new URLSearchParams({});
-        if (requestId) {
-          params.append("requestId", requestId);
-        }
-
-        return router.push(`/all-set?` + params);
-      })
+    return verifiyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter })
       .then(() => {
         return previousState;
       })

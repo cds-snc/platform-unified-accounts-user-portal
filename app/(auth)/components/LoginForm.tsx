@@ -3,7 +3,6 @@
  *--------------------------------------------*/
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
 import { getError, hasError } from "@lib/client/validators";
@@ -39,9 +38,10 @@ type FormState = {
 
 export function LoginForm({ requestId, session }: Props) {
   const { t } = useTranslation(["start", "common"]);
-  const router = useRouter();
+
   const [loading, setLoading] = useState<boolean>(false);
   const genericLoginError = t("validation.invalidCredentials", { ns: "start" });
+  const accountLockedError = t("validation.lockedOut", { ns: "start" });
 
   const localFormAction = async (previousState: FormState, formData?: FormData) => {
     setLoading(true);
@@ -82,17 +82,13 @@ export function LoginForm({ requestId, session }: Props) {
     }
     setLoading(false);
 
-    if (response && "error" in response && response.error) {
+    if (response.error) {
       return {
         ...previousState,
         validationErrors: undefined,
         error: response.error,
         formData: { username, password: "" },
       };
-    }
-
-    if (response && "redirect" in response && response.redirect) {
-      router.push(response.redirect);
     }
 
     return previousState;
@@ -115,7 +111,7 @@ export function LoginForm({ requestId, session }: Props) {
             {getSafeErrorMessage({
               error: state.error,
               fallback: genericLoginError,
-              allowedMessages: [genericLoginError],
+              allowedMessages: [genericLoginError, accountLockedError],
             })}
           </Alert>
         </div>

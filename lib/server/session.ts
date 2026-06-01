@@ -4,7 +4,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { Duration } from "@zitadel/client";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
@@ -138,12 +137,9 @@ export async function continueWithSession({
 }
 
 type UpdateSessionCommand = {
-  loginName?: string;
-  sessionId?: string;
   checks?: Checks;
   requestId?: string;
   challenges?: RequestChallenges;
-  lifetime?: Duration;
 };
 
 export async function updateSession(options: UpdateSessionCommand) {
@@ -183,11 +179,8 @@ export async function updateSession(options: UpdateSessionCommand) {
         hasChecks: !!checks,
         hasChallenges: !!challenges,
       });
+      throw error;
     });
-
-    if (!session) {
-      return { error: "Could not update session" };
-    }
 
     // if password, check if user has MFA methods
     let authMethods;
@@ -241,7 +234,7 @@ async function clearSession(options: ClearSessionOptions) {
     throw new Error("Could not delete session");
   }
 
-  return removeSessionFromCookie({ session: sessionCookie, iFrameEnabled });
+  return removeSessionFromCookie({ sessionId: sessionCookie.id, iFrameEnabled });
 }
 
 type LogoutCurrentSessionOptions = {

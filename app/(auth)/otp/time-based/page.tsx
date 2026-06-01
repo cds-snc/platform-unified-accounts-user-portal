@@ -22,11 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { requestId, redirect } = searchParams;
-  const {
-    id: sessionId,
-    factors,
-    expirationDate,
-  } = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then((result) => {
+  const { factors, expirationDate } = await checkAuthenticationLevel(
+    AuthLevel.PASSWORD_REQUIRED,
+    requestId
+  ).then((result) => {
     if (result.session === null) {
       throw new Error(
         "This should never throw but used as a type check in checkAuthenticationLevel"
@@ -54,7 +53,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       {sessionFactors && (
         <LoginTOTP
           loginName={loginName ?? sessionFactors.factors?.user?.loginName}
-          sessionId={sessionId}
           requestId={requestId}
           loginSettings={loginSettings}
           redirect={safeRedirect}

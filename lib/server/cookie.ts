@@ -63,6 +63,7 @@ export async function createSessionAndUpdateCookie(command: {
       expirationTs: session.expirationDate ? `${timestampMs(session.expirationDate)}` : "",
       changeTs: session.changeDate ? `${timestampMs(session.changeDate)}` : "",
       loginName: session.factors.user.loginName ?? "",
+      displayName: session.factors.user.displayName ?? "",
       userId: session.factors.user.id ?? "",
     };
 
@@ -122,6 +123,7 @@ export async function setSessionAndUpdateCookie(command: {
       ? `${timestampMs(updatedSession.details.changeDate)}`
       : "",
     loginName: session.factors?.user?.loginName ?? "",
+    displayName: session.factors?.user?.displayName ?? "",
     userId: session.factors?.user?.id ?? "",
     organization: session.factors?.user?.organizationId ?? "",
   };

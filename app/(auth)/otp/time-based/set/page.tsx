@@ -142,7 +142,6 @@ export default async function Page(props: {
             <TotpRegister
               uri={totpResponse.uri as string}
               secret={totpResponse.secret as string}
-              loginName={loginName}
               requestId={requestId}
               checkAfter={checkAfter}
             ></TotpRegister>

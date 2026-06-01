@@ -30,8 +30,6 @@ type Inputs = {
 };
 
 type SubmitCodeParams = {
-  loginName?: string;
-  sessionId?: string;
   requestId?: string;
   redirect?: string | null;
 };
@@ -141,7 +139,7 @@ async function _submitOTPCode(
   values: Inputs,
   params: SubmitCodeParams
 ): Promise<SessionResponse | undefined> {
-  const { loginName, sessionId, requestId } = params;
+  const { requestId } = params;
 
   const checks = create(ChecksSchema, {
     totp: { code: values.code },
@@ -149,8 +147,6 @@ async function _submitOTPCode(
 
   try {
     const response = await updateSession({
-      loginName,
-      sessionId,
       checks,
       requestId,
     });

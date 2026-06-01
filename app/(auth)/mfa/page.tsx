@@ -44,10 +44,10 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const sessionFactors = session.factors;
 
   // Check if user has at least one strong MFA method (TOTP or U2F)
-  const hasStrongMFA = STRONG_MFA_METHODS.some((method) => session.authMethods?.includes(method));
+  const userMethods = session.authMethods.filter((method) => STRONG_MFA_METHODS.includes(method));
 
   // Redirect to MFA setup if no strong MFA method is configured
-  if (!hasStrongMFA) {
+  if (userMethods.length < 1) {
     redirect(buildUrlWithRequestId("/mfa/set", session.requestId));
   }
 

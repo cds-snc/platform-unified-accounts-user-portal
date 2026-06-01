@@ -4,6 +4,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
+import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
@@ -14,11 +15,12 @@ import { setSelectedSession } from "@lib/cookies";
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { createSessionAndUpdateCookie, CreateSessionFailedError } from "@lib/server/cookie";
+import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { isSessionValid, loadActiveSession } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { checkEmailVerification, checkMFAFactors } from "@lib/verify-helper";
-import { getLockoutSettings, getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
+import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
+import { parseZitadelError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 
 type SubmitLoginCommand = {
@@ -31,10 +33,9 @@ type SubmitLoginCommand = {
  * Handles combined username + password login in a single step
  * Returns generic error messages to prevent username enumeration
  */
-export const submitLoginForm = async (
-  command: SubmitLoginCommand
-): Promise<{ error: string } | { redirect: string }> => {
+export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ error: string }> => {
   const { t } = await serverTranslation("start");
+  let accountLocked = false;
 
   const validationResult = await validateUsernameAndPassword(command);
 
@@ -51,44 +52,33 @@ export const submitLoginForm = async (
     password: { password: command.password },
   });
 
-  let session;
-
-  try {
-    session = await createSessionAndUpdateCookie({
-      checks,
-      requestId: command.requestId,
-    });
-  } catch (error: unknown) {
+  const session = await createSessionAndUpdateCookie({
+    checks,
+    requestId: command.requestId,
+  }).catch(async (error) => {
     // Handle authentication failures with generic error message
     // This prevents username enumeration attacks
-    const errorDetail = error as CreateSessionFailedError;
 
-    // Log failed attempt count if available (for monitoring)
-    if ("failedAttempts" in errorDetail && errorDetail.failedAttempts) {
-      const lockoutSettings = await getLockoutSettings();
+    const parsedError = parseZitadelError(error);
 
-      logMessage.warn(
-        `Login failed - Attempt ${errorDetail.failedAttempts}${lockoutSettings?.maxPasswordAttempts ? ` of ${lockoutSettings.maxPasswordAttempts}` : ""}`
-      );
-
-      // Check if account is locked
-      const hasLimit =
-        lockoutSettings?.maxPasswordAttempts !== undefined &&
-        lockoutSettings?.maxPasswordAttempts > BigInt(0);
-      const locked = hasLimit && errorDetail.failedAttempts >= lockoutSettings?.maxPasswordAttempts;
-
-      if (locked) {
-        logMessage.error("Account locked due to too many failed attempts");
-      }
+    if (parsedError.text.match("errors.user.notactive")) {
+      accountLocked = true;
     }
+  });
 
+  if (accountLocked) {
+    logMessage.debug("Account is locked");
+    return { error: t("validation.lockedOut") };
+  }
+
+  if (!session) {
     // Always return generic error (don't reveal if user exists or password is wrong)
-    logMessage.info("Authentication failed, returning generic message");
+    logMessage.debug("Authentication failed, returning generic message");
     return { error: t("validation.invalidCredentials") };
   }
 
   if (!session?.factors?.user?.id) {
-    logMessage.error("Session created but no user ID found");
+    logMessage.warn("Session created but no user ID found");
     return { error: t("validation.invalidCredentials") };
   }
 
@@ -96,7 +86,7 @@ export const submitLoginForm = async (
   const userResponse = await getUserByID(session.factors.user.id);
 
   if (!userResponse.user) {
-    logMessage.error("User not found after successful authentication");
+    logMessage.warn("User not found after successful authentication");
     return { error: t("validation.invalidCredentials") };
   }
 
@@ -105,7 +95,7 @@ export const submitLoginForm = async (
 
   // Check if user is in initial state (not supported)
   if (user.state === UserState.INITIAL) {
-    logMessage.error("User in INITIAL state - not supported");
+    logMessage.warn("User in INITIAL state - not supported");
     return { error: t("validation.invalidCredentials") };
   }
 
@@ -113,7 +103,7 @@ export const submitLoginForm = async (
   const emailVerificationCheck = checkEmailVerification(session, humanUser, command.requestId);
 
   if (emailVerificationCheck?.redirect) {
-    return emailVerificationCheck;
+    return redirect(emailVerificationCheck?.redirect, "push");
   }
 
   // Get authentication methods for MFA check
@@ -135,12 +125,12 @@ export const submitLoginForm = async (
   }
 
   if ("redirect" in mfaFactorCheck) {
-    return mfaFactorCheck;
+    return redirect(mfaFactorCheck.redirect, "push");
   }
 
   // If no MFA redirect, authentication is complete
   logMessage.info("Login successful, redirecting to account page");
-  return { redirect: buildUrlWithRequestId("/account", command.requestId) };
+  return redirect(buildUrlWithRequestId("/account", command.requestId), "push");
 };
 
 export const setSession = async (sessionId: string) => {

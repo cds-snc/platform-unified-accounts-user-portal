@@ -23,14 +23,12 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 
 export function LoginTOTP({
   loginName,
-  sessionId,
   requestId,
   loginSettings,
   redirect,
   displayName,
 }: {
   loginName?: string;
-  sessionId?: string;
   requestId?: string;
   loginSettings?: LoginSettings;
   redirect?: string | null;
@@ -47,8 +45,6 @@ export function LoginTOTP({
   const localFormAction = async (_: FormState, formData?: FormData) => {
     const enteredCode = (formData?.get("code") as string) ?? "";
     const result = await handleOTPFormSubmit(enteredCode, {
-      loginName,
-      sessionId,
       requestId,
       loginSettings,
       redirect,

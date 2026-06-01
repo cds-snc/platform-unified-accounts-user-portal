@@ -19,6 +19,7 @@ export type Cookie = {
   id: string;
   token: string;
   loginName: string;
+  displayName: string;
   userId: string; // Zitadel user ID for authorization checks
   organization?: string;
   creationTs: string;
@@ -138,10 +139,10 @@ export async function updateSessionCookie<T>({
 }
 
 export async function removeSessionFromCookie<T>({
-  session,
+  sessionId,
   cleanup,
 }: {
-  session: SessionCookie<T>;
+  sessionId: string;
   cleanup?: boolean;
   iFrameEnabled?: boolean;
 }) {
@@ -150,9 +151,14 @@ export async function removeSessionFromCookie<T>({
 
   const sessions: SessionCookie<T>[] = stringifiedCookie?.value
     ? JSON.parse(stringifiedCookie?.value)
-    : [session];
+    : [];
 
-  const reducedSessions = sessions.filter((s) => s.id !== session.id);
+  if (sessions.length < 1) {
+    // No sessions in cookie
+    return;
+  }
+
+  const reducedSessions = sessions.filter((s) => s.id !== sessionId);
   if (cleanup) {
     const now = new Date();
     const filteredSessions = reducedSessions.filter((session) =>
@@ -265,11 +271,13 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
 // TODO - Refactor to see if we still need this transformative function
 export async function getSessionCredentials() {
   try {
-    const { id, loginName, userId, organization, requestId } = await getActiveSessionCookie();
+    const { id, loginName, userId, organization, requestId, displayName } =
+      await getActiveSessionCookie();
 
     return {
       sessionId: id,
       loginName,
+      displayName,
       userId,
       organization,
       requestId, // Include requestId for OIDC flows
