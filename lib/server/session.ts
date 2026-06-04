@@ -4,9 +4,10 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
+import { Challenges, RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
@@ -126,7 +127,6 @@ export async function continueWithSession({
     return completeFlowAndRedirect(
       {
         sessionId: session.id,
-        loginName: session.factors.user.loginName,
       },
       targetRedirect
     );
@@ -142,75 +142,64 @@ type UpdateSessionCommand = {
   challenges?: RequestChallenges;
 };
 
-export async function updateSession(options: UpdateSessionCommand) {
+export async function updateSession(options: UpdateSessionCommand): Promise<
+  | { error: string }
+  | {
+      sessionId: string;
+      factors?: Session["factors"];
+      challenges?: Challenges;
+      authMethods?: AuthenticationMethodType[];
+    }
+> {
   const { checks, requestId, challenges } = options;
-  try {
-    const activeSession = await getActiveSessionCookie();
 
-    if (!activeSession) {
-      return {
-        error: "Could not find session",
-      };
-    }
+  const activeSession = await getActiveSessionCookie();
 
-    const host = await getOriginalHost();
-
-    if (!host) {
-      return { error: "Could not get host" };
-    }
-
-    if (host && challenges && challenges.webAuthN && !challenges.webAuthN.domain) {
-      const [hostname] = host.split(":");
-
-      challenges.webAuthN.domain = hostname;
-    }
-
-    const session = await setSessionAndUpdateCookie({
-      activeCookie: activeSession,
-      checks,
-      challenges,
-      requestId,
-    }).catch((error) => {
-      const serializedError = serializeActionError(error, "Could not update session");
-
-      logMessage.debug({
-        message: "Failed to update session with checks/challenges",
-        error: serializedError,
-        hasChecks: !!checks,
-        hasChallenges: !!challenges,
-      });
-      throw error;
-    });
-
-    // if password, check if user has MFA methods
-    let authMethods;
-    if (checks && checks.password && session.factors?.user?.id) {
-      const response = await listAuthenticationMethodTypes(session.factors.user.id);
-      if (response.authMethodTypes && response.authMethodTypes.length) {
-        authMethods = response.authMethodTypes;
-      }
-    }
-
+  if (!activeSession) {
     return {
-      sessionId: session.id,
-      factors: session.factors,
-      challenges: session.challenges,
-      authMethods,
-    };
-  } catch (error) {
-    const serializedError = serializeActionError(error, "Could not update session");
-
-    logMessage.debug({
-      message: "Unexpected failure while updating session",
-      error: serializedError,
-      hasChecks: !!checks,
-      hasChallenges: !!challenges,
-    });
-
-    return {
-      error: serializedError,
+      error: "Could not find session",
     };
   }
+
+  const host = await getOriginalHost();
+
+  if (!host) {
+    return { error: "Could not get host" };
+  }
+
+  if (host && challenges && challenges.webAuthN && !challenges.webAuthN.domain) {
+    const [hostname] = host.split(":");
+
+    challenges.webAuthN.domain = hostname;
+  }
+
+  const session = await setSessionAndUpdateCookie({
+    activeCookie: activeSession,
+    checks,
+    challenges,
+    requestId,
+  }).catch((error) => {
+    const serializedError = serializeActionError(error, "Could not update session");
+    logMessage.error("Failed to update session with checks/challenges", serializedError);
+
+    throw new Error("Could not update Session");
+  });
+
+  // if password, check if user has MFA methods
+  let authMethods;
+  if (checks && checks.password && session.factors?.user?.id) {
+    const response = await listAuthenticationMethodTypes(session.factors.user.id);
+    if (response.authMethodTypes && response.authMethodTypes.length) {
+      authMethods = response.authMethodTypes;
+    }
+  }
+
+  return {
+    sessionId: session.id,
+    factors: session.factors,
+    challenges: session.challenges,
+    authMethods,
+  };
 }
 
 type ClearSessionOptions = {

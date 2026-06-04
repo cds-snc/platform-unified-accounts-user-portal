@@ -114,7 +114,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   const emailVerificationCheck = checkEmailVerification(session, humanUser, requestId);
 
   if (emailVerificationCheck?.redirect) {
-    return redirect(emailVerificationCheck?.redirect, "push");
+    redirect(emailVerificationCheck?.redirect, "push");
   }
 
   // Get authentication methods for MFA check
@@ -136,12 +136,12 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   }
 
   if ("redirect" in mfaFactorCheck) {
-    return redirect(mfaFactorCheck.redirect, "push");
+    redirect(mfaFactorCheck.redirect, "push");
   }
 
   // If no MFA redirect, authentication is complete
   logMessage.info("Login successful, redirecting to account page");
-  return redirect(buildUrlWithRequestId("/account", requestId), "push");
+  redirect(buildUrlWithRequestId("/account", requestId), "push");
 };
 
 // Unauthenticated Action to ensure a user can select an existing non-active session

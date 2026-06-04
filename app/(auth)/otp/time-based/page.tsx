@@ -3,16 +3,14 @@
  *--------------------------------------------*/
 import { Metadata } from "next";
 
+import { LoginTOTP } from "@root/app/(auth)/otp/time-based/components/LoginTOTP";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { SearchParams } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSafeRedirectUrl } from "@lib/utils/redirect-validator";
-import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginTOTP } from "@components/mfa/LoginTOTP";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("otp");
@@ -21,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
-  const { requestId, redirect } = searchParams;
+  const { requestId } = searchParams;
   const { factors, expirationDate } = await checkAuthenticationLevel(
     AuthLevel.PASSWORD_REQUIRED,
     requestId
@@ -32,10 +30,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   // Extract just the session factors from the session data
   const sessionFactors = { factors, expirationDate };
 
-  const safeRedirect = getSafeRedirectUrl(redirect);
-
-  const loginSettings = await getLoginSettings();
-
   return (
     <AuthPanel
       titleI18nKey={"verify.authAppTitle"}
@@ -45,10 +39,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     >
       {sessionFactors && (
         <LoginTOTP
-          loginName={loginName ?? sessionFactors.factors?.user?.loginName}
+          loginName={loginName ?? sessionFactors.factors.user.loginName}
           requestId={requestId}
-          loginSettings={loginSettings}
-          redirect={safeRedirect}
           displayName={sessionFactors.factors?.user?.displayName}
         />
       )}

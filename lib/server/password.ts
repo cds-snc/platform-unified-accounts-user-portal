@@ -27,7 +27,7 @@ import {
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
-import { getSessionCookieByLoginName } from "../cookies";
+import { getActiveSessionCookie } from "../cookies";
 import { loadActiveSession } from "../session";
 import {
   checkEmailVerification,
@@ -108,16 +108,12 @@ type UpdateSessionCommand = {
   requestId?: string;
 };
 
-export async function sendPassword(
-  command: UpdateSessionCommand
-): Promise<{ error: string } | { redirect: string }> {
+export async function sendPassword(command: UpdateSessionCommand): Promise<{ error: string }> {
   const { t } = await serverTranslation("password");
 
-  let sessionCookie = await getSessionCookieByLoginName({
-    loginName: command.loginName,
-  }).catch(() => {
-    return undefined;
-  });
+  // start here tomorrow - refactor this...
+
+  let sessionCookie = await getActiveSessionCookie();
 
   let session;
   let user: User;
@@ -260,7 +256,6 @@ export async function sendPassword(
     const result = await completeFlowAndRedirect(
       {
         sessionId: session.id,
-        loginName: session.factors.user.loginName,
       },
       loginSettings?.defaultRedirectUri
     );
@@ -300,35 +295,7 @@ export async function sendPassword(
       message: "Password auth: OIDC flow result",
       result,
     });
-
-    // Safety net - ensure we always return a valid object
-    if (
-      !result ||
-      typeof result !== "object" ||
-      (!("redirect" in result) && !("error" in result))
-    ) {
-      logMessage.error("Password auth: Invalid result from completeFlowOrGetUrl (OIDC)", result);
-      return { error: "Authentication completed but navigation failed" };
-    }
-
-    return result;
   }
-
-  logMessage.debug("Password auth: completing regular flow");
-  const result = await completeFlowAndRedirect(
-    {
-      loginName: session.factors.user.loginName,
-    },
-    loginSettings?.defaultRedirectUri
-  );
-
-  // Safety net - ensure we always return a valid object
-  if (!result || typeof result !== "object" || (!("redirect" in result) && !("error" in result))) {
-    logMessage.error("Password auth: Invalid result from completeFlowOrGetUrl");
-    return { error: "Authentication completed but navigation failed" };
-  }
-
-  return result;
 }
 
 // this function lets users with code set a password or users with valid User Verification Check

@@ -5,9 +5,7 @@
  *--------------------------------------------*/
 import { useActionState } from "react";
 import Link from "next/link";
-import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 
-import { FormState, handleOTPFormSubmit } from "@root/app/(auth)/otp/time-based/actions";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -21,17 +19,15 @@ import { Alert, ErrorStatus } from "@components/ui/form";
 import { CodeEntry } from "@components/ui/form/CodeEntry";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 
+import { FormState, handleOTPFormSubmit } from "../actions";
+
 export function LoginTOTP({
   loginName,
   requestId,
-  loginSettings,
-  redirect,
   displayName,
 }: {
   loginName?: string;
   requestId?: string;
-  loginSettings?: LoginSettings;
-  redirect?: string | null;
   displayName?: string;
 }) {
   const { t } = useTranslation("otp");
@@ -44,11 +40,7 @@ export function LoginTOTP({
 
   const localFormAction = async (_: FormState, formData?: FormData) => {
     const enteredCode = (formData?.get("code") as string) ?? "";
-    const result = await handleOTPFormSubmit(enteredCode, {
-      requestId,
-      loginSettings,
-      redirect,
-    });
+    const result = await handleOTPFormSubmit(enteredCode, requestId);
 
     return result;
   };

@@ -42,20 +42,18 @@ type SessionCredentials = SessionWithAuthData & {
  */
 export const AuthenticatedAction = <Input extends unknown[], Return>(
   action: (credentials: SessionCredentials, ...args: Input) => Promise<Return>
-): ((...args: Input) => Promise<Return | { error: string }>) => {
-  return async (...args: Input): Promise<Return | { error: string }> => {
-    try {
-      const session = await loadActiveSession();
-      if (!session.factors?.user) {
-        throw new Error("User does not exist on session");
-      }
-      return await action(session as SessionCredentials, ...args);
-    } catch (error) {
+): ((...args: Input) => Promise<Return>) => {
+  return async (...args: Input): Promise<Return> => {
+    const session = await loadActiveSession();
+    if (!session.factors?.user) {
+      throw new Error("User does not exist on session");
+    }
+    return action(session as SessionCredentials, ...args).then((error) => {
       if (isRedirectError(error)) {
         throw error;
       }
       logMessage.error(`AuthenticatedAction failure in ${action.name || "unknown"}`, error);
-      return { error: "Unauthorized" };
-    }
+      throw new Error("Unauthorized");
+    });
   };
 };

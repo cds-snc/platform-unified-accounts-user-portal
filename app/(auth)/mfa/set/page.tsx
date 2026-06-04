@@ -13,9 +13,7 @@ import {
   checkAuthenticationLevel,
   requiresStrongMfaSetupVerification,
 } from "@lib/server/route-protection";
-import { checkSessionFactorValidity } from "@lib/session";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
-import { getLoginSettings } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -41,27 +39,12 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     redirect(buildUrlWithRequestId("/mfa", requestId));
   }
 
-  const loginSettings = await getLoginSettings();
-
-  const { valid } = checkSessionFactorValidity(session);
-
-  if (!valid || !session.factors?.user?.id) {
-    logMessage.debug({
-      message: "MFA set page invalid session factors",
-      valid,
-      hasUserId: !!session.factors?.user?.id,
-    });
-    redirect(buildUrlWithRequestId("/mfa", requestId));
-  }
-
   return (
     <>
       <AuthPanel titleI18nKey="set.title" descriptionI18nKey="set.description" namespace="mfa">
         <div className="w-full">
           <div className="flex flex-col space-y-4">
-            {valid && loginSettings && session.factors?.user?.id && (
-              <ChooseSecondFactorToSetup checkAfter={true} requestId={requestId} />
-            )}
+            <ChooseSecondFactorToSetup checkAfter={true} requestId={requestId} />
           </div>
         </div>
       </AuthPanel>

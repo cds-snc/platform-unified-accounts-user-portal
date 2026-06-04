@@ -18,7 +18,7 @@ import { AuthPanel } from "@components/auth/AuthPanel";
 /*--------------------------------------------*
  * Parent Relative
  *--------------------------------------------*/
-import { ChooseSecondFactor } from "../u2f/components/ChooseSecondFactor";
+import { ChooseSecondFactor } from "./components/ChooseSecondFactor";
 // Strong MFA methods that must be configured before accessing the MFA selection page
 const STRONG_MFA_METHODS = [AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F];
 

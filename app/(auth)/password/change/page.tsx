@@ -33,13 +33,10 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
-  const loginName = session.factors?.user?.loginName;
 
-  if (!loginName || !passwordComplexitySettings) {
+  if (!passwordComplexitySettings) {
     logMessage.debug({
       message: "Password change page missing required session context",
-      hasLoginName: !!loginName,
-
       hasPasswordComplexitySettings: !!passwordComplexitySettings,
     });
     throw new Error(

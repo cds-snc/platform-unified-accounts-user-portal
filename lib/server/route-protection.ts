@@ -11,7 +11,7 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { loadActiveSession, SessionWithAuthData } from "@lib/session";
+import { checkSessionFactorValidity, loadActiveSession, SessionWithAuthData } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 /**
  * Authentication levels for route protection
@@ -150,7 +150,14 @@ export async function checkAuthenticationLevel(
 
   if (!session) {
     // No session detected redirecting
-    return redirect(buildUrlWithRequestId("/", requestIdRef));
+    redirect(buildUrlWithRequestId("/", requestIdRef));
+  }
+
+  const { valid } = checkSessionFactorValidity(session);
+
+  if (!valid) {
+    // Session is expired, user needs to login
+    redirect(buildUrlWithRequestId("/", requestIdRef));
   }
 
   // Basic session check - just verify cookie exists
@@ -159,7 +166,7 @@ export async function checkAuthenticationLevel(
       logMessage.debug(
         `[Authentication Level] Required: ${requiredLevel}, Reason: No session found, Redirecting: "/"`
       );
-      return redirect(buildUrlWithRequestId("/", requestIdRef));
+      redirect(buildUrlWithRequestId("/", requestIdRef));
     }
     return session;
   }
@@ -172,7 +179,7 @@ export async function checkAuthenticationLevel(
       `[Authentication Level] Required: ${requiredLevel}, Reason: ${factors.hasUser ? "Session expired" : "No user in session"}, Redirecting: "/"`
     );
 
-    return redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
+    redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
   }
 
   // Password required check
@@ -182,7 +189,7 @@ export async function checkAuthenticationLevel(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
       );
 
-      return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
     return session;
   }
@@ -194,14 +201,14 @@ export async function checkAuthenticationLevel(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
       );
 
-      return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
     if (!hasAnyMFA(session)) {
       logMessage.debug(
         `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password"`
       );
 
-      return redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
     }
 
     return session;
@@ -214,19 +221,19 @@ export async function checkAuthenticationLevel(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
       );
 
-      return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
     if (!hasStrongMFA(session)) {
       logMessage.debug(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/password"`
       );
 
-      return redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
     }
     return session;
   }
   logMessage.error(
     `[Authentication Level] Required: ${requiredLevel}, Reason: Unknown auth level requested, Redirecting: "/"`
   );
-  return redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
+  redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
 }

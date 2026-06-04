@@ -11,12 +11,10 @@ import { buildUrlWithRequestId } from "../utils";
 
 import { loadSessionsWithCookies } from "./session";
 
-type FinishFlowCommand =
-  | {
-      sessionId: string;
-      requestId: string;
-    }
-  | { loginName: string; sessionId?: string };
+type FinishFlowCommand = {
+  sessionId: string;
+  requestId?: string;
+};
 
 /**
  * Complete authentication flow or get next URL for navigation
@@ -28,19 +26,19 @@ export async function completeFlowAndRedirect(
   defaultRedirectUri?: string
 ) {
   // Complete OIDC flows directly with server action
-  if ("sessionId" in command && "requestId" in command && command.requestId.startsWith("oidc_")) {
+  if (command.requestId && command.requestId.startsWith("oidc_")) {
     // This completes the flow and redirects to URL or returns error
     const result = await completeAuthFlow({
       sessionId: command.sessionId,
       requestId: command.requestId,
     });
     if ("redirect" in result) {
-      return redirect(result.redirect, "push");
+      redirect(result.redirect, "push");
     }
     return result;
   }
 
-  // For all other cases, return URL for navigation
+  // For all other cases, redirect to the url
   const requestId = "requestId" in command ? command.requestId : undefined;
   const url = await getNextUrl(defaultRedirectUri, requestId);
   redirect(url, "push");
@@ -48,13 +46,11 @@ export async function completeFlowAndRedirect(
 
 /**
  * Returns the next URL for navigation after successful authentication
- * Note: OIDC flows now use completeAuthFlowAction() instead of URL navigation
+ *
  * @param command
  * @returns
  */
 async function getNextUrl(defaultRedirectUri?: string, requestId?: string): Promise<string> {
-  // OIDC flows are now handled by completeAuthFlowAction() server action
-
   if (defaultRedirectUri) {
     return defaultRedirectUri;
   }
