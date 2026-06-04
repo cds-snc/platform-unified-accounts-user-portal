@@ -57,12 +57,6 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
       };
     }
 
-    /*
-    Start here Monday
-    Move the functionality that calls multiple server side lib functions to a server action
-    so that the client stays pure.
-    */
-
     return verifiyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter })
       .then(() => {
         return previousState;

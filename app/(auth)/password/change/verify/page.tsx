@@ -23,16 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   const canUseTotp = session.authMethods?.includes(AuthenticationMethodType.TOTP) ?? false;
   const canUseU2F = session.authMethods?.includes(AuthenticationMethodType.U2F) ?? false;

@@ -10,30 +10,10 @@ import { GCNotifyConnector } from "@gcforms/connectors";
  * Internal Aliases
  *--------------------------------------------*/
 import { getPasswordChangedTemplate } from "@lib/emailTemplates";
-import { getUserByID, verifyTOTPRegistration } from "@lib/zitadel";
+import { getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
-import { loadActiveSession } from "../session";
-
-export async function verifyTOTP(code: string) {
-  try {
-    const session = await loadActiveSession();
-
-    if (!session?.factors?.user?.id) {
-      return { error: new Error("No user id found in session.") };
-    }
-
-    await verifyTOTPRegistration({
-      code,
-      userId: session.factors.user.id,
-    });
-
-    return { success: true };
-  } catch (error) {
-    return { error };
-  }
-}
 
 type SendPasswordChangedEmailCommand = {
   userId: string;

@@ -31,16 +31,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   // TODO: Do we want to allow a user to verify their email in a different browser where they didn't
   // start their session.
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (!session.factors?.user?.id) {
     throw new Error("Used as a type guard to ensure user has id property");

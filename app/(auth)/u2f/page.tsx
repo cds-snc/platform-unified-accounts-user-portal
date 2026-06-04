@@ -28,16 +28,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   const safeRedirect = getSafeRedirectUrl(redirectParam);
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (!session.factors?.user?.loginName || !session.factors?.user?.id) {
     logMessage.debug({

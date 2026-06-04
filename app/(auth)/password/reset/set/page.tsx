@@ -27,16 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId);
 
   const factors = checkSessionFactors(session);
 
