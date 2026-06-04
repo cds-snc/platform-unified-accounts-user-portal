@@ -63,9 +63,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       namespace="password"
     >
       <ChangePasswordForm
-        sessionId={session.id}
-        loginName={loginName}
         passwordComplexitySettings={passwordComplexitySettings}
+        requestId={requestId}
       />
     </AuthPanel>
   );

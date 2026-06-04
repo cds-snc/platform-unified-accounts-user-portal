@@ -23,12 +23,10 @@ import { removeTOTPAction, removeU2FAction } from "../actions";
 
 export const MFAAuthentication = ({
   u2fList,
-  userId,
   authenticatorStatus,
   className,
 }: {
   u2fList: Array<{ id: string; name: string; state?: string }>;
-  userId: string;
   authenticatorStatus: boolean;
   className?: string;
 }) => {
@@ -36,7 +34,7 @@ export const MFAAuthentication = ({
   const hasMFAMethods = (Array.isArray(u2fList) && u2fList.length > 0) || authenticatorStatus;
 
   const handleRemoveU2F = async (u2fId: string) => {
-    const result = await removeU2FAction(userId, u2fId);
+    const result = await removeU2FAction(u2fId);
     if ("error" in result) {
       toast.error(
         result.error || t("mfaAuthentication.errors.failedToRemoveSecurityKey"),
@@ -48,7 +46,7 @@ export const MFAAuthentication = ({
   };
 
   const handleRemoveAuthenticator = async () => {
-    const result = await removeTOTPAction(userId);
+    const result = await removeTOTPAction();
     if ("error" in result) {
       toast.error(
         result.error || t("mfaAuthentication.errors.failedToRemoveAuthApp"),

@@ -35,12 +35,10 @@ type FormState = {
 };
 
 export const PersonalDetails = ({
-  userId,
   firstName,
   lastName,
   className,
 }: {
-  userId: string;
   firstName: string;
   lastName: string;
   className?: string;
@@ -89,7 +87,6 @@ export const PersonalDetails = ({
     }
 
     const result = await updatePersonalDetailsAction({
-      userId,
       firstName: formEntries.firstname,
       lastName: formEntries.lastname,
     });

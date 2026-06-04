@@ -1,18 +1,17 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCredentials } from "@lib/cookies";
+
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { UserFactor } from "@zitadel/proto/zitadel/session/v2/session_pb";
+
 import { logMessage } from "@lib/logger";
-/**
- * Session credentials extracted from HTTP-only cookies.
- * Available after user authentication.
- */
-export type SessionCredentials = {
-  sessionId: string;
-  loginName: string;
-  userId: string;
-  organization?: string;
-  requestId?: string;
+import { loadActiveSession, SessionWithAuthData } from "@lib/session";
+
+type SessionCredentials = SessionWithAuthData & {
+  factors: {
+    user: UserFactor;
+  };
 };
 
 /**
@@ -46,9 +45,15 @@ export const AuthenticatedAction = <Input extends unknown[], Return>(
 ): ((...args: Input) => Promise<Return | { error: string }>) => {
   return async (...args: Input): Promise<Return | { error: string }> => {
     try {
-      const credentials = await getSessionCredentials();
-      return await action(credentials, ...args);
+      const session = await loadActiveSession();
+      if (!session.factors?.user) {
+        throw new Error("User does not exist on session");
+      }
+      return await action(session as SessionCredentials, ...args);
     } catch (error) {
+      if (isRedirectError(error)) {
+        throw error;
+      }
       logMessage.error(`AuthenticatedAction failure in ${action.name || "unknown"}`, error);
       return { error: "Unauthorized" };
     }

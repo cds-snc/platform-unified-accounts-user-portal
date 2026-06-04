@@ -9,6 +9,7 @@ import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
+import { AuthenticatedAction } from "@lib/actions/authenticated";
 import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
 import { setSelectedSession } from "@lib/cookies";
 /*--------------------------------------------*
@@ -16,7 +17,7 @@ import { setSelectedSession } from "@lib/cookies";
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
-import { isSessionValid, loadActiveSession } from "@lib/session";
+import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { checkEmailVerification, checkMFAFactors } from "@lib/verify-helper";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
@@ -37,6 +38,16 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   const { t } = await serverTranslation("start");
   let accountLocked = false;
 
+  const { username, password, requestId } = command;
+
+  if (
+    typeof username !== "string" ||
+    typeof password !== "string" ||
+    (requestId && typeof requestId !== "string")
+  ) {
+    throw new Error("Invaid parameters in submitLoginForm");
+  }
+
   const validationResult = await validateUsernameAndPassword(command);
 
   if (!validationResult.success) {
@@ -48,8 +59,8 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   // Create session with combined username + password check
   const checks = create(ChecksSchema, {
-    user: { search: { case: "loginName", value: command.username } },
-    password: { password: command.password },
+    user: { search: { case: "loginName", value: username } },
+    password: { password },
   });
 
   const session = await createSessionAndUpdateCookie({
@@ -100,7 +111,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   }
 
   // Check email verification status
-  const emailVerificationCheck = checkEmailVerification(session, humanUser, command.requestId);
+  const emailVerificationCheck = checkEmailVerification(session, humanUser, requestId);
 
   if (emailVerificationCheck?.redirect) {
     return redirect(emailVerificationCheck?.redirect, "push");
@@ -117,7 +128,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   }
 
   // Check MFA requirements and redirect appropriately
-  const mfaFactorCheck = await checkMFAFactors(authMethods, command.requestId);
+  const mfaFactorCheck = await checkMFAFactors(authMethods, requestId);
 
   if ("error" in mfaFactorCheck) {
     logMessage.error(`MFA factor check failed: ${mfaFactorCheck.error}`);
@@ -130,14 +141,14 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   // If no MFA redirect, authentication is complete
   logMessage.info("Login successful, redirecting to account page");
-  return redirect(buildUrlWithRequestId("/account", command.requestId), "push");
+  return redirect(buildUrlWithRequestId("/account", requestId), "push");
 };
 
+// Unauthenticated Action to ensure a user can select an existing non-active session
 export const setSession = async (sessionId: string) => {
   return setSelectedSession(sessionId);
 };
 
-export const checkActiveSession = async () => {
-  const session = await loadActiveSession();
+export const checkActiveSession = AuthenticatedAction(async (session) => {
   return isSessionValid({ session });
-};
+});

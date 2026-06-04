@@ -4,10 +4,11 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { checkSessionFactors, hasStrongMFA } from "@lib/server/route-protection";
+import { checkSessionFactors } from "@lib/server/route-protection";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, type SearchParams } from "@lib/utils";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
@@ -41,13 +42,14 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   // Password reset recovery is intentionally gated by a verified strong factor,
   // but does not require a previously verified password.
-  if (!factors.hasUser || !factors.notExpired || !hasStrongMFA(session ?? null)) {
+  if (!factors.hasUser || !factors.notExpired || !(factors.totpVerified || factors.u2fVerified)) {
     redirect("/password/reset/verify");
   }
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
 
-  if (!session.factors?.user?.id || !passwordComplexitySettings) {
+  if (!passwordComplexitySettings) {
+    logMessage.error("Could not retrieve password complexity settings from Zitadel");
     redirect(buildUrlWithRequestId("/password/reset", requestId));
   }
 
@@ -57,11 +59,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       descriptionI18nKey="reset.description"
       namespace="password"
     >
-      <PasswordReset
-        userId={session.factors.user.id}
-        loginName={session.factors.user.loginName}
-        passwordComplexitySettings={passwordComplexitySettings}
-      />
+      <PasswordReset passwordComplexitySettings={passwordComplexitySettings} />
     </AuthPanel>
   );
 }

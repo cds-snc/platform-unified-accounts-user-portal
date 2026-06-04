@@ -18,7 +18,6 @@ import {
   getLockoutSettings,
   getLoginSettings,
   getPasswordExpirySettings,
-  getSession,
   getUserByID,
   listAuthenticationMethodTypes,
   listUsers,
@@ -28,7 +27,7 @@ import {
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
-import { getSessionCookieById, getSessionCookieByLoginName } from "../cookies";
+import { getSessionCookieByLoginName } from "../cookies";
 import { loadActiveSession } from "../session";
 import {
   checkEmailVerification,
@@ -315,7 +314,6 @@ export async function sendPassword(
     return result;
   }
 
-  // Regular flow (no requestId) - return URL for client-side navigation
   logMessage.debug("Password auth: completing regular flow");
   const result = await completeFlowAndRedirect(
     {
@@ -420,36 +418,11 @@ export async function changePassword(command: { code?: string; userId: string; p
 }
 
 type CheckSessionAndSetPasswordCommand = {
-  sessionId: string;
   password: string;
 };
 
-export async function checkSessionAndSetPassword({
-  sessionId,
-  password,
-}: CheckSessionAndSetPasswordCommand) {
-  const { t } = await serverTranslation("password");
-
-  let sessionCookie;
-  try {
-    sessionCookie = await getSessionCookieById({ sessionId });
-  } catch (error) {
-    logMessage.error("Could not load session cookie", error);
-    return { error: "Could not load session cookie" };
-  }
-
-  let session;
-  try {
-    const sessionResponse = await getSession(sessionCookie.id, sessionCookie.token);
-    session = sessionResponse.session;
-  } catch (error) {
-    logMessage.error("Could not load session", error);
-    return { error: "Could not load session" };
-  }
-
-  if (!session || !session.factors?.user?.id) {
-    return { error: t("errors.couldNotLoadSession") };
-  }
+export async function checkSessionAndSetPassword({ password }: CheckSessionAndSetPasswordCommand) {
+  const session = await loadActiveSession();
 
   const payload = create(SetPasswordRequestSchema, {
     userId: session.factors.user.id,
@@ -458,27 +431,11 @@ export async function checkSessionAndSetPassword({
     },
   });
 
-  // check if the user has no password set in order to set a password
-  let authmethods;
-  try {
-    authmethods = await listAuthenticationMethodTypes(session.factors.user.id);
-  } catch (error) {
-    logMessage.error("Could not load auth methods", error);
-    return { error: "Could not load auth methods" };
-  }
-
-  if (!authmethods) {
-    return { error: t("errors.couldNotLoadAuthMethods") };
-  }
-
-  logMessage.info(
-    "Setting password via service account due to enforced MFA without existing MFA methods"
-  );
   return setPassword({ payload })
     .then(async (result) => {
       // Send password changed email notification
       if (didPasswordChangeSucceed(result)) {
-        await sendPasswordChangedEmail({ userId: session.factors!.user!.id }).catch((error) => {
+        sendPasswordChangedEmail({ userId: session.factors!.user!.id }).catch((error) => {
           logMessage.debug({
             error: error instanceof Error ? error.message : error,
             message: "Failed to send password changed email",
@@ -486,13 +443,9 @@ export async function checkSessionAndSetPassword({
           // Don't fail the password change if email fails
         });
       }
-      return result;
     })
     .catch((error) => {
-      // throw error if failed precondition (ex. User is not yet initialized)
-      if (error.code === 9 && error.message) {
-        return { error: t("errors.failedPrecondition") };
-      }
-      return { error: "Could not set password" };
+      logMessage.error("Could not set password for user", error);
+      throw new Error("Could not set password");
     });
 }

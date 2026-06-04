@@ -16,6 +16,7 @@ import { AuthPanel } from "@components/auth/AuthPanel";
  * Local Relative
  *--------------------------------------------*/
 import { VerifyEmailForm } from "./components/VerifyEmailForm";
+import { sendVerificationEmail } from "./action";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("otp");
@@ -25,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
 
-  const { code, requestId } = searchParams;
+  const { requestId } = searchParams;
 
   // TODO: Do we want to allow a user to verify their email in a different browser where they didn't
   // start their session.
@@ -44,13 +45,14 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   if (!session.factors?.user?.id) {
     throw new Error("Used as a type guard to ensure user has id property");
   }
+  // Send the email while the page renders and loads
+  await sendVerificationEmail();
 
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="verify">
       <VerifyEmailForm
         loginName={session.factors?.user?.loginName}
         userId={session.factors.user.id}
-        code={code}
         requestId={requestId}
       >
         <div className="my-8">

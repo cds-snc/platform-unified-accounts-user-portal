@@ -4,29 +4,22 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { create } from "@zitadel/client";
-import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/password_settings_pb";
+
+import { useTranslation } from "@i18n";
+import { PasswordValidationForm } from "@components/auth/password-validation/PasswordValidationForm";
+import { Alert, ErrorStatus } from "@components/ui/form";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { changePassword, sendPassword } from "@lib/server/password";
-import { useTranslation } from "@i18n";
-import { PasswordValidationForm } from "@components/auth/password-validation/PasswordValidationForm";
-import { Alert, ErrorStatus } from "@components/ui/form";
+import { resetPassword } from "../actions";
 export function PasswordReset({
-  userId,
   passwordComplexitySettings,
-  loginName,
 }: {
-  userId: string;
   passwordComplexitySettings?: PasswordComplexitySettings;
-  loginName?: string;
 }) {
   const { t } = useTranslation(["password"]);
-  const router = useRouter();
   const [error, setError] = useState("");
   const [formResetKey, setFormResetKey] = useState(0);
 
@@ -36,43 +29,15 @@ export function PasswordReset({
   };
 
   const submitPasswordForm = async ({ password, code }: { password: string; code?: string }) => {
-    const payload: { userId: string; password: string; code?: string } = {
-      userId: userId,
+    const payload: { password: string; code?: string } = {
       password,
       ...(code ? { code } : {}),
     };
 
-    const changeResponse = await changePassword(payload).catch(() => {
-      setErrorAndResetForm(t("reset.errors.couldNotSetPassword"));
+    await resetPassword(payload).catch((e) => {
+      // translation of error messages handled server side
+      setErrorAndResetForm(e.message);
     });
-
-    if (changeResponse && "error" in changeResponse) {
-      setErrorAndResetForm(changeResponse.error);
-      return;
-    }
-
-    if (!changeResponse) {
-      setErrorAndResetForm(t("reset.errors.couldNotSetPassword"));
-      return;
-    }
-
-    const passwordResponse = await sendPassword({
-      loginName: loginName ?? "",
-      checks: create(ChecksSchema, {
-        password: { password },
-      }),
-    }).catch(() => {
-      setErrorAndResetForm(t("reset.errors.couldNotVerifyPassword"));
-    });
-
-    if (passwordResponse && "error" in passwordResponse && passwordResponse.error) {
-      setErrorAndResetForm(passwordResponse.error);
-      return;
-    }
-
-    if (passwordResponse && "redirect" in passwordResponse && passwordResponse.redirect) {
-      router.push(passwordResponse.redirect);
-    }
   };
 
   if (!passwordComplexitySettings) {

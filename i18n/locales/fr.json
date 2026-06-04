@@ -93,7 +93,6 @@
     "verifiedAccount": {
       "title": "Compte vérifié",
       "email": "Adresse courriel",
-      "changeMessage": "<0>Ne peut être modifié</0> <1>Créez un nouveau compte</1> afin d'utiliser un courriel différent.",
       "cannotBeChanged": "Ne peut être modifié",
       "createNewAccount": "créer un nouveau compte"
     },

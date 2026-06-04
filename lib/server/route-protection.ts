@@ -25,13 +25,6 @@ export enum AuthLevel {
 }
 
 /**
- * Result of authentication level check
- */
-type AuthCheckResult = {
-  session: SessionWithAuthData | null;
-};
-
-/**
  * Safe wrapper around loadMostRecentSession that returns null instead of throwing
  */
 async function getActiveSessionFromCookies() {
@@ -142,22 +135,23 @@ export function requiresStrongMfaSetupVerification(
 export async function checkAuthenticationLevel(
   requiredLevel: AuthLevel,
   requestId?: string
-): Promise<AuthCheckResult> {
+): Promise<SessionWithAuthData> {
   const headerList = await headers();
   const pathname = headerList.get("x-current-path");
   logMessage.debug(
     `[Authentication Level] Checking page level authentication for ${pathname} with ${requiredLevel}`
   );
 
-  // Open routes always pass
-  if (requiredLevel === AuthLevel.OPEN) {
-    return { session: null };
-  }
-
   // Get session from cookies (non-throwing)
   const session = await getActiveSessionFromCookies();
+
   // Get requestId from session cookie as backup in case it was not passed in
   const requestIdRef = requestId || session?.requestId;
+
+  if (!session) {
+    // No session detected redirecting
+    return redirect(buildUrlWithRequestId("/", requestIdRef));
+  }
 
   // Basic session check - just verify cookie exists
   if (requiredLevel === AuthLevel.BASIC_SESSION) {
@@ -167,7 +161,7 @@ export async function checkAuthenticationLevel(
       );
       return redirect(buildUrlWithRequestId("/", requestIdRef));
     }
-    return { session };
+    return session;
   }
 
   // For password and MFA checks, verify session factors
@@ -190,7 +184,7 @@ export async function checkAuthenticationLevel(
 
       return redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
     }
-    return { session };
+    return session;
   }
 
   // Any MFA required check
@@ -210,7 +204,7 @@ export async function checkAuthenticationLevel(
       return redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
     }
 
-    return { session };
+    return session;
   }
 
   // Strong MFA required check
@@ -229,7 +223,7 @@ export async function checkAuthenticationLevel(
 
       return redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
     }
-    return { session };
+    return session;
   }
   logMessage.error(
     `[Authentication Level] Required: ${requiredLevel}, Reason: Unknown auth level requested, Redirecting: "/"`

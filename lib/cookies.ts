@@ -12,6 +12,7 @@ import { ZITADEL_ORGANIZATION } from "@root/constants/config";
  * Local Relative
  *--------------------------------------------*/
 import { logMessage } from "./logger";
+
 // TODO: improve this to handle overflow
 const MAX_COOKIE_SIZE = 2048;
 

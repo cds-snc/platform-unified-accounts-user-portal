@@ -31,18 +31,9 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const requestId = searchParams.requestId;
   const loginRedirect = buildUrlWithRequestId("/", requestId);
 
-  const session = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, requestId);
 
-  const userId = session.factors?.user?.id;
+  const userId = session.factors.user.id;
   const userResponse = await getUserByID(userId!);
   const user = userResponse.user?.type.case === "human" ? userResponse.user?.type.value : undefined;
   const firstName = user?.profile?.givenName;
@@ -61,14 +52,10 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <>
-      <PersonalDetails userId={userId} firstName={firstName} lastName={lastName} className="mb-4" />
+      <PersonalDetails firstName={firstName} lastName={lastName} className="mb-4" />
       <VerifiedAccount email={email} className="mb-4" />
       <PasswordAuthentication className="mb-4" />
-      <MFAAuthentication
-        u2fList={u2fList}
-        authenticatorStatus={session.authMethods.includes(4)}
-        userId={userId}
-      />
+      <MFAAuthentication u2fList={u2fList} authenticatorStatus={session.authMethods.includes(4)} />
     </>
   );
 }

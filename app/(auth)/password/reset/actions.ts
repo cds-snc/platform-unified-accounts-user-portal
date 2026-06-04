@@ -4,20 +4,24 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
+import { redirect } from "next/navigation";
 import { GCNotifyConnector } from "@gcforms/connectors";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
+import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getPasswordResetTemplate } from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { changePassword, sendPassword } from "@lib/server/password";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { listAuthenticationMethodTypes, listUsers, passwordResetWithReturn } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
+
 type SendResetCodeCommand = {
   loginName: string;
   requestId?: string;
@@ -125,7 +129,33 @@ export const submitUserNameForm = async (
     return genericErrorResponse;
   }
 
-  return {
-    redirect: buildUrlWithRequestId("/password/reset/verify", command.requestId),
-  };
+  redirect(buildUrlWithRequestId("/password/reset/verify", command.requestId));
 };
+
+export const resetPassword = AuthenticatedAction(
+  async (session, { code, password }: { code?: string; password?: string }) => {
+    if (!code || !password) {
+      throw new Error("Missing required properties to reset password");
+    }
+    const changeResponse = await changePassword({
+      code,
+      userId: session.factors.user.id,
+      password,
+    });
+    if ("error" in changeResponse) {
+      throw new Error(changeResponse.error);
+    }
+
+    const passwordResponse = await sendPassword({
+      loginName: session.factors.user.loginName ?? "",
+      checks: create(ChecksSchema, {
+        password: { password },
+      }),
+    });
+    if ("error" in passwordResponse) {
+      throw new Error(passwordResponse.error);
+    }
+
+    redirect(passwordResponse.redirect, "push");
+  }
+);

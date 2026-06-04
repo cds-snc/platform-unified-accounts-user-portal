@@ -4,7 +4,7 @@
 import { redirect, RedirectType } from "next/navigation";
 import { Timestamp, timestampDate } from "@zitadel/client";
 import { AuthRequest } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
-import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
+import { Factors, Session, UserFactor } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { GetSessionResponse } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
@@ -43,7 +43,7 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
   }
 
   const session = await getSession(active.id, active.token)
-    .then((resp: GetSessionResponse) => resp.session)
+    .then((resp: GetSessionResponse) => getAuthMethodsAndUser(resp.session))
     .catch(async () => {
       // Unhandled error, possibly locked account
       // Remove session from cookie and redirect to start a new session
@@ -58,8 +58,7 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
 
   const requestId = active.requestId;
 
-  const enhancedSession = await getAuthMethodsAndUser(session);
-  return { ...enhancedSession, requestId };
+  return { ...session, requestId };
 }
 
 export type SessionWithAuthData = Session & {
@@ -67,18 +66,19 @@ export type SessionWithAuthData = Session & {
   phoneVerified: boolean;
   emailVerified: boolean;
   requestId?: string;
+  factors: Factors & {
+    user: UserFactor;
+  };
 };
 
 async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuthData> {
-  const userId = session?.factors?.user?.id;
-
-  if (!userId) {
-    throw Error("Could not get user id from session");
+  if (!session?.factors?.user) {
+    throw Error("No User found on session");
   }
 
-  const methods = await listAuthenticationMethodTypes(userId);
+  const methods = await listAuthenticationMethodTypes(session.factors.user.id);
 
-  const user = await getUserByID(userId);
+  const user = await getUserByID(session.factors.user.id);
   const humanUser = user.user?.type.case === "human" ? user.user?.type.value : undefined;
 
   return {
@@ -86,7 +86,7 @@ async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuth
     authMethods: methods.authMethodTypes ?? [],
     phoneVerified: humanUser?.phone?.isVerified ?? false,
     emailVerified: humanUser?.email?.isVerified ?? false,
-  };
+  } as SessionWithAuthData;
 }
 
 /**
