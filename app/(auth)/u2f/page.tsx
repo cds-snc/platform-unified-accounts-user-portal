@@ -21,7 +21,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("verify.title") };
 }
 
-// Hardware key login page
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { redirect: redirectParam, requestId } = searchParams;
@@ -53,11 +52,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       ></UserAvatar>
 
       <div className="w-full">
-        <LoginU2F
-          requestId={requestId}
-          login={false} // this sets the userVerificationRequirement to discouraged as its used as second factor
-          redirect={safeRedirect}
-        />
+        <LoginU2F requestId={requestId} redirect={safeRedirect} />
       </div>
     </AuthPanel>
   );

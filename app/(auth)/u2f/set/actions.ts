@@ -8,18 +8,14 @@ import { userAgent } from "next/server";
 import { create } from "@zitadel/client";
 import { VerifyU2FRegistrationRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
+import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSessionCookieById } from "@lib/cookies";
 import { getOriginalHost } from "@lib/server/host";
-import { getSession, registerU2F, verifyU2FRegistration } from "@lib/zitadel";
+import { registerU2F, verifyU2FRegistration } from "@lib/zitadel";
 
 import { U2F_ERRORS } from "../u2f-errors";
-
-type RegisterU2FCommand = {
-  sessionId: string;
-};
 
 type PublicKeyCredentialJSON = {
   id: string;
@@ -38,31 +34,8 @@ type VerifyU2FCommand = {
   sessionId: string;
 };
 
-interface ProtobufMessage {
-  toJson(): unknown;
-}
-
-function isProtobufMessage(obj: unknown): obj is ProtobufMessage {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    "toJson" in obj &&
-    typeof (obj as Record<string, unknown>).toJson === "function"
-  );
-}
-
-export async function addU2F(command: RegisterU2FCommand) {
+export const addU2F = AuthenticatedAction(async function addU2F(session) {
   const host = await getOriginalHost();
-
-  const sessionCookie = await getSessionCookieById({
-    sessionId: command.sessionId,
-  });
-
-  if (!sessionCookie) {
-    return { error: U2F_ERRORS.SESSION_NOT_FOUND };
-  }
-
-  const session = await getSession(sessionCookie.id, sessionCookie.token);
 
   const [hostname] = host.split(":");
 
@@ -70,35 +43,23 @@ export async function addU2F(command: RegisterU2FCommand) {
     throw new Error("Could not get hostname");
   }
 
-  const userId = session?.session?.factors?.user?.id;
-
-  if (!session || !userId) {
-    return { error: U2F_ERRORS.SESSION_NOT_FOUND };
-  }
+  const userId = session.factors.user.id;
 
   const result = await registerU2F({ userId, domain: hostname });
 
-  // The publicKeyCredentialCreationOptions is a structpb.Struct
-  // We need to use toJson() to get a plain object
   const options = result.publicKeyCredentialCreationOptions;
-  let serializedOptions: unknown = null;
-
-  if (isProtobufMessage(options)) {
-    // Use protobuf's toJson() method
-    serializedOptions = options.toJson();
-  } else if (options) {
-    // Fallback to JSON serialization
-    serializedOptions = JSON.parse(JSON.stringify(options));
-  }
 
   return {
     u2fId: result.u2fId,
-    publicKeyCredentialCreationOptions: serializedOptions,
+    publicKeyCredentialCreationOptions: options,
     details: result.details,
   };
-}
+});
 
-export async function verifyU2F(command: VerifyU2FCommand) {
+export const verifyU2F = AuthenticatedAction(async function verifyU2F(
+  session,
+  command: VerifyU2FCommand
+) {
   let passkeyName = command.passkeyName;
 
   if (!passkeyName) {
@@ -111,21 +72,7 @@ export async function verifyU2F(command: VerifyU2FCommand) {
     }${os.name}${os.name ? ", " : ""}${browser.name}`;
   }
 
-  const sessionCookie = await getSessionCookieById({
-    sessionId: command.sessionId,
-  });
-
-  if (!sessionCookie) {
-    return { error: U2F_ERRORS.SESSION_NOT_FOUND };
-  }
-
-  const session = await getSession(sessionCookie.id, sessionCookie.token);
-
-  const userId = session?.session?.factors?.user?.id;
-
-  if (!userId) {
-    return { error: U2F_ERRORS.SESSION_NOT_FOUND };
-  }
+  const userId = session.factors.user.id;
 
   const request = create(VerifyU2FRegistrationRequestSchema, {
     u2fId: command.u2fId,
@@ -137,7 +84,7 @@ export async function verifyU2F(command: VerifyU2FCommand) {
   const result = await verifyU2FRegistration({ request });
 
   // Check if the error is due to credential already being registered
-  if (result && "error" in result && result.error) {
+  if ("error" in result && result.error) {
     const errorMessage = String(result.error).toLowerCase();
     if (
       errorMessage.includes("already") ||
@@ -149,4 +96,4 @@ export async function verifyU2F(command: VerifyU2FCommand) {
   }
 
   return result;
-}
+});

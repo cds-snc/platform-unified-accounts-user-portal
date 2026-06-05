@@ -12,7 +12,7 @@ import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/p
 import { PasswordValidationForm } from "@components/auth/password-validation/PasswordValidationForm";
 import { Alert, ErrorStatus } from "@components/ui/form";
 
-import { changePassword } from "../action";
+import { changePasswordFormAction } from "../action";
 type Props = {
   passwordComplexitySettings: PasswordComplexitySettings;
   requestId?: string;
@@ -27,7 +27,7 @@ export function ChangePasswordForm({ passwordComplexitySettings, requestId }: Pr
     }
 
     // Error translation handled server side
-    await changePassword(password, requestId).catch((e) => setError(e.message));
+    await changePasswordFormAction(password, requestId).catch((e) => setError(e.message));
   };
 
   return (

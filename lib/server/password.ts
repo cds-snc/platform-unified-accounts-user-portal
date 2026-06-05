@@ -5,22 +5,19 @@
  *--------------------------------------------*/
 
 import { create } from "@zitadel/client";
-import { Checks, ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
-import { User, UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
+import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { SetPasswordRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { createSessionAndUpdateCookie, setSessionAndUpdateCookie } from "@lib/server/cookie";
+import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { hasStrongMFA } from "@lib/server/route-protection";
 import {
-  getLockoutSettings,
   getLoginSettings,
-  getPasswordExpirySettings,
   getUserByID,
   listAuthenticationMethodTypes,
-  listUsers,
   setPassword,
   setUserPassword,
 } from "@lib/zitadel";
@@ -29,27 +26,10 @@ import { serverTranslation } from "@i18n/server";
 import { logMessage } from "../../lib/logger";
 import { getActiveSessionCookie } from "../cookies";
 import { loadActiveSession } from "../session";
-import {
-  checkEmailVerification,
-  checkMFAFactors,
-  checkPasswordChangeRequired,
-  checkUserVerification,
-} from "../verify-helper";
+import { checkUserVerification } from "../verify-helper";
 
 import { completeFlowAndRedirect } from "./auth-flow";
 import { sendPasswordChangedEmail } from "./verify";
-
-/**
- * Type guard to check if an error has failedAttempts property
- */
-function hasFailedAttempts(error: unknown): error is { failedAttempts: bigint } {
-  return (
-    error !== null &&
-    typeof error === "object" &&
-    "failedAttempts" in error &&
-    typeof error.failedAttempts === "bigint"
-  );
-}
 
 function didPasswordChangeSucceed(result: unknown): boolean {
   if (!result || typeof result !== "object") {
@@ -72,234 +52,43 @@ function didPasswordChangeSucceed(result: unknown): boolean {
   return "changeDate" in details;
 }
 
-/**
- * Helper function to handle authentication failure errors with lockout settings
- */
-async function handleAuthenticationFailure(
-  error: unknown,
-  t: (key: string, options?: Record<string, string>) => string
-): Promise<{ error: string } | null> {
-  if (!hasFailedAttempts(error)) {
-    return null;
-  }
-
-  const lockoutSettings = await getLockoutSettings();
-
-  const hasLimit =
-    lockoutSettings?.maxPasswordAttempts !== undefined &&
-    lockoutSettings?.maxPasswordAttempts > BigInt(0);
-  const locked = hasLimit && error.failedAttempts >= lockoutSettings?.maxPasswordAttempts;
-  const messageKey = hasLimit
-    ? "errors.failedToAuthenticate"
-    : "errors.failedToAuthenticateNoLimit";
-
-  return {
-    error: t(messageKey, {
-      failedAttempts: error.failedAttempts.toString(),
-      maxPasswordAttempts: hasLimit ? lockoutSettings?.maxPasswordAttempts.toString() : "?",
-      lockoutMessage: locked ? t("errors.accountLockedContactAdmin") : "",
-    }),
-  };
-}
-
 type UpdateSessionCommand = {
   loginName: string;
   checks: Checks;
   requestId?: string;
 };
 
-export async function sendPassword(command: UpdateSessionCommand): Promise<{ error: string }> {
+export async function verifyPassword(command: UpdateSessionCommand) {
+  const sessionCookie = await getActiveSessionCookie();
   const { t } = await serverTranslation("password");
-
-  // start here tomorrow - refactor this...
-
-  let sessionCookie = await getActiveSessionCookie();
-
-  let session;
-  let user: User;
   const loginSettings = await getLoginSettings();
-  if (sessionCookie) {
-    try {
-      session = await setSessionAndUpdateCookie({
-        activeCookie: sessionCookie,
-        checks: command.checks,
-        requestId: command.requestId,
-      });
-    } catch (error: unknown) {
-      // A failed-attempts error means the password was wrong — return the
-      // auth failure directly rather than retrying, which would count as a
-      // second attempt and could lock the account sooner than intended.
-      const authFailure = await handleAuthenticationFailure(error, t);
-      if (authFailure) {
-        return authFailure;
-      }
 
-      logMessage.warn("Could not update existing session; falling back to creating a new session.");
-      // Any other error (e.g. session expired on Zitadel's side) is treated as
-      // a signal to abandon the stale cookie and create a fresh session below.
-      sessionCookie = undefined;
-      session = undefined;
-    }
-  }
-
-  if (!sessionCookie) {
-    const users = await listUsers({
-      loginName: command.loginName,
-    });
-
-    if (users.details?.totalResult == BigInt(1) && users.result[0].userId) {
-      user = users.result[0];
-
-      const checks = create(ChecksSchema, {
-        user: { search: { case: "userId", value: users.result[0].userId } },
-        password: { password: command.checks.password?.password },
-      });
-
-      try {
-        session = await createSessionAndUpdateCookie({
-          checks,
-          requestId: command.requestId,
-        });
-      } catch (error: unknown) {
-        const authFailure = await handleAuthenticationFailure(error, t);
-        if (authFailure) {
-          return authFailure;
-        }
-        return { error: t("errors.couldNotCreateSessionForUser") };
-      }
-    } else {
-      // this is a fake error message to hide that the user does not even exist
-      return { error: "Could not verify password" };
-    }
-  }
-
-  if (!session?.factors?.user?.id) {
-    return { error: t("errors.couldNotCreateSessionForUser") };
-  }
-
-  const userResponse = await getUserByID(session.factors.user.id);
-
-  if (!userResponse.user) {
-    return { error: t("errors.userNotFound") };
-  }
-
-  user = userResponse.user;
-
-  if (!session?.factors?.user?.id) {
-    return { error: t("errors.couldNotCreateSessionForUser") };
-  }
-
-  const humanUser = user.type.case === "human" ? user.type.value : undefined;
-
-  const expirySettings = await getPasswordExpirySettings();
-
-  // check if the user has to change password first
-  const passwordChangedCheck = checkPasswordChangeRequired(
-    expirySettings,
-    session,
-    humanUser,
-    command.requestId
-  );
-
-  if (passwordChangedCheck?.redirect) {
-    return passwordChangedCheck;
-  }
-
-  // throw error if user is in initial state here and do not continue
-  if (user.state === UserState.INITIAL) {
-    return { error: t("errors.initialUserNotSupported") };
-  }
-
-  // check to see if user was verified
-  const emailVerificationCheck = checkEmailVerification(session, humanUser, command.requestId);
-
-  if (emailVerificationCheck?.redirect) {
-    return emailVerificationCheck;
-  }
-
-  // if password, check if user has MFA methods
-  let authMethods;
-  if (command.checks && command.checks.password && session.factors?.user?.id) {
-    const response = await listAuthenticationMethodTypes(session.factors.user.id);
-    if (response.authMethodTypes && response.authMethodTypes.length) {
-      authMethods = response.authMethodTypes;
-    }
-  }
-
-  if (!authMethods) {
-    return { error: t("errors.couldNotVerifyPassword") };
-  }
-
-  // Recovery MFA may already be satisfied on the current session, so avoid
-  // forcing the user back through a second MFA prompt after they set a new password.
-  if (hasStrongMFA(session)) {
-    if (command.requestId && session.id) {
-      const result = await completeFlowAndRedirect(
-        {
-          sessionId: session.id,
-          requestId: command.requestId,
-        },
-        loginSettings?.defaultRedirectUri
-      );
-
-      if (
-        !result ||
-        typeof result !== "object" ||
-        (!("redirect" in result) && !("error" in result))
-      ) {
-        return { error: "Authentication completed but navigation failed" };
-      }
-
-      return result;
-    }
-
-    const result = await completeFlowAndRedirect(
-      {
-        sessionId: session.id,
-      },
-      loginSettings?.defaultRedirectUri
+  const session = await setSessionAndUpdateCookie({
+    activeCookie: sessionCookie,
+    checks: command.checks,
+    requestId: command.requestId,
+  }).catch((e) => {
+    logMessage.error(
+      `Could not verify password during reset/change for user ${sessionCookie.loginName}`,
+      e
     );
+    throw new Error(t("errors.failedToAuthenticate"));
+  });
 
-    if (
-      !result ||
-      typeof result !== "object" ||
-      (!("redirect" in result) && !("error" in result))
-    ) {
-      return { error: "Authentication completed but navigation failed" };
-    }
-
-    return result;
-  }
-
-  const mfaFactorCheck = await checkMFAFactors(authMethods, command.requestId);
-
-  if (mfaFactorCheck && "redirect" in mfaFactorCheck) {
-    return mfaFactorCheck;
-  }
-
-  if (command.requestId && session.id) {
-    // OIDC flow - use completeFlowOrGetUrl for proper handling
-    logMessage.debug({
-      message: "Password auth: OIDC flow with requestId",
-      requestId: command.requestId,
+  await completeFlowAndRedirect(
+    {
       sessionId: session.id,
-    });
-    const result = await completeFlowAndRedirect(
-      {
-        sessionId: session.id,
-        requestId: command.requestId,
-      },
-      loginSettings?.defaultRedirectUri
-    );
-    logMessage.debug({
-      message: "Password auth: OIDC flow result",
-      result,
-    });
-  }
+      requestId: command.requestId,
+    },
+    loginSettings?.defaultRedirectUri
+  );
 }
 
-// this function lets users with code set a password or users with valid User Verification Check
-export async function changePassword(command: { code?: string; userId: string; password: string }) {
+export async function passwordResetWithCode(command: {
+  code?: string;
+  userId: string;
+  password: string;
+}) {
   const { t } = await serverTranslation("password");
   const normalizedCode = command.code?.replace(/\s+/g, "").trim();
 
@@ -388,9 +177,9 @@ type CheckSessionAndSetPasswordCommand = {
   password: string;
 };
 
-export async function checkSessionAndSetPassword({ password }: CheckSessionAndSetPasswordCommand) {
+export async function changePassword({ password }: CheckSessionAndSetPasswordCommand) {
   const session = await loadActiveSession();
-
+  const { t } = await serverTranslation("password");
   const payload = create(SetPasswordRequestSchema, {
     userId: session.factors.user.id,
     newPassword: {
@@ -413,6 +202,6 @@ export async function checkSessionAndSetPassword({ password }: CheckSessionAndSe
     })
     .catch((error) => {
       logMessage.error("Could not set password for user", error);
-      throw new Error("Could not set password");
+      throw new Error(t("change.errors.couldNotChangePassword"));
     });
 }

@@ -10,6 +10,7 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  *--------------------------------------------*/
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import type { SearchParams } from "@lib/utils";
+import { buildUrlWithRequestId } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -25,7 +26,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (session.authMethods?.includes(AuthenticationMethodType.U2F)) {
-    redirect("/password/change/verify");
+    redirect(buildUrlWithRequestId("/password/change", requestId), "push");
   }
 
   return (
@@ -41,7 +42,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         showDropdown={false}
       />
       <div className="w-full">
-        <LoginU2F login={false} redirect="/password/change" requestId={requestId} />
+        <LoginU2F redirect="/password/change" requestId={requestId} />
       </div>
     </AuthPanel>
   );

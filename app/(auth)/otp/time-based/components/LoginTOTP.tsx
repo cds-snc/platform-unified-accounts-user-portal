@@ -23,10 +23,12 @@ import { FormState, handleOTPFormSubmit } from "../actions";
 
 export function LoginTOTP({
   loginName,
+  redirect,
   requestId,
   displayName,
 }: {
   loginName?: string;
+  redirect?: string;
   requestId?: string;
   displayName?: string;
 }) {
@@ -40,7 +42,7 @@ export function LoginTOTP({
 
   const localFormAction = async (_: FormState, formData?: FormData) => {
     const enteredCode = (formData?.get("code") as string) ?? "";
-    const result = await handleOTPFormSubmit(enteredCode, requestId);
+    const result = await handleOTPFormSubmit({ code: enteredCode, redirect, requestId });
 
     return result;
   };

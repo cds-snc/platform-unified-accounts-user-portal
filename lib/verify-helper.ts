@@ -4,7 +4,6 @@
 import { cookies } from "next/headers";
 import { timestampDate } from "@zitadel/client";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
-import { PasswordExpirySettings } from "@zitadel/proto/zitadel/settings/v2/password_settings_pb";
 import { HumanUser } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import crypto from "crypto";
@@ -16,13 +15,15 @@ import moment from "moment";
 import { getFingerprintIdCookie } from "./fingerprint";
 import { logMessage } from "./logger";
 import { buildUrlWithRequestId } from "./utils";
-export function checkPasswordChangeRequired(
-  expirySettings: PasswordExpirySettings | undefined,
+import { getPasswordExpirySettings } from "./zitadel";
+export async function checkPasswordChangeRequired(
   session: Session,
   humanUser: HumanUser | undefined,
   requestId?: string
 ) {
   let isOutdated = false;
+  const expirySettings = await getPasswordExpirySettings();
+
   if (expirySettings?.maxAgeDays && humanUser?.passwordChanged) {
     const maxAgeDays = Number(expirySettings.maxAgeDays); // Convert bigint to number
     // If maxAgeDays is 0 then the policy is not defined, return early

@@ -11,8 +11,7 @@ import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protectio
  * Internal Aliases
  *--------------------------------------------*/
 import type { SearchParams } from "@lib/utils";
-import { buildUrlWithRequestId, getSerializableObject } from "@lib/utils";
-import { getLoginSettings } from "@lib/zitadel";
+import { buildUrlWithRequestId } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -29,8 +28,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     redirect(buildUrlWithRequestId("/password/reset/verify", requestId));
   }
 
-  const loginSettings = await getLoginSettings().then((obj) => getSerializableObject(obj));
-
   return (
     <AuthPanel
       titleI18nKey="verify.authAppTitle"
@@ -40,8 +37,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     >
       <LoginTOTP
         loginName={session.factors?.user?.loginName}
-        loginSettings={loginSettings}
         redirect="/password/reset/set"
+        requestId={requestId}
         displayName={session.factors?.user?.displayName}
       />
     </AuthPanel>

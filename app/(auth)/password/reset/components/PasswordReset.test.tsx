@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { changePassword, sendPassword } from "@lib/server/password";
+import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../../test/helpers/client";
@@ -55,8 +55,10 @@ describe("PasswordReset", () => {
     vi.mocked(useRouter).mockReturnValue(router);
     vi.mocked(useTranslation).mockReturnValue(createTranslationStub() as never);
 
-    vi.mocked(changePassword).mockResolvedValue({ success: true } as never);
-    vi.mocked(sendPassword).mockResolvedValue({ redirect: "/account?requestId=req-123" } as never);
+    vi.mocked(passwordResetWithCode).mockResolvedValue({ success: true } as never);
+    vi.mocked(verifyPassword).mockResolvedValue({
+      redirect: "/account?requestId=req-123",
+    } as never);
   });
 
   it("shows missing information error when password complexity settings are absent", () => {
@@ -79,12 +81,12 @@ describe("PasswordReset", () => {
     await user.click(getByRole("button", { name: "submit-password-reset" }));
 
     await vi.waitFor(() => {
-      expect(changePassword).toHaveBeenCalledWith({
+      expect(passwordResetWithCode).toHaveBeenCalledWith({
         userId: "user-123",
         password: "P@ssw0rd",
         code: "123456",
       });
-      expect(sendPassword).toHaveBeenCalledWith({
+      expect(verifyPassword).toHaveBeenCalledWith({
         loginName: "person@canada.ca",
         checks: {
           password: {
@@ -99,7 +101,7 @@ describe("PasswordReset", () => {
   it("shows error message when changePassword returns an error", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(changePassword).mockResolvedValue({
+    vi.mocked(passwordResetWithCode).mockResolvedValue({
       error: "reset.errors.couldNotSetPassword",
     } as never);
 
@@ -112,13 +114,13 @@ describe("PasswordReset", () => {
     await vi.waitFor(() => {
       expect(getByText("reset.errors.couldNotSetPassword")).toBeInTheDocument();
     });
-    expect(sendPassword).not.toHaveBeenCalled();
+    expect(verifyPassword).not.toHaveBeenCalled();
   });
 
   it("shows verification error when sendPassword rejects", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(sendPassword).mockRejectedValue(new Error("network"));
+    vi.mocked(verifyPassword).mockRejectedValue(new Error("network"));
 
     const { getByRole, getByText } = render(
       <PasswordReset

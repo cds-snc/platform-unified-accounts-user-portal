@@ -19,7 +19,11 @@ import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
-import { checkEmailVerification, checkMFAFactors } from "@lib/verify-helper";
+import {
+  checkEmailVerification,
+  checkMFAFactors,
+  checkPasswordChangeRequired,
+} from "@lib/verify-helper";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 import { parseZitadelError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
@@ -117,6 +121,16 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
     redirect(emailVerificationCheck?.redirect, "push");
   }
 
+  // Check if password is expired and user has to change password first
+  const passwordChangedCheck = await checkPasswordChangeRequired(
+    session,
+    humanUser,
+    command.requestId
+  );
+  if (passwordChangedCheck?.redirect) {
+    redirect(passwordChangedCheck.redirect, "push");
+  }
+
   // Get authentication methods for MFA check
   const response = await listAuthenticationMethodTypes(session.factors.user.id);
 
@@ -149,6 +163,6 @@ export const setSession = async (sessionId: string) => {
   return setSelectedSession(sessionId);
 };
 
-export const checkActiveSession = AuthenticatedAction(async (session) => {
+export const checkActiveSession = AuthenticatedAction(async function checkActiveSession(session) {
   return isSessionValid({ session });
 });

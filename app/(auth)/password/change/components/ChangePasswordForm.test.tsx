@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { checkSessionAndSetPassword, sendPassword } from "@lib/server/password";
+import { changePassword, verifyPassword } from "@lib/server/password";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../../test/helpers/client";
@@ -55,8 +55,10 @@ describe("ChangePasswordForm", () => {
     vi.mocked(useRouter).mockReturnValue(router);
     vi.mocked(useTranslation).mockReturnValue(createTranslationStub() as never);
 
-    vi.mocked(checkSessionAndSetPassword).mockResolvedValue({ success: true } as never);
-    vi.mocked(sendPassword).mockResolvedValue({ redirect: "/account?requestId=req-123" } as never);
+    vi.mocked(changePassword).mockResolvedValue({ success: true } as never);
+    vi.mocked(verifyPassword).mockResolvedValue({
+      redirect: "/account?requestId=req-123",
+    } as never);
   });
 
   it("submits changed password and redirects when verification succeeds", async () => {
@@ -73,14 +75,14 @@ describe("ChangePasswordForm", () => {
 
     await user.click(screen.getByRole("button", { name: "submit-change-password" }));
 
-    expect(checkSessionAndSetPassword).toHaveBeenCalledWith({
+    expect(changePassword).toHaveBeenCalledWith({
       sessionId: "session-123",
       password: "N3wPassw0rd!",
     });
 
     await waitFor(
       () => {
-        expect(sendPassword).toHaveBeenCalledWith({
+        expect(verifyPassword).toHaveBeenCalledWith({
           loginName: "person@canada.ca",
           requestId: "req-123",
           checks: {
@@ -98,7 +100,7 @@ describe("ChangePasswordForm", () => {
   it("shows verification error when sendPassword rejects", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(sendPassword).mockRejectedValue(new Error("network"));
+    vi.mocked(verifyPassword).mockRejectedValue(new Error("network"));
 
     render(
       <ChangePasswordForm

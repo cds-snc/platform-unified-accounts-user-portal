@@ -4,18 +4,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useEffect, useRef, useState } from "react";
-import { create, JsonObject } from "@zitadel/client";
-import {
-  RequestChallengesSchema,
-  UserVerificationRequirement,
-} from "@zitadel/proto/zitadel/session/v2/challenge_pb";
+import { JsonObject } from "@zitadel/client";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
-import { verifyU2FLogin } from "@root/app/(auth)/u2f/actions";
+import { updateSessionForU2FChallenge, verifyU2FLogin } from "@root/app/(auth)/u2f/actions";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { updateSession } from "@lib/server/session";
 import { coerceToArrayBuffer, coerceToBase64Url } from "@lib/utils/base64";
 import { useTranslation } from "@i18n";
 import { Alert, ErrorStatus } from "@components/ui/form";
@@ -31,7 +26,6 @@ type PublicKeyCredentialRequestOptionsData = {
 
 type Props = {
   requestId?: string;
-  login?: boolean;
   redirect?: string | null;
 };
 
@@ -79,59 +73,18 @@ async function getCredentialAssertionData(
   } as JsonObject;
 }
 
-export function LoginU2F({ requestId, login = true, redirect }: Props) {
+export function LoginU2F({ requestId, redirect }: Props) {
   const [error, setError] = useState<string>("");
 
   const { t } = useTranslation("u2f");
 
   const initialized = useRef(false);
 
-  async function updateSessionForChallenge(
-    userVerificationRequirement: number = login
-      ? UserVerificationRequirement.REQUIRED
-      : UserVerificationRequirement.DISCOURAGED
-  ) {
-    let session;
-    try {
-      session = await updateSession({
-        challenges: create(RequestChallengesSchema, {
-          webAuthN: {
-            domain: "",
-            userVerificationRequirement,
-          },
-        }),
-        requestId,
-      });
-    } catch {
-      setError(t("verify.errors.couldNotRequestChallenge"));
-      return;
-    }
-
-    if (session && "error" in session && session.error) {
-      setError(
-        typeof session.error === "string"
-          ? session.error
-          : typeof session.error === "object" &&
-              session.error &&
-              "message" in session.error &&
-              typeof session.error.message === "string"
-            ? session.error.message
-            : t("verify.errors.couldNotRequestChallenge")
-      );
-      return;
-    }
-
-    return session;
-  }
-
   async function submitLogin(data: JsonObject) {
     const result = await verifyU2FLogin({
       checks: { webAuthN: { credentialAssertionData: data } } as Checks,
       requestId,
       redirect,
-    }).catch(() => {
-      setError(t("verify.errors.couldNotVerifyPasskey"));
-      return {};
     });
     if ("error" in result) {
       setError(result.error);
@@ -140,17 +93,14 @@ export function LoginU2F({ requestId, login = true, redirect }: Props) {
   }
 
   async function startU2FLoginFlow() {
-    const response = await updateSessionForChallenge();
-    const publicKey = response?.challenges?.webAuthN?.publicKeyCredentialRequestOptions?.publicKey;
-
-    if (!publicKey) {
-      setError(t("verify.errors.couldNotRequestChallenge"));
-      return;
-    }
-
     try {
+      const { challenges } = await updateSessionForU2FChallenge(requestId);
+      if (typeof challenges?.webAuthN?.publicKeyCredentialRequestOptions === "undefined") {
+        throw new Error("U2F Challenges could not be initiated");
+      }
       const data = await getCredentialAssertionData(
-        publicKey as PublicKeyCredentialRequestOptionsData
+        challenges.webAuthN.publicKeyCredentialRequestOptions
+          .publicKey as PublicKeyCredentialRequestOptionsData
       );
 
       if (!data) {

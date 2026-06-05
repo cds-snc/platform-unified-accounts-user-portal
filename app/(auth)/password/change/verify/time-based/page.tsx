@@ -10,8 +10,7 @@ import { LoginTOTP } from "@root/app/(auth)/otp/time-based/components/LoginTOTP"
  * Internal Aliases
  *--------------------------------------------*/
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import type { SearchParams } from "@lib/utils";
-import { getLoginSettings } from "@lib/zitadel";
+import { buildUrlWithRequestId, type SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -26,10 +25,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (session.authMethods?.includes(AuthenticationMethodType.TOTP)) {
-    redirect("/password/change/verify");
+    redirect(buildUrlWithRequestId("/password/change", requestId), "push");
   }
-
-  const loginSettings = await getLoginSettings();
 
   return (
     <AuthPanel
@@ -40,8 +37,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     >
       <LoginTOTP
         loginName={session.factors?.user?.loginName}
-        loginSettings={loginSettings}
         redirect="/password/change"
+        requestId={requestId}
         displayName={session.factors?.user?.displayName}
       />
     </AuthPanel>

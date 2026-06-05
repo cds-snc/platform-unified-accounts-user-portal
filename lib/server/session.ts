@@ -142,32 +142,19 @@ type UpdateSessionCommand = {
   challenges?: RequestChallenges;
 };
 
-export async function updateSession(options: UpdateSessionCommand): Promise<
-  | { error: string }
-  | {
-      sessionId: string;
-      factors?: Session["factors"];
-      challenges?: Challenges;
-      authMethods?: AuthenticationMethodType[];
-    }
-> {
+export async function updateSession(options: UpdateSessionCommand): Promise<{
+  sessionId: string;
+  factors?: Session["factors"];
+  challenges?: Challenges;
+  authMethods?: AuthenticationMethodType[];
+}> {
   const { checks, requestId, challenges } = options;
 
   const activeSession = await getActiveSessionCookie();
 
-  if (!activeSession) {
-    return {
-      error: "Could not find session",
-    };
-  }
-
   const host = await getOriginalHost();
 
-  if (!host) {
-    return { error: "Could not get host" };
-  }
-
-  if (host && challenges && challenges.webAuthN && !challenges.webAuthN.domain) {
+  if (typeof challenges?.webAuthN !== "undefined") {
     const [hostname] = host.split(":");
 
     challenges.webAuthN.domain = hostname;
@@ -189,7 +176,7 @@ export async function updateSession(options: UpdateSessionCommand): Promise<
   let authMethods;
   if (checks && checks.password && session.factors?.user?.id) {
     const response = await listAuthenticationMethodTypes(session.factors.user.id);
-    if (response.authMethodTypes && response.authMethodTypes.length) {
+    if (response.authMethodTypes.length) {
       authMethods = response.authMethodTypes;
     }
   }

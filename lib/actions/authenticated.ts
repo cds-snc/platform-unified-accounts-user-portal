@@ -48,7 +48,9 @@ export const AuthenticatedAction = <Input extends unknown[], Return>(
     if (!session.factors?.user) {
       throw new Error("User does not exist on session");
     }
-    return action(session as SessionCredentials, ...args).then((error) => {
+
+    logMessage.debug(`Initiating Authenticated Action call for function ${action.name}`);
+    return action(session as SessionCredentials, ...args).catch((error) => {
       if (isRedirectError(error)) {
         throw error;
       }

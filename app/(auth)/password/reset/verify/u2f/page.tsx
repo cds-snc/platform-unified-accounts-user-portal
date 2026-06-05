@@ -41,7 +41,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         showDropdown={false}
       />
       <div className="w-full">
-        <LoginU2F login={false} redirect="/password/reset/set" requestId={requestId} />
+        <LoginU2F redirect="/password/reset/set" requestId={requestId} />
       </div>
     </AuthPanel>
   );
