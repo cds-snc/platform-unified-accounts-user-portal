@@ -14,19 +14,12 @@ import { SetPasswordRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_se
  *--------------------------------------------*/
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { hasStrongMFA } from "@lib/server/route-protection";
-import {
-  getLoginSettings,
-  getUserByID,
-  listAuthenticationMethodTypes,
-  setPassword,
-  setUserPassword,
-} from "@lib/zitadel";
+import { getLoginSettings, getUserByID, setPassword, setUserPassword } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
 import { getActiveSessionCookie } from "../cookies";
 import { loadActiveSession } from "../session";
-import { checkUserVerification } from "../verify-helper";
 
 import { completeFlowAndRedirect } from "./auth-flow";
 import { sendPasswordChangedEmail } from "./verify";
@@ -108,25 +101,6 @@ export async function passwordResetWithCode(command: {
 
   if (user.state === UserState.INITIAL) {
     return { error: t("errors.userInitialStateNotSupported") };
-  }
-
-  // check if the user has no password set in order to set a password
-  if (!normalizedCode) {
-    const authmethods = await listAuthenticationMethodTypes(userId);
-
-    // if the user has no authmethods set, we need to check if the user was verified
-    if (authmethods.authMethodTypes.length !== 0) {
-      return {
-        error: t("errors.codeOrVerificationRequired"),
-      };
-    }
-
-    // check if a verification was done earlier
-    const hasValidUserVerificationCheck = await checkUserVerification(user.userId);
-
-    if (!hasValidUserVerificationCheck) {
-      return { error: t("errors.verificationRequired") };
-    }
   }
 
   // A reset code is only accepted when it is paired with the same browser session

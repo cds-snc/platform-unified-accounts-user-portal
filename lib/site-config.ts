@@ -2,13 +2,7 @@
  * Internal Aliases
  *--------------------------------------------*/
 import { TRUSTED_DOMAINS, ZITADEL_ORGANIZATION } from "@root/constants/config";
-import type {
-  SiteConfig,
-  SiteId,
-  SiteLinkKey,
-  TrustedDomainConfig,
-} from "@root/constants/site-config";
-import { serverTranslation } from "@i18n/server";
+import type { SiteConfig, SiteId, TrustedDomainConfig } from "@root/constants/site-config";
 
 import { getOriginalHost, normalizeHost } from "./server/host";
 
@@ -57,24 +51,3 @@ export class SiteConfigService {
 const siteConfig = await SiteConfigService.getInstance();
 
 export const resolveSiteConfigByHost = (): SiteConfig => siteConfig.resolve();
-
-export const getSiteLink = async <K extends SiteLinkKey>(linkKey: K): Promise<string | false> => {
-  const currentConfig = resolveSiteConfigByHost();
-  const linkTemplate = resolveSiteLinkTemplate(currentConfig, linkKey);
-  const {
-    i18n: { language },
-  } = await serverTranslation();
-
-  if (linkTemplate === false) {
-    return false;
-  }
-
-  return linkTemplate
-    .replaceAll("{baseUrl}", currentConfig.baseUrl)
-    .replaceAll("{locale}", language ?? "en");
-};
-
-function resolveSiteLinkTemplate(site: Pick<SiteConfig, "id" | "baseUrl">, linkKey: SiteLinkKey) {
-  const links = TRUSTED_DOMAINS[site.id].links;
-  return links[linkKey];
-}

@@ -17,7 +17,6 @@ import { buildUrlWithRequestId } from "@lib/utils";
  * Authentication levels for route protection
  */
 export enum AuthLevel {
-  OPEN = "open", // No authentication required
   BASIC_SESSION = "basic_session", // Session cookie must exist
   PASSWORD_REQUIRED = "password_required", // Password factor verified
   ANY_MFA_REQUIRED = "any_mfa_required", // Password + any MFA (TOTP, U2F, or OTP Email)

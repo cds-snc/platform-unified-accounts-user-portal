@@ -214,29 +214,6 @@ export async function getSessionCookieById<T>({
   }
 }
 
-export async function getSessionCookieByLoginName<T>({
-  loginName,
-}: {
-  loginName?: string;
-}): Promise<SessionCookie<T>> {
-  const cookiesList = await cookies();
-  const stringifiedCookie = cookiesList.get("sessions");
-
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
-    const found = sessions.find(
-      (s) => s.organization === ZITADEL_ORGANIZATION && s.loginName === loginName
-    );
-    if (found) {
-      return found;
-    } else {
-      return Promise.reject("no cookie found with loginName: " + loginName);
-    }
-  } else {
-    return Promise.reject("no session cookie found");
-  }
-}
-
 /**
  *
  * @param cleanup when true, removes all expired sessions, default true

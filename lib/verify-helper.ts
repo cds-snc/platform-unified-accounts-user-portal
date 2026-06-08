@@ -1,18 +1,16 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { cookies } from "next/headers";
+
 import { timestampDate } from "@zitadel/client";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { HumanUser } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
-import crypto from "crypto";
 import moment from "moment";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { getFingerprintIdCookie } from "./fingerprint";
 import { logMessage } from "./logger";
 import { buildUrlWithRequestId } from "./utils";
 import { getPasswordExpirySettings } from "./zitadel";
@@ -102,33 +100,4 @@ export async function checkMFAFactors(
   }
 
   return { error: "No MFA factors available" };
-}
-
-export async function checkUserVerification(userId: string): Promise<boolean> {
-  // check if a verification was done earlier
-  const cookiesList = await cookies();
-
-  // only read cookie to prevent issues on page.tsx
-  const fingerPrintCookie = await getFingerprintIdCookie();
-
-  if (!fingerPrintCookie || !fingerPrintCookie.value) {
-    return false;
-  }
-
-  const verificationCheck = crypto
-    .createHash("sha256")
-    .update(`${userId}:${fingerPrintCookie.value}`)
-    .digest("hex");
-
-  const cookieValue = cookiesList.get("verificationCheck")?.value;
-
-  if (!cookieValue) {
-    return false;
-  }
-
-  if (cookieValue !== verificationCheck) {
-    return false;
-  }
-
-  return true;
 }
