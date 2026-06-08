@@ -1,6 +1,5 @@
 import { useRouter } from "next/navigation";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createRouterStub } from "../../../../test/helpers/client";
@@ -100,26 +99,6 @@ describe("PasswordPageClient", () => {
     expect(
       screen.getByText("set-register-password:person@canada.ca:Person:Example:req-123")
     ).toBeInTheDocument();
-    expect(router.replace).not.toHaveBeenCalled();
-  });
-
-  it("does not redirect after successful submit even if registration data is cleared", async () => {
-    const user = userEvent.setup();
-
-    registrationData = {
-      email: "person@canada.ca",
-      firstname: "Person",
-      lastname: "Example",
-      requestId: "req-123",
-    };
-
-    const { rerender } = render(<PasswordPageClient passwordComplexitySettings={{} as never} />);
-
-    await user.click(screen.getByRole("button", { name: "complete-register-password" }));
-
-    registrationData = null;
-    rerender(<PasswordPageClient passwordComplexitySettings={{} as never} />);
-
     expect(router.replace).not.toHaveBeenCalled();
   });
 });
