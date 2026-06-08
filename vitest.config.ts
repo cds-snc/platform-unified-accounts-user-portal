@@ -29,4 +29,10 @@ export default defineConfig({
       },
     },
   },
+  resolve: {
+    alias: {
+      "next/navigation": new URL("./test/mocks/next/navigation", import.meta.url).pathname,
+      "next/headers": new URL("./test/mocks/next/headers", import.meta.url).pathname,
+    },
+  },
 });

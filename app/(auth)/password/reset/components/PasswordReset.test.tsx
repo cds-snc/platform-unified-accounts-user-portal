@@ -1,18 +1,13 @@
-import { useRouter } from "next/navigation";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
 import { useTranslation } from "@i18n";
 
-import { createRouterStub, createTranslationStub } from "../../../../../test/helpers/client";
+import { createTranslationStub } from "../../../../../test/helpers/client";
+import { resetPassword } from "../actions";
 
 import { PasswordReset } from "./PasswordReset";
-
-vi.mock("next/navigation", () => ({
-  useRouter: vi.fn(),
-}));
 
 vi.mock("@i18n", () => ({
   useTranslation: vi.fn(),
@@ -25,9 +20,8 @@ vi.mock("@i18n/client", () => ({
   LANGUAGE_COOKIE_NAME: "i18next",
 }));
 
-vi.mock("@lib/server/password", () => ({
-  changePassword: vi.fn(),
-  sendPassword: vi.fn(),
+vi.mock("../actions", () => ({
+  resetPassword: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("@zitadel/client", () => ({
@@ -47,66 +41,40 @@ vi.mock("@components/auth/password-validation/PasswordValidationForm", () => ({
 }));
 
 describe("PasswordReset", () => {
-  const router = createRouterStub();
-
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(useRouter).mockReturnValue(router);
     vi.mocked(useTranslation).mockReturnValue(createTranslationStub() as never);
-
-    vi.mocked(passwordResetWithCode).mockResolvedValue({ success: true } as never);
-    vi.mocked(verifyPassword).mockResolvedValue({
-      redirect: "/account?requestId=req-123",
-    } as never);
   });
 
   it("shows missing information error when password complexity settings are absent", () => {
-    const { getByText } = render(<PasswordReset userId="user-123" />);
+    const { getByText } = render(<PasswordReset />);
 
     expect(getByText("reset.errors.missingRequiredInformation")).toBeInTheDocument();
   });
 
-  it("submits password reset and redirects when password verification succeeds", async () => {
+  it("submits password reset", async () => {
     const user = userEvent.setup();
 
-    const { getByRole } = render(
-      <PasswordReset
-        userId="user-123"
-        loginName="person@canada.ca"
-        passwordComplexitySettings={{} as never}
-      />
-    );
+    const { getByRole } = render(<PasswordReset passwordComplexitySettings={{} as never} />);
 
     await user.click(getByRole("button", { name: "submit-password-reset" }));
 
     await vi.waitFor(() => {
-      expect(passwordResetWithCode).toHaveBeenCalledWith({
-        userId: "user-123",
+      expect(resetPassword).toHaveBeenCalledWith({
         password: "P@ssw0rd",
         code: "123456",
       });
-      expect(verifyPassword).toHaveBeenCalledWith({
-        loginName: "person@canada.ca",
-        checks: {
-          password: {
-            password: "P@ssw0rd",
-          },
-        },
-      });
-      expect(router.push).toHaveBeenCalledWith("/account?requestId=req-123");
     });
   });
 
   it("shows error message when changePassword returns an error", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(passwordResetWithCode).mockResolvedValue({
-      error: "reset.errors.couldNotSetPassword",
-    } as never);
+    vi.mocked(resetPassword).mockRejectedValue(new Error("reset.errors.couldNotSetPassword"));
 
     const { getByRole, getByText } = render(
-      <PasswordReset userId="user-123" passwordComplexitySettings={{} as never} />
+      <PasswordReset passwordComplexitySettings={{} as never} />
     );
 
     await user.click(getByRole("button", { name: "submit-password-reset" }));
@@ -114,27 +82,5 @@ describe("PasswordReset", () => {
     await vi.waitFor(() => {
       expect(getByText("reset.errors.couldNotSetPassword")).toBeInTheDocument();
     });
-    expect(verifyPassword).not.toHaveBeenCalled();
-  });
-
-  it("shows verification error when sendPassword rejects", async () => {
-    const user = userEvent.setup();
-
-    vi.mocked(verifyPassword).mockRejectedValue(new Error("network"));
-
-    const { getByRole, getByText } = render(
-      <PasswordReset
-        userId="user-123"
-        loginName="person@canada.ca"
-        passwordComplexitySettings={{} as never}
-      />
-    );
-
-    await user.click(getByRole("button", { name: "submit-password-reset" }));
-
-    await vi.waitFor(() => {
-      expect(getByText("reset.errors.couldNotVerifyPassword")).toBeInTheDocument();
-    });
-    expect(router.push).not.toHaveBeenCalled();
   });
 });

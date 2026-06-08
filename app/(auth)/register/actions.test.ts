@@ -1,3 +1,4 @@
+import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -26,7 +27,7 @@ vi.mock("@lib/service-url", () => ({
   getServiceUrlFromHeaders: vi.fn(),
 }));
 
-vi.mock("@lib/validationSchemas", () => ({
+vi.mock("@lib/client/validationSchemas", () => ({
   validateAccountWithPassword: vi.fn(),
 }));
 
@@ -113,13 +114,12 @@ describe("registerUser", () => {
       redirect: "/verify?requestId=req-123",
     });
 
-    const response = await registerUser(baseCommand);
-
-    expect(response).toEqual({ redirect: "/verify?requestId=req-123" });
+    await expect(registerUser(baseCommand)).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
   });
 
   it("creates session with retry enabled", async () => {
-    await registerUser(baseCommand);
+    await expect(registerUser(baseCommand)).rejects.toThrow("NEXT_REDIRECT");
 
     expect(createSessionAndUpdateCookie).toHaveBeenCalledWith(
       expect.objectContaining({

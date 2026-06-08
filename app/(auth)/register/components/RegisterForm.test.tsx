@@ -30,7 +30,7 @@ vi.mock("@i18n/client", () => ({
   LANGUAGE_COOKIE_NAME: "i18next",
 }));
 
-vi.mock("@lib/validationSchemas", () => ({
+vi.mock("@lib/client/validationSchemas", () => ({
   validateAccount: vi.fn(),
 }));
 

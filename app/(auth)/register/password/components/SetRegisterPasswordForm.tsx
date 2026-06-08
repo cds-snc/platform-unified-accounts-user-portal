@@ -8,7 +8,7 @@ import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/p
  * Internal Aliases
  *--------------------------------------------*/
 import { validateAccount } from "@lib/client/validationSchemas";
-import { useTranslation } from "@i18n";
+import { useTranslation } from "@i18n/client";
 import { PasswordValidationForm } from "@components/auth/password-validation/PasswordValidationForm";
 import { Alert, ErrorStatus } from "@components/ui/form";
 
@@ -29,7 +29,6 @@ export function SetRegisterPasswordForm({
   firstname: string;
   lastname: string;
   requestId?: string;
-  onSubmitSuccess?: () => void;
 }) {
   const { t } = useTranslation(["password"]);
 
