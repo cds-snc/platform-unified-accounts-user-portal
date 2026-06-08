@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/password_settings_pb";
 
@@ -23,19 +23,13 @@ type Props = {
 export function PasswordPageClient({ passwordComplexitySettings }: Props) {
   const router = useRouter();
   const { registrationData, isHydrated } = useRegistration();
-  // Track if form was submitted successfully - prevents redirect when data is cleared
-  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
     // Once hydrated, if no registration data exists and form wasn't submitted, redirect to step 1
-    if (isHydrated && !registrationData && !hasSubmitted) {
+    if (isHydrated && !registrationData) {
       router.replace("/register");
     }
-  }, [isHydrated, registrationData, hasSubmitted, router]);
-
-  const onSubmitSuccess = () => {
-    setHasSubmitted(true);
-  };
+  }, [isHydrated, registrationData, router]);
 
   // Show nothing while hydrating from sessionStorage
   if (!isHydrated) {
@@ -43,7 +37,7 @@ export function PasswordPageClient({ passwordComplexitySettings }: Props) {
   }
 
   // Show nothing while redirecting (no registration data and didn't submit)
-  if (!registrationData && !hasSubmitted) {
+  if (!registrationData) {
     return null;
   }
 
@@ -54,7 +48,6 @@ export function PasswordPageClient({ passwordComplexitySettings }: Props) {
       firstname={registrationData?.firstname ?? ""}
       lastname={registrationData?.lastname ?? ""}
       requestId={registrationData?.requestId}
-      onSubmitSuccess={onSubmitSuccess}
     />
   );
 }
