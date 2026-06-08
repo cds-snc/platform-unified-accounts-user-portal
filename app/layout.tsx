@@ -7,7 +7,7 @@ import { Lato, Noto_Sans } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { dir } from "i18next";
 
-import { resolveSiteConfigByHost } from "@lib/site-config";
+import { SiteConfigService } from "@lib/site-config";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -42,6 +42,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const locale = requestCookies.get("i18next")?.value ?? languages[0];
   const nonce = requestHeaders.get("x-nonce") ?? undefined;
 
+  const siteConfig = await SiteConfigService.getInstance();
+
   return (
     <html lang={locale} dir={dir(locale)} className={`${notoSans.variable} ${lato.variable}`}>
       <head>
@@ -72,7 +74,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       </head>
       <body>
         {process.env.DEBUG && <RouterDebugger />}
-        <SiteConfigProvider siteConfig={resolveSiteConfigByHost()}>{children}</SiteConfigProvider>
+        <SiteConfigProvider siteConfig={siteConfig.resolve()}>{children}</SiteConfigProvider>
       </body>
     </html>
   );
