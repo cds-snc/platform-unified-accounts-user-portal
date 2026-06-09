@@ -17,7 +17,7 @@ import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 
-import { verifiyAndRegisterTOTP } from "../set/actions";
+import { verifyAndRegisterTOTP } from "../set/actions";
 
 /*--------------------------------------------*
  * Local Relative
@@ -57,7 +57,7 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
       };
     }
 
-    return verifiyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter })
+    return verifyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter })
       .then(() => {
         return previousState;
       })

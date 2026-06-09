@@ -20,7 +20,7 @@ import { verifyTOTPRegistration } from "@lib/zitadel";
  * Local Relative
  *--------------------------------------------*/
 
-export const verifiyAndRegisterTOTP = AuthenticatedAction(async function verifyAndRegisterTOTP(
+export const verifyAndRegisterTOTP = AuthenticatedAction(async function verifyAndRegisterTOTP(
   session,
   {
     code,
