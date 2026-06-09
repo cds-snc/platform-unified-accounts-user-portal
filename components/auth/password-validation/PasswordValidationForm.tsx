@@ -1,5 +1,3 @@
-"use client";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -10,8 +8,8 @@ import * as v from "valibot";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { codeSchema, confirmPasswordSchema, passwordSchema } from "@lib/validationSchemas";
-import { getError, hasError } from "@lib/validators";
+import { codeSchema, confirmPasswordSchema, passwordSchema } from "@lib/client/validationSchemas";
+import { getError, hasError } from "@lib/client/validators";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";

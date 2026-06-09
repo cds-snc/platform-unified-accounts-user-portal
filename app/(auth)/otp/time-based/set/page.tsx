@@ -40,16 +40,7 @@ export default async function Page(props: {
 
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (requiresStrongMfaSetupVerification(session)) {
     logMessage.debug({
@@ -142,7 +133,6 @@ export default async function Page(props: {
             <TotpRegister
               uri={totpResponse.uri as string}
               secret={totpResponse.secret as string}
-              loginName={loginName}
               requestId={requestId}
               checkAfter={checkAfter}
             ></TotpRegister>

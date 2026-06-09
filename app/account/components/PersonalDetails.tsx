@@ -7,12 +7,12 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { validatePersonalDetails } from "@lib/validationSchemas";
-import { getError, hasError } from "@lib/validators";
+import { validatePersonalDetails } from "@lib/client/validationSchemas";
+import { getError, hasError } from "@lib/client/validators";
+import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -35,12 +35,10 @@ type FormState = {
 };
 
 export const PersonalDetails = ({
-  userId,
   firstName,
   lastName,
   className,
 }: {
-  userId: string;
   firstName: string;
   lastName: string;
   className?: string;
@@ -89,7 +87,6 @@ export const PersonalDetails = ({
     }
 
     const result = await updatePersonalDetailsAction({
-      userId,
       firstName: formEntries.firstname,
       lastName: formEntries.lastname,
     });

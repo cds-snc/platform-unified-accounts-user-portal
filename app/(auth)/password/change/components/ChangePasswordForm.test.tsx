@@ -1,18 +1,13 @@
-import { useRouter } from "next/navigation";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { checkSessionAndSetPassword, sendPassword } from "@lib/server/password";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../../test/helpers/client";
+import { changePasswordFormAction } from "../action";
 
 import { ChangePasswordForm } from "./ChangePasswordForm";
-
-vi.mock("next/navigation", () => ({
-  useRouter: vi.fn(),
-}));
 
 vi.mock("@i18n", () => ({
   useTranslation: vi.fn(),
@@ -25,9 +20,8 @@ vi.mock("@i18n/client", () => ({
   LANGUAGE_COOKIE_NAME: "i18next",
 }));
 
-vi.mock("@lib/server/password", () => ({
-  checkSessionAndSetPassword: vi.fn(),
-  sendPassword: vi.fn(),
+vi.mock("../action", () => ({
+  changePasswordFormAction: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("@zitadel/client", () => ({
@@ -52,62 +46,29 @@ describe("ChangePasswordForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(useRouter).mockReturnValue(router);
     vi.mocked(useTranslation).mockReturnValue(createTranslationStub() as never);
 
-    vi.mocked(checkSessionAndSetPassword).mockResolvedValue({ success: true } as never);
-    vi.mocked(sendPassword).mockResolvedValue({ redirect: "/account?requestId=req-123" } as never);
+    vi.mocked(changePasswordFormAction);
   });
 
   it("submits changed password and redirects when verification succeeds", async () => {
     const user = userEvent.setup();
 
-    render(
-      <ChangePasswordForm
-        sessionId="session-123"
-        loginName="person@canada.ca"
-        requestId="req-123"
-        passwordComplexitySettings={{} as never}
-      />
-    );
+    render(<ChangePasswordForm requestId="req-123" passwordComplexitySettings={{} as never} />);
 
     await user.click(screen.getByRole("button", { name: "submit-change-password" }));
 
-    expect(checkSessionAndSetPassword).toHaveBeenCalledWith({
-      sessionId: "session-123",
-      password: "N3wPassw0rd!",
-    });
-
-    await waitFor(
-      () => {
-        expect(sendPassword).toHaveBeenCalledWith({
-          loginName: "person@canada.ca",
-          requestId: "req-123",
-          checks: {
-            password: {
-              password: "N3wPassw0rd!",
-            },
-          },
-        });
-        expect(router.push).toHaveBeenCalledWith("/account?requestId=req-123");
-      },
-      { timeout: 2500 }
-    );
+    expect(changePasswordFormAction).toHaveBeenCalledWith("N3wPassw0rd!", "req-123");
   });
 
   it("shows verification error when sendPassword rejects", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(sendPassword).mockRejectedValue(new Error("network"));
-
-    render(
-      <ChangePasswordForm
-        sessionId="session-123"
-        loginName="person@canada.ca"
-        requestId="req-123"
-        passwordComplexitySettings={{} as never}
-      />
+    vi.mocked(changePasswordFormAction).mockRejectedValue(
+      new Error("change.errors.couldNotVerifyPassword")
     );
+
+    render(<ChangePasswordForm requestId="req-123" passwordComplexitySettings={{} as never} />);
 
     await user.click(screen.getByRole("button", { name: "submit-change-password" }));
 

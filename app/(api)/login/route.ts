@@ -3,12 +3,12 @@
  *--------------------------------------------*/
 import { NextRequest, NextResponse } from "next/server";
 
+import { FlowInitiationParams, handleOIDCFlowInitiation } from "@lib/server/flow-initiation";
+import { loadSessionsWithCookies } from "@lib/server/session";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { isRSCRequest, validateAuthRequest } from "@lib/auth-utils";
-import { FlowInitiationParams, handleOIDCFlowInitiation } from "@lib/server/flow-initiation";
-import { loadSessionsWithCookies } from "@lib/server/session";
+import { isRSCRequest, validateAuthRequest } from "@lib/utils/auth";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

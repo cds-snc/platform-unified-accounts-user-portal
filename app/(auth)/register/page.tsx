@@ -2,13 +2,10 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { headers } from "next/headers";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getOriginalHostFromHeaders } from "@lib/server/host";
-import { resolveSiteConfigByHost } from "@lib/site-config";
 import { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -27,12 +24,9 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
 
-  const resolvedHost = getOriginalHostFromHeaders(await headers());
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
-
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="register">
-      <RegisterForm requestId={requestId} siteConfig={siteConfig} />
+      <RegisterForm requestId={requestId} />
     </AuthPanel>
   );
 }

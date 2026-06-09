@@ -8,9 +8,9 @@ import { redirect } from "next/navigation";
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { getSafeRedirectUrl } from "@lib/redirect-validator";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { getSafeRedirectUrl } from "@lib/utils/redirect-validator";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -21,23 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("verify.title") };
 }
 
-// Hardware key login page
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { redirect: redirectParam, requestId } = searchParams;
 
   const safeRedirect = getSafeRedirectUrl(redirectParam);
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (!session.factors?.user?.loginName || !session.factors?.user?.id) {
     logMessage.debug({
@@ -62,13 +52,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       ></UserAvatar>
 
       <div className="w-full">
-        <LoginU2F
-          loginName={session.factors.user.loginName}
-          sessionId={session.id}
-          requestId={requestId}
-          login={false} // this sets the userVerificationRequirement to discouraged as its used as second factor
-          redirect={safeRedirect}
-        />
+        <LoginU2F requestId={requestId} redirect={safeRedirect} />
       </div>
     </AuthPanel>
   );

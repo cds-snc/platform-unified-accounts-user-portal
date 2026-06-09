@@ -26,29 +26,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (!hasStrongMFA(session)) {
     redirect(buildUrlWithRequestId("/password/change/verify", requestId));
   }
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
-  const loginName = session.factors?.user?.loginName;
 
-  if (!loginName || !passwordComplexitySettings) {
+  if (!passwordComplexitySettings) {
     logMessage.debug({
       message: "Password change page missing required session context",
-      hasLoginName: !!loginName,
-
       hasPasswordComplexitySettings: !!passwordComplexitySettings,
     });
     throw new Error(
@@ -63,9 +51,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       namespace="password"
     >
       <ChangePasswordForm
-        sessionId={session.id}
-        loginName={loginName}
         passwordComplexitySettings={passwordComplexitySettings}
+        requestId={requestId}
       />
     </AuthPanel>
   );

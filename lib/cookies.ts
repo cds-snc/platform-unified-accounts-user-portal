@@ -12,6 +12,7 @@ import { ZITADEL_ORGANIZATION } from "@root/constants/config";
  * Local Relative
  *--------------------------------------------*/
 import { logMessage } from "./logger";
+
 // TODO: improve this to handle overflow
 const MAX_COOKIE_SIZE = 2048;
 
@@ -19,6 +20,7 @@ export type Cookie = {
   id: string;
   token: string;
   loginName: string;
+  displayName: string;
   userId: string; // Zitadel user ID for authorization checks
   organization?: string;
   creationTs: string;
@@ -138,10 +140,10 @@ export async function updateSessionCookie<T>({
 }
 
 export async function removeSessionFromCookie<T>({
-  session,
+  sessionId,
   cleanup,
 }: {
-  session: SessionCookie<T>;
+  sessionId: string;
   cleanup?: boolean;
   iFrameEnabled?: boolean;
 }) {
@@ -150,9 +152,14 @@ export async function removeSessionFromCookie<T>({
 
   const sessions: SessionCookie<T>[] = stringifiedCookie?.value
     ? JSON.parse(stringifiedCookie?.value)
-    : [session];
+    : [];
 
-  const reducedSessions = sessions.filter((s) => s.id !== session.id);
+  if (sessions.length < 1) {
+    // No sessions in cookie
+    return;
+  }
+
+  const reducedSessions = sessions.filter((s) => s.id !== sessionId);
   if (cleanup) {
     const now = new Date();
     const filteredSessions = reducedSessions.filter((session) =>
@@ -207,58 +214,6 @@ export async function getSessionCookieById<T>({
   }
 }
 
-export async function getSessionCookieByLoginName<T>({
-  loginName,
-}: {
-  loginName?: string;
-}): Promise<SessionCookie<T>> {
-  const cookiesList = await cookies();
-  const stringifiedCookie = cookiesList.get("sessions");
-
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
-    const found = sessions.find(
-      (s) => s.organization === ZITADEL_ORGANIZATION && s.loginName === loginName
-    );
-    if (found) {
-      return found;
-    } else {
-      return Promise.reject("no cookie found with loginName: " + loginName);
-    }
-  } else {
-    return Promise.reject("no session cookie found");
-  }
-}
-
-/**
- *
- * @param cleanup when true, removes all expired sessions, default true
- * @returns Session Cookies
- */
-export async function getAllSessionCookieIds<T>(cleanup: boolean = false): Promise<string[]> {
-  const cookiesList = await cookies();
-  const stringifiedCookie = cookiesList.get("sessions");
-
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
-
-    if (cleanup) {
-      const now = new Date();
-      return sessions
-        .filter((session) =>
-          session.expirationTs
-            ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
-            : true
-        )
-        .map((session) => session.id);
-    } else {
-      return sessions.map((session) => session.id);
-    }
-  } else {
-    return [];
-  }
-}
-
 /**
  *
  * @param cleanup when true, removes all expired sessions, default true
@@ -288,52 +243,19 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
 }
 
 /**
- * Returns most recent session filtered by optinal loginName
- * @param loginName optional loginName to filter cookies, if non provided, returns most recent session
- * @param organization optional organization to filter cookies
- * @returns most recent session
- */
-export async function getMostRecentCookie<T>(): Promise<SessionCookie<T>> {
-  const cookiesList = await cookies();
-  const stringifiedCookie = cookiesList.get("sessions");
-
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
-    let filtered = sessions;
-
-    filtered = filtered.filter((cookie) => {
-      return cookie.organization === ZITADEL_ORGANIZATION;
-    });
-
-    const latest =
-      filtered && filtered.length
-        ? filtered.reduce((prev, current) => {
-            return prev.changeTs > current.changeTs ? prev : current;
-          })
-        : undefined;
-
-    if (latest) {
-      return latest;
-    } else {
-      return Promise.reject("Could not get the context or retrieve a session");
-    }
-  } else {
-    return Promise.reject("Could not read session cookie");
-  }
-}
-
-/**
  * Get session credentials from the http-only session cookie
  * @returns sessionId, loginName, organization, and requestId (if linked to OIDC flow)
  */
 // TODO - Refactor to see if we still need this transformative function
 export async function getSessionCredentials() {
   try {
-    const { id, loginName, userId, organization, requestId } = await getActiveSessionCookie();
+    const { id, loginName, userId, organization, requestId, displayName } =
+      await getActiveSessionCookie();
 
     return {
       sessionId: id,
       loginName,
+      displayName,
       userId,
       organization,
       requestId, // Include requestId for OIDC flows

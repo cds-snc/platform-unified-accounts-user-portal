@@ -41,6 +41,7 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
         return router.push(buildUrlWithRequestId("/account", requestId));
       }
     }
+    // Used to set state on the page not as the result of a mutation action
     router.push(`?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`);
   };
 

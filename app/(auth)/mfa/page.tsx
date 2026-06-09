@@ -18,7 +18,7 @@ import { AuthPanel } from "@components/auth/AuthPanel";
 /*--------------------------------------------*
  * Parent Relative
  *--------------------------------------------*/
-import { ChooseSecondFactor } from "../u2f/components/ChooseSecondFactor";
+import { ChooseSecondFactor } from "./components/ChooseSecondFactor";
 // Strong MFA methods that must be configured before accessing the MFA selection page
 const STRONG_MFA_METHODS = [AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F];
 
@@ -30,44 +30,33 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   const sessionFactors = session.factors;
 
   // Check if user has at least one strong MFA method (TOTP or U2F)
-  const hasStrongMFA = STRONG_MFA_METHODS.some((method) => session.authMethods?.includes(method));
+  const userMethods = session.authMethods.filter((method) => STRONG_MFA_METHODS.includes(method));
 
   // Redirect to MFA setup if no strong MFA method is configured
-  if (!hasStrongMFA) {
+  if (userMethods.length < 1) {
     redirect(buildUrlWithRequestId("/mfa/set", session.requestId));
   }
 
   return (
-    <>
-      <AuthPanel titleI18nKey="title" descriptionI18nKey="verify.description" namespace="mfa">
-        <div className="flex flex-col space-y-4">
-          <UserAvatar
-            loginName={sessionFactors?.user?.loginName}
-            displayName={sessionFactors?.user?.displayName}
-            showDropdown={false}
-          ></UserAvatar>
-        </div>
-        <ChooseSecondFactor
-          userMethods={session.authMethods ?? []}
+    <AuthPanel titleI18nKey="title" descriptionI18nKey="verify.description" namespace="mfa">
+      <div className="flex flex-col space-y-4">
+        <UserAvatar
           loginName={sessionFactors?.user?.loginName}
-          sessionId={session.id}
-          requestId={session.requestId}
-        />
-      </AuthPanel>
-    </>
+          displayName={sessionFactors?.user?.displayName}
+          showDropdown={false}
+        ></UserAvatar>
+      </div>
+      <ChooseSecondFactor
+        userMethods={session.authMethods ?? []}
+        loginName={sessionFactors?.user?.loginName}
+        sessionId={session.id}
+        requestId={session.requestId}
+      />
+    </AuthPanel>
   );
 }

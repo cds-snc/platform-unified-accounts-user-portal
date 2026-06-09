@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RegisterForm } from "@root/app/(auth)/register/components/RegisterForm";
-import { validateAccount } from "@lib/validationSchemas";
+import { validateAccount } from "@lib/client/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../test/helpers/client";
@@ -30,12 +30,18 @@ vi.mock("@i18n/client", () => ({
   LANGUAGE_COOKIE_NAME: "i18next",
 }));
 
-vi.mock("@lib/validationSchemas", () => ({
+vi.mock("@lib/client/validationSchemas", () => ({
   validateAccount: vi.fn(),
 }));
 
 vi.mock("../context/RegistrationContext", () => ({
   useRegistration: vi.fn(),
+}));
+
+vi.mock("@components/contexts/SiteConfigContext", () => ({
+  useSiteConfig: vi.fn(() => ({
+    getSiteLink: vi.fn(),
+  })),
 }));
 
 describe("RegisterForm", () => {
@@ -65,16 +71,7 @@ describe("RegisterForm", () => {
   });
 
   it("renders registration fields and submit button", () => {
-    render(
-      <RegisterForm
-        requestId="req-123"
-        siteConfig={{
-          id: "dev",
-          baseUrl: "http://localhost:3000",
-          zitadelOrganizationId: "org-1",
-        }}
-      />
-    );
+    render(<RegisterForm requestId="req-123" />);
 
     expect(screen.getByLabelText(/labels\.firstname/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels\.lastname/i)).toBeInTheDocument();
@@ -92,16 +89,7 @@ describe("RegisterForm", () => {
       ],
     } as never);
 
-    render(
-      <RegisterForm
-        requestId="req-123"
-        siteConfig={{
-          id: "dev",
-          baseUrl: "http://localhost:3000",
-          zitadelOrganizationId: "org-1",
-        }}
-      />
-    );
+    render(<RegisterForm requestId="req-123" />);
 
     await userEvent.click(screen.getByRole("button", { name: "button.continue" }));
 
@@ -115,16 +103,7 @@ describe("RegisterForm", () => {
   });
 
   it("stores registration data and redirects to password step on valid submit", async () => {
-    render(
-      <RegisterForm
-        requestId="req-123"
-        siteConfig={{
-          id: "dev",
-          baseUrl: "http://localhost:3000",
-          zitadelOrganizationId: "org-1",
-        }}
-      />
-    );
+    render(<RegisterForm requestId="req-123" />);
 
     await userEvent.type(screen.getByLabelText(/labels\.firstname/i), "Person");
     await userEvent.type(screen.getByLabelText(/labels\.lastname/i), "Example");

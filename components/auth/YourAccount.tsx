@@ -6,12 +6,12 @@
  * Internal Aliases
  *--------------------------------------------*/
 
-import { isSessionValid, loadActiveSession } from "@lib/session";
+import { getActiveSessionCookie } from "@lib/cookies";
 
 import { YourAccountDropdown } from "./YourAccountDropdown";
 
 export const YourAccount = async () => {
-  const activeSession = await loadActiveSession().catch(() => {
+  const activeSession = await getActiveSessionCookie().catch(() => {
     // this will throw if there is no active session
     return undefined;
   });
@@ -20,11 +20,11 @@ export const YourAccount = async () => {
     return null;
   }
 
-  const valid = await isSessionValid({ session: activeSession });
+  const valid = parseInt(activeSession.expirationTs) > new Date().getTime();
 
   if (!valid) {
     return null;
   }
 
-  return <YourAccountDropdown userName={activeSession.factors?.user?.loginName ?? ""} />;
+  return <YourAccountDropdown userName={activeSession.loginName ?? ""} />;
 };

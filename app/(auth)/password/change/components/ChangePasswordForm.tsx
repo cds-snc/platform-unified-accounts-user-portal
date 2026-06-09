@@ -4,34 +4,21 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { create } from "@zitadel/client";
-import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/password_settings_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { checkSessionAndSetPassword, sendPassword } from "@lib/server/password";
-import { useTranslation } from "@i18n";
 import { PasswordValidationForm } from "@components/auth/password-validation/PasswordValidationForm";
 import { Alert, ErrorStatus } from "@components/ui/form";
+
+import { changePasswordFormAction } from "../action";
 type Props = {
   passwordComplexitySettings: PasswordComplexitySettings;
-  sessionId: string;
-  loginName: string;
   requestId?: string;
 };
 
-export function ChangePasswordForm({
-  passwordComplexitySettings,
-  sessionId,
-  loginName,
-  requestId,
-}: Props) {
-  const { t } = useTranslation("password");
-  const router = useRouter();
-  // const [loading, setLoading] = useState<boolean>(false);
+export function ChangePasswordForm({ passwordComplexitySettings, requestId }: Props) {
   const [error, setError] = useState("");
 
   const successCallback = async ({ password }: { password: string }) => {
@@ -39,46 +26,8 @@ export function ChangePasswordForm({
       setError("Invalid Field");
     }
 
-    const changeResponse = checkSessionAndSetPassword({
-      sessionId,
-      password,
-    }).catch(() => setError(t("change.errors.couldNotChangePassword")));
-    // .finally(() => {
-    //   setLoading(false);
-    // });
-
-    if (changeResponse && "error" in changeResponse && changeResponse.error) {
-      return {
-        error:
-          typeof changeResponse.error === "string"
-            ? changeResponse.error
-            : t("change.errors.unknownError"),
-      };
-    }
-
-    if (!changeResponse) {
-      return {
-        error: t("change.errors.couldNotChangePassword"),
-      };
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for a second, to prevent eventual consistency issues
-
-    const passwordResponse = await sendPassword({
-      loginName,
-      checks: create(ChecksSchema, {
-        password: { password },
-      }),
-      requestId,
-    }).catch(() => setError(t("change.errors.couldNotVerifyPassword")));
-
-    if (passwordResponse && "error" in passwordResponse && passwordResponse.error) {
-      return passwordResponse;
-    }
-
-    if (passwordResponse && "redirect" in passwordResponse && passwordResponse.redirect) {
-      router.push(passwordResponse.redirect);
-    }
+    // Error translation handled server side
+    await changePasswordFormAction(password, requestId).catch((e) => setError(e.message));
   };
 
   return (

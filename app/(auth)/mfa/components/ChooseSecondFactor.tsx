@@ -29,13 +29,6 @@ export function ChooseSecondFactor({ userMethods, requestId }: Props) {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [nextUrl, setNextUrl] = useState<string>("");
 
-  const authMehods = userMethods.filter((method) => {
-    if (method === AuthenticationMethodType.U2F || AuthenticationMethodType.TOTP) {
-      return true;
-    }
-    return false;
-  });
-
   const handleMethodSelect = (method: string, url: string) => {
     setSelectedMethod(method);
     setNextUrl(url);
@@ -49,8 +42,8 @@ export function ChooseSecondFactor({ userMethods, requestId }: Props) {
 
   return (
     <>
-      <div className={cn("grid w-full grid-cols-1 pt-4", authMehods.length >= 2 && "gap-5")}>
-        {authMehods.map((method, i) => {
+      <div className={cn("grid w-full grid-cols-1 pt-4", userMethods.length >= 2 && "gap-5")}>
+        {userMethods.map((method, i) => {
           return (
             <div key={"method-" + i}>
               {method === AuthenticationMethodType.TOTP && (

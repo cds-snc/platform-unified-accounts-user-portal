@@ -56,9 +56,7 @@ vi.mock("@components/auth/AuthPanel", () => ({
 }));
 
 vi.mock("./components/ChangePasswordForm", () => ({
-  ChangePasswordForm: ({ sessionId, loginName }: { sessionId: string; loginName: string }) => (
-    <div>{`change-password-form:${sessionId}:${loginName}`}</div>
-  ),
+  ChangePasswordForm: () => <div>change-password-form</div>,
 }));
 
 const PageParams = {
@@ -119,9 +117,7 @@ describe("password/change page", () => {
     const view = await Page(PageParams);
     render(view);
 
-    expect(
-      screen.getByText("change-password-form:session-123:person@canada.ca")
-    ).toBeInTheDocument();
+    expect(screen.getByText("change-password-form")).toBeInTheDocument();
     expect(redirect).not.toHaveBeenCalled();
   });
 });

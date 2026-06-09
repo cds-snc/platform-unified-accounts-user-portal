@@ -22,16 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId);
 
   if (!session.authMethods?.includes(AuthenticationMethodType.U2F)) {
     redirect("/password/reset/verify");
@@ -50,13 +41,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         showDropdown={false}
       />
       <div className="w-full">
-        <LoginU2F
-          loginName={session.factors?.user?.loginName}
-          sessionId={session.id}
-          login={false}
-          redirect="/password/reset/set"
-          requestId={requestId}
-        />
+        <LoginU2F redirect="/password/reset/set" requestId={requestId} />
       </div>
     </AuthPanel>
   );

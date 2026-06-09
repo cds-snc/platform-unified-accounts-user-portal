@@ -88,9 +88,8 @@
     "verifiedAccount": {
       "title": "Verified account",
       "email": "Email address",
-      "changeMessage": "<0>Cannot be changed</0><1>Create a new account</1> to use a different email.",
       "cannotBeChanged": "Cannot be changed",
-      "createNewAccount": "create new account"
+      "createNewAccount": "Create new account"
     },
     "authentication": {
       "title": "Authentication",
@@ -135,7 +134,8 @@
       "requiredUsername": "Email address is required.",
       "validGovEmail": "Enter a valid individual Government of Canada email address.",
       "requiredPassword": "Password is required.",
-      "invalidCredentials": "Invalid email address or password. Please try again."
+      "invalidCredentials": "Invalid email address or password. Please try again.",
+      "lockedOut": "Contact Support - There is an issue with your account"
     },
     "session": {
       "otherAccount": "Different account",
