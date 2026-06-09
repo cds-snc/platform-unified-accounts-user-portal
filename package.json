@@ -84,7 +84,7 @@
     "clsx": "^2.1.1",
     "cssnano": "^7.1.9",
     "eslint": "^9.39.2",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.2.7",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-hooks": "^7.0.1",
