@@ -140,7 +140,7 @@
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada.",
       "requiredPassword": "Le mot de passe est obligatoire.",
       "invalidCredentials": "Adresse courriel ou mot de passe invalide. Veuillez réessayer.",
-      "lockedOut": "Contact Support - There is an issue with your account"
+      "lockedOut": "Contacter l'assistance - Il y a un problème avec votre compte"
     },
     "session": {
       "otherAccount": "Autre compte",
