@@ -110,7 +110,7 @@ describe("route-protection", () => {
     } as never);
     vi.mocked(checkSessionFactorValidity).mockResolvedValue({ valid: false });
 
-    await expect(checkAuthenticationLevel(AuthLevel.BASIC_SESSION)).rejects.toThrow(
+    await expect(checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED)).rejects.toThrow(
       "NEXT_REDIRECT"
     );
     expect(mockRedirect).toHaveBeenCalledWith("/");
