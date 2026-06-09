@@ -152,13 +152,6 @@ export async function checkAuthenticationLevel(
     redirect(buildUrlWithRequestId("/", requestIdRef));
   }
 
-  const { valid } = checkSessionFactorValidity(session);
-
-  if (!valid) {
-    // Session is expired, user needs to login
-    redirect(buildUrlWithRequestId("/", requestIdRef));
-  }
-
   // Basic session check - just verify cookie exists
   if (requiredLevel === AuthLevel.BASIC_SESSION) {
     if (!session) {
@@ -168,6 +161,13 @@ export async function checkAuthenticationLevel(
       redirect(buildUrlWithRequestId("/", requestIdRef));
     }
     return session;
+  }
+
+  const { valid } = checkSessionFactorValidity(session);
+
+  if (!valid) {
+    // Session is expired, user needs to login
+    redirect(buildUrlWithRequestId("/", requestIdRef));
   }
 
   // For password and MFA checks, verify session factors
