@@ -80,41 +80,36 @@ export function LoginU2F({ requestId, redirect }: Props) {
 
   const initialized = useRef(false);
 
-  async function submitLogin(data: JsonObject) {
+  async function startU2FLoginFlow() {
+    const publicKeyCredential = await updateSessionForU2FChallenge(requestId)
+      // Type guard to ensure the data is not undefined
+      .then(({ challenges }) => {
+        if (typeof challenges?.webAuthN?.publicKeyCredentialRequestOptions === "undefined") {
+          throw new Error("U2F Challenges could not be initiated");
+        }
+        return challenges.webAuthN.publicKeyCredentialRequestOptions;
+      })
+      .catch(() => {
+        setError(t("verify.errors.verificationFailed"));
+        throw new Error("U2F Challenges could not be initiated");
+      });
+
+    const data = await getCredentialAssertionData(
+      publicKeyCredential.publicKey as PublicKeyCredentialRequestOptionsData
+    );
+
+    if (!data) {
+      setError(t("verify.errors.couldNotRetrievePasskey"));
+      return;
+    }
     const result = await verifyU2FLogin({
       checks: { webAuthN: { credentialAssertionData: data } } as Checks,
       requestId,
       redirect,
     });
     if ("error" in result) {
+      // result translation handled server side
       setError(result.error);
-      return;
-    }
-  }
-
-  async function startU2FLoginFlow() {
-    try {
-      const { challenges } = await updateSessionForU2FChallenge(requestId);
-      if (typeof challenges?.webAuthN?.publicKeyCredentialRequestOptions === "undefined") {
-        throw new Error("U2F Challenges could not be initiated");
-      }
-      const data = await getCredentialAssertionData(
-        challenges.webAuthN.publicKeyCredentialRequestOptions
-          .publicKey as PublicKeyCredentialRequestOptionsData
-      );
-
-      if (!data) {
-        setError(t("verify.errors.couldNotRetrievePasskey"));
-        return;
-      }
-
-      await submitLogin(data);
-    } catch (error) {
-      if ((error as Error)?.name === "NotAllowedError") {
-        setError(t("verify.errors.verificationCancelled"));
-      } else {
-        setError(t("verify.errors.verificationFailed"));
-      }
     }
   }
 
