@@ -9,6 +9,7 @@ minimumReleaseAgeExclude:
   - "@aws-sdk/token-providers@3.1049.0"
   - "@aws-sdk/xml-builder@3.972.24"
   - "@smithy/types@4.14.2"
+  - '@gcforms/core@2.2.13'
 
 allowBuilds:
   "@parcel/watcher": false
