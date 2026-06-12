@@ -13,7 +13,7 @@ export const config = {
      * - public folder files
      * - files with extensions (images, fonts, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|img/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?|css|js)$).*)",
+    "/(.*)",
   ],
 };
 
