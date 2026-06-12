@@ -23,8 +23,10 @@ jobs:
         include:
           - image: idp-login
             directory: .
+            tag-latest: false
           - image: idp-load-test
             directory: ./test/perf
+            tag-latest: true
 
     steps:
       - name: Audit DNS requests
@@ -55,7 +57,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2.1.5
 
-      - name: Build and push image
+      - name: Build and push SHA tagged image
         working-directory: ${{ matrix.directory }}
         run: |
           docker buildx build \
@@ -64,3 +66,12 @@ jobs:
             --build-arg GIT_SHA=$GITHUB_SHA \
             --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA" \
             .
+
+      - name: Push latest tagged image
+        if: matrix.tag-latest == true
+        working-directory: ${{ matrix.directory }}
+        run: |
+          docker tag \
+            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA" \
+            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest"
+          docker push "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest"
