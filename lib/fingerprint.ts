@@ -19,6 +19,8 @@ async function setFingerprintIdCookie(fingerprintId: string) {
     httpOnly: true,
     path: "/",
     maxAge: 31536000, // 1 year
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
