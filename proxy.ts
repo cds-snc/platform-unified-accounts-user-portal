@@ -7,6 +7,12 @@ BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 
+export const config = {
+  matcher: [
+    "/:path*", // Match all paths
+  ],
+};
+
 export async function proxy(request: NextRequest) {
   // Add the original URL as a header to all requests
   const requestHeaders = new Headers(request.headers);
