@@ -67,11 +67,9 @@ jobs:
             --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA" \
             .
 
-      - name: Push latest tagged image
+      - name: Tag latest image
         if: matrix.tag-latest == true
-        working-directory: ${{ matrix.directory }}
         run: |
-          docker tag \
-            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA" \
-            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest"
-          docker push "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest"
+          docker buildx imagetools create \
+            --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest" \
+            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA"
