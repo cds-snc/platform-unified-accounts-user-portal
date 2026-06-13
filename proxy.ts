@@ -3,22 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 import { generateCSP, responseWithCSP } from "@lib/cspScripts";
 
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico (favicon file)
-     * - public folder files
-     * - files with extensions (images, fonts, etc.)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\..*|img/).*)",
-  ],
-};
-
 BigInt.prototype.toJSON = function () {
   return this.toString();
+};
+
+export const config = {
+  matcher: [
+    "/:path*", // Match all paths
+  ],
 };
 
 export async function proxy(request: NextRequest) {
