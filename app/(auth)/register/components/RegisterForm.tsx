@@ -167,7 +167,9 @@ export function RegisterForm({ requestId }: Props) {
         {termsOfUseLink && (
           <p className="-mt-2 mb-10">
             {t("terms.agreement")}
-            <Link href={termsOfUseLink}>{t("terms.linkText")}</Link>
+            <Link href={termsOfUseLink} prefetch={false}>
+              {t("terms.linkText")}
+            </Link>
           </p>
         )}
 
