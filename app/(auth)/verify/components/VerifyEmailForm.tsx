@@ -161,7 +161,7 @@ export function VerifyEmailForm({
               <I18n i18nKey="newCode" namespace="verify" />
             </Button>
             {supportLink && (
-              <Link href={supportLink}>
+              <Link href={supportLink} prefetch={false}>
                 <I18n i18nKey="help" namespace="verify" />
               </Link>
             )}
