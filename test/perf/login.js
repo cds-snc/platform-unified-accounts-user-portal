@@ -180,6 +180,18 @@ function generateCodeChallenge(verifier) {
   return encoding.b64encode(hashBuf, "rawurl");
 }
 
+/**
+ * Generate a random delay to simulate user think time.
+ */
+function randomDelay() {
+  const minDelayMs = 1000;
+  const maxDelayMs = 3000;
+  return new Promise((resolve) => {
+    const delayMs = Math.floor(Math.random() * (maxDelayMs - minDelayMs + 1)) + minDelayMs;
+    setTimeout(resolve, delayMs);
+  });
+}
+
 // ─── OIDC token exchange ──────────────────────────────────────────────────────
 
 /**
@@ -278,6 +290,7 @@ export default async function loginFlow() {
     }
 
     // ─── Login page ─────────────────────────────────────
+    await randomDelay();
     await page.goto(loginPageUrl, { waitUntil: "load" });
     const loginPageOk = check(page, {
       "login page: username field present": () => page.locator("#username").isVisible(),
@@ -292,6 +305,7 @@ export default async function loginFlow() {
     await page.locator("#username").fill(USERNAME);
     await page.locator("#password").fill(PASSWORD);
     await page.locator("form#login button[type=submit]").click();
+    await randomDelay();
     await page.waitForNavigation({ waitUntil: "load" });
 
     // ─── TOTP page ──────────────────────────────────────
@@ -307,6 +321,7 @@ export default async function loginFlow() {
     const totpCode = generateTOTP(TOTP_SECRET);
     await page.locator("#code").fill(totpCode);
     await page.locator("form#totp button[type=submit]").click();
+    await randomDelay();
     await page.waitForNavigation({ waitUntil: "load" });
 
     // In non-OIDC mode, successful login ends on the /account page
