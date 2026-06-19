@@ -797,6 +797,7 @@ const customHeaderInterceptor = (next: AnyFn) => async (req: UnaryRequest | Stre
 export function createServerTransport(token: string, baseUrl: string) {
   return libCreateServerTransport(token, {
     baseUrl,
+    defaultTimeoutMs: 5000,
     interceptors: [customHeaderInterceptor, loggingInterceptor],
   });
 }
