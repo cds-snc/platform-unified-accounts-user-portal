@@ -44,7 +44,6 @@ jobs:
     container:
       # Playwright Docker image tag must match the pnpm-lock.yaml pinned version
       image: mcr.microsoft.com/playwright:v1.60.0-noble@sha256:9bd26ad900bb5e0f4dee75839e957a89ae89c2b7ab1e76050e559790e946b948
-      options: --user 1001
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0
@@ -93,4 +92,7 @@ jobs:
         if: failure() && steps.test.outcome == 'failure'
         run: |
           DATE=$(date +"%Y-%m-%d")
+          apt-get update && apt-get install -y unzip  
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip && ./aws/install
           aws s3 cp ./test-results s3://${{ inputs.bucket_name }}/${DATE}/${{ github.run_id }} --recursive
