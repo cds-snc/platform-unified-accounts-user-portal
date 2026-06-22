@@ -184,8 +184,8 @@ function generateCodeChallenge(verifier) {
  * Generate a random delay to simulate user think time.
  */
 function randomDelay() {
-  const minDelayMs = 1000;
-  const maxDelayMs = 3000;
+  const minDelayMs = 5000;
+  const maxDelayMs = 10000;
   return new Promise((resolve) => {
     const delayMs = Math.floor(Math.random() * (maxDelayMs - minDelayMs + 1)) + minDelayMs;
     setTimeout(resolve, delayMs);
