@@ -49,7 +49,7 @@ jobs:
         with:
           task-definition-family: idp-login
           container-name: idp-login
-          image: ${{ env.REGISTRY_PREFIX }}/idp-login:sha-$GITHUB_SHA
+          image: ${{ env.REGISTRY_PREFIX }}/idp-login:sha-${{ env.GITHUB_SHA }}
 
       - name: Deploy updated ECS task
         uses: aws-actions/amazon-ecs-deploy-task-definition@a310a830f5c14e583e35d84e4e1ec7dd177c3c9c # v2.6.2
