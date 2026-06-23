@@ -122,7 +122,7 @@ jobs:
       - docker-deploy
       - docker-sbom
       - integration-test
-    if: failure()
+    if: always() && contains(needs.*.result, 'failure')
     permissions: {}
     uses: ./.github/workflows/workflow-failure.yml
     secrets:
