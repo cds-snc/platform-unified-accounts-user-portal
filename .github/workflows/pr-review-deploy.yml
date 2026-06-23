@@ -18,14 +18,14 @@ env:
   REGISTRY_PREFIX: ${{ vars.STAGING_AWS_ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
   ROLE_ARN: arn:aws:iam::${{ vars.STAGING_AWS_ACCOUNT_ID }}:role/idp-login-pr
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: write
+permissions: {}
 
 jobs:
   pr-review-build:
     runs-on: ubuntu-24.04-arm
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0
@@ -78,6 +78,9 @@ jobs:
 
   pr-review-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
     needs: pr-review-build
     outputs:
       url: ${{ steps.deploy.outputs.url }}
@@ -120,10 +123,13 @@ jobs:
 
       - name: PR comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const commentId = "<!--pr-url-->";
+            const url = process.env.URL;`
             const pr = {
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -134,12 +140,15 @@ jobs:
             if (!isComment) {
               github.rest.issues.createComment({
                 ...pr,
-                body: `${commentId}\n## :test_tube: Review environment\n${{ steps.deploy.outputs.url }}ui/v2`
+                body: `${commentId}\n## :test_tube: Review environment\n${url}ui/v2`
               });
             }
 
   pr-integration-test:
     needs: pr-review-deploy
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/integration-test.yml
     with:
       account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}

@@ -8,8 +8,6 @@ on:
     branches:
       - main
 
-permissions: read-all
-
 jobs:
   analysis:
     name: Scorecards analysis
@@ -48,7 +46,7 @@ jobs:
           jq -c '. + {"metadata_owner": "'$OWNER'", "metadata_repo": "'$REPO'", "metadata_query": "ossf"}' ossf-results.json > ossf-results-modified.json
 
       - name: "Post results to Sentinel"
-        uses: cds-snc/sentinel-forward-data-action@main
+        uses: cds-snc/sentinel-forward-data-action@e358bf24b818e68a22c9736715a3b544851aaba8
         with:
           file_name: ossf-results-modified.json
           log_type: GitHubMetadata_OSSF_Scorecard

@@ -10,13 +10,14 @@ env:
   DELETE_AFTER_DAYS: 21
   FUNCTION_PREFIX: idp-login-pr
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   pr-review-delete-unused:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0

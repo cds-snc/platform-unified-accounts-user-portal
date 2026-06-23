@@ -10,14 +10,12 @@ env:
   REGISTRY_PREFIX: ${{ vars.STAGING_AWS_ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
   GITHUB_SHA: ${{ github.sha }}
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   docker-push:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-24.04-arm
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       matrix:
         include:
@@ -64,12 +62,70 @@ jobs:
             --push \
             --platform linux/arm64 \
             --build-arg GIT_SHA=$GITHUB_SHA \
-            --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA" \
+            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA" \
             .
 
       - name: Tag latest image
         if: matrix.tag-latest == true
         run: |
           docker buildx imagetools create \
-            --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest" \
-            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA"
+            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:latest" \
+            "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA"
+
+  docker-deploy:
+    needs: docker-push
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/docker-deploy.yml
+    with:
+      ACCOUNT_ID: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
+      GITHUB_SHA: ${{ github.sha }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+  docker-sbom:
+    needs: docker-push
+    permissions:
+      contents: read
+    uses: ./.github/workflows/docker-sbom.yml
+    with:
+      GITHUB_SHA: ${{ github.sha }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+  integration-test:
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/integration-test.yml
+    with:
+      account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
+      account_region: ca-central-1
+      bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
+      idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
+      portal_url: ${{ vars.STAGING_INTEGRATION_TEST_PORTAL_URL }}
+    secrets:
+      log_analytics_workspace_id: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      log_analytics_workspace_key: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      username: ${{ secrets.STAGING_INTEGRATION_TEST_USERNAME }}
+      password: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD }}
+      totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
+      waf_geo_restriction_bypass: ${{ secrets.STAGING_WAF_GEO_RESTRICTION_BYPASS }}
+      zitadel_bearer_token: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_BEARER_TOKEN }}
+      
+  workflow-failure:
+    needs: 
+      - docker-push
+      - docker-deploy
+      - docker-sbom
+      - integration-test
+    if: failure()
+    permissions: {}
+    uses: ./.github/workflows/workflow-failure.yml
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.STAGING_CLOUDWATCH_ALERT_SLACK_WEBHOOK }}
