@@ -129,7 +129,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const commentId = "<!--pr-url-->";
-            const url = process.env.URL;`
+            const url = process.env.URL;
             const pr = {
               issue_number: context.issue.number,
               owner: context.repo.owner,
