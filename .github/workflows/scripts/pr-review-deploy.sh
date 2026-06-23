@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Usage: pr-review-deploy.sh <function-name> <image-uri> <role-arn> <subnet-ids> <security-group-ids> 
+# Usage: pr-review-deploy.sh <function-name> <image-uri> <role-arn> <subnet-ids> <security-group-ids> <zitadel-api-url>
 # Outputs the function URL to stdout
 
 FUNCTION_NAME="$1"
@@ -9,6 +9,7 @@ IMAGE_URI="$2"
 ROLE_ARN="$3"
 SUBNET_IDS="$4"
 SECURITY_GROUP_IDS="$5"
+ZITADEL_API_URL="$6"
 
 if aws lambda get-function --function-name "$FUNCTION_NAME" > /dev/null 2>&1; then
   aws lambda update-function-code \
@@ -23,6 +24,7 @@ else
     --memory-size 2048 \
     --architectures "arm64" \
     --code "ImageUri=$IMAGE_URI" \
+    --environment "Variables={ZITADEL_API_URL=$ZITADEL_API_URL}" \
     --description "cds-snc/platform-unified-accounts-user-portal" \
     --vpc-config "SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_IDS" > /dev/null 2>&1
 
