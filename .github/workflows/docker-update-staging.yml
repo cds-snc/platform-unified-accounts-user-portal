@@ -36,7 +36,7 @@ jobs:
   docker-sbom:
     needs: docker-build
     permissions:
-      contents: read
+      contents: write
     uses: ./.github/workflows/docker-sbom.yml
     with:
       GITHUB_SHA: ${{ github.sha }}
@@ -70,7 +70,13 @@ jobs:
       - docker-deploy
       - docker-sbom
       - integration-test
-    if: always() && contains(needs.*.result, 'failure')
+    if: >-
+      always() && (
+        needs.docker-build.result == 'failure' ||
+        needs.docker-deploy.result == 'failure' ||
+        needs.docker-sbom.result == 'failure' ||
+        needs.integration-test.result == 'failure'
+      )
     permissions: {}
     uses: ./.github/workflows/workflow-failure.yml
     secrets:
