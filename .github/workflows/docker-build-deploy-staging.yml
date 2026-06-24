@@ -5,72 +5,20 @@ on:
     branches:
       - main
 
-env:
-  AWS_REGION: ca-central-1
-  REGISTRY_PREFIX: ${{ vars.STAGING_AWS_ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
-  GITHUB_SHA: ${{ github.sha }}
+permissions: {}
 
 jobs:
   docker-push:
-    runs-on: ubuntu-24.04-arm
     permissions:
       id-token: write
       contents: read
-    strategy:
-      matrix:
-        include:
-          - image: idp-login
-            directory: .
-            tag-latest: false
-          - image: idp-load-test
-            directory: ./test/perf
-            tag-latest: true
-
-    steps:
-      - name: Audit DNS requests
-        uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0
-        env:
-          DNS_PROXY_FORWARDTOSENTINEL: "true"
-          DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}"
-          DNS_PROXY_LOGANALYTICSSHAREDKEY: "${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}"
-          DNS_PROXY_SAFELIST: "${{ vars.DNS_PROXY_SAFELIST }}"
-          DNS_PROXY_WILDCARDGREEDY: "true"
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
-
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
-        with:
-          role-to-assume: arn:aws:iam::${{ vars.STAGING_AWS_ACCOUNT_ID }}:role/platform-unified-accounts-user-portal-apply
-          role-session-name: PushContainer
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 # v2.1.6
-
-      - name: Build and push SHA tagged image
-        working-directory: ${{ matrix.directory }}
-        run: |
-          docker buildx build \
-            --push \
-            --platform linux/arm64 \
-            --build-arg GIT_SHA=$GITHUB_SHA \
-            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA" \
-            .
-
-      - name: Tag latest image
-        if: matrix.tag-latest == true
-        run: |
-          docker buildx imagetools create \
-            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:latest" \
-            "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA"
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      ACCOUNT_ID: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
+      GITHUB_SHA: ${{ github.sha }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
 
   docker-deploy:
     needs: docker-push
@@ -104,7 +52,6 @@ jobs:
     uses: ./.github/workflows/integration-test.yml
     with:
       account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
-      account_region: ca-central-1
       bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
       portal_url: ${{ vars.STAGING_INTEGRATION_TEST_PORTAL_URL }}

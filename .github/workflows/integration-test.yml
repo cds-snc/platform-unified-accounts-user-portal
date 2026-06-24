@@ -6,9 +6,6 @@ on:
       account_id:
         required: true
         type: string
-      account_region:
-        required: true
-        type: string
       bucket_name:
         required: true
         type: string
@@ -33,6 +30,9 @@ on:
         required: true
       zitadel_bearer_token:
         required: true
+
+env:
+  AWS_REGION: ca-central-1
 
 jobs:
   integration-test:
@@ -85,7 +85,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ inputs.account_id }}:role/platform-unified-accounts-integration-tests
           role-session-name: IntegrationTests
-          aws-region: ${{ inputs.account_region }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload test results
         if: failure() && steps.test.outcome == 'failure'
