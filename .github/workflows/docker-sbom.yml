@@ -18,7 +18,7 @@ jobs:
   docker-sbom:
     runs-on: ubuntu-24.04-arm
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0
