@@ -97,6 +97,7 @@ jobs:
       LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
 
   integration-test:
+    needs: docker-deploy
     permissions:
       id-token: write
       contents: read
