@@ -5,9 +5,7 @@ on:
     branches:
       - main
     types:
-      - labeled
       - opened
-      - reopened
       - synchronize
 
 env:
