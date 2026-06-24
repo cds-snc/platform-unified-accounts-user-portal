@@ -1,4 +1,4 @@
-name: Docker build and deploy Staging
+name: Docker update Staging
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 permissions: {}
 
 jobs:
-  docker-push:
+  docker-build:
     permissions:
       id-token: write
       contents: read
@@ -21,7 +21,7 @@ jobs:
       LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
 
   docker-deploy:
-    needs: docker-push
+    needs: docker-build
     permissions:
       id-token: write
       contents: read
@@ -34,7 +34,7 @@ jobs:
       LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
 
   docker-sbom:
-    needs: docker-push
+    needs: docker-build
     permissions:
       contents: read
     uses: ./.github/workflows/docker-sbom.yml
@@ -66,7 +66,7 @@ jobs:
       
   workflow-failure:
     needs: 
-      - docker-push
+      - docker-build
       - docker-deploy
       - docker-sbom
       - integration-test
