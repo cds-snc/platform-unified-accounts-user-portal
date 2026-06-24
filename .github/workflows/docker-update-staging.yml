@@ -74,7 +74,6 @@ jobs:
       always() && (
         needs.docker-build.result == 'failure' ||
         needs.docker-deploy.result == 'failure' ||
-        needs.docker-sbom.result == 'failure' ||
         needs.integration-test.result == 'failure'
       )
     permissions: {}
