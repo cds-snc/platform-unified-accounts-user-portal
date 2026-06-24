@@ -118,7 +118,7 @@ jobs:
             "$ROLE_ARN" \
             "${{ secrets.PR_REVIEW_ENV_SUBNET_IDS }}" \
             "${{ secrets.PR_REVIEW_ENV_SECURITY_GROUP_IDS }}" \
-            "${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}")
+            "${{ vars.STAGING_INTEGRATION_TEST_URL }}")
           echo "URL=$URL" >> $GITHUB_OUTPUT
 
       - name: PR comment
