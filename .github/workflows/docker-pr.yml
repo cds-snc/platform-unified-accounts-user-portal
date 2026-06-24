@@ -8,12 +8,13 @@ on:
 env:
   GITHUB_SHA: ${{ github.sha }}
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   docker-pr:
     runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
     strategy:
       matrix:
         include:

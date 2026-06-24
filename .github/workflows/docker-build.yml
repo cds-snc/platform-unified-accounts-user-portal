@@ -1,23 +1,31 @@
-name: Docker build and push Staging
+name: Docker build
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      ACCOUNT_ID:
+        required: true
+        type: string
+      GITHUB_SHA:
+        required: true
+        type: string
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID:
+        required: true
+      LOG_ANALYTICS_WORKSPACE_KEY:
+        required: true
 
 env:
   AWS_REGION: ca-central-1
-  REGISTRY_PREFIX: ${{ vars.STAGING_AWS_ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
-  GITHUB_SHA: ${{ github.sha }}
-
-permissions:
-  id-token: write
-  contents: read
+  REGISTRY_PREFIX: ${{ inputs.ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
+  GITHUB_SHA: ${{ inputs.GITHUB_SHA }}
 
 jobs:
   docker-push:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-24.04-arm
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       matrix:
         include:
@@ -49,7 +57,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
-          role-to-assume: arn:aws:iam::${{ vars.STAGING_AWS_ACCOUNT_ID }}:role/platform-unified-accounts-user-portal-apply
+          role-to-assume: arn:aws:iam::${{ inputs.ACCOUNT_ID }}:role/platform-unified-accounts-user-portal-apply
           role-session-name: PushContainer
           aws-region: ${{ env.AWS_REGION }}
 
@@ -64,12 +72,12 @@ jobs:
             --push \
             --platform linux/arm64 \
             --build-arg GIT_SHA=$GITHUB_SHA \
-            --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA" \
+            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA" \
             .
 
       - name: Tag latest image
         if: matrix.tag-latest == true
         run: |
           docker buildx imagetools create \
-            --tag "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:latest" \
-            "${{ env.REGISTRY_PREFIX }}/${{ matrix.image }}:sha-$GITHUB_SHA"
+            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:latest" \
+            "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA"

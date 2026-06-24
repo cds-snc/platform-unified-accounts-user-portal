@@ -11,13 +11,14 @@ on:
 env:
   GITHUB_SHA: ${{ github.sha }}
 
-permissions:
-  contents: read
-  pull-requests: write
+permissions: {}
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Audit DNS requests

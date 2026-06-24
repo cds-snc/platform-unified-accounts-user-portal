@@ -1,17 +1,16 @@
 name: Workflow failure
 
 on:
-  workflow_run:
-    workflows:
-      - "Docker build and push Staging"
-      - "Docker deploy Staging"
-      - "Docker SBOM Staging"
-      - "Integration test Staging"
-    types:
-      - completed
+  workflow_call:
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID:
+        required: true
+      LOG_ANALYTICS_WORKSPACE_KEY:
+        required: true
+      SLACK_WEBHOOK_URL:
+        required: true
 
-permissions:
-  contents: none
+permissions: {}
 
 jobs:
   on-failure:
@@ -31,6 +30,8 @@ jobs:
           DNS_PROXY_WILDCARDGREEDY: "true"
 
       - name: Notify Slack
+        env:
+            GITHUB_WORKFLOW: ${{ github.workflow }}
         run: |
-          json='{"blocks":[{"type":"section","text":{"type":"mrkdwn","text":":red: User portal workflow failed: <${{ github.event.workflow_run.html_url }}|${{ github.event.workflow_run.name }}>"}}]}'
-          curl -X POST -H 'Content-type: application/json' --data "$json" ${{ secrets.STAGING_CLOUDWATCH_ALERT_SLACK_WEBHOOK }}
+          json='{"blocks":[{"type":"section","text":{"type":"mrkdwn","text":":red: User portal workflow failed: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${GITHUB_WORKFLOW}>"}}]}'
+          curl -X POST -H 'Content-type: application/json' --data "$json" ${{ secrets.SLACK_WEBHOOK_URL }}
