@@ -2,14 +2,6 @@ packages: []
 
 blockExoticSubdeps: true
 minimumReleaseAge: 10080 # 7 days
-minimumReleaseAgeExclude:
-  - "@aws-sdk/core@3.974.12"
-  - "@aws-sdk/credential-provider-env@3.972.38"
-  - "@aws-sdk/signature-v4-multi-region@3.996.27"
-  - "@aws-sdk/token-providers@3.1049.0"
-  - "@aws-sdk/xml-builder@3.972.24"
-  - "@smithy/types@4.14.2"
-  - '@gcforms/core@2.2.13'
 
 allowBuilds:
   "@parcel/watcher": false
