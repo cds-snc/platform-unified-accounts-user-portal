@@ -89,24 +89,11 @@ export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
     setError("");
     setLoading(true);
 
-    let response;
-    try {
-      response = await addU2F({
-        sessionId,
-      });
-    } catch (e) {
+    const response = await addU2F().catch(() => {
       setError("set.errors.credentialRegistrationFailed");
       setLoading(false);
-      return;
-    }
-
-    if (response && "error" in response && response?.error) {
-      setError(response?.error);
-      return;
-    }
-
-    if (!response || !("u2fId" in response)) {
-      setError("set.errors.credentialRegistrationFailed");
+    });
+    if (!response) {
       return;
     }
 

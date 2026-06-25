@@ -41,6 +41,7 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
         return router.push(buildUrlWithRequestId("/account", requestId));
       }
     }
+    // Used to set state on the page not as the result of a mutation action
     router.push(`?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`);
   };
 
@@ -62,7 +63,10 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       <p className="mt-10">
         {t("register")}
         &nbsp;
-        <Link href={registerLink}>{t("registerLinkText")}</Link>.
+        <Link href={registerLink} prefetch={false}>
+          {t("registerLinkText")}
+        </Link>
+        .
       </p>
     </>
   );

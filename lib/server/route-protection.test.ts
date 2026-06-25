@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
+import { mockRedirect } from "next/navigation";
 import { timestampDate } from "@zitadel/client";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { loadActiveSession } from "@lib/session";
+import { checkSessionFactorValidity, loadActiveSession } from "@lib/session";
 
 import {
   AuthLevel,
@@ -21,15 +21,13 @@ vi.mock("@zitadel/client", () => ({
 vi.mock("@lib/session", () => ({
   loadMostRecentSession: vi.fn(),
   loadActiveSession: vi.fn(),
+  checkSessionFactorValidity: vi.fn(),
 }));
 
 vi.mock("@lib/logger", () => ({
   logMessage: {
     debug: vi.fn(),
   },
-}));
-vi.mock("next/navigation", () => ({
-  redirect: vi.fn(),
 }));
 
 describe("route-protection", () => {
@@ -95,18 +93,27 @@ describe("route-protection", () => {
     ).toBe(false);
   });
 
-  it("allows open routes without loading session", async () => {
-    const result = await checkAuthenticationLevel(AuthLevel.OPEN);
-
-    expect(result).toEqual({ session: null });
-    expect(loadActiveSession).not.toHaveBeenCalled();
-  });
-
   it("fails basic session level when no session exists", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue(undefined as never);
 
-    await checkAuthenticationLevel(AuthLevel.BASIC_SESSION);
-    expect(redirect).toHaveBeenCalledWith("/");
+    await expect(checkAuthenticationLevel(AuthLevel.BASIC_SESSION)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/");
+  });
+
+  it("redirects when an invalid session is found ", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      factors: {
+        user: { id: "user-123" },
+      },
+    } as never);
+    vi.mocked(checkSessionFactorValidity).mockResolvedValue({ valid: false });
+
+    await expect(checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/");
   });
 
   it("fails password-required level when password is not verified", async () => {
@@ -115,9 +122,12 @@ describe("route-protection", () => {
         user: { id: "user-123" },
       },
     } as never);
+    vi.mocked(checkSessionFactorValidity).mockReturnValue({ valid: true });
 
-    await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED);
-    expect(redirect).toHaveBeenCalledWith("/password");
+    await expect(checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/password");
   });
 
   it("satisfies any-mfa level after password verification", async () => {
@@ -131,7 +141,7 @@ describe("route-protection", () => {
 
     const result = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED);
 
-    expect(result.session).not.toBe(null);
+    expect(result).not.toBe(null);
   });
 
   it("fails strong-mfa level", async () => {
@@ -143,7 +153,9 @@ describe("route-protection", () => {
       },
     } as never);
 
-    await checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED);
-    expect(redirect).toHaveBeenCalledWith("/mfa");
+    await expect(checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/mfa");
   });
 });

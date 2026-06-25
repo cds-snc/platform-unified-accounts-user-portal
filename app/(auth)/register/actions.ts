@@ -3,18 +3,18 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
+import { validateAccountWithPassword } from "@lib/client/validationSchemas";
+import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
-import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
-import { validateAccountWithPassword } from "@lib/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
-import { addHumanUser, getLoginSettings, getUserByID } from "@lib/zitadel";
+import { addHumanUser } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 type RegisterUserCommand = {
   email: string;
@@ -53,8 +53,6 @@ export async function registerUser(command: RegisterUserCommand) {
     return { error: t("errors.couldNotCreateUser") };
   }
 
-  const loginSettings = await getLoginSettings();
-
   const checks = create(ChecksSchema, {
     user: { search: { case: "userId", value: addResponse.userId } },
     password: { password: command.password },
@@ -63,7 +61,7 @@ export async function registerUser(command: RegisterUserCommand) {
   const session = await createSessionAndUpdateCookie({
     checks,
     requestId: command.requestId,
-    lifetime: loginSettings?.passwordCheckLifetime,
+    retry: true,
   });
 
   if (!session || !session.factors?.user) {
@@ -71,32 +69,16 @@ export async function registerUser(command: RegisterUserCommand) {
     return { error: t("errors.couldNotCreateSession") };
   }
 
-  const userResponse = await getUserByID(session?.factors?.user?.id);
+  // An undefined humanUser is passed as the newly created user will not have their
+  // email verified yet so the behaviour we want is to trigger the email verification flow.
 
-  if (!userResponse.user) {
-    logMessage.error("Failed to fetch user after registration");
-    return { error: t("errors.userNotFound") };
+  const redirectUrl = checkEmailVerification(session, undefined, command.requestId);
+
+  // type check as there should always be a redirect in this use case
+  if (!redirectUrl) {
+    throw new Error(
+      `[Registration Error] Could not complete registration flow for ${session.factors.user.loginName}`
+    );
   }
-
-  const humanUser =
-    userResponse.user.type.case === "human" ? userResponse.user.type.value : undefined;
-
-  const emailVerificationCheck = checkEmailVerification(session, humanUser, command.requestId);
-
-  if (emailVerificationCheck?.redirect) {
-    return emailVerificationCheck;
-  }
-
-  logMessage.info("User registered successfully");
-  return completeFlowOrGetUrl(
-    command.requestId && session.id
-      ? {
-          sessionId: session.id,
-          requestId: command.requestId,
-        }
-      : {
-          loginName: session.factors.user.loginName,
-        },
-    loginSettings?.defaultRedirectUri
-  );
+  redirect(redirectUrl.redirect, "push");
 }

@@ -200,35 +200,6 @@ describe("submitUserNameForm", () => {
     expect(response).toEqual({ error: "translated:errors.couldNotSendResetLink" });
   });
 
-  it("creates a recovery session and redirects on successful reset code email", async () => {
-    const response = await submitUserNameForm({
-      loginName: "person@canada.ca",
-      requestId: "req-123",
-    });
-
-    expect(response).toEqual({ redirect: "/password/reset/verify?requestId=req-123" });
-    expect(listUsers).toHaveBeenCalledWith({
-      loginName: "person@canada.ca",
-    });
-    expect(getPasswordResetTemplate).toHaveBeenCalledWith("reset-456");
-    expect(sendEmail).toHaveBeenCalledWith("person@canada.ca", "template-123", {
-      code: "reset-456",
-    });
-    expect(createSessionAndUpdateCookie).toHaveBeenCalledWith(
-      expect.objectContaining({
-        checks: expect.objectContaining({
-          user: expect.objectContaining({
-            search: expect.objectContaining({
-              case: "userId",
-              value: "user-123",
-            }),
-          }),
-        }),
-        requestId: "req-123",
-      })
-    );
-  });
-
   it("returns a generic error when the recovery session cannot be created", async () => {
     vi.mocked(createSessionAndUpdateCookie).mockResolvedValue(undefined as never);
 

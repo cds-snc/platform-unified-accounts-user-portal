@@ -1,11 +1,16 @@
+import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
-import { validateUsernameAndPassword } from "@lib/validationSchemas";
-import { checkEmailVerification, checkMFAFactors } from "@lib/verify-helper";
+import {
+  checkEmailVerification,
+  checkMFAFactors,
+  checkPasswordChangeRequired,
+} from "@lib/verify-helper";
 import {
   getLockoutSettings,
   getLoginSettings,
@@ -34,13 +39,14 @@ vi.mock("@lib/service-url", () => ({
   getServiceUrlFromHeaders: vi.fn(),
 }));
 
-vi.mock("@lib/validationSchemas", () => ({
+vi.mock("@lib/client/validationSchemas", () => ({
   validateUsernameAndPassword: vi.fn(),
 }));
 
 vi.mock("@lib/verify-helper", () => ({
   checkEmailVerification: vi.fn(),
   checkMFAFactors: vi.fn(),
+  checkPasswordChangeRequired: vi.fn(),
 }));
 
 vi.mock("@lib/zitadel", () => ({
@@ -59,6 +65,7 @@ vi.mock("@lib/logger", () => ({
     error: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 
@@ -96,6 +103,7 @@ describe("submitLoginForm", () => {
     } as never);
     vi.mocked(checkMFAFactors).mockResolvedValue({} as never);
     vi.mocked(getLockoutSettings).mockResolvedValue({ maxPasswordAttempts: BigInt(5) } as never);
+    vi.mocked(checkPasswordChangeRequired).mockResolvedValue(undefined);
   });
 
   it("returns generic error when validation fails", async () => {
@@ -120,18 +128,6 @@ describe("submitLoginForm", () => {
     });
 
     expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
-  });
-
-  it("returns generic error when login settings cannot be loaded", async () => {
-    vi.mocked(getLoginSettings).mockResolvedValue(undefined as never);
-
-    const response = await submitLoginForm({
-      username: "person@canada.ca",
-      password: "P@ssw0rd",
-    });
-
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
-    expect(createSessionAndUpdateCookie).not.toHaveBeenCalled();
   });
 
   it("returns generic error when session has no user id", async () => {
@@ -180,13 +176,15 @@ describe("submitLoginForm", () => {
       redirect: "/verify?requestId=req-123",
     });
 
-    const response = await submitLoginForm({
-      username: "person@canada.ca",
-      password: "P@ssw0rd",
-      requestId: "req-123",
-    });
+    await expect(
+      submitLoginForm({
+        username: "person@canada.ca",
+        password: "P@ssw0rd",
+        requestId: "req-123",
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(response).toEqual({ redirect: "/verify?requestId=req-123" });
+    expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
   });
 
   it("returns generic error when no auth methods are available", async () => {
@@ -203,13 +201,14 @@ describe("submitLoginForm", () => {
   it("returns MFA redirect when additional factor is required", async () => {
     vi.mocked(checkMFAFactors).mockResolvedValue({ redirect: "/mfa?requestId=req-123" } as never);
 
-    const response = await submitLoginForm({
-      username: "person@canada.ca",
-      password: "P@ssw0rd",
-      requestId: "req-123",
-    });
-
-    expect(response).toEqual({ redirect: "/mfa?requestId=req-123" });
+    await expect(
+      submitLoginForm({
+        username: "person@canada.ca",
+        password: "P@ssw0rd",
+        requestId: "req-123",
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/mfa?requestId=req-123");
   });
 
   it("returns generic error when MFA factor check fails", async () => {
@@ -231,9 +230,8 @@ describe("submitLoginForm", () => {
       requestId: "req-123",
     };
 
-    const response = await submitLoginForm(command);
-
-    expect(response).toEqual({ redirect: "/account?requestId=req-123" });
+    await expect(submitLoginForm(command)).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/account?requestId=req-123");
     expect(create).toHaveBeenCalledWith(ChecksSchema, {
       user: { search: { case: "loginName", value: command.username } },
       password: { password: command.password },

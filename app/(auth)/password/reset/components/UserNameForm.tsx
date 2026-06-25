@@ -4,14 +4,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useActionState } from "react";
-import { useRouter } from "next/navigation";
 
+import { validateUsername } from "@lib/client/validationSchemas";
+import { getError, hasError } from "@lib/client/validators";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
-import { validateUsername } from "@lib/validationSchemas";
-import { getError, hasError } from "@lib/validators";
 import { useTranslation } from "@i18n/client";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -37,7 +36,6 @@ type FormState = {
 export const UserNameForm = ({ requestId }: Props) => {
   const { t } = useTranslation(["start", "common", "error"]);
   const genericErrorMessage = t("title", { ns: "error" });
-  const router = useRouter();
 
   const localFormAction = async (previousState: FormState, formData?: FormData) => {
     const username = (formData?.get("username") as string) || "";
@@ -75,10 +73,6 @@ export const UserNameForm = ({ requestId }: Props) => {
           username: username,
         },
       };
-    }
-
-    if (result && "redirect" in result && result.redirect) {
-      router.push(result.redirect);
     }
 
     return previousState;

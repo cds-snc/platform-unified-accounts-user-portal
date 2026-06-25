@@ -8,6 +8,7 @@ import type {
   UnaryRequest,
   UnaryResponse,
 } from "@connectrpc/connect";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { create, Duration } from "@zitadel/client";
 import { createServerTransport as libCreateServerTransport } from "@zitadel/client/node";
 import { makeReqCtx } from "@zitadel/client/v2";
@@ -18,7 +19,10 @@ import {
 } from "@zitadel/proto/zitadel/object/v2/object_pb";
 import { CreateCallbackRequest } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
-import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import {
+  Checks,
+  CreateSessionResponse,
+} from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb";
 import type { RedirectURLsJson } from "@zitadel/proto/zitadel/user/v2/idp_pb";
@@ -114,15 +118,36 @@ export const getPasswordComplexitySettings = cache(async () => {
 export async function createSessionFromChecks({
   checks,
   lifetime,
+  retry = false,
 }: {
   checks: Checks;
   lifetime: Duration;
+  retry?: boolean;
 }) {
   const sessionService = await getServiceForHost("SessionService");
 
   const userAgent = await getUserAgent();
+  const retryDelaysMs = [200, 400, 800] as const;
 
-  return sessionService.createSession({ checks, lifetime, userAgent }, {});
+  const attemptCreateSession = async (attempt: number): Promise<CreateSessionResponse> => {
+    return sessionService
+      .createSession({ checks, lifetime, userAgent }, {})
+      .catch(async (error) => {
+        const isNotFound = error instanceof ConnectError && error.code === Code.NotFound;
+        if (!retry || !isNotFound || attempt === retryDelaysMs.length) {
+          throw error;
+        }
+
+        const delay = retryDelaysMs[attempt];
+        logMessage.warn(
+          `Session creation failed with NotFound (attempt ${attempt + 1}/${retryDelaysMs.length + 1}); retrying in ${delay}ms.`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return attemptCreateSession(attempt + 1);
+      });
+  };
+
+  return attemptCreateSession(0);
 }
 
 /**
@@ -159,13 +184,13 @@ export async function setSession({
 /**
  * @security Requires authenticated session tokens. Internal use only.
  */
-export const getSession = cache(async (sessionId: string, sessionToken: string) => {
+export const getSession = async (sessionId: string, sessionToken: string) => {
   logMessage.debug(`Getting session ${sessionId} with token ${sessionToken}`);
   const sessionService = await getServiceForHost("SessionService");
   return sessionService
     .getSession({ sessionId, sessionToken }, {})
     .then((obj) => getSerializableObject(obj));
-});
+};
 
 /**
  * @security Requires authenticated session tokens. Logout operation.
@@ -772,6 +797,7 @@ const customHeaderInterceptor = (next: AnyFn) => async (req: UnaryRequest | Stre
 export function createServerTransport(token: string, baseUrl: string) {
   return libCreateServerTransport(token, {
     baseUrl,
+    defaultTimeoutMs: 10000,
     interceptors: [customHeaderInterceptor, loggingInterceptor],
   });
 }

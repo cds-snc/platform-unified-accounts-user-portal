@@ -1,8 +1,8 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { I18n } from "@i18n";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { LinkButton } from "@components/ui/button/LinkButton";

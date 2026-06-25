@@ -3,12 +3,12 @@
  *--------------------------------------------*/
 import { Metadata } from "next";
 
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getImageUrl } from "@lib/imageUrl";
-import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { getImageUrl } from "@lib/utils/imageUrl";
 import { I18n } from "@i18n";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
@@ -25,16 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { requestId, checkAfter, method } = searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   const loginName = session.factors?.user?.loginName;
 
@@ -62,7 +53,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
               alt="All set"
               width={352}
               height={261}
-              className="h-auto w-full max-w-[250px]"
+              className="h-auto w-full max-w-62.5"
             />
           </div>
 
@@ -70,7 +61,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           <div className="flex flex-col justify-center">
             {/* Title with checkmark icon */}
             <div className="mb-8 flex items-center gap-3">
-              <h1 className="!mb-0 text-4xl font-bold">
+              <h1 className="mb-0! text-4xl font-bold">
                 <I18n i18nKey="title" namespace="allSet" />
               </h1>
               <CircleCheckIcon className="size-10 text-gcds-green-700" />

@@ -10,13 +10,14 @@ env:
   DELETE_AFTER_DAYS: 21
   FUNCTION_PREFIX: idp-login-pr
 
-permissions:
-  id-token: write
-  contents: read
+permissions: {}
 
 jobs:
   pr-review-delete-unused:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@9ad793100229573be3f5ba78cc69ec523f2c8b7e # v1.1.0
@@ -28,7 +29,7 @@ jobs:
           DNS_PROXY_WILDCARDGREEDY: "true"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           role-to-assume: arn:aws:iam::${{ vars.STAGING_AWS_ACCOUNT_ID }}:role/platform-unified-accounts-user-portal-pr-review-delete-unused
           role-session-name: PRReviewDeleteUnused

@@ -10,6 +10,7 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  *--------------------------------------------*/
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import type { SearchParams } from "@lib/utils";
+import { buildUrlWithRequestId } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -22,19 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (session.authMethods?.includes(AuthenticationMethodType.U2F)) {
-    redirect("/password/change/verify");
+    redirect(buildUrlWithRequestId("/password/change", requestId), "push");
   }
 
   return (
@@ -50,13 +42,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         showDropdown={false}
       />
       <div className="w-full">
-        <LoginU2F
-          loginName={session.factors?.user?.loginName}
-          sessionId={session.id}
-          login={false}
-          redirect="/password/change"
-          requestId={requestId}
-        />
+        <LoginU2F redirect="/password/change" requestId={requestId} />
       </div>
     </AuthPanel>
   );

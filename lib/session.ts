@@ -4,7 +4,7 @@
 import { redirect, RedirectType } from "next/navigation";
 import { Timestamp, timestampDate } from "@zitadel/client";
 import { AuthRequest } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
-import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
+import { Factors, Session, UserFactor } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { GetSessionResponse } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
@@ -16,7 +16,7 @@ import { getSession, getUserByID, listAuthenticationMethodTypes } from "../lib/z
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { getActiveSessionCookie, getSessionCookieById } from "./cookies";
+import { getActiveSessionCookie, removeSessionFromCookie } from "./cookies";
 import { logMessage } from "./logger";
 export function checkSessionFactorValidity(session: Partial<Session>): {
   valid: boolean;
@@ -42,9 +42,14 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
     throw new Error("No active session found");
   }
 
-  const session = await getSession(active.id, active.token).then(
-    (resp: GetSessionResponse) => resp.session
-  );
+  const session = await getSession(active.id, active.token)
+    .then((resp: GetSessionResponse) => getAuthMethodsAndUser(resp.session))
+    .catch(async () => {
+      // Unhandled error, possibly locked account
+      // Remove session from cookie and redirect to start a new session
+      await removeSessionFromCookie({ sessionId: active.id });
+      return null;
+    });
 
   // If the selected session no longer exists on the server redirect to start a new session
   if (!session) {
@@ -53,8 +58,7 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
 
   const requestId = active.requestId;
 
-  const enhancedSession = await getAuthMethodsAndUser(session);
-  return { ...enhancedSession, requestId };
+  return { ...session, requestId };
 }
 
 export type SessionWithAuthData = Session & {
@@ -62,18 +66,19 @@ export type SessionWithAuthData = Session & {
   phoneVerified: boolean;
   emailVerified: boolean;
   requestId?: string;
+  factors: Factors & {
+    user: UserFactor;
+  };
 };
 
 async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuthData> {
-  const userId = session?.factors?.user?.id;
-
-  if (!userId) {
-    throw Error("Could not get user id from session");
+  if (!session?.factors?.user) {
+    throw Error("No User found on session");
   }
 
-  const methods = await listAuthenticationMethodTypes(userId);
+  const methods = await listAuthenticationMethodTypes(session.factors.user.id);
 
-  const user = await getUserByID(userId);
+  const user = await getUserByID(session.factors.user.id);
   const humanUser = user.user?.type.case === "human" ? user.user?.type.value : undefined;
 
   return {
@@ -81,13 +86,7 @@ async function getAuthMethodsAndUser(session?: Session): Promise<SessionWithAuth
     authMethods: methods.authMethodTypes ?? [],
     phoneVerified: humanUser?.phone?.isVerified ?? false,
     emailVerified: humanUser?.email?.isVerified ?? false,
-  };
-}
-
-export async function loadSessionById(sessionId: string): Promise<SessionWithAuthData> {
-  const recent = await getSessionCookieById({ sessionId });
-  const sessionResponse = await getSession(recent.id, recent.token);
-  return getAuthMethodsAndUser(sessionResponse.session);
+  } as SessionWithAuthData;
 }
 
 /**
@@ -97,7 +96,7 @@ export async function loadSessionById(sessionId: string): Promise<SessionWithAut
 export async function isSessionValid({ session }: { session: Session }): Promise<boolean> {
   // session can't be checked without user
   if (!session.factors?.user) {
-    logMessage.info("Session has no user");
+    logMessage.debug("Session has no user");
     return false;
   }
 
@@ -110,7 +109,7 @@ export async function isSessionValid({ session }: { session: Session }): Promise
     const expirationInfo = session.expirationDate
       ? timestampDate(session.expirationDate).toDateString()
       : "no expiration date";
-    logMessage.info(`Session is expired: ${expirationInfo}`);
+    logMessage.debug(`Session for ${session.factors.user.loginName} is expired: ${expirationInfo}`);
     return false;
   }
 
@@ -118,7 +117,9 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   const validPassword = !!session?.factors?.password?.verifiedAt;
 
   if (!validPassword) {
-    logMessage.info("Session has no valid password verification");
+    logMessage.debug(
+      `Session for ${session.factors.user.loginName} has no valid password verification`
+    );
     return false;
   }
 
@@ -129,7 +130,9 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   const mfaValid = totpValid || u2fValid || optEmail;
 
   if (!mfaValid) {
-    logMessage.debug("Session has no valid MFA factor (TOTP, U2F required)");
+    logMessage.debug(
+      `Session for for ${session.factors.user.loginName} has no valid MFA factor (TOTP, U2F required)`
+    );
     return false;
   }
 
@@ -140,11 +143,11 @@ export async function isSessionValid({ session }: { session: Session }): Promise
       userResponse?.user?.type.case === "human" ? userResponse?.user.type.value : undefined;
 
     if (humanUser && !humanUser.email?.isVerified) {
-      logMessage.info(`Session invalid: Email not verified for user: ${session.factors.user.id}`);
+      logMessage.debug(`Session invalid: Email not verified for user: ${session.factors.user.id}`);
       return false;
     }
   } catch (error) {
-    logMessage.info(
+    logMessage.debug(
       `Session invalid: Could not load user ${session.factors.user.id} while validating email verification`
     );
     return false;

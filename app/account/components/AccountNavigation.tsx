@@ -6,23 +6,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useTranslation } from "@i18n";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSiteLink, SiteConfig } from "@lib/site-config";
-import { useTranslation } from "@i18n";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { ExternalLink } from "@components/ui/external-link/ExternalLink";
 
-export function AccountNavigation({ siteConfig }: { siteConfig: SiteConfig }) {
+export function AccountNavigation() {
   const pathname = usePathname();
-  const {
-    t,
-    i18n: { language },
-  } = useTranslation("account");
-
+  const { t } = useTranslation("account");
+  const { getSiteLink } = useSiteConfig();
   const isAccountPage = pathname === "/account" || pathname.includes("/account/");
 
-  const gcFormsLink = getSiteLink(siteConfig, "gcForms", language);
+  const gcFormsLink = getSiteLink("gcForms");
 
   return (
     <nav

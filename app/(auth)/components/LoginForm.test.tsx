@@ -6,14 +6,6 @@ import { submitLoginForm } from "../actions";
 
 import { LoginForm } from "./LoginForm";
 
-const push = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push,
-  }),
-}));
-
 vi.mock("next/link", () => ({
   default: ({ children, ...props }: React.ComponentProps<"a">) => <a {...props}>{children}</a>,
 }));
@@ -102,7 +94,7 @@ describe("LoginForm", () => {
   });
 
   it("shows loading state while submitting", async () => {
-    let resolveLogin!: (value: { redirect: string }) => void;
+    let resolveLogin!: (value: { error: string }) => void;
     vi.mocked(submitLoginForm).mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -124,24 +116,10 @@ describe("LoginForm", () => {
       expect(button).toHaveAttribute("aria-disabled", "true");
     });
 
-    resolveLogin({ redirect: "/account?requestId=abc123" });
+    resolveLogin({ error: "Something went wrong" });
 
     await waitFor(() => {
       expect(button).toHaveAttribute("aria-disabled", "false");
-    });
-  });
-
-  it("redirects when login succeeds", async () => {
-    vi.mocked(submitLoginForm).mockResolvedValue({ redirect: "/account?requestId=abc123" });
-
-    render(<LoginForm requestId="abc123" />);
-
-    await userEvent.type(screen.getByLabelText(/form\.label/i), "person@canada.ca");
-    await userEvent.type(screen.getByLabelText(/form\.passwordLabel/i), "P@ssw0rd");
-    await userEvent.click(screen.getByRole("button", { name: "form.submit" }));
-
-    await waitFor(() => {
-      expect(push).toHaveBeenCalledWith("/account?requestId=abc123");
     });
   });
 });

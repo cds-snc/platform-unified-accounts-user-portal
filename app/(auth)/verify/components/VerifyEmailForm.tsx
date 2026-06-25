@@ -4,23 +4,24 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useActionState } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-/*--------------------------------------------*
- * Internal Aliases
- *--------------------------------------------*/
-import { sendVerification, sendVerificationEmail } from "@lib/server/verify";
-import { getSiteLink, SiteConfig } from "@lib/site-config";
-import { validateCode } from "@lib/validationSchemas";
+import { validateCode } from "@lib/client/validationSchemas";
 import { I18n, useTranslation } from "@i18n";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Alert as AlertNotification } from "@components/ui/alert/Alert";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus } from "@components/ui/form";
 import { CodeEntry } from "@components/ui/form/CodeEntry";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
+
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { checkVerificationCode, sendVerificationEmail } from "../action";
 
 type FormState = {
   error?: string;
@@ -31,30 +32,21 @@ type FormState = {
 };
 
 export function VerifyEmailForm({
-  userId,
-  loginName,
   requestId,
-  code,
   children,
-  siteConfig,
 }: {
   userId: string;
   loginName?: string;
-  code?: string;
   requestId?: string;
   children?: React.ReactNode;
-  siteConfig: SiteConfig;
 }) {
   const router = useRouter();
-  const processedCodeRef = useRef<string | null>(null);
-  const emailSentRef = useRef<boolean>(false);
 
-  const {
-    t,
-    i18n: { language },
-  } = useTranslation("verify");
+  const { getSiteLink } = useSiteConfig();
 
-  const supportLink = getSiteLink(siteConfig, "support", language);
+  const { t } = useTranslation("verify");
+
+  const supportLink = getSiteLink("support");
 
   const [error, setError] = useState<string>("");
 
@@ -66,9 +58,7 @@ export function VerifyEmailForm({
     setCodeLoading(true);
 
     try {
-      const response = await sendVerificationEmail({
-        userId,
-      });
+      const response = await sendVerificationEmail();
 
       if (response && "error" in response && response.error) {
         setError(response.error);
@@ -80,35 +70,6 @@ export function VerifyEmailForm({
     }
     setCodeLoading(false);
   }
-
-  // Send verification email once on component mount
-  useEffect(() => {
-    if (!emailSentRef.current) {
-      emailSentRef.current = true;
-      sendVerificationEmail({
-        userId,
-      }).catch(() => {
-        // Silently fail - user can click resend if needed
-      });
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    // Only process if code exists and hasn't been processed yet
-    if (code && processedCodeRef.current !== code) {
-      processedCodeRef.current = code;
-      sendVerification({
-        code: code,
-        userId,
-        loginName: loginName,
-        requestId: requestId,
-      }).then((response) => {
-        if (response && "redirect" in response && response?.redirect) {
-          router.push(response?.redirect);
-        }
-      });
-    }
-  }, [code, userId, loginName, requestId, router]);
 
   const localFormAction = async (previousState: FormState, formData: FormData) => {
     const code = (formData.get("code") as string) || "";
@@ -125,10 +86,8 @@ export function VerifyEmailForm({
       };
     }
 
-    const response = await sendVerification({
+    const response = await checkVerificationCode({
       code: code,
-      userId,
-      loginName: loginName,
       requestId: requestId,
     });
 
@@ -189,7 +148,7 @@ export function VerifyEmailForm({
 
       <div className="w-full">
         <form id="verify-form" action={formAction} noValidate>
-          <CodeEntry state={state} code={code ?? ""} className="mt-10" />
+          <CodeEntry state={state} code={""} className="mt-10" />
 
           <div className="mt-8 mb-6 flex items-center gap-4">
             <Button
@@ -202,7 +161,7 @@ export function VerifyEmailForm({
               <I18n i18nKey="newCode" namespace="verify" />
             </Button>
             {supportLink && (
-              <Link href={supportLink}>
+              <Link href={supportLink} prefetch={false}>
                 <I18n i18nKey="help" namespace="verify" />
               </Link>
             )}

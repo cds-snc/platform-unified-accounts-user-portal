@@ -2,21 +2,17 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
+import { LoginTOTP } from "@root/app/(auth)/otp/time-based/components/LoginTOTP";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getOriginalHostFromHeaders } from "@lib/server/host";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { resolveSiteConfigByHost } from "@lib/site-config";
-import type { SearchParams } from "@lib/utils";
-import { getLoginSettings } from "@lib/zitadel";
+import { buildUrlWithRequestId, type SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginTOTP } from "@components/mfa/LoginTOTP";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("otp");
@@ -24,27 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
-  const [{ requestId }, _headers] = await Promise.all([props.searchParams, headers()]);
+  const { requestId } = await props.searchParams;
 
-  const resolvedHost = getOriginalHostFromHeaders(_headers);
-  const siteConfig = resolveSiteConfigByHost(resolvedHost);
-
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId).then(
-    (result) => {
-      if (result.session === null) {
-        throw new Error(
-          "This should never throw but used as a type check in checkAuthenticationLevel"
-        );
-      }
-      return result.session;
-    }
-  );
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   if (session.authMethods?.includes(AuthenticationMethodType.TOTP)) {
-    redirect("/password/change/verify");
+    redirect(buildUrlWithRequestId("/password/change", requestId), "push");
   }
-
-  const loginSettings = await getLoginSettings();
 
   return (
     <AuthPanel
@@ -55,11 +37,9 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     >
       <LoginTOTP
         loginName={session.factors?.user?.loginName}
-        sessionId={session.id}
-        loginSettings={loginSettings}
         redirect="/password/change"
+        requestId={requestId}
         displayName={session.factors?.user?.displayName}
-        siteConfig={siteConfig}
       />
     </AuthPanel>
   );

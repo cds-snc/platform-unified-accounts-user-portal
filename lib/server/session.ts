@@ -4,16 +4,16 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { Duration } from "@zitadel/client";
-import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
+import { Challenges, RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
+import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowOrGetUrl } from "@lib/client";
-import { logMessage } from "@lib/logger";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import {
   deleteSession,
@@ -27,7 +27,6 @@ import { serverTranslation } from "@i18n/server";
 import {
   Cookie,
   getActiveSessionCookie,
-  getAllSessionCookieIds,
   getAllSessions,
   getSessionCookieById,
   removeSessionFromCookie,
@@ -46,27 +45,6 @@ async function loadSessionsByIds({ ids }: { ids: string[] }): Promise<Session[]>
   });
 
   return response?.sessions ?? [];
-}
-
-/**
- * Load sessions for all cookie IDs
- * @param cleanup - Whether to filter out expired sessions (default: true)
- * @returns Array of Session objects
- */
-export async function loadSessionsFromCookies({
-  cleanup = true,
-}: {
-  cleanup?: boolean;
-} = {}): Promise<Session[]> {
-  const cookieIds = await getAllSessionCookieIds(cleanup);
-
-  if (cookieIds && cookieIds.length) {
-    return loadSessionsByIds({
-      ids: cookieIds.filter((id) => !!id) as string[],
-    });
-  }
-
-  return [];
 }
 
 /**
@@ -137,7 +115,7 @@ export async function continueWithSession({
   const targetRedirect = redirect || loginSettings?.defaultRedirectUri;
 
   if (requestId && session.id && session.factors?.user) {
-    return completeFlowOrGetUrl(
+    return completeFlowAndRedirect(
       {
         sessionId: session.id,
         requestId: requestId,
@@ -146,10 +124,9 @@ export async function continueWithSession({
     );
   } else if (session.factors?.user) {
     // Always include sessionId to ensure we load the exact session that was just updated
-    return completeFlowOrGetUrl(
+    return completeFlowAndRedirect(
       {
         sessionId: session.id,
-        loginName: session.factors.user.loginName,
       },
       targetRedirect
     );
@@ -160,112 +137,56 @@ export async function continueWithSession({
 }
 
 type UpdateSessionCommand = {
-  loginName?: string;
-  sessionId?: string;
   checks?: Checks;
   requestId?: string;
   challenges?: RequestChallenges;
-  lifetime?: Duration;
 };
 
-export async function updateSession(options: UpdateSessionCommand) {
-  const { sessionId, checks, requestId, challenges } = options;
-  try {
-    const activeSession = sessionId
-      ? await getSessionCookieById({ sessionId })
-      : await getActiveSessionCookie();
+export async function updateSession(options: UpdateSessionCommand): Promise<{
+  sessionId: string;
+  factors?: Session["factors"];
+  challenges?: Challenges;
+  authMethods?: AuthenticationMethodType[];
+}> {
+  const { checks, requestId, challenges } = options;
 
-    if (!activeSession) {
-      return {
-        error: "Could not find session",
-      };
-    }
+  const activeSession = await getActiveSessionCookie();
 
-    const host = await getOriginalHost();
+  const host = await getOriginalHost();
 
-    if (!host) {
-      return { error: "Could not get host" };
-    }
+  if (typeof challenges?.webAuthN !== "undefined") {
+    const [hostname] = host.split(":");
 
-    if (host && challenges && challenges.webAuthN && !challenges.webAuthN.domain) {
-      const [hostname] = host.split(":");
-
-      challenges.webAuthN.domain = hostname;
-    }
-
-    const loginSettings = await getLoginSettings();
-
-    let lifetime = checks?.webAuthN
-      ? loginSettings?.multiFactorCheckLifetime // TODO different lifetime for webauthn u2f/passkey
-      : checks?.otpEmail || checks?.otpSms
-        ? loginSettings?.secondFactorCheckLifetime
-        : undefined;
-
-    if (!lifetime || !lifetime.seconds) {
-      lifetime = {
-        seconds: BigInt(60 * 60 * 24), // default to 24 hours
-        nanos: 0,
-      } as Duration;
-    }
-
-    let session;
-
-    try {
-      session = await setSessionAndUpdateCookie({
-        activeCookie: activeSession,
-        checks,
-        challenges,
-        requestId,
-        lifetime,
-      });
-    } catch (error) {
-      const serializedError = serializeActionError(error, "Could not update session");
-
-      logMessage.debug({
-        message: "Failed to update session with checks/challenges",
-        error: serializedError,
-        hasChecks: !!checks,
-        hasChallenges: !!challenges,
-      });
-
-      return {
-        error: serializedError,
-      };
-    }
-
-    if (!session) {
-      return { error: "Could not update session" };
-    }
-
-    // if password, check if user has MFA methods
-    let authMethods;
-    if (checks && checks.password && session.factors?.user?.id) {
-      const response = await listAuthenticationMethodTypes(session.factors.user.id);
-      if (response.authMethodTypes && response.authMethodTypes.length) {
-        authMethods = response.authMethodTypes;
-      }
-    }
-
-    return {
-      sessionId: session.id,
-      factors: session.factors,
-      challenges: session.challenges,
-      authMethods,
-    };
-  } catch (error) {
-    const serializedError = serializeActionError(error, "Could not update session");
-
-    logMessage.debug({
-      message: "Unexpected failure while updating session",
-      error: serializedError,
-      hasChecks: !!checks,
-      hasChallenges: !!challenges,
-    });
-
-    return {
-      error: serializedError,
-    };
+    challenges.webAuthN.domain = hostname;
   }
+
+  const session = await setSessionAndUpdateCookie({
+    activeCookie: activeSession,
+    checks,
+    challenges,
+    requestId,
+  }).catch((error) => {
+    const serializedError = serializeActionError(error, "Could not update session");
+    logMessage.error("Failed to update session with checks/challenges", serializedError);
+
+    throw new Error("Could not update Session");
+  });
+
+  // if password, check if user has MFA methods
+  let authMethods;
+  if (checks && checks.password && session.factors?.user?.id) {
+    const response = await listAuthenticationMethodTypes(session.factors.user.id);
+    if (response.authMethodTypes.length) {
+      authMethods = response.authMethodTypes;
+    }
+  }
+
+  return {
+    sessionId: session.id,
+    factors: session.factors,
+    challenges: session.challenges,
+    authMethods,
+  };
 }
 
 type ClearSessionOptions = {
@@ -289,7 +210,7 @@ async function clearSession(options: ClearSessionOptions) {
     throw new Error("Could not delete session");
   }
 
-  return removeSessionFromCookie({ session: sessionCookie, iFrameEnabled });
+  return removeSessionFromCookie({ sessionId: sessionCookie.id, iFrameEnabled });
 }
 
 type LogoutCurrentSessionOptions = {
