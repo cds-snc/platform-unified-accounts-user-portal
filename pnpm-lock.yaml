@@ -12,8 +12,8 @@ importers:
         specifier: ^2.2.20
         version: 2.2.21
       '@gcforms/core':
-        specifier: 2.2.14
-        version: 2.2.14(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@gcforms/types@1.0.34)(oxc-resolver@11.21.3)(typescript@6.0.3)
+        specifier: 2.2.15
+        version: 2.2.15(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@gcforms/types@1.0.34)(oxc-resolver@11.21.3)(typescript@6.0.3)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
         version: 2.1.18(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -46,7 +46,7 @@ importers:
         version: 2.30.1
       next:
         specifier: ^16.2.6
-        version: 16.2.9(@babel/core@7.29.7)(@playwright/test@1.61.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0)
+        version: 16.2.9(@babel/core@7.29.7)(@playwright/test@1.61.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0)
       pino:
         specifier: ^10.1.0
         version: 10.3.1
@@ -86,7 +86,7 @@ importers:
         version: 1.0.34
       '@playwright/test':
         specifier: ^1.60.0
-        version: 1.61.0
+        version: 1.61.1
       '@tailwindcss/postcss':
         specifier: ^4.3.0
         version: 4.3.1
@@ -572,8 +572,8 @@ packages:
   '@gcforms/connectors@2.2.21':
     resolution: {integrity: sha512-PxnLV4nPVOxEOLClpU0H4kXovIsvslWAdzWhd0uwKdbLqFNXgP2OQIiFwBcnjJZ6AnYXGGvx5d/MBaQ2cP+xFg==}
 
-  '@gcforms/core@2.2.14':
-    resolution: {integrity: sha512-gtFVCVm8yMginpyQZOcHfAkZU8iBTzmh93061rghYrH77cjPVHPupPxExy+JBxeMUzyBOcvNCZAKN31zu3upLQ==}
+  '@gcforms/core@2.2.15':
+    resolution: {integrity: sha512-Hdakv2AjKzo+yw61xEyjcCOyWA6NOQpawIhioSdPQ9Rulwir3MZKex5rlYE1QCkjN+LPTp3A9hMhBi4lwGeWFA==}
     peerDependencies:
       '@gcforms/types': '*'
 
@@ -1196,8 +1196,8 @@ packages:
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.61.0':
-    resolution: {integrity: sha512-cKA5B6lpFEMyMGjxF54QihfYpB4FkEGH+qZhtArDEG+wezQAJY8Pq6C7T1SjWz+FFzt3TbyoXBQYk/0292TdJA==}
+  '@playwright/test@1.61.1':
+    resolution: {integrity: sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3674,13 +3674,13 @@ packages:
     resolution: {integrity: sha512-r34yH/GlQpKZbU1BvFFqOjhISRo1MNx1tWYsYvmj6KIRHSPMT2+yHOEb1SG6NMvRoHRF0a07kCOox/9yakl1vg==}
     hasBin: true
 
-  playwright-core@1.61.0:
-    resolution: {integrity: sha512-caX7TrY3Ml6egyDX0WUcTHDxodl/b51y5wJOdCEA36QviK/s2g081hvmGs8eaE3DWb6NYZQ6BjO/QkNRPenoPA==}
+  playwright-core@1.61.1:
+    resolution: {integrity: sha512-h7Qlt6m4REp25qvIdvbDtVmD4LqVXfpRxhORv9L0jzETM05p4fuPJ3dKyuSXQxDSbXnmS79HAgi9589lGSpLkg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.61.0:
-    resolution: {integrity: sha512-Z+7BeeqQPRRzklHsVFP4KTGIyMxKUmfeRA4WisM6G3/XW6nwGeX6fX9qYaDa+CiUqpOkb2f6X3nar05R3kSuJQ==}
+  playwright@1.61.1:
+    resolution: {integrity: sha512-DWnY5o3YbLWK4GovuAVwpqL+1VwGNdUGrRr++8j8PtQQzvAVZUIMjKQ90fY689sEJZJBbZVw1rXaOKSTitkzPQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -5350,7 +5350,7 @@ snapshots:
       - debug
       - supports-color
 
-  '@gcforms/core@2.2.14(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@gcforms/types@1.0.34)(oxc-resolver@11.21.3)(typescript@6.0.3)':
+  '@gcforms/core@2.2.15(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@gcforms/types@1.0.34)(oxc-resolver@11.21.3)(typescript@6.0.3)':
     dependencies:
       '@gcforms/types': 1.0.34
       file-type: 21.3.4
@@ -5777,9 +5777,9 @@ snapshots:
 
   '@pkgr/core@0.3.6': {}
 
-  '@playwright/test@1.61.0':
+  '@playwright/test@1.61.1':
     dependencies:
-      playwright: 1.61.0
+      playwright: 1.61.1
 
   '@quansync/fs@1.0.0':
     dependencies:
@@ -8154,7 +8154,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next@16.2.9(@babel/core@7.29.7)(@playwright/test@1.61.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0):
+  next@16.2.9(@babel/core@7.29.7)(@playwright/test@1.61.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0):
     dependencies:
       '@next/env': 16.2.9
       '@swc/helpers': 0.5.15
@@ -8173,7 +8173,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.2.9
       '@next/swc-win32-arm64-msvc': 16.2.9
       '@next/swc-win32-x64-msvc': 16.2.9
-      '@playwright/test': 1.61.0
+      '@playwright/test': 1.61.1
       babel-plugin-react-compiler: 1.0.0
       sass: 1.101.0
       sharp: 0.34.5
@@ -8385,11 +8385,11 @@ snapshots:
       sonic-boom: 4.2.1
       thread-stream: 4.2.0
 
-  playwright-core@1.61.0: {}
+  playwright-core@1.61.1: {}
 
-  playwright@1.61.0:
+  playwright@1.61.1:
     dependencies:
-      playwright-core: 1.61.0
+      playwright-core: 1.61.1
     optionalDependencies:
       fsevents: 2.3.2
 
