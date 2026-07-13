@@ -14,6 +14,11 @@ const eslintConfig = defineConfig([
       "react-hooks": reactHooks,
       "simple-import-sort": simpleImportSort,
     },
+    settings: {
+      react: {
+        version: "19",
+      },
+    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "simple-import-sort/imports": [
