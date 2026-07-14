@@ -29,17 +29,6 @@ const lastnameSchema = () => ({
   lastname: v.pipe(v.string(), v.trim(), v.minLength(1, "requiredLastname")),
 });
 
-const emailSchema = () => ({
-  email: v.pipe(
-    v.string(),
-    v.toLowerCase(),
-    v.trim(),
-    v.minLength(1, "requiredEmail"),
-    v.check((input) => isValidGovEmail(input), "validGovEmail")
-  ),
-});
-
-// TODO: is username always an email? If so, replace above with username
 const usernameSchema = (min = 1) => ({
   // username: v.pipe(v.string(), v.trim(), v.minLength(min, "requiredUsername")),
   username: v.pipe(
@@ -47,6 +36,7 @@ const usernameSchema = (min = 1) => ({
     v.toLowerCase(),
     v.trim(),
     v.minLength(min, "requiredUsername"),
+    v.maxLength(254, "maxLength"),
     v.check((input) => isValidGovEmail(input), "validGovEmail")
   ),
 });
@@ -98,6 +88,10 @@ export const codeSchema = (min = 1, max = 10) => ({
   },
 });
 
+const requestIdSchema = () => ({
+  requestId: v.optional(v.pipe(v.string(), v.maxLength(200, "maxLength"))),
+});
+
 const totpCodeSchema = () => ({
   ...{
     code: v.pipe(v.string(), v.trim(), v.regex(/^\d{6}$/, "invalidCodeLength")),
@@ -111,7 +105,7 @@ export const validateAccount = async (formEntries: { [k: string]: FormDataEntryV
     v.object({
       ...firstnameSchema(),
       ...lastnameSchema(),
-      ...emailSchema(),
+      ...usernameSchema(),
     })
   );
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
@@ -124,7 +118,7 @@ export const validateAccountWithPassword = async (formEntries: {
     v.object({
       ...firstnameSchema(),
       ...lastnameSchema(),
-      ...emailSchema(),
+      ...usernameSchema(),
       ...passwordSchema({}),
     })
   );
@@ -146,7 +140,8 @@ export const validateUsernameAndPassword = async (formEntries: {
   const formValidationSchema = v.pipe(
     v.object({
       ...usernameSchema(),
-      password: v.pipe(v.string(), v.nonEmpty("requiredPassword")),
+      ...passwordSchema({}),
+      ...requestIdSchema(),
     })
   );
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });

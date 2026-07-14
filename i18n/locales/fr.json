@@ -137,6 +137,7 @@
     },
     "validation": {
       "requiredUsername": "L'adresse courriel est obligatoire.",
+      "maxLength": "L'adresse courriel doit comporter moins de 255 caractères.",
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada.",
       "requiredPassword": "Le mot de passe est obligatoire.",
       "invalidCredentials": "Adresse courriel ou mot de passe invalide. Veuillez réessayer.",
@@ -368,6 +369,7 @@
       "requiredFirstname": "Prénom est obligatoire.",
       "requiredLastname": "Nom de famille est obligatoire.",
       "requiredEmail": "Adresse courriel est obligatoire.",
+      "maxLength": "L'adresse courriel doit comporter moins de 255 caractères.",
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada."
     },
     "errors": {

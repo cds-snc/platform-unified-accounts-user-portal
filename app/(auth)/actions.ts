@@ -43,15 +43,6 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   let accountLocked = false;
 
   const { username, password, requestId } = command;
-
-  if (
-    typeof username !== "string" ||
-    typeof password !== "string" ||
-    (requestId && typeof requestId !== "string")
-  ) {
-    throw new Error("Invaid parameters in submitLoginForm");
-  }
-
   const validationResult = await validateUsernameAndPassword(command);
 
   if (!validationResult.success) {
