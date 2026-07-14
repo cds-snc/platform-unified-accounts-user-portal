@@ -131,7 +131,7 @@
       "submit": "Sign in"
     },
     "validation": {
-      "requiredUsername": "Email address is required.",
+      "requiredEmail": "Email address is required.",
       "maxLength": "Email address must be less than 255 characters.",
       "validGovEmail": "Enter a valid individual Government of Canada email address.",
       "requiredPassword": "Password is required.",

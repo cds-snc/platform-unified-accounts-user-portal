@@ -29,16 +29,22 @@ const lastnameSchema = () => ({
   lastname: v.pipe(v.string(), v.trim(), v.minLength(1, "requiredLastname")),
 });
 
-const usernameSchema = (min = 1) => ({
-  // username: v.pipe(v.string(), v.trim(), v.minLength(min, "requiredUsername")),
-  username: v.pipe(
+const govEmailValidation = (min = 1) =>
+  v.pipe(
     v.string(),
     v.toLowerCase(),
     v.trim(),
-    v.minLength(min, "requiredUsername"),
+    v.minLength(min, "requiredEmail"),
     v.maxLength(254, "maxLength"),
     v.check((input) => isValidGovEmail(input), "validGovEmail")
-  ),
+  );
+
+const usernameSchema = (min = 1) => ({
+  username: govEmailValidation(min),
+});
+
+const emailSchema = (min = 1) => ({
+  email: govEmailValidation(min),
 });
 
 // Password restrictions from Zitadel password settings
@@ -105,7 +111,7 @@ export const validateAccount = async (formEntries: { [k: string]: FormDataEntryV
     v.object({
       ...firstnameSchema(),
       ...lastnameSchema(),
-      ...usernameSchema(),
+      ...emailSchema(),
     })
   );
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
@@ -118,7 +124,7 @@ export const validateAccountWithPassword = async (formEntries: {
     v.object({
       ...firstnameSchema(),
       ...lastnameSchema(),
-      ...usernameSchema(),
+      ...emailSchema(),
       ...passwordSchema({}),
     })
   );

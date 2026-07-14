@@ -136,7 +136,7 @@
       "submit": "Se connecter"
     },
     "validation": {
-      "requiredUsername": "L'adresse courriel est obligatoire.",
+      "requiredEmail": "L'adresse courriel est obligatoire.",
       "maxLength": "L'adresse courriel doit comporter moins de 255 caractères.",
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada.",
       "requiredPassword": "Le mot de passe est obligatoire.",
