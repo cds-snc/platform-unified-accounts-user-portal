@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { validateAccount } from "@lib/client/validationSchemas";
+import { validateAccount } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createRouterStub, createTranslationStub } from "../../../../../test/helpers/client";
@@ -17,7 +17,7 @@ vi.mock("@i18n/client", () => ({
   LANGUAGE_COOKIE_NAME: "i18next",
 }));
 
-vi.mock("@lib/client/validationSchemas", () => ({
+vi.mock("@lib/validation/validationSchemas", () => ({
   validateAccount: vi.fn(),
 }));
 

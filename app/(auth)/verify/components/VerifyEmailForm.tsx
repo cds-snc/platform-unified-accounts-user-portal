@@ -8,7 +8,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { validateCode } from "@lib/client/validationSchemas";
+import { validateCode } from "@lib/validation/validationSchemas";
 import { I18n, useTranslation } from "@i18n";
 import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Alert as AlertNotification } from "@components/ui/alert/Alert";

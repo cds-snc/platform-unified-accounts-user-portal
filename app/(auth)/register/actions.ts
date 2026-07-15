@@ -7,12 +7,12 @@ import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
-import { validateAccountWithPassword } from "@lib/client/validationSchemas";
 import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { validateAccountWithPassword } from "@lib/validation/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";

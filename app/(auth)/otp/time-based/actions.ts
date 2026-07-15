@@ -8,13 +8,13 @@ import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
-import { validateTotpCode } from "@lib/client/validationSchemas";
 import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
+import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { getLoginSettings } from "@lib/zitadel";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";

@@ -8,13 +8,13 @@ import { create } from "@zitadel/client";
 import { UpdateHumanUserRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
-import { validatePersonalDetails } from "@lib/client/validationSchemas";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
 import { logoutCurrentSession } from "@lib/server/session";
 import { SessionWithAuthData } from "@lib/session";
+import { validatePersonalDetails } from "@lib/validation/validationSchemas";
 import { getU2FList, removeTOTP, removeU2F, updateHuman } from "@lib/zitadel";
 
 export const removeU2FAction = AuthenticatedAction(async (session, u2fId: string) => {

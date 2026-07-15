@@ -7,9 +7,9 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { validateAccount } from "@lib/client/validationSchemas";
-import { getError, hasError } from "@lib/client/validators";
 import { buildUrlWithRequestId } from "@lib/utils";
+import { validateAccount } from "@lib/validation/validationSchemas";
+import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 /*--------------------------------------------*
  * Internal Aliases

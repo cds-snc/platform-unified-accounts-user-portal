@@ -5,12 +5,12 @@
  *--------------------------------------------*/
 import { useActionState } from "react";
 
-import { validateUsername } from "@lib/client/validationSchemas";
-import { getError, hasError } from "@lib/client/validators";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
+import { validateUsername } from "@lib/validation/validationSchemas";
+import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n/client";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";

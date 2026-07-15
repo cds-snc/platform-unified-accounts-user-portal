@@ -50,7 +50,7 @@ describe("LoginForm", () => {
     await userEvent.click(screen.getByRole("button", { name: "form.submit" }));
 
     await waitFor(() => {
-      expect(screen.getAllByText("validation.requiredUsername").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("validation.requiredEmail").length).toBeGreaterThan(0);
       expect(screen.getAllByText("validation.requiredPassword").length).toBeGreaterThan(0);
     });
 

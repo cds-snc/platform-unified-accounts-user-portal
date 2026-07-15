@@ -10,7 +10,6 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
-import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
 import { setSelectedSession } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
@@ -19,6 +18,7 @@ import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
+import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import {
   checkEmailVerification,
   checkMFAFactors,
@@ -43,15 +43,6 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   let accountLocked = false;
 
   const { username, password, requestId } = command;
-
-  if (
-    typeof username !== "string" ||
-    typeof password !== "string" ||
-    (requestId && typeof requestId !== "string")
-  ) {
-    throw new Error("Invaid parameters in submitLoginForm");
-  }
-
   const validationResult = await validateUsernameAndPassword(command);
 
   if (!validationResult.success) {

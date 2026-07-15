@@ -2,8 +2,8 @@ import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { validateAccountWithPassword } from "@lib/client/validationSchemas";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { validateAccountWithPassword } from "@lib/validation/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser, getLoginSettings } from "@lib/zitadel";
 
@@ -27,7 +27,7 @@ vi.mock("@lib/service-url", () => ({
   getServiceUrlFromHeaders: vi.fn(),
 }));
 
-vi.mock("@lib/client/validationSchemas", () => ({
+vi.mock("@lib/validation/validationSchemas", () => ({
   validateAccountWithPassword: vi.fn(),
 }));
 

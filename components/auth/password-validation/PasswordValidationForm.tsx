@@ -8,8 +8,12 @@ import * as v from "valibot";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { codeSchema, confirmPasswordSchema, passwordSchema } from "@lib/client/validationSchemas";
-import { getError, hasError } from "@lib/client/validators";
+import {
+  codeSchema,
+  confirmPasswordSchema,
+  passwordSchema,
+} from "@lib/validation/validationSchemas";
+import { getError, hasError } from "@lib/validation/validators";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";

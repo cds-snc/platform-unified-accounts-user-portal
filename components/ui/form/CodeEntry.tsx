@@ -1,7 +1,7 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getError, hasError } from "@lib/client/validators";
+import { getError, hasError } from "@lib/validation/validators";
 import { I18n } from "@i18n";
 
 /*--------------------------------------------*

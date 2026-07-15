@@ -4,8 +4,8 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import {
   checkEmailVerification,
   checkMFAFactors,
@@ -39,7 +39,7 @@ vi.mock("@lib/service-url", () => ({
   getServiceUrlFromHeaders: vi.fn(),
 }));
 
-vi.mock("@lib/client/validationSchemas", () => ({
+vi.mock("@lib/validation/validationSchemas", () => ({
   validateUsernameAndPassword: vi.fn(),
 }));
 

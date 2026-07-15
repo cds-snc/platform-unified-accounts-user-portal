@@ -12,7 +12,7 @@ import {
   containsSymbol,
   containsUpperCaseCharacter,
   isValidGovEmail,
-} from "@lib/client/validators";
+} from "@lib/validation/validators";
 
 const firstnameSchema = () => ({
   firstname: v.pipe(
@@ -29,26 +29,22 @@ const lastnameSchema = () => ({
   lastname: v.pipe(v.string(), v.trim(), v.minLength(1, "requiredLastname")),
 });
 
-const emailSchema = () => ({
-  email: v.pipe(
+const govEmailValidation = (min = 1) =>
+  v.pipe(
     v.string(),
     v.toLowerCase(),
     v.trim(),
-    v.minLength(1, "requiredEmail"),
+    v.minLength(min, "requiredEmail"),
+    v.maxLength(254, "maxLength"),
     v.check((input) => isValidGovEmail(input), "validGovEmail")
-  ),
+  );
+
+const usernameSchema = (min = 1) => ({
+  username: govEmailValidation(min),
 });
 
-// TODO: is username always an email? If so, replace above with username
-const usernameSchema = (min = 1) => ({
-  // username: v.pipe(v.string(), v.trim(), v.minLength(min, "requiredUsername")),
-  username: v.pipe(
-    v.string(),
-    v.toLowerCase(),
-    v.trim(),
-    v.minLength(min, "requiredUsername"),
-    v.check((input) => isValidGovEmail(input), "validGovEmail")
-  ),
+const emailSchema = (min = 1) => ({
+  email: govEmailValidation(min),
 });
 
 // Password restrictions from Zitadel password settings
@@ -96,6 +92,10 @@ export const codeSchema = (min = 1, max = 10) => ({
   ...{
     code: v.pipe(v.string(), v.trim(), v.minLength(min, "required"), v.maxLength(max, "maxLength")),
   },
+});
+
+const requestIdSchema = () => ({
+  requestId: v.optional(v.pipe(v.string(), v.maxLength(200, "maxLength"))),
 });
 
 const totpCodeSchema = () => ({
@@ -146,7 +146,8 @@ export const validateUsernameAndPassword = async (formEntries: {
   const formValidationSchema = v.pipe(
     v.object({
       ...usernameSchema(),
-      password: v.pipe(v.string(), v.nonEmpty("requiredPassword")),
+      ...passwordSchema({}),
+      ...requestIdSchema(),
     })
   );
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });

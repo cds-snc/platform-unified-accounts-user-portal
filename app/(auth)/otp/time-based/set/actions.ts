@@ -8,12 +8,12 @@ import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
-import { validateTotpCode } from "@lib/client/validationSchemas";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
+import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { verifyTOTPRegistration } from "@lib/zitadel";
 
 /*--------------------------------------------*
