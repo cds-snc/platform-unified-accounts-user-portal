@@ -12,7 +12,7 @@ import {
   numberValidator,
   symbolValidator,
   upperCaseValidator,
-} from "@lib/client/validators";
+} from "@lib/validation/validators";
 import { I18n } from "@i18n";
 
 function CheckIcon() {

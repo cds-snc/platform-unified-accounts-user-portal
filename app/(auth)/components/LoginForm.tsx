@@ -4,14 +4,14 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 
-import { validateUsernameAndPassword } from "@lib/client/validationSchemas";
-import { getError, hasError } from "@lib/client/validators";
 import { Cookie } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { buildUrlWithRequestId } from "@lib/utils";
+import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
+import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";

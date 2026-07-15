@@ -36,6 +36,41 @@ const eslintConfig = defineConfig([
       "simple-import-sort/exports": "error",
     },
   },
+  // Prevent browser-only code from entering lib/validation/* files
+  {
+    files: ["lib/validation/**"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        ...["window", "document", "navigator", "location", "localStorage", "sessionStorage"].map(
+          (name) => ({
+            name,
+            message: "Browser-only global. lib/validation/* must work on both client and server.",
+          })
+        ),
+      ],
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "react",
+              importNames: ["useState", "useEffect", "useContext"],
+              message:
+                "React hooks are client-only. lib/validation/* must work on both client and server.",
+            },
+          ],
+          patterns: [
+            {
+              regex: "^next/navigation$",
+              message:
+                "next/navigation uses client-only hooks. lib/validation/* must work on both client and server.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

@@ -7,11 +7,11 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 
-import { validateTotpCode } from "@lib/client/validationSchemas";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
+import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";

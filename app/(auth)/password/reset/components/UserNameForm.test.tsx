@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { validateUsername } from "@lib/client/validationSchemas";
+import { validateUsername } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n/client";
 
 import { submitUserNameForm } from "../actions";
@@ -14,7 +14,7 @@ vi.mock("@i18n/client", () => ({
   LANGUAGE_COOKIE_NAME: "i18next",
 }));
 
-vi.mock("@lib/client/validationSchemas", () => ({
+vi.mock("@lib/validation/validationSchemas", () => ({
   validateUsername: vi.fn(),
 }));
 
