@@ -82,7 +82,9 @@
       "validation": {
         "required": "Complete the required fields to continue.",
         "requiredFirstname": "First name is required.",
-        "requiredLastname": "Last name is required."
+        "requiredLastname": "Last name is required.",
+        "maxLengthFirstname": "First name must be less than 251 characters.",
+        "maxLengthLastname": "Last name must be less than 251 characters."
       }
     },
     "verifiedAccount": {
@@ -365,6 +367,8 @@
       "requiredLastname": "Last name is required.",
       "requiredEmail": "Email address is required.",
       "maxLength": "Email address must be less than 255 characters.",
+      "maxLengthFirstname": "First name must be less than 251 characters.",
+      "maxLengthLastname": "Last name must be less than 251 characters.",
       "validGovEmail": "Enter a valid individual Government of Canada email address."
     },
     "errors": {
