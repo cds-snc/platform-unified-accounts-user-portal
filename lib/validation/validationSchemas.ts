@@ -18,15 +18,18 @@ const firstnameSchema = () => ({
   firstname: v.pipe(
     v.string(),
     v.trim(),
-    v.minLength(1, "requiredFirstname")
-    // TODO what about adding these "just encase" checks to all text fields?
-    // v.maxLength(500, errorMessages["signUpRegistration.fields.name.error.maxLength"])
-    // v.regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes")
+    v.minLength(1, "requiredFirstname"),
+    v.maxLength(250, "maxLengthName")
   ),
 });
 
 const lastnameSchema = () => ({
-  lastname: v.pipe(v.string(), v.trim(), v.minLength(1, "requiredLastname")),
+  lastname: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "requiredLastname"),
+    v.maxLength(250, "maxLengthName")
+  ),
 });
 
 const govEmailValidation = (min = 1) =>

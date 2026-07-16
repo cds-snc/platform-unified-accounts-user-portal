@@ -87,7 +87,8 @@
       "validation": {
         "required": "Veuillez remplir les champs obligatoires pour continuer.",
         "requiredFirstname": "Prénom est un champ obligatoire.",
-        "requiredLastname": "Nom de famille est un champ obligatoire."
+        "requiredLastname": "Nom de famille est un champ obligatoire.",
+        "maxLengthName": "Le nom doit comporter moins de 251 caractères."
       }
     },
     "verifiedAccount": {
@@ -370,6 +371,7 @@
       "requiredLastname": "Nom de famille est obligatoire.",
       "requiredEmail": "Adresse courriel est obligatoire.",
       "maxLength": "L'adresse courriel doit comporter moins de 255 caractères.",
+      "maxLengthName": "Le nom doit comporter moins de 251 caractères.",
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada."
     },
     "errors": {
