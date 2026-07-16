@@ -19,7 +19,7 @@ const firstnameSchema = () => ({
     v.string(),
     v.trim(),
     v.minLength(1, "requiredFirstname"),
-    v.maxLength(250, "maxLengthName")
+    v.maxLength(250, "maxLengthFirstname")
   ),
 });
 
@@ -28,7 +28,7 @@ const lastnameSchema = () => ({
     v.string(),
     v.trim(),
     v.minLength(1, "requiredLastname"),
-    v.maxLength(250, "maxLengthName")
+    v.maxLength(250, "maxLengthLastname")
   ),
 });
 
