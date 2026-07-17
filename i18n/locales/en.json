@@ -228,7 +228,7 @@
       "hasUppercase": "A capital letter",
       "hasLowercase": "A lowercase letter",
       "hasSymbol": "A symbol",
-      "maxLength": "Less than 50 characters",
+      "maxLength": "Less than 51 characters",
       "mustMatch": "The passwords must match.",
       "equals": "Passwords must match.",
       "matches": "Matches",
