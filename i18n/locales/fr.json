@@ -233,7 +233,7 @@
       "hasUppercase": "Une lettre majuscule",
       "hasLowercase": "Une lettre minuscule",
       "hasSymbol": "Un symbole",
-      "maxLength": "Moins de 50 caractères",
+      "maxLength": "Moins de 51 caractères",
       "mustMatch": "Les mots de passe doivent correspondre.",
       "equals": "Confirmation du mot de passe correcte.",
       "matches": "Correspondance",
