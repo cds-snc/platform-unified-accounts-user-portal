@@ -87,7 +87,12 @@ export const passwordSchema = ({
 
 export const confirmPasswordSchema = () => ({
   ...{
-    confirmPassword: v.pipe(v.string(), v.trim(), v.minLength(1, "requiredConfirmPassword")),
+    confirmPassword: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredConfirmPassword"),
+      v.maxLength(50, "maxLength")
+    ),
   },
 });
 
