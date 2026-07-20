@@ -174,6 +174,15 @@ export const validateCode = async (
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
 };
 
+export const validatePassword = async (formEntries: { [k: string]: FormDataEntryValue }) => {
+  const formValidationSchema = v.pipe(
+    v.object({
+      ...passwordSchema({}),
+    })
+  );
+  return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
+};
+
 export const validateTotpCode = async (formEntries: { [k: string]: FormDataEntryValue }) => {
   const formValidationSchema = v.pipe(
     v.object({

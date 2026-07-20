@@ -11,14 +11,18 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
  *--------------------------------------------*/
 import { AuthenticatedAction } from "@lib/actions/authenticated";
 import { changePassword, verifyPassword } from "@lib/server/password";
+import { validatePassword } from "@lib/validation/validationSchemas";
 
 export const changePasswordFormAction = AuthenticatedAction(async function changePasswordFormAction(
   session,
   password: string,
   requestId?: string
 ) {
-  if (typeof password !== "string") {
-    throw new Error("Invalid password string");
+  const validationResult = await validatePassword({ password } as {
+    [k: string]: FormDataEntryValue;
+  });
+  if (!validationResult.success) {
+    throw new Error("Invalid password");
   }
 
   await changePassword({
