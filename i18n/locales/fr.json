@@ -452,5 +452,21 @@
     "title": "Vous êtes prêt !",
     "description": "Votre compte est maintenant sécurisé avec l'authentification à deux facteurs.",
     "continueButton": "Continuer"
+  },
+  "beforeYouStart": {
+    "title": "Before you start [FR]",
+    "step1":{
+      "title": "Step 1 ",
+      "description": "Access your work email",
+      "callout": "Use the same email address as your GC Forms account."
+
+    },
+    "step2":{
+      "title": "Step 2",
+      "description": "Multi-factor authentication",
+      "callout1": "Hardware key",
+      "callout2": "Any device with Authenticator app "
+      
+    }
   }
 }
