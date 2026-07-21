@@ -450,18 +450,20 @@
   },
   "beforeYouStart": {
     "title": "Before you start",
-    "step1":{
+    "step1": {
       "title": "Step 1 ",
       "description": "Access your work email",
       "callout": "Use the same email address as your GC Forms account."
-
     },
-    "step2":{
+    "step2": {
       "title": "Step 2",
       "description": "Multi-factor authentication",
       "callout1": "Hardware key",
       "callout2": "Any device with Authenticator app "
-      
+    },
+    "cta": {
+      "create": "Create GC Platform account",
+      "alreadyHave": "I already have a GC Platform account"
     }
   }
 }
