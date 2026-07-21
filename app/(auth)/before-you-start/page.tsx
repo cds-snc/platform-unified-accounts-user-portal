@@ -29,7 +29,12 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <div data-request-id={requestId}>
-      <AuthPanel titleI18nKey="none" descriptionI18nKey="" namespace="beforeYouStart">
+      <AuthPanel
+        titleI18nKey="none"
+        descriptionI18nKey=""
+        namespace="beforeYouStart"
+        variant="narrow"
+      >
         <Title />
         <div className="mt-6 space-y-6">
           {/* Step 1: Verify your email address */}

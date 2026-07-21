@@ -33,7 +33,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       <div id="page-container" className="gc-authpages">
         <div className="account-wrapper mt-10 flex items-center justify-center">
           <div
-            className={`rounded-2xl border-1 border-[#D1D5DB] bg-white p-10 tablet:w-164.5 has-[#auth-panel-wide]:tablet:w-237.5 laptop:w-212.5 has-[#auth-panel-wide]:laptop:w-[1200px]`}
+            className={`rounded-2xl border-1 border-[#D1D5DB] bg-white p-10 has-[#auth-panel-narrow]:w-118.75 tablet:w-164.5 has-[#auth-panel-narrow]:tablet:w-118.75 has-[#auth-panel-wide]:tablet:w-237.5 laptop:w-212.5 has-[#auth-panel-narrow]:laptop:w-118.75 has-[#auth-panel-wide]:laptop:w-[1200px]`}
           >
             <main id="content" tabIndex={-1}>
               <div className="mr-10 mb-6 inline-flex">
