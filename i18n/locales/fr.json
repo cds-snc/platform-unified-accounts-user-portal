@@ -465,6 +465,10 @@
       "description": "Multi-factor authentication",
       "callout1": "Hardware key",
       "callout2": "Any device with Authenticator app "
+    },
+    "cta": {
+      "createAccount": "Create GC Platform account",
+      "alreadyHaveAccount": "I already have a GC Platform account"
     }
   }
 }

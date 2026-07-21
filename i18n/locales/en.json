@@ -462,8 +462,8 @@
       "callout2": "Any device with Authenticator app "
     },
     "cta": {
-      "create": "Create GC Platform account",
-      "alreadyHave": "I already have a GC Platform account"
+      "createAccount": "Create GC Platform account",
+      "alreadyHaveAccount": "I already have a GC Platform account"
     }
   }
 }

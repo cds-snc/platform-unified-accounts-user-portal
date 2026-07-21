@@ -10,6 +10,7 @@ import { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
+import { Actions } from "./components/Actions";
 import { CallOut } from "./components/CallOut";
 import { Step } from "./components/Step";
 /*--------------------------------------------*
@@ -53,6 +54,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           </div>
         </div>
       </AuthPanel>
+      <Actions />
     </div>
   );
 }

@@ -45,6 +45,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           </div>
         </div>
       </div>
+      <div id="outside-auth-container"></div>
       {!isDev && <VersionUpdater />}
       <Suspense fallback={<FooterSkeleton />}>
         <Footer>
