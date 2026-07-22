@@ -87,7 +87,12 @@ export const passwordSchema = ({
 
 export const confirmPasswordSchema = () => ({
   ...{
-    confirmPassword: v.pipe(v.string(), v.trim(), v.minLength(1, "requiredConfirmPassword")),
+    confirmPassword: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredConfirmPassword"),
+      v.maxLength(50, "maxLength")
+    ),
   },
 });
 
@@ -164,6 +169,15 @@ export const validateCode = async (
   const formValidationSchema = v.pipe(
     v.object({
       ...codeSchema(min, max),
+    })
+  );
+  return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
+};
+
+export const validatePassword = async (formEntries: { [k: string]: FormDataEntryValue }) => {
+  const formValidationSchema = v.pipe(
+    v.object({
+      ...passwordSchema({}),
     })
   );
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
