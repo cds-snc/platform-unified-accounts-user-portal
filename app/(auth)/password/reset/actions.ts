@@ -19,6 +19,7 @@ import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
 import { buildUrlWithRequestId } from "@lib/utils";
+import { validateUsername } from "@lib/validation/validationSchemas";
 import { listAuthenticationMethodTypes, listUsers, passwordResetWithReturn } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
@@ -35,6 +36,12 @@ export const submitUserNameForm = async (
   const genericErrorResponse = {
     error: t("errors.couldNotSendResetLink"),
   };
+
+  const validationResult = await validateUsername({ username: command.loginName });
+  if (!validationResult.success) {
+    logMessage.warn("Server side validation failed for password reset username");
+    return genericErrorResponse;
+  }
 
   const users = await listUsers({
     loginName: command.loginName,
