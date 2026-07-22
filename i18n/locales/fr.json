@@ -456,19 +456,19 @@
   "beforeYouStart": {
     "title": "Before you start [FR]",
     "step1": {
-      "title": "Step 1 ",
-      "description": "Access your work email",
-      "callout": "Use the same email address as your GC Forms account."
+      "title": "Step 1 [FR]",
+      "description": "Access your work email [FR]",
+      "callout": "Use the same email address as your GC Forms account. [FR]"
     },
     "step2": {
-      "title": "Step 2",
-      "description": "Multi-factor authentication",
-      "callout1": "Hardware key",
-      "callout2": "Any device with Authenticator app "
+      "title": "Step 2 [FR]",
+      "description": "Multi-factor authentication [FR]",
+      "callout1": "Hardware key [FR]",
+      "callout2": "Any device with Authenticator app [FR]"
     },
     "cta": {
-      "createAccount": "Create GC Platform account",
-      "alreadyHaveAccount": "I already have a GC Platform account"
+      "createAccount": "Create GC Platform account [FR]",
+      "alreadyHaveAccount": "I already have a GC Platform account [FR]"
     }
   }
 }
