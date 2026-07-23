@@ -13,6 +13,7 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
 import { getSecurityCodeTemplate } from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
 import { buildUrlWithRequestId } from "@lib/utils";
+import { validateCode } from "@lib/validation/validationSchemas";
 import { getUserByID, sendEmailCodeWithReturn, verifyEmail } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
@@ -91,6 +92,14 @@ export const checkVerificationCode = AuthenticatedAction(async function checkVer
 ) {
   const { t } = await serverTranslation("verify");
   const userId = credentials.factors.user.id;
+
+  const validationResult = await validateCode({ code: command.code } as {
+    [k: string]: FormDataEntryValue;
+  });
+  if (!validationResult.success) {
+    logMessage.warn("Server side validation failed for verification code");
+    return { error: t("errors.couldNotVerifyEmail") };
+  }
 
   const verifyResponse = await verifyEmail({
     userId: userId,
