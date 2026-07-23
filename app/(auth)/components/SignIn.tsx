@@ -42,14 +42,18 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       if (isValidSession) {
         if (requestId) {
           const result = await continueOidcSessionSelection(sessionId, requestId);
+
           if ("redirect" in result) {
+            // If a redirect is provided, redirect to the specified URL
             window.location.assign(result.redirect);
             return;
           }
 
+          // If no redirect is provided, redirect to the selected session page
           return router.push(selectedSessionQuery(sessionId));
         }
 
+        // If no requestId is provided, redirect to the account page
         return router.push(buildUrlWithRequestId("/account", requestId));
       }
     }
