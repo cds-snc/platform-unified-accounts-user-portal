@@ -309,7 +309,7 @@ export async function sendLoginname(command: SendLoginnameCommand) {
           }
 
           return {
-            redirect: "/password?" + paramsPassword,
+            redirect: "/password/change?" + paramsPassword,
           };
 
         case AuthenticationMethodType.PASSKEY: // AuthenticationMethodType.AUTHENTICATION_METHOD_TYPE_PASSKEY
@@ -377,7 +377,7 @@ export async function sendLoginname(command: SendLoginnameCommand) {
         paramsPasswordDefault.append("organization", ZITADEL_ORGANIZATION);
 
         return {
-          redirect: "/password?" + paramsPasswordDefault,
+          redirect: "/password/change?" + paramsPasswordDefault,
         };
       }
     }
@@ -436,7 +436,7 @@ export async function sendLoginname(command: SendLoginnameCommand) {
 
     paramsPasswordDefault.append("organization", ZITADEL_ORGANIZATION);
 
-    return { redirect: "/password?" + paramsPasswordDefault };
+    return { redirect: "/password/change?" + paramsPasswordDefault };
   }
 
   logMessage.info("No valid login or registration path found, returning user not found");
