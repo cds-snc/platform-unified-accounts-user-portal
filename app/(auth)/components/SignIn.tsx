@@ -13,7 +13,7 @@ import { Cookie } from "@lib/cookies";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { useTranslation } from "@i18n";
 
-import { checkActiveSession, setSession } from "../actions";
+import { checkActiveSession, continueOidcSessionSelection, setSession } from "../actions";
 
 /*--------------------------------------------*
  * Local Relative
@@ -32,17 +32,29 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedSession = searchParams.get("session");
+  const selectedSessionQuery = (sessionId: string) =>
+    `?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`;
 
   const selectSession = async (sessionId: string) => {
     if (sessionId !== "other") {
       await setSession(sessionId);
       const isValidSession = await checkActiveSession();
       if (isValidSession) {
+        if (requestId) {
+          const result = await continueOidcSessionSelection(sessionId, requestId);
+          if ("redirect" in result) {
+            window.location.assign(result.redirect);
+            return;
+          }
+
+          return router.push(selectedSessionQuery(sessionId));
+        }
+
         return router.push(buildUrlWithRequestId("/account", requestId));
       }
     }
     // Used to set state on the page not as the result of a mutation action
-    router.push(`?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`);
+    router.push(selectedSessionQuery(sessionId));
   };
 
   return (
