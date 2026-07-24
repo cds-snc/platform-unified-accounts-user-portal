@@ -214,7 +214,7 @@ describe("sendLoginname", () => {
     });
 
     describe("Single authentication method", () => {
-      test("should redirect to /password when user has only password and it is allowed", async () => {
+      test("should redirect to /password/change when user has only password and it is allowed", async () => {
         mockListAuthenticationMethodTypes.mockResolvedValue({
           authMethodTypes: [AuthenticationMethodType.PASSWORD],
         });
@@ -225,7 +225,7 @@ describe("sendLoginname", () => {
         });
 
         expect(result).toHaveProperty("redirect");
-        expect((result as WithRedirect).redirect).toMatch(/^\/password\?/);
+        expect((result as WithRedirect).redirect).toMatch(/^\/password\/change\?/);
         expect((result as WithRedirect).redirect).toContain("loginName=user%40example.com");
         expect((result as WithRedirect).redirect).toContain("requestId=req123");
       });
@@ -349,7 +349,7 @@ describe("sendLoginname", () => {
         expect(result).toEqual({ redirect: "https://idp.example.com/auth" });
       });
 
-      test("should redirect to /password when only password is available and allowed", async () => {
+      test("should redirect to /password/change when only password is available and allowed", async () => {
         mockGetLoginSettings.mockResolvedValue({ allowUsernamePassword: true });
         mockListAuthenticationMethodTypes.mockResolvedValue({
           authMethodTypes: [AuthenticationMethodType.PASSWORD],
@@ -358,7 +358,7 @@ describe("sendLoginname", () => {
         const result = await sendLoginname({ loginName: "user@example.com" });
 
         expect(result).toHaveProperty("redirect");
-        expect((result as WithRedirect).redirect).toMatch(/^\/password\?/);
+        expect((result as WithRedirect).redirect).toMatch(/^\/password\/change\?/);
       });
 
       test("should return error when password is available but allowUsernamePassword is false", async () => {
@@ -430,7 +430,7 @@ describe("sendLoginname", () => {
       expect(result).toEqual({ redirect: "https://idp.example.com/auth" });
     });
 
-    test("should redirect to /password when ignoreUnknownUsernames is true", async () => {
+    test("should redirect to /password/change when ignoreUnknownUsernames is true", async () => {
       mockGetLoginSettings.mockResolvedValue({ ignoreUnknownUsernames: true });
 
       const result = await sendLoginname({
@@ -439,7 +439,7 @@ describe("sendLoginname", () => {
       });
 
       expect(result).toHaveProperty("redirect");
-      expect((result as WithRedirect).redirect).toMatch(/^\/password\?/);
+      expect((result as WithRedirect).redirect).toMatch(/^\/password\/change\?/);
       expect((result as WithRedirect).redirect).toContain("loginName=user%40example.com");
       expect((result as WithRedirect).redirect).toContain("requestId=req123");
     });

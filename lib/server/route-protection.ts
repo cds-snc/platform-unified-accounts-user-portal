@@ -185,10 +185,10 @@ export async function checkAuthenticationLevel(
   if (requiredLevel === AuthLevel.PASSWORD_REQUIRED) {
     if (!factors.passwordVerified) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password/change"`
       );
 
-      redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/password/change${requestId ? `?requestId=${requestId}` : ""}`);
     }
     return session;
   }
@@ -197,17 +197,17 @@ export async function checkAuthenticationLevel(
   if (requiredLevel === AuthLevel.ANY_MFA_REQUIRED) {
     if (!factors.passwordVerified) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password/change"`
       );
 
-      redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/password/change${requestId ? `?requestId=${requestId}` : ""}`);
     }
     if (!hasAnyMFA(session)) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password/change"`
       );
 
-      redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/mfa${requestId ? `?requestId=${requestId}` : ""}`);
     }
 
     return session;
@@ -217,17 +217,17 @@ export async function checkAuthenticationLevel(
   if (requiredLevel === AuthLevel.STRONG_MFA_REQUIRED) {
     if (!factors.passwordVerified) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password/change"`
       );
 
-      redirect(`/password${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/password/change${requestId ? `?requestId=${requestId}` : ""}`);
     }
     if (!hasStrongMFA(session)) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/password"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/password/change"`
       );
 
-      redirect(`/mfa${requestId ? `?requestId:${requestId}` : ""}`);
+      redirect(`/mfa${requestId ? `?requestId=${requestId}` : ""}`);
     }
     return session;
   }
