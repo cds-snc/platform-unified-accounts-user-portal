@@ -452,5 +452,10 @@
     "title": "Vous êtes prêt !",
     "description": "Votre compte est maintenant sécurisé avec l'authentification à deux facteurs.",
     "continueButton": "Continuer"
+  },
+  "deactivated": {
+    "title": "Compte désactivé",
+    "description": "Vous ne pouvez plus accéder à ce compte. Pour en savoir plus ou demander la réactivation de votre compte, contactez-nous.",
+    "contactSupport": "Contacter le support"
   }
 }

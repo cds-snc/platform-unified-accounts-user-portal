@@ -4,6 +4,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
+import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { PasskeysType } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
@@ -243,7 +244,7 @@ export async function sendLoginname(command: SendLoginnameCommand) {
       requestId: command.requestId,
     }).catch((error) => {
       if (error?.rawMessage === "Errors.User.NotActive (SESSION-Gj4ko)") {
-        return { error: t("errors.userNotActive") };
+        redirect("/deactivated");
       }
       throw error;
     });
