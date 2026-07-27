@@ -25,9 +25,7 @@ export default async function Page() {
 
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="deactivated">
-      {supportUrl !== false && (
-        <LinkButton.Primary href={supportUrl}>{t("contactSupport")}</LinkButton.Primary>
-      )}
+      <LinkButton.Primary href={supportUrl || "#"}>{t("contactSupport")}</LinkButton.Primary>
     </AuthPanel>
   );
 }
