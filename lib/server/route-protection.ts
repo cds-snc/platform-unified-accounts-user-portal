@@ -178,7 +178,7 @@ export async function checkAuthenticationLevel(
       `[Authentication Level] Required: ${requiredLevel}, Reason: ${factors.hasUser ? "Session expired" : "No user in session"}, Redirecting: "/"`
     );
 
-    redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
+    redirect(buildUrlWithRequestId("/", requestIdRef));
   }
 
   // Password required check
@@ -188,7 +188,7 @@ export async function checkAuthenticationLevel(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
       );
 
-      redirect(`/${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(buildUrlWithRequestId("/", requestIdRef));
     }
     return session;
   }
@@ -200,14 +200,14 @@ export async function checkAuthenticationLevel(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
       );
 
-      redirect(`/${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(buildUrlWithRequestId("/", requestIdRef));
     }
     if (!hasAnyMFA(session)) {
       logMessage.debug(
         `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password/change"`
       );
 
-      redirect(`/mfa${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(buildUrlWithRequestId("/mfa", requestIdRef));
     }
 
     return session;
@@ -220,19 +220,19 @@ export async function checkAuthenticationLevel(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
       );
 
-      redirect(`/${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(buildUrlWithRequestId("/", requestIdRef));
     }
     if (!hasStrongMFA(session)) {
       logMessage.debug(
         `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/mfa"`
       );
 
-      redirect(`/mfa${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(buildUrlWithRequestId("/mfa", requestIdRef));
     }
     return session;
   }
   logMessage.error(
     `[Authentication Level] Required: ${requiredLevel}, Reason: Unknown auth level requested, Redirecting: "/"`
   );
-  redirect(`/${requestId ? `?requestId:${requestId}` : ""}`);
+  redirect(buildUrlWithRequestId("/", requestIdRef));
 }
