@@ -1,3 +1,4 @@
+import { mockRedirect } from "next/navigation";
 import { PasskeysType } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
@@ -563,7 +564,7 @@ describe("sendLoginname", () => {
       expect(mockCreateSessionAndUpdateCookie).not.toHaveBeenCalled();
     });
 
-    test("should return error for inactive user", async () => {
+    test("should redirect to /deactivated for inactive user", async () => {
       mockGetLoginSettings.mockResolvedValue({ allowUsernamePassword: true });
       mockSearchUsers.mockResolvedValue({
         result: [
@@ -580,9 +581,10 @@ describe("sendLoginname", () => {
         rawMessage: "Errors.User.NotActive (SESSION-Gj4ko)",
       });
 
-      const result = await sendLoginname({ loginName: "user@example.com" });
-
-      expect(result).toEqual({ error: "errors.userNotActive" });
+      await expect(sendLoginname({ loginName: "user@example.com" })).rejects.toThrow(
+        "NEXT_REDIRECT"
+      );
+      expect(mockRedirect).toHaveBeenCalledWith("/deactivated");
     });
   });
 });
