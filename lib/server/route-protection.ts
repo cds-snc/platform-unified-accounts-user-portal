@@ -185,10 +185,10 @@ export async function checkAuthenticationLevel(
   if (requiredLevel === AuthLevel.PASSWORD_REQUIRED) {
     if (!factors.passwordVerified) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password/change"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
       );
 
-      redirect(`/password/change${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(`/${requestId ? `?requestId=${requestId}` : ""}`);
     }
     return session;
   }
@@ -197,10 +197,10 @@ export async function checkAuthenticationLevel(
   if (requiredLevel === AuthLevel.ANY_MFA_REQUIRED) {
     if (!factors.passwordVerified) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password/change"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
       );
 
-      redirect(`/password/change${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(`/${requestId ? `?requestId=${requestId}` : ""}`);
     }
     if (!hasAnyMFA(session)) {
       logMessage.debug(
@@ -217,14 +217,14 @@ export async function checkAuthenticationLevel(
   if (requiredLevel === AuthLevel.STRONG_MFA_REQUIRED) {
     if (!factors.passwordVerified) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/password/change"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
       );
 
-      redirect(`/password/change${requestId ? `?requestId=${requestId}` : ""}`);
+      redirect(`/${requestId ? `?requestId=${requestId}` : ""}`);
     }
     if (!hasStrongMFA(session)) {
       logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/password/change"`
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/mfa"`
       );
 
       redirect(`/mfa${requestId ? `?requestId=${requestId}` : ""}`);
