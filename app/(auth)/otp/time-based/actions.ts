@@ -86,11 +86,14 @@ export const handleOTPFormSubmit = AuthenticatedAction(async function handleOTPF
 
   const redirectUrl = redirect ?? loginSettings?.defaultRedirectUri;
 
-  // Always include sessionId to ensure we load the exact session that was just updated
+  // Always include sessionId to ensure we load the exact session that was just updated.
+  // Do not forward an oidc_ requestId when an explicit redirect destination is set (e.g.
+  // "/password/reset/set" during password-reset MFA). Forwarding it would complete the
+  // OIDC auth flow immediately, bypassing the intermediate reset step entirely.
   const callbackResponse = await completeFlowAndRedirect(
     {
       sessionId: response.sessionId,
-      requestId: requestId,
+      requestId: redirect ? undefined : requestId,
     },
     redirectUrl
   );

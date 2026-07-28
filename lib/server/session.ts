@@ -115,10 +115,13 @@ export async function continueWithSession({
   const targetRedirect = redirect || loginSettings?.defaultRedirectUri;
 
   if (requestId && session.id && session.factors?.user) {
+    // Do not forward an oidc_ requestId when an explicit redirect destination is set (e.g.
+    // "/password/reset/set" during password-reset MFA). Forwarding it would complete the
+    // OIDC auth flow immediately, bypassing the intermediate reset step entirely.
     return completeFlowAndRedirect(
       {
         sessionId: session.id,
-        requestId: requestId,
+        requestId: redirect ? undefined : requestId,
       },
       targetRedirect
     );
