@@ -27,6 +27,10 @@ export async function completeFlowAndRedirect(
 ) {
   // Complete OIDC flows directly with server action
   if (command.requestId && command.requestId.startsWith("oidc_")) {
+    if (defaultRedirectUri && shouldDeferOIDCCompletion(defaultRedirectUri)) {
+      redirect(buildUrlWithRequestId(defaultRedirectUri, command.requestId), "push");
+    }
+
     // This completes the flow and redirects to URL or returns error
     const result = await completeAuthFlow({
       sessionId: command.sessionId,
@@ -98,4 +102,16 @@ async function completeAuthFlow(command: {
 
   logMessage.warn("Auth flow received invalid requestId format");
   return { error: "Invalid request ID format" };
+}
+
+/**
+ * Checks if OIDC completion should be deferred based on a given redirect.
+ * Handles cases where the session is not yet fully established (e.g., during password reset).
+ *
+ * @param redirect
+ * @returns
+ */
+function shouldDeferOIDCCompletion(redirect: string): boolean {
+  const deferOidcPaths = ["/password/reset/set"];
+  return deferOidcPaths.some((path) => redirect.startsWith(path));
 }

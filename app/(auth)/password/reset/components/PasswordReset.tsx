@@ -16,8 +16,10 @@ import { Alert, ErrorStatus } from "@components/ui/form";
 import { resetPassword } from "../actions";
 export function PasswordReset({
   passwordComplexitySettings,
+  requestId,
 }: {
   passwordComplexitySettings?: PasswordComplexitySettings;
+  requestId?: string;
 }) {
   const { t } = useTranslation(["password"]);
   const [error, setError] = useState("");
@@ -29,9 +31,10 @@ export function PasswordReset({
   };
 
   const submitPasswordForm = async ({ password, code }: { password: string; code?: string }) => {
-    const payload: { password: string; code?: string } = {
+    const payload: { password: string; code?: string; requestId?: string } = {
       password,
       ...(code ? { code } : {}),
+      ...(requestId ? { requestId } : {}),
     };
 
     await resetPassword(payload).catch((e) => {
