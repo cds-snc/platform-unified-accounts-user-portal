@@ -19,6 +19,7 @@ import { getActiveSessionCookie } from "@lib/cookies";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { updateSession } from "@lib/server/session";
 import { continueWithSession } from "@lib/server/session";
+import { validateRequestId, validateU2FLoginCommand } from "@lib/validation/validationSchemas";
 
 import { U2F_ERRORS } from "./u2f-errors";
 
@@ -34,6 +35,11 @@ export const verifyU2FLogin = AuthenticatedAction(async function verifyU2FLogin(
   _,
   { checks, requestId, redirect }: VerifyU2FLoginCommand
 ) {
+  const loginValidation = validateU2FLoginCommand({ requestId, redirect });
+  if (!loginValidation.success) {
+    return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
+  }
+
   const activeSessionCookie = await getActiveSessionCookie();
 
   // Actually verify the U2F credential by updating the session with the checks
@@ -52,7 +58,8 @@ export const verifyU2FLogin = AuthenticatedAction(async function verifyU2FLogin(
 
 export const updateSessionForU2FChallenge = AuthenticatedAction(
   async function updateSessionForU2FChallenge(_, requestId?: string) {
-    if (requestId && typeof requestId !== "string") {
+    const validationResult = validateRequestId(requestId);
+    if (!validationResult.success) {
       throw new Error("Invalid Parameters");
     }
     const session = await updateSession({

@@ -14,11 +14,13 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
 import { logMessage } from "@lib/logger";
 import { logoutCurrentSession } from "@lib/server/session";
 import { SessionWithAuthData } from "@lib/session";
-import { validatePersonalDetails } from "@lib/validation/validationSchemas";
+import { validatePersonalDetails, validateU2fId } from "@lib/validation/validationSchemas";
 import { getU2FList, removeTOTP, removeU2F, updateHuman } from "@lib/zitadel";
 
 export const removeU2FAction = AuthenticatedAction(async (session, u2fId: string) => {
-  if (typeof u2fId !== "string") {
+  const validationResult = validateU2fId(u2fId);
+  if (!validationResult.success) {
+    logMessage.warn("Server side validation failed for u2fId");
     throw new Error("Invalid parameters");
   }
 
