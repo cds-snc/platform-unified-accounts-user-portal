@@ -2,6 +2,7 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import Link from "next/link";
 
 import { I18n } from "@i18n";
 import { useSiteConfig } from "@components/contexts/SiteConfigContext";
@@ -18,7 +19,13 @@ export const FooterLinks = () => {
   const slaLink = getSiteLink("sla");
 
   if (!aboutLink && !termsOfUseLink && !slaLink) {
-    return null; // Don't render the component if all links are missing
+    return (
+      <span className="mr-10 inline-block">
+        <Link className="whitespace-nowrap" href="/contact-us">
+          <I18n i18nKey="contact-us.desc" namespace="footer" />
+        </Link>
+      </span>
+    );
   }
 
   return (
@@ -44,8 +51,15 @@ export const FooterLinks = () => {
           <a className="whitespace-nowrap" href={slaLink} target="_blank">
             <I18n i18nKey="sla.desc" namespace="footer" />
           </a>
+          <BulletPoint />
         </>
       )}
+      <>
+        <BulletPoint />
+        <Link className="whitespace-nowrap" href="/contact-us">
+          <I18n i18nKey="contact-us.desc" namespace="footer" />
+        </Link>
+      </>
     </span>
   );
 };
