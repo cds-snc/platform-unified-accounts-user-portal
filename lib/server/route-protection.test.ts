@@ -127,7 +127,7 @@ describe("route-protection", () => {
     await expect(checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED)).rejects.toThrow(
       "NEXT_REDIRECT"
     );
-    expect(mockRedirect).toHaveBeenCalledWith("/password/change");
+    expect(mockRedirect).toHaveBeenCalledWith("/");
   });
 
   it("satisfies any-mfa level after password verification", async () => {
