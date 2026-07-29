@@ -50,7 +50,10 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       descriptionI18nKey="reset.description"
       namespace="password"
     >
-      <PasswordReset passwordComplexitySettings={passwordComplexitySettings} />
+      <PasswordReset
+        passwordComplexitySettings={passwordComplexitySettings}
+        requestId={requestId}
+      />
     </AuthPanel>
   );
 }

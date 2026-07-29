@@ -4,6 +4,8 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getSessionCookieById } from "@lib/cookies";
+import { loginWithOIDCAndSession } from "@lib/oidc";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import {
@@ -14,13 +16,14 @@ import {
 import {
   getLockoutSettings,
   getLoginSettings,
+  getSession,
   getUserByID,
   listAuthenticationMethodTypes,
 } from "@lib/zitadel";
 
 import { setupServerActionContext } from "../../test/helpers/serverAction";
 
-import { submitLoginForm } from "./actions";
+import { continueOidcSessionSelection, submitLoginForm } from "./actions";
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
@@ -33,6 +36,15 @@ vi.mock("@zitadel/client", () => ({
 vi.mock("@lib/server/cookie", () => ({
   createSessionAndUpdateCookie: vi.fn(),
   CreateSessionFailedError: class CreateSessionFailedError extends Error {},
+}));
+
+vi.mock("@lib/cookies", () => ({
+  getSessionCookieById: vi.fn(),
+  setSelectedSession: vi.fn(),
+}));
+
+vi.mock("@lib/oidc", () => ({
+  loginWithOIDCAndSession: vi.fn(),
 }));
 
 vi.mock("@lib/service-url", () => ({
@@ -52,6 +64,7 @@ vi.mock("@lib/verify-helper", () => ({
 vi.mock("@lib/zitadel", () => ({
   getLockoutSettings: vi.fn(),
   getLoginSettings: vi.fn(),
+  getSession: vi.fn(),
   getUserByID: vi.fn(),
   listAuthenticationMethodTypes: vi.fn(),
 }));
@@ -239,6 +252,68 @@ describe("submitLoginForm", () => {
     expect(createSessionAndUpdateCookie).toHaveBeenCalledWith({
       checks: { checks: "value" },
       requestId: command.requestId,
+    });
+  });
+
+  it("completes OIDC callback when a valid stored session is selected", async () => {
+    vi.mocked(getSessionCookieById).mockResolvedValue({
+      id: "session-123",
+      token: "token-123",
+      loginName: "person@canada.ca",
+      displayName: "Person",
+      userId: "user-123",
+      creationTs: "1",
+      expirationTs: "2",
+      changeTs: "3",
+    } as never);
+    vi.mocked(getSession).mockResolvedValue({
+      session: {
+        id: "session-123",
+        factors: {
+          user: {
+            id: "user-123",
+            loginName: "person@canada.ca",
+          },
+        },
+      },
+    } as never);
+    vi.mocked(loginWithOIDCAndSession).mockResolvedValue({
+      redirect: "https://forms.example.ca/api/auth/callback/gcForms",
+    } as never);
+
+    const response = await continueOidcSessionSelection("session-123", "oidc_req-123");
+
+    expect(getSessionCookieById).toHaveBeenCalledWith({ sessionId: "session-123" });
+    expect(getSession).toHaveBeenCalledWith("session-123", "token-123");
+    expect(loginWithOIDCAndSession).toHaveBeenCalledWith({
+      authRequest: "oidc_req-123",
+      sessionId: "session-123",
+      sessions: [
+        {
+          id: "session-123",
+          factors: {
+            user: {
+              id: "user-123",
+              loginName: "person@canada.ca",
+            },
+          },
+        },
+      ],
+      sessionCookies: [
+        {
+          id: "session-123",
+          token: "token-123",
+          loginName: "person@canada.ca",
+          displayName: "Person",
+          userId: "user-123",
+          creationTs: "1",
+          expirationTs: "2",
+          changeTs: "3",
+        },
+      ],
+    });
+    expect(response).toEqual({
+      redirect: "https://forms.example.ca/api/auth/callback/gcForms",
     });
   });
 });

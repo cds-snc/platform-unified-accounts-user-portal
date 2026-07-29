@@ -296,20 +296,8 @@ export async function sendLoginname(command: SendLoginnameCommand) {
             };
           }
 
-          const paramsPassword = new URLSearchParams({
-            loginName: session.factors?.user?.loginName,
-          });
-
-          // TODO: does this have to be checked in loginSettings.allowDomainDiscovery
-
-          paramsPassword.append("organization", ZITADEL_ORGANIZATION);
-
-          if (command.requestId) {
-            paramsPassword.append("requestId", command.requestId);
-          }
-
           return {
-            redirect: "/password?" + paramsPassword,
+            redirect: buildUrlWithRequestId("/", command.requestId),
           };
 
         case AuthenticationMethodType.PASSKEY: // AuthenticationMethodType.AUTHENTICATION_METHOD_TYPE_PASSKEY
@@ -366,18 +354,8 @@ export async function sendLoginname(command: SendLoginnameCommand) {
         }
 
         // user has no passkey setup and login settings allow passwords
-        const paramsPasswordDefault = new URLSearchParams({
-          loginName: session.factors?.user?.loginName,
-        });
-
-        if (command.requestId) {
-          paramsPasswordDefault.append("requestId", command.requestId);
-        }
-
-        paramsPasswordDefault.append("organization", ZITADEL_ORGANIZATION);
-
         return {
-          redirect: "/password?" + paramsPasswordDefault,
+          redirect: buildUrlWithRequestId("/", command.requestId),
         };
       }
     }
@@ -426,17 +404,7 @@ export async function sendLoginname(command: SendLoginnameCommand) {
 
   if (effectiveLoginSettings?.ignoreUnknownUsernames) {
     logMessage.debug("ignoreUnknownUsernames is set, redirecting to password");
-    const paramsPasswordDefault = new URLSearchParams({
-      loginName: command.loginName,
-    });
-
-    if (command.requestId) {
-      paramsPasswordDefault.append("requestId", command.requestId);
-    }
-
-    paramsPasswordDefault.append("organization", ZITADEL_ORGANIZATION);
-
-    return { redirect: "/password?" + paramsPasswordDefault };
+    return { redirect: buildUrlWithRequestId("/", command.requestId) };
   }
 
   logMessage.info("No valid login or registration path found, returning user not found");

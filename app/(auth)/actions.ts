@@ -10,11 +10,12 @@ import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
-import { setSelectedSession } from "@lib/cookies";
+import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
+import { loginWithOIDCAndSession } from "@lib/oidc";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
@@ -24,7 +25,7 @@ import {
   checkMFAFactors,
   checkPasswordChangeRequired,
 } from "@lib/verify-helper";
-import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
+import { getSession, getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 import { parseZitadelError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 
@@ -152,6 +153,27 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 // Unauthenticated Action to ensure a user can select an existing non-active session
 export const setSession = async (sessionId: string) => {
   return setSelectedSession(sessionId);
+};
+
+export const continueOidcSessionSelection = async (sessionId: string, requestId: string) => {
+  await setSelectedSession(sessionId);
+
+  const sessionCookie = await getSessionCookieById({ sessionId }).catch(() => null);
+  if (!sessionCookie) {
+    return { error: "Session not found or invalid" };
+  }
+
+  const sessionResponse = await getSession(sessionCookie.id, sessionCookie.token).catch(() => null);
+  if (!sessionResponse?.session) {
+    return { error: "Session not found or invalid" };
+  }
+
+  return loginWithOIDCAndSession({
+    authRequest: requestId,
+    sessionId,
+    sessions: [sessionResponse.session],
+    sessionCookies: [sessionCookie],
+  });
 };
 
 export const checkActiveSession = AuthenticatedAction(async function checkActiveSession(session) {

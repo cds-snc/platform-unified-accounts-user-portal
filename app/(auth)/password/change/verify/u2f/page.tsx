@@ -25,8 +25,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
-  if (session.authMethods?.includes(AuthenticationMethodType.U2F)) {
-    redirect(buildUrlWithRequestId("/password/change", requestId), "push");
+  if (!session.authMethods?.includes(AuthenticationMethodType.U2F)) {
+    redirect(buildUrlWithRequestId("/password/change", requestId));
   }
 
   return (
