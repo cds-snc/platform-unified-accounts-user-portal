@@ -145,7 +145,7 @@ export const submitUserNameForm = async (
 
 export const resetPassword = AuthenticatedAction(async function resetPassword(
   session,
-  { code, password }: { code?: string; password?: string }
+  { code, password, requestId }: { code?: string; password?: string; requestId?: string }
 ) {
   if (!code || !password) {
     throw new Error("Missing required properties to reset password");
@@ -176,5 +176,6 @@ export const resetPassword = AuthenticatedAction(async function resetPassword(
     checks: create(ChecksSchema, {
       password: { password },
     }),
+    requestId,
   });
 });
