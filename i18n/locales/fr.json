@@ -468,6 +468,9 @@
       "title": "Message envoyé",
       "description": "Merci de nous avoir contactés. Nous vous répondrons dès que possible."
     },
+    "errors": {
+      "submitFailed": "Échec de l'envoi du message. Veuillez réessayer."
+    },
     "validation": {
       "requiredFullName": "Le nom complet est obligatoire.",
       "maxLengthFullName": "Le nom complet doit comporter moins de 251 caractères.",

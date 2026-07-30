@@ -9,6 +9,10 @@ import { createTranslationStub } from "../../../../test/helpers/client";
 
 import { ContactUsForm } from "./ContactUsForm";
 
+vi.mock("../actions", () => ({
+  submitContactFormAction: vi.fn().mockResolvedValue({ success: true }),
+}));
+
 vi.mock("@i18n", () => ({
   useTranslation: vi.fn(),
   I18n: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
@@ -24,6 +28,7 @@ vi.mock("@i18n/client", () => ({
 vi.mock("@components/ui/toast/Toast", () => ({
   toast: {
     success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 

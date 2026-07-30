@@ -463,6 +463,9 @@
       "title": "Message sent",
       "description": "Thank you for reaching out. We will get back to you as soon as possible."
     },
+    "errors": {
+      "submitFailed": "Failed to send message. Please try again."
+    },
     "validation": {
       "requiredFullName": "Full name is required.",
       "maxLengthFullName": "Full name must be less than 251 characters.",

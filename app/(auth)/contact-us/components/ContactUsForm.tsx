@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -17,8 +17,13 @@ import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 import { toast } from "@components/ui/toast/Toast";
 
+/*--------------------------------------------*
+ * Parent Relative
+ *--------------------------------------------*/
+import { submitContactFormAction } from "../actions";
+
 type FormState = {
-  success?: boolean;
+  error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: {
     fullName?: string;
@@ -30,10 +35,7 @@ type FormState = {
 export function ContactUsForm() {
   const { t } = useTranslation(["contact-us", "common"]);
 
-  const localFormAction = async (
-    previousState: FormState,
-    formData: FormData
-  ): Promise<FormState> => {
+  const localFormAction = async (_: FormState, formData: FormData): Promise<FormState> => {
     const formEntries = {
       fullName: (formData.get("fullName") as string) || "",
       email: (formData.get("email") as string) || "",
@@ -51,7 +53,15 @@ export function ContactUsForm() {
       };
     }
 
-    return { success: true, formData: formEntries };
+    const result = await submitContactFormAction(formEntries);
+
+    if ("error" in result) {
+      toast.error(result.error || t("errors.submitFailed"));
+      return { formData: formEntries };
+    }
+
+    toast.success(t("success.title"));
+    return { formData: formEntries };
   };
 
   const [state, formAction] = useActionState(localFormAction, {
@@ -62,12 +72,6 @@ export function ContactUsForm() {
       message: "",
     },
   });
-
-  useEffect(() => {
-    if (state.success) {
-      toast.success(t("success.title"));
-    }
-  }, [state.success, t]);
 
   return (
     <div>
