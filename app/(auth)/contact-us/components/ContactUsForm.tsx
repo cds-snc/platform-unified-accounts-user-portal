@@ -4,39 +4,17 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useActionState } from "react";
-import * as v from "valibot";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
-
-const contactFormSchema = v.object({
-  fullName: v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(1, "requiredFullName"),
-    v.maxLength(250, "maxLengthFullName")
-  ),
-  email: v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(1, "requiredEmail"),
-    v.maxLength(254, "maxLengthEmail"),
-    v.email("invalidEmail")
-  ),
-  message: v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(1, "requiredMessage"),
-    v.maxLength(2000, "maxLengthMessage")
-  ),
-});
 
 type FormState = {
   success?: boolean;
@@ -61,7 +39,7 @@ export function ContactUsForm() {
       message: (formData.get("message") as string) || "",
     };
 
-    const validationResult = v.safeParse(contactFormSchema, formEntries);
+    const validationResult = validateContactForm(formEntries);
     if (!validationResult.success) {
       return {
         validationErrors: validationResult.issues.map((issue) => ({

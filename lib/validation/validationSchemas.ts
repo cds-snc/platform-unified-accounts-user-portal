@@ -256,3 +256,28 @@ export const validateVerifyU2FCommand = (command: unknown) => {
   });
   return v.safeParse(schema, command, { abortPipeEarly: true });
 };
+
+export const validateContactForm = (formEntries: { [k: string]: FormDataEntryValue }) => {
+  const formValidationSchema = v.object({
+    fullName: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredFullName"),
+      v.maxLength(250, "maxLengthFullName")
+    ),
+    email: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredEmail"),
+      v.maxLength(254, "maxLengthEmail"),
+      v.email("invalidEmail")
+    ),
+    message: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredMessage"),
+      v.maxLength(2000, "maxLengthMessage")
+    ),
+  });
+  return v.safeParse(formValidationSchema, formEntries);
+};
