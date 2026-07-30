@@ -93,7 +93,7 @@ export function ContactUsForm() {
   }
 
   return (
-    <>
+    <div>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
       <form id="contact-us-form" action={formAction} noValidate>
         <div className="mb-6 flex flex-col gap-4">
@@ -168,6 +168,6 @@ export function ContactUsForm() {
 
         <SubmitButtonAction>{t("button.submit", { ns: "common" })}</SubmitButtonAction>
       </form>
-    </>
+    </div>
   );
 }
