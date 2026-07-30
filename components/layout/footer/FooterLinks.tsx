@@ -18,16 +18,6 @@ export const FooterLinks = () => {
   const termsOfUseLink = getSiteLink("termsOfUse");
   const slaLink = getSiteLink("sla");
 
-  if (!aboutLink && !termsOfUseLink && !slaLink) {
-    return (
-      <span className="mr-10 inline-block">
-        <Link className="whitespace-nowrap" href="/contact-us">
-          <I18n i18nKey="contact-us.desc" namespace="footer" />
-        </Link>
-      </span>
-    );
-  }
-
   return (
     <span className="mr-10 inline-block">
       {aboutLink && (
@@ -54,12 +44,9 @@ export const FooterLinks = () => {
           <BulletPoint />
         </>
       )}
-      <>
-        <BulletPoint />
-        <Link className="whitespace-nowrap" href="/contact-us">
-          <I18n i18nKey="contact-us.desc" namespace="footer" />
-        </Link>
-      </>
+      <Link className="whitespace-nowrap" href="/contact-us">
+        <I18n i18nKey="contact-us.desc" namespace="footer" />
+      </Link>
     </span>
   );
 };

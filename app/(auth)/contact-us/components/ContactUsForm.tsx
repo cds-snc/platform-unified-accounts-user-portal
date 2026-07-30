@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -12,9 +12,10 @@ import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
-import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
+import { Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
+import { toast } from "@components/ui/toast/Toast";
 
 type FormState = {
   success?: boolean;
@@ -50,7 +51,7 @@ export function ContactUsForm() {
       };
     }
 
-    return { success: true };
+    return { success: true, formData: formEntries };
   };
 
   const [state, formAction] = useActionState(localFormAction, {
@@ -62,13 +63,11 @@ export function ContactUsForm() {
     },
   });
 
-  if (state.success) {
-    return (
-      <Alert type={ErrorStatus.SUCCESS} heading={t("success.title")} focussable={true}>
-        <p>{t("success.description")}</p>
-      </Alert>
-    );
-  }
+  useEffect(() => {
+    if (state.success) {
+      toast.success(t("success.title"));
+    }
+  }, [state.success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
