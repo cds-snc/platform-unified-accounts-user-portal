@@ -19,7 +19,7 @@ import { loginWithOIDCAndSession } from "@lib/oidc";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
-import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
+import { validateSessionId, validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import {
   checkEmailVerification,
   checkMFAFactors,
@@ -152,6 +152,11 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
 // Unauthenticated Action to ensure a user can select an existing non-active session
 export const setSession = async (sessionId: string) => {
+  const validationResult = validateSessionId(sessionId);
+  if (!validationResult.success) {
+    logMessage.warn("Server side validation failed for sessionId");
+    return { error: "Invalid session ID" };
+  }
   return setSelectedSession(sessionId);
 };
 

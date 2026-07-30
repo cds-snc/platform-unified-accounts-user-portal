@@ -477,5 +477,23 @@
       "requiredMessage": "Le message est obligatoire.",
       "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
     }
+  },
+  "beforeYouStart": {
+    "title": "Before you start [FR]",
+    "step1": {
+      "title": "Step 1 [FR]",
+      "description": "Access your work email [FR]",
+      "callout": "Use the same email address as your GC Forms account. [FR]"
+    },
+    "step2": {
+      "title": "Step 2 [FR]",
+      "description": "Multi-factor authentication [FR]",
+      "callout1": "Hardware key [FR]",
+      "callout2": "Any device with Authenticator app [FR]"
+    },
+    "cta": {
+      "createAccount": "Create GC Platform account [FR]",
+      "alreadyHaveAccount": "I already have a GC Platform account [FR]"
+    }
   }
 }
