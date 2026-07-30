@@ -23,6 +23,7 @@ interface AuthPanelProps {
   children?: ReactNode;
   imageSrc?: string;
   wide?: boolean;
+  variant?: "default" | "narrow" | "wide";
 }
 
 export const AuthPanel = ({
@@ -32,10 +33,17 @@ export const AuthPanel = ({
   titleData,
   children,
   imageSrc,
-  wide = false,
+  variant = "default",
 }: AuthPanelProps) => {
+  const panelId =
+    variant === "wide"
+      ? "auth-panel-wide"
+      : variant === "narrow"
+        ? "auth-panel-narrow"
+        : "auth-panel";
+
   return (
-    <div id={wide ? "auth-panel-wide" : "auth-panel"}>
+    <div id={panelId}>
       {imageSrc && (
         <div className="mb-6 flex justify-center">
           <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} />
