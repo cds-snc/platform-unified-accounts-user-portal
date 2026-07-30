@@ -67,7 +67,7 @@ export function ContactUsForm() {
     if (state.success) {
       toast.success(t("success.title"));
     }
-  }, [state.success]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.success, t]);
 
   return (
     <div>
