@@ -13,6 +13,7 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
  * Internal Aliases
  *--------------------------------------------*/
 import { getOriginalHost } from "@lib/server/host";
+import { validateVerifyU2FCommand } from "@lib/validation/validationSchemas";
 import { registerU2F, verifyU2FRegistration } from "@lib/zitadel";
 
 import { U2F_ERRORS } from "../u2f-errors";
@@ -60,6 +61,11 @@ export const verifyU2F = AuthenticatedAction(async function verifyU2F(
   session,
   command: VerifyU2FCommand
 ) {
+  const validationResult = validateVerifyU2FCommand(command);
+  if (!validationResult.success) {
+    return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
+  }
+
   let passkeyName = command.passkeyName;
 
   if (!passkeyName) {

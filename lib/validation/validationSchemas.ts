@@ -64,52 +64,61 @@ export const passwordSchema = ({
   requiresSymbol?: boolean;
   requiresUppercase?: boolean;
 }) => ({
-  ...{
-    password: v.pipe(
-      v.string(),
-      v.trim(),
-      v.minLength(1, "requiredPassword"),
-      v.check((password) => !minLength || password.length >= minLength, "minLength"),
-      v.maxLength(50, "maxLength"),
-      v.check(
-        (password) => !requiresLowercase || containsLowerCaseCharacter(password),
-        "hasLowercase"
-      ),
-      v.check(
-        (password) => !requiresUppercase || containsUpperCaseCharacter(password),
-        "hasUppercase"
-      ),
-      v.check((password) => !requiresNumber || containsNumber(password), "hasNumber"),
-      v.check((password) => !requiresSymbol || containsSymbol(password), "hasSymbol")
+  password: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "requiredPassword"),
+    v.check((password) => !minLength || password.length >= minLength, "minLength"),
+    v.maxLength(50, "maxLength"),
+    v.check(
+      (password) => !requiresLowercase || containsLowerCaseCharacter(password),
+      "hasLowercase"
     ),
-  },
+    v.check(
+      (password) => !requiresUppercase || containsUpperCaseCharacter(password),
+      "hasUppercase"
+    ),
+    v.check((password) => !requiresNumber || containsNumber(password), "hasNumber"),
+    v.check((password) => !requiresSymbol || containsSymbol(password), "hasSymbol")
+  ),
 });
 
 export const confirmPasswordSchema = () => ({
-  ...{
-    confirmPassword: v.pipe(
-      v.string(),
-      v.trim(),
-      v.minLength(1, "requiredConfirmPassword"),
-      v.maxLength(50, "maxLength")
-    ),
-  },
+  confirmPassword: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "requiredConfirmPassword"),
+    v.maxLength(50, "maxLength")
+  ),
 });
 
 export const codeSchema = (min = 1, max = 10) => ({
-  ...{
-    code: v.pipe(v.string(), v.trim(), v.minLength(min, "required"), v.maxLength(max, "maxLength")),
-  },
+  code: v.pipe(v.string(), v.trim(), v.minLength(min, "required"), v.maxLength(max, "maxLength")),
+});
+
+const redirectURLSchema = () => ({
+  redirect: v.optional(v.nullable(v.pipe(v.string(), v.trim(), v.maxLength(500, "maxLength")))),
 });
 
 const requestIdSchema = () => ({
-  requestId: v.optional(v.pipe(v.string(), v.maxLength(200, "maxLength"))),
+  requestId: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(200, "maxLength"))),
+});
+
+const sessionIdSchema = () => ({
+  sessionId: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "required"),
+    v.maxLength(200, "maxLength")
+  ),
 });
 
 const totpCodeSchema = () => ({
-  ...{
-    code: v.pipe(v.string(), v.trim(), v.regex(/^\d{6}$/, "invalidCodeLength")),
-  },
+  code: v.pipe(v.string(), v.trim(), v.regex(/^\d{6}$/, "invalidCodeLength")),
+});
+
+const u2fIdSchema = () => ({
+  u2fId: v.pipe(v.string(), v.trim(), v.minLength(1, "required"), v.maxLength(200, "maxLength")),
 });
 
 // Shared "composed" validation functions using the above schemas
@@ -200,4 +209,50 @@ export const validatePersonalDetails = async (formEntries: { [k: string]: FormDa
     })
   );
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
+};
+
+export const validateRequestId = (requestId: unknown) => {
+  return v.safeParse(requestIdSchema().requestId, requestId, { abortPipeEarly: true });
+};
+
+export const validateSessionId = (sessionId: unknown) => {
+  return v.safeParse(sessionIdSchema().sessionId, sessionId, { abortPipeEarly: true });
+};
+
+export const validateU2fId = (u2fId: unknown) => {
+  return v.safeParse(u2fIdSchema().u2fId, u2fId, { abortPipeEarly: true });
+};
+
+export const validateU2FLoginCommand = (command: unknown) => {
+  const schema = v.object({
+    ...requestIdSchema(),
+    ...redirectURLSchema(),
+  });
+  return v.safeParse(schema, command, { abortPipeEarly: true });
+};
+
+export const validateVerifyU2FCommand = (command: unknown) => {
+  const schema = v.object({
+    u2fId: u2fIdSchema().u2fId,
+    passkeyName: v.optional(v.pipe(v.string(), v.maxLength(200, "maxLength"))),
+    publicKeyCredential: v.object({
+      id: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
+      rawId: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
+      type: v.literal("public-key"),
+      response: v.object({
+        attestationObject: v.pipe(
+          v.string(),
+          v.minLength(1, "required"),
+          v.maxLength(11000, "maxLength")
+        ),
+        clientDataJSON: v.pipe(
+          v.string(),
+          v.minLength(1, "required"),
+          v.maxLength(2000, "maxLength")
+        ),
+      }),
+    }),
+    sessionId: sessionIdSchema().sessionId,
+  });
+  return v.safeParse(schema, command, { abortPipeEarly: true });
 };
