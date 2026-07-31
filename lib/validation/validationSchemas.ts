@@ -257,7 +257,7 @@ export const validateVerifyU2FCommand = (command: unknown) => {
   return v.safeParse(schema, command, { abortPipeEarly: true });
 };
 
-export const validateContactForm = (formEntries: { [k: string]: FormDataEntryValue }) => {
+export const validateContactForm = async (formEntries: { [k: string]: FormDataEntryValue }) => {
   const formValidationSchema = v.object({
     fullName: v.pipe(
       v.string(),
@@ -279,5 +279,6 @@ export const validateContactForm = (formEntries: { [k: string]: FormDataEntryVal
       v.maxLength(2000, "maxLengthMessage")
     ),
   });
-  return v.safeParse(formValidationSchema, formEntries);
+
+  return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
 };

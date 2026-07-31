@@ -5,6 +5,7 @@
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
 import { validateContactForm } from "@lib/validation/validationSchemas";
+import { serverTranslation } from "@i18n/server";
 
 type ContactFormCommand = {
   fullName: string;
@@ -15,10 +16,16 @@ type ContactFormCommand = {
 export async function submitContactFormAction(
   command: ContactFormCommand
 ): Promise<{ success: true } | { error: string }> {
-  const validationResult = validateContactForm(command);
+  const { t } = await serverTranslation("contact-us");
+  const genericErrorResponse = {
+    error: t("errors.submitFailed"),
+  };
+
+  const validationResult = await validateContactForm(command);
+
   if (!validationResult.success) {
     logMessage.warn("Server side validation failed for contact form");
-    return { error: "Invalid parameters" };
+    return genericErrorResponse;
   }
 
   // TODO: Implement actual message delivery

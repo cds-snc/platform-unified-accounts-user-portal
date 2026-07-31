@@ -464,6 +464,7 @@
       "description": "Thank you for reaching out. We will get back to you as soon as possible."
     },
     "errors": {
+      "generic": "Something went wrong sending your message. Please try again.",
       "submitFailed": "Failed to send message. Please try again."
     },
     "validation": {
