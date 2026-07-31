@@ -6,6 +6,7 @@ import { useTranslation } from "@i18n";
 import { toast } from "@components/ui/toast/Toast";
 
 import { createTranslationStub } from "../../../../test/helpers/client";
+import { submitContactFormAction } from "../actions";
 
 import { ContactUsForm } from "./ContactUsForm";
 
@@ -89,6 +90,27 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith("success.title");
     });
+  });
+
+  it("shows an inline alert after server submission failure", async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(submitContactFormAction).mockResolvedValueOnce({
+      error: "errors.submitFailed",
+    });
+
+    render(<ContactUsForm />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("errors.submitFailed")).toBeInTheDocument();
+    });
+
+    expect(toast.error).not.toHaveBeenCalled();
   });
 
   it("keeps the form visible after successful submission", async () => {

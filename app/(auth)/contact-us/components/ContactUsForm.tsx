@@ -8,11 +8,12 @@ import { useActionState } from "react";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
-import { Label, TextInput } from "@components/ui/form";
+import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 import { toast } from "@components/ui/toast/Toast";
@@ -34,17 +35,23 @@ type FormState = {
 
 export function ContactUsForm() {
   const { t } = useTranslation(["contact-us", "common"]);
+  const genericErrorMessage = t("errors.generic");
+  const submitFailedMessage = t("errors.submitFailed");
 
-  const localFormAction = async (_: FormState, formData: FormData): Promise<FormState> => {
+  const localFormAction = async (
+    previousState: FormState,
+    formData: FormData
+  ): Promise<FormState> => {
     const formEntries = {
       fullName: (formData.get("fullName") as string) || "",
       email: (formData.get("email") as string) || "",
       message: (formData.get("message") as string) || "",
     };
 
-    const validationResult = validateContactForm(formEntries);
+    const validationResult = await validateContactForm(formEntries);
     if (!validationResult.success) {
       return {
+        error: undefined,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
           fieldValue: t(`validation.${issue.message}`),
@@ -56,12 +63,21 @@ export function ContactUsForm() {
     const result = await submitContactFormAction(formEntries);
 
     if ("error" in result) {
-      toast.error(result.error || t("errors.submitFailed"));
-      return { formData: formEntries };
+      return {
+        ...previousState,
+        validationErrors: undefined,
+        error: result.error,
+        formData: formEntries,
+      };
     }
 
     toast.success(t("success.title"));
-    return { formData: formEntries };
+    return {
+      ...previousState,
+      error: undefined,
+      validationErrors: undefined,
+      formData: formEntries,
+    };
   };
 
   const [state, formAction] = useActionState(localFormAction, {
@@ -76,6 +92,15 @@ export function ContactUsForm() {
   return (
     <div>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
+      {state.error && (
+        <Alert type={ErrorStatus.ERROR} focussable={true} id="contactUsError">
+          {getSafeErrorMessage({
+            error: state.error,
+            fallback: genericErrorMessage,
+            allowedMessages: [submitFailedMessage],
+          })}
+        </Alert>
+      )}
       <form id="contact-us-form" action={formAction} noValidate>
         <div className="mb-6 flex flex-col gap-4">
           <div className="gcds-input-wrapper">
