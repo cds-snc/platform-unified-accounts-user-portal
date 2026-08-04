@@ -28,7 +28,6 @@ vi.mock("@i18n/client", () => ({
 
 vi.mock("@components/ui/toast/Toast", () => ({
   toast: {
-    success: vi.fn(),
     error: vi.fn(),
   },
 }));
@@ -77,7 +76,7 @@ describe("ContactUsForm", () => {
     });
   });
 
-  it("shows success toast after valid form submission", async () => {
+  it("shows success panel after valid form submission", async () => {
     const user = userEvent.setup();
 
     render(<ContactUsForm />);
@@ -88,7 +87,9 @@ describe("ContactUsForm", () => {
     await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith("success.title");
+      expect(screen.getByText("success.title")).toBeInTheDocument();
+      expect(screen.getByText("success.description")).toBeInTheDocument();
+      expect(screen.getByText("success.responseTime")).toBeInTheDocument();
     });
   });
 
@@ -113,7 +114,7 @@ describe("ContactUsForm", () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
-  it("keeps the form visible after successful submission", async () => {
+  it("hides the form after successful submission", async () => {
     const user = userEvent.setup();
 
     render(<ContactUsForm />);
@@ -124,7 +125,7 @@ describe("ContactUsForm", () => {
     await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
-      expect(document.getElementById("contact-us-form")).toBeInTheDocument();
+      expect(document.getElementById("contact-us-form")).not.toBeInTheDocument();
     });
   });
 });

@@ -466,7 +466,8 @@
     },
     "success": {
       "title": "Message envoyé",
-      "description": "Merci de nous avoir contactés. Nous vous répondrons dès que possible."
+      "description": "Merci de nous avoir contactés. Nous vous répondrons dès que possible.",
+      "responseTime": "Nous vous répondrons dans un délai de 2 jours ouvrables."
     },
     "errors": {
       "generic": "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer.",

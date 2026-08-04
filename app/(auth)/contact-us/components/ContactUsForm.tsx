@@ -16,7 +16,6 @@ import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
-import { toast } from "@components/ui/toast/Toast";
 
 /*--------------------------------------------*
  * Parent Relative
@@ -24,6 +23,7 @@ import { toast } from "@components/ui/toast/Toast";
 import { submitContactFormAction } from "../actions";
 
 type FormState = {
+  success?: boolean;
   error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: {
@@ -71,9 +71,9 @@ export function ContactUsForm() {
       };
     }
 
-    toast.success(t("success.title"));
     return {
       ...previousState,
+      success: true,
       error: undefined,
       validationErrors: undefined,
       formData: formEntries,
@@ -91,89 +91,101 @@ export function ContactUsForm() {
 
   return (
     <div>
-      <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
-      {state.error && (
-        <Alert type={ErrorStatus.ERROR} focussable={true} id="contactUsError">
-          {getSafeErrorMessage({
-            error: state.error,
-            fallback: genericErrorMessage,
-            allowedMessages: [submitFailedMessage],
-          })}
+      {state.success ? (
+        <Alert type={ErrorStatus.SUCCESS} focussable={true} id="contactUsSuccess">
+          <p className="mb-2 font-semibold">{t("success.title")}</p>
+          <p className="mb-1">{t("success.description")}</p>
+          <p>{t("success.responseTime")}</p>
         </Alert>
-      )}
-      <form id="contact-us-form" action={formAction} noValidate>
-        <div className="mb-6 flex flex-col gap-4">
-          <div className="gcds-input-wrapper">
-            <Label htmlFor="fullName" required>
-              {t("labels.fullName")}
-            </Label>
-            {hasError("fullName", state.validationErrors) && (
-              <ErrorMessage id="errorMessageFullName">
-                {getError("fullName", state.validationErrors)}
-              </ErrorMessage>
-            )}
-            <TextInput
-              className="w-full"
-              type="text"
-              id="fullName"
-              autoComplete="name"
-              required
-              defaultValue={state.formData?.fullName ?? ""}
-              ariaDescribedbyIds={
-                hasError("fullName", state.validationErrors) ? ["errorMessageFullName"] : undefined
-              }
-              invalid={hasError("fullName", state.validationErrors)}
-            />
-          </div>
-
-          <div className="gcds-input-wrapper">
-            <Label htmlFor="email" required>
-              {t("labels.email")}
-            </Label>
-            {hasError("email", state.validationErrors) && (
-              <ErrorMessage id="errorMessageEmail">
-                {getError("email", state.validationErrors)}
-              </ErrorMessage>
-            )}
-            <TextInput
-              className="w-full"
-              type="email"
-              autoComplete="email"
-              required
-              id="email"
-              defaultValue={state.formData?.email ?? ""}
-              ariaDescribedbyIds={
-                hasError("email", state.validationErrors) ? ["errorMessageEmail"] : undefined
-              }
-              invalid={hasError("email", state.validationErrors)}
-            />
-          </div>
-
-          <div className="gcds-textarea-wrapper">
-            <Label htmlFor="message" required>
-              {t("labels.message")}
-            </Label>
-            {hasError("message", state.validationErrors) && (
-              <ErrorMessage id="errorMessageMessage">
-                {getError("message", state.validationErrors)}
-              </ErrorMessage>
-            )}
-            <textarea
-              id="message"
-              name="message"
-              required
-              rows={6}
-              defaultValue={state.formData?.message ?? ""}
-              aria-invalid={hasError("message", state.validationErrors)}
-              {...(hasError("message", state.validationErrors) && {
-                "aria-describedby": "errorMessageMessage",
+      ) : (
+        <>
+          <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
+          {state.error && (
+            <Alert type={ErrorStatus.ERROR} focussable={true} id="contactUsError">
+              {getSafeErrorMessage({
+                error: state.error,
+                fallback: genericErrorMessage,
+                allowedMessages: [submitFailedMessage],
               })}
-            />
-          </div>
-        </div>
+            </Alert>
+          )}
+          <form id="contact-us-form" action={formAction} noValidate>
+            <div className="mb-6 flex flex-col gap-4">
+              <div className="gcds-input-wrapper">
+                <Label htmlFor="fullName" required>
+                  {t("labels.fullName")}
+                </Label>
+                {hasError("fullName", state.validationErrors) && (
+                  <ErrorMessage id="errorMessageFullName">
+                    {getError("fullName", state.validationErrors)}
+                  </ErrorMessage>
+                )}
+                <TextInput
+                  className="w-full"
+                  type="text"
+                  id="fullName"
+                  autoComplete="name"
+                  required
+                  defaultValue={state.formData?.fullName ?? ""}
+                  ariaDescribedbyIds={
+                    hasError("fullName", state.validationErrors)
+                      ? ["errorMessageFullName"]
+                      : undefined
+                  }
+                  invalid={hasError("fullName", state.validationErrors)}
+                />
+              </div>
 
-        <SubmitButtonAction>{t("button.submit", { ns: "common" })}</SubmitButtonAction>
-      </form>
+              <div className="gcds-input-wrapper">
+                <Label htmlFor="email" required>
+                  {t("labels.email")}
+                </Label>
+                {hasError("email", state.validationErrors) && (
+                  <ErrorMessage id="errorMessageEmail">
+                    {getError("email", state.validationErrors)}
+                  </ErrorMessage>
+                )}
+                <TextInput
+                  className="w-full"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  id="email"
+                  defaultValue={state.formData?.email ?? ""}
+                  ariaDescribedbyIds={
+                    hasError("email", state.validationErrors) ? ["errorMessageEmail"] : undefined
+                  }
+                  invalid={hasError("email", state.validationErrors)}
+                />
+              </div>
+
+              <div className="gcds-textarea-wrapper">
+                <Label htmlFor="message" required>
+                  {t("labels.message")}
+                </Label>
+                {hasError("message", state.validationErrors) && (
+                  <ErrorMessage id="errorMessageMessage">
+                    {getError("message", state.validationErrors)}
+                  </ErrorMessage>
+                )}
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={6}
+                  defaultValue={state.formData?.message ?? ""}
+                  aria-invalid={hasError("message", state.validationErrors)}
+                  {...(hasError("message", state.validationErrors) && {
+                    "aria-describedby": "errorMessageMessage",
+                  })}
+                />
+              </div>
+            </div>
+
+            <SubmitButtonAction>{t("button.submit", { ns: "common" })}</SubmitButtonAction>
+          </form>
+        </>
+      )}
     </div>
   );
 }
