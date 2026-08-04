@@ -52,6 +52,9 @@
       "link": "/fr/support",
       "desc": "Soutien"
     },
+    "contact-us": {
+      "desc": "Nous contacter"
+    },
     "ariaLabel": "Pied de page"
   },
   "versionUpdater": {
@@ -452,6 +455,32 @@
     "title": "Vous êtes prêt !",
     "description": "Votre compte est maintenant sécurisé avec l'authentification à deux facteurs.",
     "continueButton": "Continuer"
+  },
+  "contact-us": {
+    "title": "Nous contacter",
+    "description": "Vous avez une question ou besoin d'aide? Remplissez le formulaire ci-dessous et nous vous répondrons dès que possible.",
+    "labels": {
+      "fullName": "Nom complet",
+      "email": "Adresse courriel",
+      "message": "Message"
+    },
+    "success": {
+      "title": "Message envoyé",
+      "description": "Merci de nous avoir contactés. Nous vous répondrons dans un délai de 2 jours ouvrables."
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer.",
+      "submitFailed": "Échec de l'envoi du message. Veuillez réessayer."
+    },
+    "validation": {
+      "requiredFullName": "Le nom complet est obligatoire.",
+      "maxLengthFullName": "Le nom complet doit comporter moins de 251 caractères.",
+      "requiredEmail": "L'adresse courriel est obligatoire.",
+      "invalidEmail": "Entrez une adresse courriel valide.",
+      "maxLengthEmail": "L'adresse courriel doit comporter moins de 255 caractères.",
+      "requiredMessage": "Le message est obligatoire.",
+      "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
+    }
   },
   "beforeYouStart": {
     "title": "Before you start [FR]",

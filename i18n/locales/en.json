@@ -47,6 +47,9 @@
     "support": {
       "desc": "Support"
     },
+    "contact-us": {
+      "desc": "Contact us"
+    },
     "ariaLabel": "Footer"
   },
   "versionUpdater": {
@@ -447,6 +450,32 @@
     "title": "You're all set!",
     "description": "Your account is now secured with two-factor authentication.",
     "continueButton": "Continue"
+  },
+  "contact-us": {
+    "title": "Contact us",
+    "description": "Have a question or need help? Fill out the form below and we will get back to you as soon as possible.",
+    "labels": {
+      "fullName": "Full name",
+      "email": "Email address",
+      "message": "Message"
+    },
+    "success": {
+      "title": "Message sent",
+      "description": "Thank you for reaching out. We will respond to you within 2 business days."
+    },
+    "errors": {
+      "generic": "Something went wrong sending your message. Please try again.",
+      "submitFailed": "Failed to send message. Please try again."
+    },
+    "validation": {
+      "requiredFullName": "Full name is required.",
+      "maxLengthFullName": "Full name must be less than 251 characters.",
+      "requiredEmail": "Email address is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "maxLengthEmail": "Email address must be less than 255 characters.",
+      "requiredMessage": "Message is required.",
+      "maxLengthMessage": "Message must be less than 2000 characters."
+    }
   },
   "beforeYouStart": {
     "title": "Before you start",
