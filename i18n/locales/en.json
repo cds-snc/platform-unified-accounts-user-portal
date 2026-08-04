@@ -461,8 +461,7 @@
     },
     "success": {
       "title": "Message sent",
-      "description": "Thank you for reaching out. We will get back to you as soon as possible.",
-      "responseTime": "We will respond to you within 2 business days."
+      "description": "Thank you for reaching out. We will respond to you within 2 business days."
     },
     "errors": {
       "generic": "Something went wrong sending your message. Please try again.",

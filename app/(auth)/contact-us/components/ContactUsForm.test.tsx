@@ -89,7 +89,6 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(screen.getByText("success.title")).toBeInTheDocument();
       expect(screen.getByText("success.description")).toBeInTheDocument();
-      expect(screen.getByText("success.responseTime")).toBeInTheDocument();
     });
   });
 
