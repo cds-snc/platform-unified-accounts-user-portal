@@ -19,3 +19,5 @@ minimumReleaseAgeExclude:
   - '@next/swc-linux-x64-musl@16.2.11'
   - '@next/swc-win32-arm64-msvc@16.2.11'
   - '@next/swc-win32-x64-msvc@16.2.11'
+  # Renovate security update: postcss@8.5.23
+  - postcss@8.5.23
