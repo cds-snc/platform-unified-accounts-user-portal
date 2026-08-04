@@ -1,28 +1,13 @@
-name: Docker PR
-
+name: Dependency review
 on:
   pull_request:
-    branches:
-      - main
 
-env:
-  GITHUB_SHA: ${{ github.sha }}
-
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  docker-pr:
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-    strategy:
-      matrix:
-        include:
-          - image: idp-login
-            directory: .
-          - image: idp-load-test
-            directory: ./test/perf
-
+  dependency-review:
+    runs-on: ubuntu-latest
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
@@ -33,16 +18,10 @@ jobs:
           DNS_PROXY_SAFELIST: "${{ vars.DNS_PROXY_SAFELIST }}"
           DNS_PROXY_WILDCARDGREEDY: "true"
 
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Docker build
-        working-directory: ${{ matrix.directory }}
-        run: |
-          docker build \
-            --platform linux/arm64 \
-            --build-arg GIT_SHA=$GITHUB_SHA \
-            --tag ${{ matrix.image }}:latest \
-            .
+      - name: Dependency review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
