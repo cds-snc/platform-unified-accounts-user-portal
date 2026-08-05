@@ -63,18 +63,29 @@ jobs:
       totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
       waf_geo_restriction_bypass: ${{ secrets.STAGING_WAF_GEO_RESTRICTION_BYPASS }}
       zitadel_bearer_token: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_BEARER_TOKEN }}
-      
+
+  dast-scan:
+    needs: docker-deploy
+    uses: ./.github/workflows/dast-scan.yml
+    with:
+      URL: ${{ vars.STAGING_INTEGRATION_TEST_PORTAL_URL }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
   workflow-failure:
     needs: 
       - docker-build
       - docker-deploy
       - docker-sbom
       - integration-test
+      - dast-scan
     if: >-
       always() && (
         needs.docker-build.result == 'failure' ||
         needs.docker-deploy.result == 'failure' ||
-        needs.integration-test.result == 'failure'
+        needs.integration-test.result == 'failure' ||
+        needs.dast-scan.result == 'failure'
       )
     permissions: {}
     uses: ./.github/workflows/workflow-failure.yml

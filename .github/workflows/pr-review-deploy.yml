@@ -161,3 +161,12 @@ jobs:
       totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
       waf_geo_restriction_bypass: ${{ secrets.STAGING_WAF_GEO_RESTRICTION_BYPASS }}
       zitadel_bearer_token: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_BEARER_TOKEN }}
+
+  pr-dast-scan:
+    needs: pr-review-deploy
+    uses: ./.github/workflows/dast-scan.yml
+    with:
+      URL: ${{ needs.pr-review-deploy.outputs.url }}ui/v2
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
