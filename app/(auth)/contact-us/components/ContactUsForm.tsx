@@ -92,9 +92,13 @@ export function ContactUsForm() {
   return (
     <div>
       {state.success ? (
-        <Alert type={ErrorStatus.SUCCESS} focussable={true} id="contactUsSuccess">
-          <p className="mb-2 py-4 font-semibold">{t("success.title")}</p>
-          <p className="py-4">{t("success.description")}</p>
+        <Alert
+          type={ErrorStatus.SUCCESS}
+          focussable={true}
+          id="contactUsSuccess"
+          heading={t("success.title")}
+        >
+          <p>{t("success.description")}</p>
         </Alert>
       ) : (
         <>
