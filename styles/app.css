@@ -45,6 +45,10 @@
   color: var(--color-black-default) !important;
 }
 
+.gc-alert.gc-alert--success {
+  padding: 2rem;
+}
+
 @custom-variant xxl (@media (max-width: 1200px));
 @custom-variant xl (@media (max-width: 992px));
 @custom-variant lg (@media (max-width: 768px));
