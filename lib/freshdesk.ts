@@ -13,16 +13,6 @@ type FreshdeskTicketResponse = {
   id: number;
 };
 
-/**
- * Creates a support ticket in Freshdesk via the REST API.
- *
- * Authentication: Basic Auth with FRESHDESK_API_KEY as username, "X" as password.
- * Endpoint: POST https://{domain}.freshdesk.com/api/v2/tickets
- *
- * Required env vars:
- *   FRESHDESK_API_URL  - e.g. https://cds-snc.freshdesk.com
- *   FRESHDESK_API_KEY  - Freshdesk agent API key
- */
 export async function createFreshdeskTicket(
   params: CreateTicketParams
 ): Promise<{ success: true; ticketId: number } | { error: string }> {
