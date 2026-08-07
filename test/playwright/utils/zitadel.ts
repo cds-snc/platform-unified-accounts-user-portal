@@ -70,7 +70,9 @@ export async function getZitadelAccessToken(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to exchange JWT for access token: ${response.status}`);
+    throw new Error(
+      `Failed to exchange JWT for access token: ${response.status} ${await response.text()}`
+    );
   }
 
   const data = (await response.json()) as { access_token: string };
