@@ -14,6 +14,7 @@ import {
   SendEmailCodeRequestSchema,
   UserService,
 } from "@zitadel/proto/zitadel/user/v2/user_service_pb.js";
+import { createSign } from "crypto";
 
 let userService: Client<typeof UserService>;
 
@@ -24,12 +25,12 @@ const addRequestHeaders = () => (next: AnyFn) => async (req: UnaryRequest | Stre
   return next(req);
 };
 
-function getUserService(bearerToken: string, apiBaseUrl: string): Client<typeof UserService> {
+function getUserService(accessToken: string, apiBaseUrl: string): Client<typeof UserService> {
   if (userService) {
     return userService;
   }
 
-  const transport = createServerTransport(bearerToken, {
+  const transport = createServerTransport(accessToken, {
     baseUrl: apiBaseUrl,
     interceptors: [addRequestHeaders()],
   });
@@ -39,12 +40,49 @@ function getUserService(bearerToken: string, apiBaseUrl: string): Client<typeof 
   return userService;
 }
 
-export async function getUserIdByEmail(
-  email: string,
-  bearerToken: string,
+export async function getZitadelAccessToken(
+  serviceAccountKey: string,
   apiBaseUrl: string
 ): Promise<string> {
-  const response = await getUserService(bearerToken, apiBaseUrl).listUsers({
+  const { userId, keyId, key } = JSON.parse(serviceAccountKey) as {
+    userId: string;
+    keyId: string;
+    key: string;
+  };
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = Buffer.from(JSON.stringify({ alg: "RS256", kid: keyId })).toString("base64url");
+  const payload = Buffer.from(
+    JSON.stringify({ iss: userId, sub: userId, aud: apiBaseUrl, iat: now, exp: now + 300 })
+  ).toString("base64url");
+  const signingInput = `${header}.${payload}`;
+  const signature = createSign("RSA-SHA256").update(signingInput).sign(key, "base64url");
+  const jwt = `${signingInput}.${signature}`;
+
+  const response = await fetch(`${apiBaseUrl}/oauth/v2/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt,
+      scope: "openid urn:zitadel:iam:org:project:id:zitadel:aud",
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to exchange JWT for access token: ${response.status}`);
+  }
+
+  const data = (await response.json()) as { access_token: string };
+  return data.access_token;
+}
+
+export async function getUserIdByEmail(
+  email: string,
+  accessToken: string,
+  apiBaseUrl: string
+): Promise<string> {
+  const response = await getUserService(accessToken, apiBaseUrl).listUsers({
     queries: [
       create(SearchQuerySchema, {
         query: {
@@ -68,10 +106,10 @@ export async function getUserIdByEmail(
 
 export async function getEmailVerificationCode(
   userId: string,
-  bearerToken: string,
+  accessToken: string,
   apiBaseUrl: string
 ): Promise<string> {
-  const response = await getUserService(bearerToken, apiBaseUrl).sendEmailCode(
+  const response = await getUserService(accessToken, apiBaseUrl).sendEmailCode(
     create(SendEmailCodeRequestSchema, {
       userId,
       verification: {
@@ -89,8 +127,8 @@ export async function getEmailVerificationCode(
   return verificationCode;
 }
 
-export async function deleteUserById(userId: string, bearerToken: string, apiBaseUrl: string) {
-  return getUserService(bearerToken, apiBaseUrl).deleteUser(
+export async function deleteUserById(userId: string, accessToken: string, apiBaseUrl: string) {
+  return getUserService(accessToken, apiBaseUrl).deleteUser(
     create(DeleteUserRequestSchema, {
       userId,
     })

@@ -1,7 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 import { generateTOTP, getRandomEmail, getRandomPassword, getRequiredEnv } from "./utils/utils";
-import { deleteUserById, getEmailVerificationCode, getUserIdByEmail } from "./utils/zitadel";
+import {
+  deleteUserById,
+  getEmailVerificationCode,
+  getUserIdByEmail,
+  getZitadelAccessToken,
+} from "./utils/zitadel";
 
 test.describe("register user flow", () => {
   let idpUrl = "";
@@ -9,19 +14,21 @@ test.describe("register user flow", () => {
   let password = "";
   let portalUrl = "";
   let userId = "";
-  let zitadelBearerToken = "";
+  let serviceAccountKey = "";
+  let accessToken = "";
 
-  test.beforeAll(() => {
+  test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
     email = getRandomEmail(getRequiredEnv("USERNAME"));
     password = getRandomPassword();
     portalUrl = getRequiredEnv("PORTAL_URL");
-    zitadelBearerToken = getRequiredEnv("ZITADEL_BEARER_TOKEN");
+    serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
+    accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
   });
 
   test.afterAll(async () => {
     if (userId) {
-      await deleteUserById(userId, zitadelBearerToken, idpUrl);
+      await deleteUserById(userId, accessToken, idpUrl);
     }
   });
 
@@ -47,12 +54,8 @@ test.describe("register user flow", () => {
 
     // Email verify
     await expect(page.locator("#verify-form #code")).toBeVisible();
-    userId = await getUserIdByEmail(email, zitadelBearerToken, idpUrl);
-    const emailVerificationCode = await getEmailVerificationCode(
-      userId,
-      zitadelBearerToken,
-      idpUrl
-    );
+    userId = await getUserIdByEmail(email, accessToken, idpUrl);
+    const emailVerificationCode = await getEmailVerificationCode(userId, accessToken, idpUrl);
     await page.locator("#verify-form #code").fill(emailVerificationCode);
     await page.locator("#verify-form button[type='submit']").click();
 
