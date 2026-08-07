@@ -61,7 +61,10 @@ export async function getZitadelAccessToken(
 
   const response = await fetch(`${apiBaseUrl}/oauth/v2/token`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "waf-geo-restriction-bypass": process.env.WAF_GEO_RESTRICTION_BYPASS ?? "",
+    },
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
       assertion: jwt,
@@ -70,9 +73,7 @@ export async function getZitadelAccessToken(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to exchange JWT for access token: ${response.status} ${await response.text()}`
-    );
+    throw new Error(`Failed to exchange JWT for access token: ${response.status}`);
   }
 
   const data = (await response.json()) as { access_token: string };
