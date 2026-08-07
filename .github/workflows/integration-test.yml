@@ -28,7 +28,7 @@ on:
         required: true
       waf_geo_restriction_bypass:
         required: true
-      zitadel_bearer_token:
+      zitadel_service_account_key:
         required: true
 
 env:
@@ -76,7 +76,7 @@ jobs:
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
           WAF_GEO_RESTRICTION_BYPASS: ${{ secrets.waf_geo_restriction_bypass }}
-          ZITADEL_BEARER_TOKEN: ${{ secrets.zitadel_bearer_token }}
+          ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
         run: pnpm test:playwright
 
       - name: Configure AWS credentials using OIDC

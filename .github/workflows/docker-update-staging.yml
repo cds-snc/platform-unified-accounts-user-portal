@@ -62,7 +62,7 @@ jobs:
       password: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD }}
       totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
       waf_geo_restriction_bypass: ${{ secrets.STAGING_WAF_GEO_RESTRICTION_BYPASS }}
-      zitadel_bearer_token: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_BEARER_TOKEN }}
+      zitadel_service_account_key: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_SERVICE_ACCOUNT_KEY }}
       
   workflow-failure:
     needs: 
