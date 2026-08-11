@@ -483,21 +483,21 @@
     }
   },
   "beforeYouStart": {
-    "title": "Before you start [FR]",
+    "title": "Avant de commencer",
     "step1": {
-      "title": "Step 1 [FR]",
-      "description": "Access your work email [FR]",
-      "callout": "Use the same email address as your GC Forms account. [FR]"
+      "title": "Étape 1 ",
+      "description": "Connectez-vous à votre compte de courriel gouvernemental.",
+      "callout": "Vous aurez besoin d’accéder à vos courriels pour créer un compte Plateforme GC.<br>que celle de votre compte Formulaires GC."
     },
     "step2": {
-      "title": "Step 2 [FR]",
-      "description": "Multi-factor authentication [FR]",
-      "callout1": "Hardware key [FR]",
-      "callout2": "Any device with Authenticator app [FR]"
+      "title": "Étape 2",
+      "description": "Choisissez une méthode de vérification.",
+      "callout1": "Clé physique",
+      "callout2": "Appareil avec une application d’authentification"
     },
     "cta": {
-      "createAccount": "Create GC Platform account [FR]",
-      "alreadyHaveAccount": "I already have a GC Platform account [FR]"
+      "createAccount": "Créer un compte Plateforme GC",
+      "alreadyHaveAccount": "J’ai déjà un compte Plateforme GC"
     }
   }
 }
