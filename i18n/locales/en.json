@@ -481,14 +481,14 @@
     "title": "Before you start",
     "step1": {
       "title": "Step 1 ",
-      "description": "Access your work email",
-      "callout": "Use the same email address as your GC Forms account."
+      "description": "Sign in to your GC email account",
+      "callout": "You need email access to create a GC Platform account.<br>Use the same email address as your GC Forms account."
     },
     "step2": {
       "title": "Step 2",
-      "description": "Multi-factor authentication",
+      "description": "Choose verification method",
       "callout1": "Hardware key",
-      "callout2": "Any device with Authenticator app "
+      "callout2": "Device with Authenticator app "
     },
     "cta": {
       "createAccount": "Create GC Platform account",
