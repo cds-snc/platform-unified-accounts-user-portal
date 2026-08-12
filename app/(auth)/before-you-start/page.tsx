@@ -8,6 +8,7 @@ import { Metadata } from "next";
  *--------------------------------------------*/
 import { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
+import { I18n } from "@i18n/Translate";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 import ActionsClient from "./components/ActionsClient";
@@ -38,15 +39,28 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         <Title />
         <div className="mt-6 space-y-6">
           {/* Step 1: Verify your email address */}
-
           <Step
             titleKey="step1.title"
             descKey="step1.description"
             iconSrc="/img/email_@.svg"
           ></Step>
+          <CallOut className="mb-10">
+            <>
+              <I18n
+                i18nKey="step1.callout1"
+                namespace="beforeYouStart"
+                tagName="div"
+                className="mb-1 text-base"
+              />
 
-          <CallOut i18nKey="step1.callout" className="mb-10" />
-
+              <I18n
+                i18nKey="step1.callout2"
+                namespace="beforeYouStart"
+                tagName="div"
+                className="mb-0 text-base"
+              />
+            </>
+          </CallOut>
           {/* Step 2: Set up two-factor authentication */}
           <Step
             titleKey="step2.title"

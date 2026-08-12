@@ -487,7 +487,8 @@
     "step1": {
       "title": "Étape 1 ",
       "description": "Connectez-vous à votre compte de courriel gouvernemental.",
-      "callout": "Vous aurez besoin d’accéder à vos courriels pour créer un compte Plateforme GC.<br>que celle de votre compte Formulaires GC."
+      "callout1": "Vous aurez besoin d’accéder à vos courriels pour créer un compte Plateforme GC.",
+      "callout2": "que celle de votre compte Formulaires GC."
     },
     "step2": {
       "title": "Étape 2",
