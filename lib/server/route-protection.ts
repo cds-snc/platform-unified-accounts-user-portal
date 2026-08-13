@@ -133,7 +133,8 @@ export function requiresStrongMfaSetupVerification(
  */
 export async function checkAuthenticationLevel(
   requiredLevel: AuthLevel,
-  requestId?: string
+  requestId?: string,
+  options?: { requireEmailVerified?: boolean }
 ): Promise<SessionWithAuthData> {
   const headerList = await headers();
   const pathname = headerList.get("x-current-path");
@@ -168,6 +169,14 @@ export async function checkAuthenticationLevel(
   if (!valid) {
     // Session is expired, user needs to login
     redirect(buildUrlWithRequestId("/", requestIdRef));
+  }
+
+  if (options?.requireEmailVerified && !session.emailVerified) {
+    logMessage.debug(
+      `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified, Redirecting: "/verify"`
+    );
+
+    redirect(buildUrlWithRequestId("/verify", requestIdRef));
   }
 
   // For password and MFA checks, verify session factors
