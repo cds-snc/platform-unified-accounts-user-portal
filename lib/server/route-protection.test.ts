@@ -130,6 +130,25 @@ describe("route-protection", () => {
     expect(mockRedirect).toHaveBeenCalledWith("/");
   });
 
+  it("redirects to verify when email verification is required but missing", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+      },
+      requestId: "req-123",
+    } as never);
+    vi.mocked(checkSessionFactorValidity).mockReturnValue({ valid: true });
+
+    await expect(
+      checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, undefined, {
+        requireEmailVerified: true,
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
+
+    expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
+  });
+
   it("satisfies any-mfa level after password verification", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
