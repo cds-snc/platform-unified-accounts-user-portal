@@ -50,7 +50,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
                 i18nKey="step1.callout1"
                 namespace="beforeYouStart"
                 tagName="div"
-                className="mb-1 text-base"
+                className="mb-4 text-base"
               />
 
               <I18n
