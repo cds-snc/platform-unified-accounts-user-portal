@@ -1,8 +1,8 @@
-import { mockRedirect } from "next/navigation";
 import { timestampDate } from "@zitadel/client";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { checkSessionFactorValidity, loadActiveSession } from "@lib/session";
 
 import {

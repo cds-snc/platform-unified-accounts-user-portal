@@ -1,6 +1,6 @@
-import { mockRedirect } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { loginWithOIDCAndSession } from "@lib/oidc";
 
 import { completeFlowAndRedirect } from "./auth-flow";
