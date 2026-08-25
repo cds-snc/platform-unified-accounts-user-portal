@@ -6,7 +6,7 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "24.18.0",
+      "version": "24.18.1",
       "pnpmVersion": "11.15.1"
     },
     "ghcr.io/grafana/devcontainer-features/k6:1": {
