@@ -8,6 +8,7 @@ export const createTranslationStub = () => ({
 });
 
 export const createRouterStub = () => ({
+  bfcacheId: "test-bfcache-id",
   push: vi.fn(),
   replace: vi.fn(),
   prefetch: vi.fn(),

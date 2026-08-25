@@ -1,9 +1,9 @@
-import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { getSessionCookieById } from "@lib/cookies";
 import { loginWithOIDCAndSession } from "@lib/oidc";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
