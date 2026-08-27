@@ -55,7 +55,7 @@ export const AuthenticatedAction = <Input extends unknown[], Return>(
         throw error;
       }
       logMessage.error(`AuthenticatedAction failure in ${action.name || "unknown"}`, error);
-      throw new Error("Unauthorized");
+      throw new Error("Error in server action");
     });
   };
 };
