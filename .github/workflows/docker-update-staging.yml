@@ -1,5 +1,9 @@
 name: Docker update Staging
 
+concurrency:
+  group: docker-update-staging
+  cancel-in-progress: false
+
 on:
   push:
     branches:
