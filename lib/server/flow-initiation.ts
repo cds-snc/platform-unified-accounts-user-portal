@@ -149,7 +149,7 @@ export async function handleOIDCFlowInitiation(
   }
 
   if (authRequest && authRequest.prompt.includes(Prompt.CREATE)) {
-    const registerUrl = constructUrl(request, "/register");
+    const registerUrl = constructUrl(request, "/before-you-start");
     registerUrl.searchParams.set("requestId", oidcRequestId);
 
     if (organization) {
