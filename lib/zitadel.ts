@@ -41,6 +41,7 @@ import {
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 import { serverTranslation } from "@i18n/server";
 
+import { applyCustomRequestHeaders } from "./utils/headers";
 import { getUserAgent } from "./fingerprint";
 import { logMessage } from "./logger";
 import { getServiceForHost } from "./service";
@@ -779,18 +780,7 @@ const loggingInterceptor = (next: AnyFn) => async (req: UnaryRequest | StreamReq
 };
 
 const customHeaderInterceptor = (next: AnyFn) => async (req: UnaryRequest | StreamRequest) => {
-  if (process.env.CUSTOM_REQUEST_HEADERS) {
-    process.env.CUSTOM_REQUEST_HEADERS.split(",").forEach((header) => {
-      const kv = header.indexOf(":");
-      if (kv > 0) {
-        req.header.set(header.slice(0, kv).trim(), header.slice(kv + 1).trim());
-      } else {
-        logMessage.warn(
-          `Skipping malformed CUSTOM_REQUEST_HEADERS entry (expected key:value format)`
-        );
-      }
-    });
-  }
+  applyCustomRequestHeaders(req.header, process.env.CUSTOM_REQUEST_HEADERS);
   return next(req);
 };
 

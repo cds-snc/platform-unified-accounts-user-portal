@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 import { generateCSP, responseWithCSP } from "@lib/cspScripts";
+import { applyCustomRequestHeaders } from "@lib/utils/headers";
 
 BigInt.prototype.toJSON = function () {
   return this.toString();
@@ -37,11 +38,10 @@ export async function proxy(request: NextRequest) {
       // fail safe - process request that will return 404
       return responseWithCSP(NextResponse.next({ request: { headers: requestHeaders } }), csp);
     }
+
+    applyCustomRequestHeaders(requestHeaders, process.env.CUSTOM_REQUEST_HEADERS);
+
     request.nextUrl.href = `${backendZitadelInstance}${request.nextUrl.pathname}${request.nextUrl.search}`;
-
-    // Set to correct new host and remove and cookies coming from client
-    requestHeaders.set("host", backendZitadelInstance);
-
     return NextResponse.rewrite(request.nextUrl, {
       request: {
         headers: requestHeaders,
