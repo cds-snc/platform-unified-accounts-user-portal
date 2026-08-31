@@ -39,7 +39,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
   output: process.env.NEXT_OUTPUT_STANDALONE ? "standalone" : undefined,
   poweredByHeader: false,
   sassOptions: {
