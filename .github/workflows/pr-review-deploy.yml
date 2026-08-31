@@ -138,7 +138,7 @@ jobs:
             if (!isComment) {
               github.rest.issues.createComment({
                 ...pr,
-                body: `${commentId}\n## :test_tube: Review environment\n${url}ui/v2`
+                body: `${commentId}\n## :test_tube: Review environment\n${url}`
               });
             }
 
@@ -152,7 +152,7 @@ jobs:
       account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
       bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
-      portal_url: ${{ needs.pr-review-deploy.outputs.url }}ui/v2
+      portal_url: ${{ needs.pr-review-deploy.outputs.url }}
     secrets:
       log_analytics_workspace_id: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
       log_analytics_workspace_key: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
