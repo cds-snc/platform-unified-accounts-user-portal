@@ -1,13 +1,16 @@
 CONFIG ?= downloaded-client-config.ovpn
 
 help:
-	@printf '%s\n' \
-		'VPN management: ' \
-		'Use these commands when developing with the Staging IdP.' \
-		'Ask the team for the .ovpn config file:' \
-		'  1. make vpn_profile CONFIG=./path/config.ovpn --- Create a VPN profile; only needed once' \
-		'  2. make vpn_connect ----------------------------- Connect to the VPN' \
-		'  3. make vpn_disconnect -------------------------- Disconnect from the VPN'
+	@printf '%b\n' \
+		'------------------------------------------------------' \
+		'\033[35mVPN management\033[0m' \
+		'------------------------------------------------------' \
+		'Use these commands to connect to the Staging IdP VPN.' \
+		'The team can get you the .ovpn config file.' \
+		'\n' \
+		'  1. \033[36mmake vpn_profile\033[0m \033[33mCONFIG=./path/config.ovpn\033[0m ... Create a VPN profile; only needed once' \
+		'  2. \033[36mmake vpn_connect\033[0m ............................. Connect to the VPN' \
+		'  3. \033[36mmake vpn_disconnect\033[0m .......................... Disconnect from the VPN'
 
 vpn_connect:
 	@./scripts/vpn-connect.sh connect
