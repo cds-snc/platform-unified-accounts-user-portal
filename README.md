@@ -43,4 +43,4 @@ pnpm test        # run tests
 
 ## Local dev
 
-If you're developing against our Staging environment, use the `make help` command to see how to connect to the VPN. You will need the [AWS VPN Client installed](https://aws.amazon.com/vpn/client-vpn-download/).
+If you're developing against our Staging environment, use the `make help` command to see how to connect to the VPN. You will need the [AWS VPN Client installed](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/client-vpn-connect-macos-release-notes.html).
