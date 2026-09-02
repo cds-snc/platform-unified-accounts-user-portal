@@ -40,3 +40,7 @@ pnpm test        # run tests
 - React 19
 - TypeScript
 - Tailwind + SCSS
+
+## Local dev
+
+If you're developing against our Staging environment, use the `make help` command to see how to connect to the VPN. You will need the [AWS VPN Client installed](https://aws.amazon.com/vpn/client-vpn-download/).

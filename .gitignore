@@ -47,3 +47,6 @@ next-env.d.ts
 # VS Code Settings untracking
 .vscode/settings.json
 .vscode/extensions.json
+
+# VPN
+*.ovpn
