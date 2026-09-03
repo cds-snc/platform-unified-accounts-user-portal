@@ -1,24 +1,10 @@
-import { styleText } from "node:util";
-import * as client from "openid-client";
-import readline from "readline";
-
-import serverConfig from "../openid-configuration.json";
-
 import "dotenv/config";
 
-function getValue(query: string) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+import { styleText } from "node:util";
+import * as client from "openid-client";
 
-  return new Promise<string>((resolve) =>
-    rl.question(query, (ans) => {
-      rl.close();
-      resolve(ans);
-    })
-  );
-}
+import { getValue } from "../cli_utils";
+import serverConfig from "../openid-configuration.json";
 
 async function start() {
   const clientId = process.env.RP_CLIENT_ID; // Client identifier at the Authorization Server
