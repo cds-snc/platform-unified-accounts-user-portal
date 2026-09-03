@@ -41,7 +41,8 @@
     "upgrade": "next upgrade",
     "prepare": "husky",
     "knip": "knip",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "util:flow": "tsx ./dev_utils/oidc_flows/start.ts"
   },
   "dependencies": {
     "@gcforms/connectors": "^2.2.20",
@@ -83,6 +84,7 @@
     "@vitest/coverage-v8": "^4.1.6",
     "clsx": "^2.1.1",
     "cssnano": "^8.0.0",
+    "dotenv": "^17.4.2",
     "eslint": "^10.0.0",
     "eslint-config-next": "16.3.3",
     "eslint-config-prettier": "^10.1.8",
@@ -93,6 +95,7 @@
     "jsdom": "^29.0.0",
     "knip": "^6.13.1",
     "lint-staged": "^17.0.0",
+    "openid-client": "^6.8.7",
     "postcss": "^8.5.14",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
