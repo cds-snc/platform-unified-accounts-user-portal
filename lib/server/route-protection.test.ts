@@ -1,9 +1,9 @@
 import { timestampDate } from "@zitadel/client";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockRedirect } from "@root/test/mocks/next/navigation";
-import { checkSessionFactorValidity, loadActiveSession } from "@lib/session";
+import { loadActiveSession } from "@lib/session";
 
 import {
   AuthLevel,
@@ -21,7 +21,6 @@ vi.mock("@zitadel/client", () => ({
 vi.mock("@lib/session", () => ({
   loadMostRecentSession: vi.fn(),
   loadActiveSession: vi.fn(),
-  checkSessionFactorValidity: vi.fn(),
 }));
 
 vi.mock("@lib/logger", () => ({
@@ -34,6 +33,10 @@ describe("route-protection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(timestampDate).mockReturnValue(new Date(Date.now() + 10_000));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("returns all false factors when session is null", () => {
@@ -103,12 +106,15 @@ describe("route-protection", () => {
   });
 
   it("redirects when an invalid session is found ", async () => {
+    vi.mocked(timestampDate).mockReturnValue(new Date(Date.now() - 10_000));
     vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },
+        password: { verifiedAt: {} },
       },
+      expirationDate: new Date(Date.now() - 5 * 60 * 1000),
+      emailVerified: true,
     } as never);
-    vi.mocked(checkSessionFactorValidity).mockResolvedValue({ valid: false });
 
     await expect(checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED)).rejects.toThrow(
       "NEXT_REDIRECT"
@@ -120,9 +126,11 @@ describe("route-protection", () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
         user: { id: "user-123" },
+        password: { verifiedAt: undefined },
       },
+      expirationDate: new Date(Date.now()),
+      emailVerified: true,
     } as never);
-    vi.mocked(checkSessionFactorValidity).mockReturnValue({ valid: true });
 
     await expect(checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED)).rejects.toThrow(
       "NEXT_REDIRECT"
@@ -136,9 +144,9 @@ describe("route-protection", () => {
         user: { id: "user-123" },
         password: { verifiedAt: {} },
       },
+      expirationDate: new Date(Date.now()),
       requestId: "req-123",
     } as never);
-    vi.mocked(checkSessionFactorValidity).mockReturnValue({ valid: true });
 
     await expect(
       checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, undefined, {
@@ -156,6 +164,8 @@ describe("route-protection", () => {
         password: { verifiedAt: {} },
         otpEmail: { verifiedAt: {} },
       },
+      expirationDate: new Date(Date.now()),
+      emailVerified: true,
     } as never);
 
     const result = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED);
@@ -170,11 +180,28 @@ describe("route-protection", () => {
         password: { verifiedAt: {} },
         otpEmail: { verifiedAt: {} },
       },
+      expirationDate: new Date(Date.now()),
+      emailVerified: true,
     } as never);
 
     await expect(checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED)).rejects.toThrow(
       "NEXT_REDIRECT"
     );
     expect(mockRedirect).toHaveBeenCalledWith("/mfa");
+  });
+  it("passes strong-mfa level", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+        totp: { verifiedAt: {} },
+      },
+      expirationDate: new Date(Date.now()),
+      emailVerified: true,
+    } as never);
+
+    const result = await checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED);
+
+    expect(result).not.toBe(null);
   });
 });

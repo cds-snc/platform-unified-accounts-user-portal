@@ -18,6 +18,7 @@ import { getUserByID, sendEmailCodeWithReturn, verifyEmail } from "@lib/zitadel"
 import { serverTranslation } from "@i18n/server";
 
 export const sendVerificationEmail = AuthenticatedAction(
+  "password_required",
   async function sendVerificationEmail(session) {
     const { t } = await serverTranslation("verify");
 
@@ -86,36 +87,36 @@ type VerifyUserByEmailCommand = {
   requestId?: string;
 };
 
-export const checkVerificationCode = AuthenticatedAction(async function checkVerificationCode(
-  credentials,
-  command: VerifyUserByEmailCommand
-) {
-  const { t } = await serverTranslation("verify");
-  const userId = credentials.factors.user.id;
+export const checkVerificationCode = AuthenticatedAction(
+  "password_required",
+  async function checkVerificationCode(credentials, command: VerifyUserByEmailCommand) {
+    const { t } = await serverTranslation("verify");
+    const userId = credentials.factors.user.id;
 
-  const validationResult = await validateCode({ code: command.code } as {
-    [k: string]: FormDataEntryValue;
-  });
-  if (!validationResult.success) {
-    logMessage.warn("Server side validation failed for verification code");
-    return { error: t("errors.couldNotVerifyEmail") };
+    const validationResult = await validateCode({ code: command.code } as {
+      [k: string]: FormDataEntryValue;
+    });
+    if (!validationResult.success) {
+      logMessage.warn("Server side validation failed for verification code");
+      return { error: t("errors.couldNotVerifyEmail") };
+    }
+
+    const verifyResponse = await verifyEmail({
+      userId: userId,
+      verificationCode: command.code,
+    }).catch((error) => {
+      logMessage.debug({ error, message: "Failed to verify email" });
+      return { error: t("errors.couldNotVerifyEmail") };
+    });
+
+    if ("error" in verifyResponse) {
+      return verifyResponse;
+    }
+
+    if (!verifyResponse) {
+      return { error: t("errors.couldNotVerify") };
+    }
+
+    return { redirect: buildUrlWithRequestId("/verify/success", command.requestId) };
   }
-
-  const verifyResponse = await verifyEmail({
-    userId: userId,
-    verificationCode: command.code,
-  }).catch((error) => {
-    logMessage.debug({ error, message: "Failed to verify email" });
-    return { error: t("errors.couldNotVerifyEmail") };
-  });
-
-  if ("error" in verifyResponse) {
-    return verifyResponse;
-  }
-
-  if (!verifyResponse) {
-    return { error: t("errors.couldNotVerify") };
-  }
-
-  return { redirect: buildUrlWithRequestId("/verify/success", command.requestId) };
-});
+);

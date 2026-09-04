@@ -40,7 +40,7 @@ export default async function Page(props: {
 
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
+  const session = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, requestId);
 
   if (requiresStrongMfaSetupVerification(session)) {
     logMessage.debug({

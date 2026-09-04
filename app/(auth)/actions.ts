@@ -181,6 +181,9 @@ export const continueOidcSessionSelection = async (sessionId: string, requestId:
   });
 };
 
-export const checkActiveSession = AuthenticatedAction(async function checkActiveSession(session) {
-  return isSessionValid({ session });
-});
+export const checkActiveSession = AuthenticatedAction(
+  "basic_session",
+  async function checkActiveSession(session) {
+    return isSessionValid({ session });
+  }
+);

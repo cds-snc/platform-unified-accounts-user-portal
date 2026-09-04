@@ -11,17 +11,20 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { checkSessionFactorValidity, loadActiveSession, SessionWithAuthData } from "@lib/session";
+import { loadActiveSession, SessionWithAuthData } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 /**
  * Authentication levels for route protection
  */
-export enum AuthLevel {
-  BASIC_SESSION = "basic_session", // Session cookie must exist
-  PASSWORD_REQUIRED = "password_required", // Password factor verified
-  ANY_MFA_REQUIRED = "any_mfa_required", // Password + any MFA (TOTP, U2F, or OTP Email)
-  STRONG_MFA_REQUIRED = "strong_mfa_required", // Password + strong MFA (TOTP or U2F only)
-}
+export const AuthLevel = {
+  BASIC_SESSION: "basic_session", // Session cookie must exist
+  PASSWORD_REQUIRED: "password_required", // Password factor verified
+  ANY_MFA_REQUIRED: "any_mfa_required", // Password + any MFA (TOTP, U2F, or OTP Email)
+  STRONG_MFA_REQUIRED: "strong_mfa_required", // Password + strong MFA (TOTP or U2F only)
+  ANY_MFA_REQUIRED_NO_PASSWORD: "any_mfa_no_password", // Any MFA (TOTP, U2F, or OTP Email) but password not verified. Used during password reset
+} as const;
+
+export type AuthLevel = (typeof AuthLevel)[keyof typeof AuthLevel];
 
 /**
  * Safe wrapper around loadMostRecentSession that returns null instead of throwing
@@ -42,7 +45,7 @@ async function getActiveSessionFromCookies() {
 /**
  * Check if session has required authentication factors
  */
-export function checkSessionFactors(session: Session | null) {
+export function checkSessionFactors(session: SessionWithAuthData | null) {
   if (!session) {
     return {
       hasUser: false,
@@ -58,15 +61,14 @@ export function checkSessionFactors(session: Session | null) {
   const hasUser = !!session.factors?.user?.id;
   const notExpired = session.expirationDate
     ? timestampDate(session.expirationDate).getTime() > new Date().getTime()
-    : true;
+    : false;
 
   const passwordVerified = !!session.factors?.password?.verifiedAt;
   const totpVerified = !!session.factors?.totp?.verifiedAt;
   const u2fVerified = !!session.factors?.webAuthN?.verifiedAt;
   const otpEmailVerified = !!session.factors?.otpEmail?.verifiedAt;
 
-  // Email verification would require fetching user data, skip for now
-  const emailVerified = false;
+  const emailVerified = session.emailVerified;
 
   return {
     hasUser,
@@ -82,7 +84,7 @@ export function checkSessionFactors(session: Session | null) {
 /**
  * Check if session has strong MFA (TOTP or U2F)
  */
-export function hasStrongMFA(session: Session | null): boolean {
+export function hasStrongMFA(session: SessionWithAuthData | null): boolean {
   if (!session) return false;
   const factors = checkSessionFactors(session);
   return factors.totpVerified || factors.u2fVerified;
@@ -91,7 +93,7 @@ export function hasStrongMFA(session: Session | null): boolean {
 /**
  * Check if session has any MFA (TOTP, U2F, or OTP Email)
  */
-export function hasAnyMFA(session: Session | null): boolean {
+export function hasAnyMFA(session: SessionWithAuthData | null): boolean {
   if (!session) return false;
   const factors = checkSessionFactors(session);
   return factors.totpVerified || factors.u2fVerified || factors.otpEmailVerified;
@@ -134,8 +136,11 @@ export function requiresStrongMfaSetupVerification(
 export async function checkAuthenticationLevel(
   requiredLevel: AuthLevel,
   requestId?: string,
-  options?: { requireEmailVerified?: boolean }
+  options: { requireEmailVerified?: boolean } = {}
 ): Promise<SessionWithAuthData> {
+  // Default for email verified to be true
+  const { requireEmailVerified = true } = options;
+
   const headerList = await headers();
   const pathname = headerList.get("x-current-path");
   logMessage.debug(
@@ -153,32 +158,6 @@ export async function checkAuthenticationLevel(
     redirect(buildUrlWithRequestId("/", requestIdRef));
   }
 
-  // Basic session check - just verify cookie exists
-  if (requiredLevel === AuthLevel.BASIC_SESSION) {
-    if (!session) {
-      logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: No session found, Redirecting: "/"`
-      );
-      redirect(buildUrlWithRequestId("/", requestIdRef));
-    }
-    return session;
-  }
-
-  const { valid } = checkSessionFactorValidity(session);
-
-  if (!valid) {
-    // Session is expired, user needs to login
-    redirect(buildUrlWithRequestId("/", requestIdRef));
-  }
-
-  if (options?.requireEmailVerified && !session.emailVerified) {
-    logMessage.debug(
-      `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified, Redirecting: "/verify"`
-    );
-
-    redirect(buildUrlWithRequestId("/verify", requestIdRef));
-  }
-
   // For password and MFA checks, verify session factors
   const factors = checkSessionFactors(session);
 
@@ -190,58 +169,89 @@ export async function checkAuthenticationLevel(
     redirect(buildUrlWithRequestId("/", requestIdRef));
   }
 
-  // Password required check
-  if (requiredLevel === AuthLevel.PASSWORD_REQUIRED) {
-    if (!factors.passwordVerified) {
-      logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
-      );
+  if (requireEmailVerified && !factors.emailVerified) {
+    logMessage.debug(
+      `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified, Redirecting: "/verify"`
+    );
 
-      redirect(buildUrlWithRequestId("/", requestIdRef));
-    }
-    return session;
+    redirect(buildUrlWithRequestId("/verify", requestIdRef));
   }
 
-  // Any MFA required check
-  if (requiredLevel === AuthLevel.ANY_MFA_REQUIRED) {
-    if (!factors.passwordVerified) {
-      logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
-      );
+  switch (requiredLevel) {
+    case AuthLevel.BASIC_SESSION: {
+      if (!session) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: No session found, Redirecting: "/"`
+        );
+        redirect(buildUrlWithRequestId("/", requestIdRef));
+      }
+      return session;
+    }
+    // Password required check
+    case AuthLevel.PASSWORD_REQUIRED: {
+      if (!factors.passwordVerified) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
+        );
 
+        redirect(buildUrlWithRequestId("/", requestIdRef));
+      }
+      return session;
+    }
+    // Any MFA required check
+    case AuthLevel.ANY_MFA_REQUIRED: {
+      if (!factors.passwordVerified) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
+        );
+
+        redirect(buildUrlWithRequestId("/", requestIdRef));
+      }
+      if (!hasAnyMFA(session)) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/mfa"`
+        );
+
+        redirect(buildUrlWithRequestId("/mfa", requestIdRef));
+      }
+
+      return session;
+    }
+    // Strong MFA required check
+    case AuthLevel.STRONG_MFA_REQUIRED: {
+      if (!factors.passwordVerified) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
+        );
+
+        redirect(buildUrlWithRequestId("/", requestIdRef));
+      }
+      if (!hasStrongMFA(session)) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/mfa"`
+        );
+
+        redirect(buildUrlWithRequestId("/mfa", requestIdRef));
+      }
+      return session;
+    }
+    // Any MFA required check
+    case AuthLevel.ANY_MFA_REQUIRED_NO_PASSWORD: {
+      if (!hasAnyMFA(session)) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password/reset/verify"`
+        );
+
+        redirect(buildUrlWithRequestId("/password/reset/verify", requestIdRef));
+      }
+
+      return session;
+    }
+    default: {
+      logMessage.error(
+        `[Authentication Level] Required: ${requiredLevel}, Reason: Unknown auth level requested, Redirecting: "/"`
+      );
       redirect(buildUrlWithRequestId("/", requestIdRef));
     }
-    if (!hasAnyMFA(session)) {
-      logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password/change"`
-      );
-
-      redirect(buildUrlWithRequestId("/mfa", requestIdRef));
-    }
-
-    return session;
   }
-
-  // Strong MFA required check
-  if (requiredLevel === AuthLevel.STRONG_MFA_REQUIRED) {
-    if (!factors.passwordVerified) {
-      logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
-      );
-
-      redirect(buildUrlWithRequestId("/", requestIdRef));
-    }
-    if (!hasStrongMFA(session)) {
-      logMessage.debug(
-        `[Authentication Level] Required: ${requiredLevel}, Reason: Strong MFA not verified, Redirecting: "/mfa"`
-      );
-
-      redirect(buildUrlWithRequestId("/mfa", requestIdRef));
-    }
-    return session;
-  }
-  logMessage.error(
-    `[Authentication Level] Required: ${requiredLevel}, Reason: Unknown auth level requested, Redirecting: "/"`
-  );
-  redirect(buildUrlWithRequestId("/", requestIdRef));
 }
