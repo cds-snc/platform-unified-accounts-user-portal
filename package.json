@@ -47,6 +47,8 @@
   "dependencies": {
     "@gcforms/connectors": "^2.2.20",
     "@gcforms/core": "2.2.26",
+    "@gcforms/hcaptcha": "1.1.0",
+    "@hcaptcha/react-hcaptcha": "^2.2.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@zitadel/client": "^1.3.1",

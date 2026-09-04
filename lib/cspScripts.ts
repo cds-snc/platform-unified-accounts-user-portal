@@ -26,15 +26,16 @@ export const generateCSP = (): { csp: string; nonce: string } => {
 
   const cspHeader = `
     default-src 'self';
-    script-src ${scriptSrc};
-    style-src ${styleSrc};
+    script-src ${scriptSrc} https://hcaptcha.com https://*.hcaptcha.com;
+    style-src ${styleSrc} https://hcaptcha.com https://*.hcaptcha.com;
     img-src 'self' blob: data:;
     font-src 'self';
     object-src 'none';
     base-uri 'self';
     form-action 'self';
+    frame-src https://hcaptcha.com https://*.hcaptcha.com;
     frame-ancestors 'none';
-    connect-src 'self';
+    connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com;
     ${isDev ? "" : "upgrade-insecure-requests;"}
   `;
 
