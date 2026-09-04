@@ -32,7 +32,7 @@ type VerifyU2FLoginCommand = {
 };
 
 export const verifyU2FLogin = AuthenticatedAction(
-  "password_required",
+  "basic_session",
   async function verifyU2FLogin(_, { checks, requestId, redirect }: VerifyU2FLoginCommand) {
     const loginValidation = validateU2FLoginCommand({ requestId, redirect });
     if (!loginValidation.success) {
@@ -57,7 +57,7 @@ export const verifyU2FLogin = AuthenticatedAction(
 );
 
 export const updateSessionForU2FChallenge = AuthenticatedAction(
-  "password_required",
+  "basic_session",
   async function updateSessionForU2FChallenge(_, requestId?: string) {
     const validationResult = validateRequestId(requestId);
     if (!validationResult.success) {
