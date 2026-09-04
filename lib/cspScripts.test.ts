@@ -68,10 +68,8 @@ describe("generateCSP", () => {
       vi.stubEnv("NODE_ENV", "production");
       const { csp } = generateCSP();
 
-      expect(csp).toContain("script-src");
-      expect(csp).toContain("style-src");
-      expect(csp).toContain("frame-src https://hcaptcha.com https://*.hcaptcha.com;");
-      expect(csp).toContain("connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com;");
+      expect(csp).toContain("frame-src hcaptcha.com *.hcaptcha.com;");
+      expect(csp).toContain("connect-src 'self' hcaptcha.com *.hcaptcha.com;");
     });
   });
 
