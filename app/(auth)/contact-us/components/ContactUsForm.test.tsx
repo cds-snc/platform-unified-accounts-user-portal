@@ -1,3 +1,4 @@
+import { useHCaptcha } from "@gcforms/hcaptcha/client";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,6 +13,10 @@ import { ContactUsForm } from "./ContactUsForm";
 
 vi.mock("../actions", () => ({
   submitContactFormAction: vi.fn().mockResolvedValue({ success: true }),
+}));
+
+vi.mock("@gcforms/hcaptcha/client", () => ({
+  useHCaptcha: vi.fn(),
 }));
 
 vi.mock("@i18n", () => ({
@@ -36,10 +41,15 @@ describe("ContactUsForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useTranslation).mockReturnValue(createTranslationStub() as never);
+    vi.mocked(useHCaptcha).mockReturnValue({
+      captcha: <div data-testid="hcaptcha" />,
+      execute: vi.fn().mockResolvedValue({ verified: true, token: "captcha-token" }),
+      reset: vi.fn(),
+    });
   });
 
   it("renders all form fields", () => {
-    render(<ContactUsForm />);
+    render(<ContactUsForm siteKey="site-key" />);
 
     expect(screen.getByLabelText(/labels.fullName/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels.email/i)).toBeInTheDocument();
@@ -50,7 +60,7 @@ describe("ContactUsForm", () => {
   it("shows validation errors when form is submitted empty", async () => {
     const user = userEvent.setup();
 
-    render(<ContactUsForm />);
+    render(<ContactUsForm siteKey="site-key" />);
 
     await user.click(screen.getByRole("button"));
 
@@ -64,7 +74,7 @@ describe("ContactUsForm", () => {
   it("shows email validation error when an invalid email is entered", async () => {
     const user = userEvent.setup();
 
-    render(<ContactUsForm />);
+    render(<ContactUsForm siteKey="site-key" />);
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "not-an-email");
@@ -79,7 +89,7 @@ describe("ContactUsForm", () => {
   it("shows success panel after valid form submission", async () => {
     const user = userEvent.setup();
 
-    render(<ContactUsForm />);
+    render(<ContactUsForm siteKey="site-key" />);
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
@@ -99,7 +109,7 @@ describe("ContactUsForm", () => {
       error: "errors.submitFailed",
     });
 
-    render(<ContactUsForm />);
+    render(<ContactUsForm siteKey="site-key" />);
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
@@ -116,7 +126,7 @@ describe("ContactUsForm", () => {
   it("hides the form after successful submission", async () => {
     const user = userEvent.setup();
 
-    render(<ContactUsForm />);
+    render(<ContactUsForm siteKey="site-key" />);
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
@@ -126,5 +136,74 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(document.getElementById("contact-us-form")).not.toBeInTheDocument();
     });
+  });
+
+  it("passes the hCaptcha token to the server action", async () => {
+    const user = userEvent.setup();
+
+    render(<ContactUsForm siteKey="site-key" />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => expect(submitContactFormAction).toHaveBeenCalled());
+    expect(submitContactFormAction).toHaveBeenCalledWith({
+      fullName: "Test User",
+      email: "test@canada.ca",
+      message: "Hello there",
+      captchaToken: "captcha-token",
+    });
+  });
+
+  it("shows a generic error when hCaptcha does not verify", async () => {
+    const user = userEvent.setup();
+    const execute = vi.fn().mockResolvedValue({
+      verified: false,
+      allowed: false,
+      reason: "captcha-error",
+    });
+    vi.mocked(useHCaptcha).mockReturnValue({
+      captcha: <div data-testid="hcaptcha" />,
+      execute,
+      reset: vi.fn(),
+    });
+
+    render(<ContactUsForm siteKey="site-key" />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => expect(screen.getByText("errors.submitFailed")).toBeInTheDocument());
+    expect(submitContactFormAction).not.toHaveBeenCalled();
+  });
+
+  it("does not submit twice while hCaptcha is running", async () => {
+    const user = userEvent.setup();
+    let resolveCaptcha: (result: { verified: true; token: string }) => void = () => undefined;
+    const execute = vi.fn(
+      () => new Promise<{ verified: true; token: string }>((resolve) => (resolveCaptcha = resolve))
+    );
+    vi.mocked(useHCaptcha).mockReturnValue({
+      captcha: <div data-testid="hcaptcha" />,
+      execute,
+      reset: vi.fn(),
+    });
+
+    render(<ContactUsForm siteKey="site-key" />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    const submitButton = screen.getByRole("button");
+    await user.click(submitButton);
+    await user.click(submitButton);
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    resolveCaptcha({ verified: true, token: "captcha-token" });
+    await waitFor(() => expect(submitContactFormAction).toHaveBeenCalledTimes(1));
   });
 });

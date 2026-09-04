@@ -14,6 +14,8 @@ import { AuthPanel } from "@components/auth/AuthPanel";
  *--------------------------------------------*/
 import { ContactUsForm } from "./components/ContactUsForm";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await serverTranslation("contact-us");
   return { title: t("title") };
@@ -22,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactUsPage() {
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="contact-us">
-      <ContactUsForm />
+      <ContactUsForm siteKey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ""} />
     </AuthPanel>
   );
 }

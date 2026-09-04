@@ -33,8 +33,9 @@ export const generateCSP = (): { csp: string; nonce: string } => {
     object-src 'none';
     base-uri 'self';
     form-action 'self';
+    frame-src hcaptcha.com *.hcaptcha.com;
     frame-ancestors 'none';
-    connect-src 'self';
+    connect-src 'self' hcaptcha.com *.hcaptcha.com;
     ${isDev ? "" : "upgrade-insecure-requests;"}
   `;
 

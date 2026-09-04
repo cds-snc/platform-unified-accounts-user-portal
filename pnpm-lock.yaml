@@ -14,6 +14,12 @@ importers:
       '@gcforms/core':
         specifier: 2.2.26
         version: 2.2.26(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.3)(@gcforms/types@1.0.38)(oxc-resolver@11.24.2)(supports-color@7.2.0)(typescript@6.0.3)
+      '@gcforms/hcaptcha':
+        specifier: 1.1.0
+        version: 1.1.0(@hcaptcha/react-hcaptcha@2.2.0)(react@19.2.8)
+      '@hcaptcha/react-hcaptcha':
+        specifier: ^2.2.0
+        version: 2.2.0
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
         version: 2.1.24(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -698,8 +704,18 @@ packages:
     peerDependencies:
       '@gcforms/types': '*'
 
+  '@gcforms/hcaptcha@1.1.0':
+    resolution: {integrity: sha512-y689pNVl+qWXkkBLD4hv5+n/F2BodyH2fv3qunjXmvc1gOPPZhMmr7ZsEt3jkcusKLHUMnED0ejYjJjfmNpo+Q==}
+    engines: {node: '>=17.3'}
+    peerDependencies:
+      '@hcaptcha/react-hcaptcha': ^2.0.2
+      react: ^19.1.0
+
   '@gcforms/types@1.0.38':
     resolution: {integrity: sha512-ETZhBG6oydxjoqYNPhiIE5Ulb3jph3S2/NZGsU1CeaUS3Uf9ILPhYFLSErKmdRM8pawyX8gXyf27xfbT4bN53w==}
+
+  '@hcaptcha/react-hcaptcha@2.2.0':
+    resolution: {integrity: sha512-/HrPgNLRrJziLrh2s+qFRO33ubBSuHn9sdNsQcP0wQElpORxlpR6wnq3X9j/bZGd+uQtYIvPl4QSU2la+Jl9Hg==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -5359,7 +5375,14 @@ snapshots:
       - unrun
       - vue-tsc
 
+  '@gcforms/hcaptcha@1.1.0(@hcaptcha/react-hcaptcha@2.2.0)(react@19.2.8)':
+    dependencies:
+      '@hcaptcha/react-hcaptcha': 2.2.0
+      react: 19.2.8
+
   '@gcforms/types@1.0.38': {}
+
+  '@hcaptcha/react-hcaptcha@2.2.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

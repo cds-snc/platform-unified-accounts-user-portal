@@ -33,6 +33,8 @@ pnpm test        # run tests
 ## Required environment variables
 
 - `ZITADEL_API_URL`
+- `NEXT_PUBLIC_HCAPTCHA_SITE_KEY`
+- `HCAPTCHA_SECRET`
 
 ## Stack
 
