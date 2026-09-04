@@ -61,7 +61,7 @@ export function checkSessionFactors(session: SessionWithAuthData | null) {
   const hasUser = !!session.factors?.user?.id;
   const notExpired = session.expirationDate
     ? timestampDate(session.expirationDate).getTime() > new Date().getTime()
-    : true;
+    : false;
 
   const passwordVerified = !!session.factors?.password?.verifiedAt;
   const totpVerified = !!session.factors?.totp?.verifiedAt;
