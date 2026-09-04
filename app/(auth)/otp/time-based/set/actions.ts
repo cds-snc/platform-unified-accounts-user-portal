@@ -20,49 +20,52 @@ import { verifyTOTPRegistration } from "@lib/zitadel";
  * Local Relative
  *--------------------------------------------*/
 
-export const verifyAndRegisterTOTP = AuthenticatedAction(async function verifyAndRegisterTOTP(
-  session,
-  {
-    code,
-    requestId,
-    checkAfter = false,
-  }: {
-    code: string;
-    requestId?: string;
-    checkAfter?: boolean;
-  }
-) {
-  const normalizedCode = code.trim();
-
-  await validateTotpCode({ code: normalizedCode }).then((result) => {
-    if (!result.success) {
-      // Not returning a pretty error as this validation would be caught on the client
-      // during normal processing
-      throw new Error("Invalid TOTP Code Format");
-    }
-  });
-
-  await verifyTOTPRegistration({
-    code: normalizedCode,
-    userId: session.factors.user.id,
-  });
-
-  if (checkAfter) {
-    // Reuse the just-entered TOTP code to verify the active session inline.
-    const checks = create(ChecksSchema, {
-      totp: { code: normalizedCode },
-    });
-
-    // Mark second-factor checks complete for this session during setup.
-    const sessionResponse = await updateSession({
-      checks,
+export const verifyAndRegisterTOTP = AuthenticatedAction(
+  "any_mfa_required",
+  async function verifyAndRegisterTOTP(
+    session,
+    {
+      code,
       requestId,
+      checkAfter = false,
+    }: {
+      code: string;
+      requestId?: string;
+      checkAfter?: boolean;
+    }
+  ) {
+    const normalizedCode = code.trim();
+
+    await validateTotpCode({ code: normalizedCode }).then((result) => {
+      if (!result.success) {
+        // Not returning a pretty error as this validation would be caught on the client
+        // during normal processing
+        throw new Error("Invalid TOTP Code Format");
+      }
     });
 
-    if (sessionResponse && "error" in sessionResponse && sessionResponse.error) {
-      throw sessionResponse.error;
+    await verifyTOTPRegistration({
+      code: normalizedCode,
+      userId: session.factors.user.id,
+    });
+
+    if (checkAfter) {
+      // Reuse the just-entered TOTP code to verify the active session inline.
+      const checks = create(ChecksSchema, {
+        totp: { code: normalizedCode },
+      });
+
+      // Mark second-factor checks complete for this session during setup.
+      const sessionResponse = await updateSession({
+        checks,
+        requestId,
+      });
+
+      if (sessionResponse && "error" in sessionResponse && sessionResponse.error) {
+        throw sessionResponse.error;
+      }
     }
+    const url = buildUrlWithRequestId("/all-set", requestId);
+    redirect(url);
   }
-  const url = buildUrlWithRequestId("/all-set", requestId);
-  redirect(url);
-});
+);

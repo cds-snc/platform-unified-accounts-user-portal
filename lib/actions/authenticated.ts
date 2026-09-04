@@ -6,7 +6,8 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { UserFactor } from "@zitadel/proto/zitadel/session/v2/session_pb";
 
 import { logMessage } from "@lib/logger";
-import { loadActiveSession, SessionWithAuthData } from "@lib/session";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { SessionWithAuthData } from "@lib/session";
 
 type SessionCredentials = SessionWithAuthData & {
   factors: {
@@ -41,13 +42,11 @@ type SessionCredentials = SessionWithAuthData & {
  * Returns error object instead of throwing to allow client-side error handling.
  */
 export const AuthenticatedAction = <Input extends unknown[], Return>(
+  requiredAuthLevel: AuthLevel,
   action: (credentials: SessionCredentials, ...args: Input) => Promise<Return>
 ): ((...args: Input) => Promise<Return>) => {
   return async (...args: Input): Promise<Return> => {
-    const session = await loadActiveSession();
-    if (!session.factors?.user) {
-      throw new Error("User does not exist on session");
-    }
+    const session = await checkAuthenticationLevel(requiredAuthLevel);
 
     logMessage.debug(`Initiating Authenticated Action call for function ${action.name}`);
     return action(session as SessionCredentials, ...args).catch((error) => {

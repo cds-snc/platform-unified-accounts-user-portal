@@ -35,7 +35,7 @@ type VerifyU2FCommand = {
   sessionId: string;
 };
 
-export const addU2F = AuthenticatedAction(async function addU2F(session) {
+export const addU2F = AuthenticatedAction("any_mfa_required", async function addU2F(session) {
   const host = await getOriginalHost();
 
   const [hostname] = host.split(":");
@@ -57,49 +57,49 @@ export const addU2F = AuthenticatedAction(async function addU2F(session) {
   };
 });
 
-export const verifyU2F = AuthenticatedAction(async function verifyU2F(
-  session,
-  command: VerifyU2FCommand
-) {
-  const validationResult = validateVerifyU2FCommand(command);
-  if (!validationResult.success) {
-    return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
-  }
-
-  let passkeyName = command.passkeyName;
-
-  if (!passkeyName) {
-    const headersList = await headers();
-    const userAgentStructure = { headers: headersList };
-    const { browser, device, os } = userAgent(userAgentStructure);
-
-    passkeyName = `${device.vendor ?? ""} ${device.model ?? ""}${
-      device.vendor || device.model ? ", " : ""
-    }${os.name}${os.name ? ", " : ""}${browser.name}`;
-  }
-
-  const userId = session.factors.user.id;
-
-  const request = create(VerifyU2FRegistrationRequestSchema, {
-    u2fId: command.u2fId,
-    publicKeyCredential: command.publicKeyCredential,
-    tokenName: passkeyName,
-    userId,
-  });
-
-  const result = await verifyU2FRegistration({ request });
-
-  // Check if the error is due to credential already being registered
-  if ("error" in result && result.error) {
-    const errorMessage = String(result.error).toLowerCase();
-    if (
-      errorMessage.includes("already") ||
-      errorMessage.includes("duplicate") ||
-      errorMessage.includes("exists")
-    ) {
-      return { error: U2F_ERRORS.CREDENTIAL_ALREADY_REGISTERED };
+export const verifyU2F = AuthenticatedAction(
+  "any_mfa_required",
+  async function verifyU2F(session, command: VerifyU2FCommand) {
+    const validationResult = validateVerifyU2FCommand(command);
+    if (!validationResult.success) {
+      return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
     }
-  }
 
-  return result;
-});
+    let passkeyName = command.passkeyName;
+
+    if (!passkeyName) {
+      const headersList = await headers();
+      const userAgentStructure = { headers: headersList };
+      const { browser, device, os } = userAgent(userAgentStructure);
+
+      passkeyName = `${device.vendor ?? ""} ${device.model ?? ""}${
+        device.vendor || device.model ? ", " : ""
+      }${os.name}${os.name ? ", " : ""}${browser.name}`;
+    }
+
+    const userId = session.factors.user.id;
+
+    const request = create(VerifyU2FRegistrationRequestSchema, {
+      u2fId: command.u2fId,
+      publicKeyCredential: command.publicKeyCredential,
+      tokenName: passkeyName,
+      userId,
+    });
+
+    const result = await verifyU2FRegistration({ request });
+
+    // Check if the error is due to credential already being registered
+    if ("error" in result && result.error) {
+      const errorMessage = String(result.error).toLowerCase();
+      if (
+        errorMessage.includes("already") ||
+        errorMessage.includes("duplicate") ||
+        errorMessage.includes("exists")
+      ) {
+        return { error: U2F_ERRORS.CREDENTIAL_ALREADY_REGISTERED };
+      }
+    }
+
+    return result;
+  }
+);

@@ -143,39 +143,42 @@ export const submitUserNameForm = async (
   redirect(buildUrlWithRequestId("/password/reset/verify", command.requestId));
 };
 
-export const resetPassword = AuthenticatedAction(async function resetPassword(
-  session,
-  { code, password, requestId }: { code?: string; password?: string; requestId?: string }
-) {
-  if (!code || !password) {
-    throw new Error("Missing required properties to reset password");
-  }
+export const resetPassword = AuthenticatedAction(
+  "any_mfa_no_password",
+  async function resetPassword(
+    session,
+    { code, password, requestId }: { code?: string; password?: string; requestId?: string }
+  ) {
+    if (!code || !password) {
+      throw new Error("Missing required properties to reset password");
+    }
 
-  const passwordValidation = await validatePassword({ password } as {
-    [k: string]: FormDataEntryValue;
-  });
-  const codeValidation = await validateCode({ code } as {
-    [k: string]: FormDataEntryValue;
-  });
-  if (!passwordValidation.success || !codeValidation.success) {
-    logMessage.warn("Server side validation failed for password reset");
-    throw new Error("Invalid password or code");
-  }
+    const passwordValidation = await validatePassword({ password } as {
+      [k: string]: FormDataEntryValue;
+    });
+    const codeValidation = await validateCode({ code } as {
+      [k: string]: FormDataEntryValue;
+    });
+    if (!passwordValidation.success || !codeValidation.success) {
+      logMessage.warn("Server side validation failed for password reset");
+      throw new Error("Invalid password or code");
+    }
 
-  const changeResponse = await passwordResetWithCode({
-    code,
-    userId: session.factors.user.id,
-    password,
-  });
-  if ("error" in changeResponse) {
-    throw new Error(changeResponse.error);
-  }
+    const changeResponse = await passwordResetWithCode({
+      code,
+      userId: session.factors.user.id,
+      password,
+    });
+    if ("error" in changeResponse) {
+      throw new Error(changeResponse.error);
+    }
 
-  await verifyPassword({
-    loginName: session.factors.user.loginName ?? "",
-    checks: create(ChecksSchema, {
-      password: { password },
-    }),
-    requestId,
-  });
-});
+    await verifyPassword({
+      loginName: session.factors.user.loginName ?? "",
+      checks: create(ChecksSchema, {
+        password: { password },
+      }),
+      requestId,
+    });
+  }
+);

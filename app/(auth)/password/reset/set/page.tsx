@@ -8,7 +8,6 @@ import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { checkSessionFactors } from "@lib/server/route-protection";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, type SearchParams } from "@lib/utils";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
@@ -27,15 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.BASIC_SESSION, requestId);
-
-  const factors = checkSessionFactors(session);
-
-  // Password reset recovery is intentionally gated by a verified strong factor,
-  // but does not require a previously verified password.
-  if (!factors.hasUser || !factors.notExpired || !(factors.totpVerified || factors.u2fVerified)) {
-    redirect("/password/reset/verify");
-  }
+  await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED_NO_PASSWORD, requestId);
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
 

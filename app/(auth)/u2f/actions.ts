@@ -31,32 +31,33 @@ type VerifyU2FLoginCommand = {
   redirect?: string | null;
 };
 
-export const verifyU2FLogin = AuthenticatedAction(async function verifyU2FLogin(
-  _,
-  { checks, requestId, redirect }: VerifyU2FLoginCommand
-) {
-  const loginValidation = validateU2FLoginCommand({ requestId, redirect });
-  if (!loginValidation.success) {
-    return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
+export const verifyU2FLogin = AuthenticatedAction(
+  "password_required",
+  async function verifyU2FLogin(_, { checks, requestId, redirect }: VerifyU2FLoginCommand) {
+    const loginValidation = validateU2FLoginCommand({ requestId, redirect });
+    if (!loginValidation.success) {
+      return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
+    }
+
+    const activeSessionCookie = await getActiveSessionCookie();
+
+    // Actually verify the U2F credential by updating the session with the checks
+    const updatedSession = await setSessionAndUpdateCookie({
+      activeCookie: activeSessionCookie,
+      checks,
+      requestId,
+    });
+
+    if (!updatedSession) {
+      return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
+    }
+
+    return continueWithSession({ ...updatedSession, requestId, redirect });
   }
-
-  const activeSessionCookie = await getActiveSessionCookie();
-
-  // Actually verify the U2F credential by updating the session with the checks
-  const updatedSession = await setSessionAndUpdateCookie({
-    activeCookie: activeSessionCookie,
-    checks,
-    requestId,
-  });
-
-  if (!updatedSession) {
-    return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
-  }
-
-  return continueWithSession({ ...updatedSession, requestId, redirect });
-});
+);
 
 export const updateSessionForU2FChallenge = AuthenticatedAction(
+  "password_required",
   async function updateSessionForU2FChallenge(_, requestId?: string) {
     const validationResult = validateRequestId(requestId);
     if (!validationResult.success) {
