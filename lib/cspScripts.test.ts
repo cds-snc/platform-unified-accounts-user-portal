@@ -26,14 +26,14 @@ describe("generateCSP", () => {
       vi.stubEnv("NODE_ENV", "production");
       const { csp, nonce } = generateCSP();
 
-      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`);
+      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'strict-dynamic';`);
     });
 
     it("includes nonce in style-src", () => {
       vi.stubEnv("NODE_ENV", "production");
       const { csp, nonce } = generateCSP();
 
-      expect(csp).toContain(`style-src 'self' 'nonce-${nonce}'`);
+      expect(csp).toContain(`style-src 'self' 'nonce-${nonce}';`);
     });
 
     it("does not include unsafe-inline in style-src", () => {
