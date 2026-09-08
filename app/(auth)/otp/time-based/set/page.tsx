@@ -11,11 +11,7 @@ import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_s
  *--------------------------------------------*/
 import { LOGGED_IN_HOME_PAGE } from "@root/constants/config";
 import { logMessage } from "@lib/logger";
-import {
-  AuthLevel,
-  checkAuthenticationLevel,
-  requiresStrongMfaSetupVerification,
-} from "@lib/server/route-protection";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { registerTOTP } from "@lib/zitadel";
 import { getZitadelUiError } from "@lib/zitadel-errors";
@@ -40,14 +36,7 @@ export default async function Page(props: {
 
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, requestId);
-
-  if (requiresStrongMfaSetupVerification(session)) {
-    logMessage.debug({
-      message: "OTPsetup page requires strong MFA re-verification",
-    });
-    redirect(buildUrlWithRequestId("/mfa", requestId));
-  }
+  const session = await checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED, requestId);
 
   const loginName = session.factors?.user?.loginName;
   const displayName = session.factors?.user?.displayName;

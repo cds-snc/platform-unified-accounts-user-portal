@@ -173,6 +173,70 @@ describe("route-protection", () => {
     expect(result).not.toBe(null);
   });
 
+  it("allows initial MFA enrollment with a verified password", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [],
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+      },
+      expirationDate: new Date(),
+      emailVerified: true,
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).resolves.toBeDefined();
+  });
+
+  it("requires strong MFA after a strong factor is registered", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [AuthenticationMethodType.TOTP],
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+      },
+      expirationDate: new Date(),
+      emailVerified: true,
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/mfa");
+  });
+
+  it("does not accept email OTP for changes after strong MFA enrollment", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [AuthenticationMethodType.U2F],
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+        otpEmail: { verifiedAt: {} },
+      },
+      expirationDate: new Date(),
+      emailVerified: true,
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/mfa");
+  });
+
+  it("allows MFA changes after strong MFA verification", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [AuthenticationMethodType.TOTP],
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+        totp: { verifiedAt: {} },
+      },
+      expirationDate: new Date(),
+      emailVerified: true,
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).resolves.toBeDefined();
+  });
+
   it("fails strong-mfa level", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {

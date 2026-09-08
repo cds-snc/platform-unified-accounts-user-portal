@@ -11,6 +11,7 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { AuthLevel } from "@lib/server/route-protection";
 import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
@@ -21,7 +22,7 @@ import { verifyTOTPRegistration } from "@lib/zitadel";
  *--------------------------------------------*/
 
 export const verifyAndRegisterTOTP = AuthenticatedAction(
-  { authLevel: "any_mfa_required" },
+  { authLevel: AuthLevel.MFA_CHANGE_REQUIRED },
   async function verifyAndRegisterTOTP(
     session,
     {

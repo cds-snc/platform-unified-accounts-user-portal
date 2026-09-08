@@ -13,6 +13,7 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
  * Internal Aliases
  *--------------------------------------------*/
 import { getOriginalHost } from "@lib/server/host";
+import { AuthLevel } from "@lib/server/route-protection";
 import { validateVerifyU2FCommand } from "@lib/validation/validationSchemas";
 import { registerU2F, verifyU2FRegistration } from "@lib/zitadel";
 
@@ -36,7 +37,7 @@ type VerifyU2FCommand = {
 };
 
 export const addU2F = AuthenticatedAction(
-  { authLevel: "any_mfa_required" },
+  { authLevel: AuthLevel.MFA_CHANGE_REQUIRED },
   async function addU2F(session) {
     const host = await getOriginalHost();
 
@@ -61,7 +62,7 @@ export const addU2F = AuthenticatedAction(
 );
 
 export const verifyU2F = AuthenticatedAction(
-  { authLevel: "any_mfa_required" },
+  { authLevel: AuthLevel.MFA_CHANGE_REQUIRED },
   async function verifyU2F(session, command: VerifyU2FCommand) {
     const validationResult = validateVerifyU2FCommand(command);
     if (!validationResult.success) {

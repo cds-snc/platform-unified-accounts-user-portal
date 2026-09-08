@@ -19,6 +19,7 @@ import { buildUrlWithRequestId } from "@lib/utils";
 export const AuthLevel = {
   BASIC_SESSION: "basic_session", // Session cookie must exist and not expired
   PASSWORD_REQUIRED: "password_required", // Password factor verified
+  MFA_CHANGE_REQUIRED: "mfa_change_required", // Password, plus strong MFA after initial enrollment
   ANY_MFA_REQUIRED: "any_mfa_required", // Password + any MFA (TOTP, U2F, or OTP Email)
   STRONG_MFA_REQUIRED: "strong_mfa_required", // Password + strong MFA (TOTP or U2F only)
   ANY_MFA_REQUIRED_NO_PASSWORD: "any_mfa_no_password", // Any MFA (TOTP, U2F, or OTP Email) but password not verified. Used during password reset
@@ -195,6 +196,24 @@ export async function checkAuthenticationLevel(
         );
 
         redirect(buildUrlWithRequestId("/", requestIdRef));
+      }
+      return session;
+    }
+    // Password is sufficient for initial enrollment. Once strong MFA is configured, it must be verified.
+    case AuthLevel.MFA_CHANGE_REQUIRED: {
+      if (!factors.passwordVerified) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
+        );
+
+        redirect(buildUrlWithRequestId("/", requestIdRef));
+      }
+      if (requiresStrongMfaSetupVerification(session)) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Existing strong MFA not verified, Redirecting: "/mfa"`
+        );
+
+        redirect(buildUrlWithRequestId("/mfa", requestIdRef));
       }
       return session;
     }
