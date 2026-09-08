@@ -17,7 +17,7 @@ import { buildUrlWithRequestId } from "@lib/utils";
  * Authentication levels for route protection
  */
 export const AuthLevel = {
-  BASIC_SESSION: "basic_session", // Session cookie must exist
+  BASIC_SESSION: "basic_session", // Session cookie must exist and not expired
   PASSWORD_REQUIRED: "password_required", // Password factor verified
   ANY_MFA_REQUIRED: "any_mfa_required", // Password + any MFA (TOTP, U2F, or OTP Email)
   STRONG_MFA_REQUIRED: "strong_mfa_required", // Password + strong MFA (TOTP or U2F only)
@@ -57,7 +57,7 @@ export function checkSessionFactors(session: SessionWithAuthData | null) {
       emailVerified: false,
     };
   }
-
+  logMessage.debug(session.factors);
   const hasUser = !!session.factors?.user?.id;
   const notExpired = session.expirationDate
     ? timestampDate(session.expirationDate).getTime() > new Date().getTime()
