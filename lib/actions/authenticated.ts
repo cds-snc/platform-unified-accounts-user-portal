@@ -15,6 +15,11 @@ type SessionCredentials = SessionWithAuthData & {
   };
 };
 
+type AuthenticatedActionInput = {
+  authLevel: AuthLevel;
+  emailValidation?: boolean;
+};
+
 /**
  * Higher-order function that wraps server actions with authentication.
  * Validates user session before executing the action.
@@ -42,11 +47,14 @@ type SessionCredentials = SessionWithAuthData & {
  * Returns error object instead of throwing to allow client-side error handling.
  */
 export const AuthenticatedAction = <Input extends unknown[], Return>(
-  requiredAuthLevel: AuthLevel,
+  options: AuthenticatedActionInput,
   action: (credentials: SessionCredentials, ...args: Input) => Promise<Return>
 ): ((...args: Input) => Promise<Return>) => {
   return async (...args: Input): Promise<Return> => {
-    const session = await checkAuthenticationLevel(requiredAuthLevel);
+    const { authLevel, emailValidation = true } = options;
+    const session = await checkAuthenticationLevel(authLevel, undefined, {
+      requireEmailVerified: emailValidation,
+    });
 
     logMessage.debug(`Initiating Authenticated Action call for function ${action.name}`);
     return action(session as SessionCredentials, ...args).catch((error) => {

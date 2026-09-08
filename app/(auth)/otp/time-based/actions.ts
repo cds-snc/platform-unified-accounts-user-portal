@@ -31,7 +31,7 @@ type Inputs = {
 };
 
 export const handleOTPFormSubmit = AuthenticatedAction(
-  "basic_session",
+  { authLevel: "basic_session" },
   async function handleOTPFormSubmit(
     _,
     { code, redirect, requestId }: { code: string; redirect?: string; requestId?: string }

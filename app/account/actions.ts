@@ -18,7 +18,7 @@ import { validatePersonalDetails, validateU2fId } from "@lib/validation/validati
 import { getU2FList, removeTOTP, removeU2F, updateHuman } from "@lib/zitadel";
 
 export const removeU2FAction = AuthenticatedAction(
-  "strong_mfa_required",
+  { authLevel: "strong_mfa_required" },
   async (session, u2fId: string) => {
     const validationResult = validateU2fId(u2fId);
     if (!validationResult.success) {
@@ -50,29 +50,32 @@ export const removeU2FAction = AuthenticatedAction(
   }
 );
 
-export const removeTOTPAction = AuthenticatedAction("strong_mfa_required", async (session) => {
-  const userId = session.factors.user.id;
-  const hasMultipleMFA = await _hasMultipleMFAMethods(session);
-  if (!hasMultipleMFA) {
-    return {
-      error:
-        "Cannot remove authenticator. At least one strong authentication methods must be configured to remove one.",
-    };
-  }
+export const removeTOTPAction = AuthenticatedAction(
+  { authLevel: "strong_mfa_required" },
+  async (session) => {
+    const userId = session.factors.user.id;
+    const hasMultipleMFA = await _hasMultipleMFAMethods(session);
+    if (!hasMultipleMFA) {
+      return {
+        error:
+          "Cannot remove authenticator. At least one strong authentication methods must be configured to remove one.",
+      };
+    }
 
-  const result = await removeTOTP({ userId }).catch((e) => {
-    logMessage.error("Failed to remove TOTP", e);
-    return { error: "Failed to remove Authentication method" };
-  });
-  if ("error" in result) {
-    return result;
+    const result = await removeTOTP({ userId }).catch((e) => {
+      logMessage.error("Failed to remove TOTP", e);
+      return { error: "Failed to remove Authentication method" };
+    });
+    if ("error" in result) {
+      return result;
+    }
+    revalidatePath("/account");
+    return { success: true };
   }
-  revalidatePath("/account");
-  return { success: true };
-});
+);
 
 export const updatePersonalDetailsAction = AuthenticatedAction(
-  "strong_mfa_required",
+  { authLevel: "strong_mfa_required" },
   async (
     session,
     {
@@ -145,7 +148,7 @@ async function _hasMultipleMFAMethods(session: SessionWithAuthData): Promise<boo
   return false;
 }
 
-export const logoutAndRegister = AuthenticatedAction("basic_session", async (_) => {
+export const logoutAndRegister = AuthenticatedAction({ authLevel: "basic_session" }, async (_) => {
   const result = await logoutCurrentSession({ postLogoutRedirectUri: "/register" });
   if ("error" in result) {
     throw new Error(result.error);

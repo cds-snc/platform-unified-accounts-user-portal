@@ -182,7 +182,7 @@ export const continueOidcSessionSelection = async (sessionId: string, requestId:
 };
 
 export const checkActiveSession = AuthenticatedAction(
-  "basic_session",
+  { authLevel: "basic_session" },
   async function checkActiveSession(session) {
     return isSessionValid({ session });
   }

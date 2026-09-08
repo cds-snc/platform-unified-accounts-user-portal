@@ -144,7 +144,7 @@ export const submitUserNameForm = async (
 };
 
 export const resetPassword = AuthenticatedAction(
-  "any_mfa_no_password",
+  { authLevel: "any_mfa_no_password" },
   async function resetPassword(
     session,
     { code, password, requestId }: { code?: string; password?: string; requestId?: string }

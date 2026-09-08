@@ -35,30 +35,33 @@ type VerifyU2FCommand = {
   sessionId: string;
 };
 
-export const addU2F = AuthenticatedAction("any_mfa_required", async function addU2F(session) {
-  const host = await getOriginalHost();
+export const addU2F = AuthenticatedAction(
+  { authLevel: "any_mfa_required" },
+  async function addU2F(session) {
+    const host = await getOriginalHost();
 
-  const [hostname] = host.split(":");
+    const [hostname] = host.split(":");
 
-  if (!hostname) {
-    throw new Error("Could not get hostname");
+    if (!hostname) {
+      throw new Error("Could not get hostname");
+    }
+
+    const userId = session.factors.user.id;
+
+    const result = await registerU2F({ userId, domain: hostname });
+
+    const options = result.publicKeyCredentialCreationOptions;
+
+    return {
+      u2fId: result.u2fId,
+      publicKeyCredentialCreationOptions: options,
+      details: result.details,
+    };
   }
-
-  const userId = session.factors.user.id;
-
-  const result = await registerU2F({ userId, domain: hostname });
-
-  const options = result.publicKeyCredentialCreationOptions;
-
-  return {
-    u2fId: result.u2fId,
-    publicKeyCredentialCreationOptions: options,
-    details: result.details,
-  };
-});
+);
 
 export const verifyU2F = AuthenticatedAction(
-  "any_mfa_required",
+  { authLevel: "any_mfa_required" },
   async function verifyU2F(session, command: VerifyU2FCommand) {
     const validationResult = validateVerifyU2FCommand(command);
     if (!validationResult.success) {

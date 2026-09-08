@@ -21,7 +21,7 @@ import { verifyTOTPRegistration } from "@lib/zitadel";
  *--------------------------------------------*/
 
 export const verifyAndRegisterTOTP = AuthenticatedAction(
-  "any_mfa_required",
+  { authLevel: "any_mfa_required" },
   async function verifyAndRegisterTOTP(
     session,
     {

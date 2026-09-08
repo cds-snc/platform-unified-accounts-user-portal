@@ -18,7 +18,10 @@ import { getUserByID, sendEmailCodeWithReturn, verifyEmail } from "@lib/zitadel"
 import { serverTranslation } from "@i18n/server";
 
 export const sendVerificationEmail = AuthenticatedAction(
-  "password_required",
+  {
+    authLevel: "password_required",
+    emailValidation: false,
+  },
   async function sendVerificationEmail(session) {
     const { t } = await serverTranslation("verify");
 
@@ -88,7 +91,10 @@ type VerifyUserByEmailCommand = {
 };
 
 export const checkVerificationCode = AuthenticatedAction(
-  "password_required",
+  {
+    authLevel: "password_required",
+    emailValidation: false,
+  },
   async function checkVerificationCode(credentials, command: VerifyUserByEmailCommand) {
     const { t } = await serverTranslation("verify");
     const userId = credentials.factors.user.id;
