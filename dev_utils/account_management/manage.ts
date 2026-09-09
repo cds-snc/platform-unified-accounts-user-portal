@@ -1,16 +1,29 @@
 import "dotenv/config";
 
+import { confirm, intro, multiselect, outro, text } from "@clack/prompts";
 import { TextQueryMethod } from "@zitadel/proto/zitadel/object_pb";
-import { styleText } from "node:util";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
 import { getServiceForHost } from "@lib/service";
 
-import { getValue } from "../cli_utils";
-
 const manage = async () => {
+  intro("User Management");
   const userManagement = await getServiceForHost("UserService");
 
-  const devEmail = await getValue("What email address is your main account? \n");
+  const devEmail = await text({
+    message: "What email address is your main account?",
+    validate: (value) => {
+      if (value && value?.indexOf("@") > 0) {
+        return undefined;
+      }
+      return "Email must contain the '@' character";
+    },
+  }).then((val) => {
+    if (typeof val !== "string") {
+      throw new Error("Email must not be empty");
+    }
+    return val;
+  });
 
   const searchCriteria = devEmail.split("@")[0];
 
@@ -23,6 +36,12 @@ const manage = async () => {
             case: "emailQuery",
           },
         },
+        {
+          query: {
+            case: "stateQuery",
+            value: { state: UserState.ACTIVE },
+          },
+        },
       ],
     })
     .then((response) => {
@@ -32,25 +51,48 @@ const manage = async () => {
       }));
     });
 
-  console.info("Do you want to delete the following accounts?");
-  const accountsToDelete = userAccounts.filter((val) => val.username !== devEmail);
-  accountsToDelete.forEach((account) => {
-    console.info(styleText("bold", `username: ${account.username}`));
+  const selectedAccounts = await multiselect({
+    message: "Select which accounts from the following you would like to flag for deletion",
+    options: userAccounts
+      .filter((val) => val.username !== devEmail)
+      .map((val) => ({
+        value: val.userId,
+        label: val.username,
+      })),
+    required: false,
   });
-  const confirmDelete = await getValue("(y / n): ").then((ans) => (ans === "y" ? true : false));
 
-  if (!confirmDelete) {
+  if (typeof selectedAccounts !== "object") {
+    outro("No Accounts selected");
+    return;
+  }
+
+  const shouldContinue = await confirm({
+    message: "Are you sure you want to delete the accounts",
+  });
+
+  if (typeof shouldContinue === "symbol" || !shouldContinue) {
     console.info("Exiting without making any changes to accounts");
     return;
   }
 
-  const deletePromises = accountsToDelete.map(async (account) => {
-    return userManagement.deleteUser({ userId: account.userId });
+  const deletePromises = selectedAccounts.map(async (accountId) => {
+    const factors = await userManagement.listAuthenticationFactors({ userId: accountId });
+
+    await Promise.all(
+      factors.result.map(async (factor) => {
+        switch (factor.type.case) {
+          case "otp":
+            return userManagement.removeTOTP({ userId: accountId });
+
+          case "u2f":
+            return userManagement.removeU2F({ userId: accountId, u2fId: factor.type.value.id });
+        }
+      })
+    );
+    return userManagement.deactivateUser({ userId: accountId });
   });
-
   await Promise.all(deletePromises);
-
-  console.info(styleText(["bold", "green"], "Accounts deleted"));
 };
 
 manage();

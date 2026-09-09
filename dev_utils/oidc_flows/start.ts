@@ -1,12 +1,12 @@
 import "dotenv/config";
 
-import { styleText } from "node:util";
+import { intro, outro, select } from "@clack/prompts";
 import * as client from "openid-client";
 
-import { getValue } from "../cli_utils";
 import serverConfig from "../openid-configuration.json";
 
 async function start() {
+  intro("Initiate OIDC Flow");
   const clientId = process.env.RP_CLIENT_ID; // Client identifier at the Authorization Server
   if (!clientId) {
     throw new Error("RP Client ID is not configured in .env");
@@ -16,7 +16,6 @@ async function start() {
   // Needed to allow insecure requests (always shows as depreceated)
   client.allowInsecureRequests(config);
 
-  console.info("[Server Configuration] Complete");
   /**
    * Value used in the authorization request as the redirect_uri parameter, this
    * is typically pre-registered at the Authorization Server.
@@ -27,9 +26,20 @@ async function start() {
   }
   const scope = "openid email profile"; // Scope of the access request
 
-  const requestedFlow = await getValue(
-    "Flow to Initiate:  [0] Register || [1] Select Account: "
-  ).then((ans) => (ans === "1" ? "select_account" : "create"));
+  const requestedFlow = await select({
+    message: "Flow to Initiate:",
+    options: [
+      { value: "select_account", label: "Select Account" },
+      {
+        value: "create",
+        label: "Register",
+      },
+    ],
+  });
+
+  if (typeof requestedFlow !== "string") {
+    throw new Error("No flow selected");
+  }
 
   /**
    * PKCE: The following MUST be generated for every redirect to the
@@ -63,13 +73,10 @@ async function start() {
     "https://auth.cdssandbox.xyz",
     "http://localhost:3002"
   );
-  console.info(
-    styleText(
-      "bold",
-      `Copy and paste this URL into a new tab to initiate ${requestedFlow} flow: \n`
-    )
+
+  outro(
+    `Copy and paste this URL into a new tab to initiate ${requestedFlow} flow: \n${redirectedURL}`
   );
-  console.info(styleText(["underline", "green"], redirectedURL));
 }
 
 start();

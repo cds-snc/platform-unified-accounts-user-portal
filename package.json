@@ -70,6 +70,7 @@
     "valibot": "^1.4.0"
   },
   "devDependencies": {
+    "@clack/prompts": "^1.7.0",
     "@connectrpc/connect": "^2.1.1",
     "@gcds-core/tokens": "^1.0.0",
     "@gcforms/types": "1.0.38",
