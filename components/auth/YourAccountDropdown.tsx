@@ -11,7 +11,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { logoutCurrentSession } from "@lib/server/session";
+import { logoutCurrentSession } from "@lib/server/logout-action";
 import { useTranslation } from "@i18n";
 import { ChevronDown } from "@components/icons/ChevronDown";
 

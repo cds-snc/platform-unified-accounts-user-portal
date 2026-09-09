@@ -1,9 +1,6 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
 import { Challenges, RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
@@ -33,6 +30,8 @@ import {
 } from "../cookies";
 
 import { getOriginalHost } from "./host";
+
+import "server-only";
 
 /**
  * Load sessions by their IDs
