@@ -31,7 +31,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const requestId = searchParams.requestId;
   const loginRedirect = buildUrlWithRequestId("/", requestId);
 
-  const session = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED, requestId);
+  const session = await checkAuthenticationLevel(AuthLevel.MFA_REQUIRED, requestId);
 
   const userId = session.factors.user.id;
   const userResponse = await getUserByID(userId!);

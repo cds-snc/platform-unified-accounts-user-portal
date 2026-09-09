@@ -20,9 +20,8 @@ export const AuthLevel = {
   BASIC_SESSION: "basic_session", // Session cookie must exist and not expired
   PASSWORD_REQUIRED: "password_required", // Password factor verified
   MFA_CHANGE_REQUIRED: "mfa_change_required", // Password, plus strong MFA after initial enrollment
-  ANY_MFA_REQUIRED: "any_mfa_required", // Password + any MFA (TOTP, U2F, or OTP Email)
-  STRONG_MFA_REQUIRED: "strong_mfa_required", // Password + strong MFA (TOTP or U2F only)
-  ANY_MFA_REQUIRED_NO_PASSWORD: "any_mfa_no_password", // Any MFA (TOTP, U2F, or OTP Email) but password not verified. Used during password reset
+  MFA_REQUIRED: "mfa_required", // Password + strong MFA (TOTP or U2F only)
+  MFA_REQUIRED_NO_PASSWORD: "mfa_no_password", // MFA (TOTP, U2F) but password not verified. Used during password reset
 } as const;
 
 export type AuthLevel = (typeof AuthLevel)[keyof typeof AuthLevel];
@@ -54,7 +53,6 @@ export function checkSessionFactors(session: SessionWithAuthData | null) {
       passwordVerified: false,
       totpVerified: false,
       u2fVerified: false,
-      otpEmailVerified: false,
       emailVerified: false,
     };
   }
@@ -67,7 +65,6 @@ export function checkSessionFactors(session: SessionWithAuthData | null) {
   const passwordVerified = !!session.factors?.password?.verifiedAt;
   const totpVerified = !!session.factors?.totp?.verifiedAt;
   const u2fVerified = !!session.factors?.webAuthN?.verifiedAt;
-  const otpEmailVerified = !!session.factors?.otpEmail?.verifiedAt;
 
   const emailVerified = session.emailVerified;
 
@@ -77,7 +74,6 @@ export function checkSessionFactors(session: SessionWithAuthData | null) {
     passwordVerified,
     totpVerified,
     u2fVerified,
-    otpEmailVerified,
     emailVerified,
   };
 }
@@ -89,15 +85,6 @@ export function hasStrongMFA(session: SessionWithAuthData | null): boolean {
   if (!session) return false;
   const factors = checkSessionFactors(session);
   return factors.totpVerified || factors.u2fVerified;
-}
-
-/**
- * Check if session has any MFA (TOTP, U2F, or OTP Email)
- */
-export function hasAnyMFA(session: SessionWithAuthData | null): boolean {
-  if (!session) return false;
-  const factors = checkSessionFactors(session);
-  return factors.totpVerified || factors.u2fVerified || factors.otpEmailVerified;
 }
 
 type SetupProtectionSession = {
@@ -217,27 +204,9 @@ export async function checkAuthenticationLevel(
       }
       return session;
     }
-    // Any MFA required check
-    case AuthLevel.ANY_MFA_REQUIRED: {
-      if (!factors.passwordVerified) {
-        logMessage.debug(
-          `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
-        );
 
-        redirect(buildUrlWithRequestId("/", requestIdRef));
-      }
-      if (!hasAnyMFA(session)) {
-        logMessage.debug(
-          `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/mfa"`
-        );
-
-        redirect(buildUrlWithRequestId("/mfa", requestIdRef));
-      }
-
-      return session;
-    }
     // Strong MFA required check
-    case AuthLevel.STRONG_MFA_REQUIRED: {
+    case AuthLevel.MFA_REQUIRED: {
       if (!factors.passwordVerified) {
         logMessage.debug(
           `[Authentication Level] Required: ${requiredLevel}, Reason: Password not verified, Redirecting: "/"`
@@ -255,8 +224,8 @@ export async function checkAuthenticationLevel(
       return session;
     }
     // Any MFA required check
-    case AuthLevel.ANY_MFA_REQUIRED_NO_PASSWORD: {
-      if (!hasAnyMFA(session)) {
+    case AuthLevel.MFA_REQUIRED_NO_PASSWORD: {
+      if (!hasStrongMFA(session)) {
         logMessage.debug(
           `[Authentication Level] Required: ${requiredLevel}, Reason: MFA not verified, Redirecting: "/password/reset/verify"`
         );

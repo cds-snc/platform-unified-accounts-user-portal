@@ -9,8 +9,6 @@ import {
   AuthLevel,
   checkAuthenticationLevel,
   checkSessionFactors,
-  hasAnyMFA,
-  hasStrongMFA,
   requiresStrongMfaSetupVerification,
 } from "./route-protection";
 
@@ -46,21 +44,8 @@ describe("route-protection", () => {
       passwordVerified: false,
       totpVerified: false,
       u2fVerified: false,
-      otpEmailVerified: false,
       emailVerified: false,
     });
-  });
-
-  it("distinguishes any MFA from strong MFA", () => {
-    const otpEmailSession = {
-      factors: {
-        user: { id: "user-123" },
-        otpEmail: { verifiedAt: {} },
-      },
-    } as never;
-
-    expect(hasAnyMFA(otpEmailSession)).toBe(true);
-    expect(hasStrongMFA(otpEmailSession)).toBe(false);
   });
 
   it("requires strong MFA re-verification before MFA setup when a strong method is configured", () => {
@@ -157,22 +142,6 @@ describe("route-protection", () => {
     expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
   });
 
-  it("satisfies any-mfa level after password verification", async () => {
-    vi.mocked(loadActiveSession).mockResolvedValue({
-      factors: {
-        user: { id: "user-123" },
-        password: { verifiedAt: {} },
-        otpEmail: { verifiedAt: {} },
-      },
-      expirationDate: new Date(Date.now()),
-      emailVerified: true,
-    } as never);
-
-    const result = await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED);
-
-    expect(result).not.toBe(null);
-  });
-
   it("allows initial MFA enrollment with a verified password", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       authMethods: [],
@@ -204,24 +173,6 @@ describe("route-protection", () => {
     expect(mockRedirect).toHaveBeenCalledWith("/mfa");
   });
 
-  it("does not accept email OTP for changes after strong MFA enrollment", async () => {
-    vi.mocked(loadActiveSession).mockResolvedValue({
-      authMethods: [AuthenticationMethodType.U2F],
-      factors: {
-        user: { id: "user-123" },
-        password: { verifiedAt: {} },
-        otpEmail: { verifiedAt: {} },
-      },
-      expirationDate: new Date(),
-      emailVerified: true,
-    } as never);
-
-    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
-    expect(mockRedirect).toHaveBeenCalledWith("/mfa");
-  });
-
   it("allows MFA changes after strong MFA verification", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       authMethods: [AuthenticationMethodType.TOTP],
@@ -237,22 +188,6 @@ describe("route-protection", () => {
     await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).resolves.toBeDefined();
   });
 
-  it("fails strong-mfa level", async () => {
-    vi.mocked(loadActiveSession).mockResolvedValue({
-      factors: {
-        user: { id: "user-123" },
-        password: { verifiedAt: {} },
-        otpEmail: { verifiedAt: {} },
-      },
-      expirationDate: new Date(Date.now()),
-      emailVerified: true,
-    } as never);
-
-    await expect(checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED)).rejects.toThrow(
-      "NEXT_REDIRECT"
-    );
-    expect(mockRedirect).toHaveBeenCalledWith("/mfa");
-  });
   it("passes strong-mfa level", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       factors: {
@@ -264,7 +199,7 @@ describe("route-protection", () => {
       emailVerified: true,
     } as never);
 
-    const result = await checkAuthenticationLevel(AuthLevel.STRONG_MFA_REQUIRED);
+    const result = await checkAuthenticationLevel(AuthLevel.MFA_REQUIRED);
 
     expect(result).not.toBe(null);
   });

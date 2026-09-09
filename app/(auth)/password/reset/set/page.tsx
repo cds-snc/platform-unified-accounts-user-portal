@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
-  await checkAuthenticationLevel(AuthLevel.ANY_MFA_REQUIRED_NO_PASSWORD, requestId);
+  await checkAuthenticationLevel(AuthLevel.MFA_REQUIRED_NO_PASSWORD, requestId);
 
   const passwordComplexitySettings = await getPasswordComplexitySettings();
 
