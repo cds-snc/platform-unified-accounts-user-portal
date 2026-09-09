@@ -93,6 +93,7 @@ const manage = async () => {
     return userManagement.deactivateUser({ userId: accountId });
   });
   await Promise.all(deletePromises);
+  outro("Selected Accounts marked as inactive and MFA deleted");
 };
 
 manage();
