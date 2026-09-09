@@ -1,7 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
+
 import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
@@ -11,7 +11,7 @@ import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { getU2FList, getUserByID } from "@lib/zitadel";
-import { serverTranslation } from "@i18n/server";
+import { PageTitle } from "@components/ui/title/PageTitle";
 
 /*--------------------------------------------*
  * Local Relative
@@ -20,11 +20,6 @@ import { MFAAuthentication } from "./components/MFAAuthentication";
 import { PasswordAuthentication } from "./components/PasswordAuthentication";
 import { PersonalDetails } from "./components/PersonalDetails";
 import { VerifiedAccount } from "./components/VerifiedAccount";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("account");
-  return { title: t("navigation.title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -52,6 +47,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <>
+      <PageTitle key="navigation.title" namespace="account" />
       <PersonalDetails firstName={firstName} lastName={lastName} className="mb-4" />
       <VerifiedAccount email={email} className="mb-4" />
       <PasswordAuthentication className="mb-4" />

@@ -1,7 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
+
 import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
@@ -9,17 +9,12 @@ import { redirect } from "next/navigation";
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
-import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
 import { PasswordPageClient } from "./PasswordPageClient";
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("password");
-  return { title: t("create.title") };
-}
 
 export default async function Page() {
   const passwordComplexitySettings = await getPasswordComplexitySettings().catch((_error) => {
@@ -33,7 +28,7 @@ export default async function Page() {
 
   return (
     <AuthPanel
-      titleI18nKey="password.title"
+      titleI18nKey="create.title"
       descriptionI18nKey="password.description"
       namespace="register"
     >
