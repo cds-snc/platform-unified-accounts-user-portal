@@ -1,5 +1,3 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -13,6 +11,8 @@ import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { Cookie } from "@lib/cookies";
 import { addSessionToCookie, updateSessionCookie } from "@lib/cookies";
 import { createSessionFromChecks, getLoginSettings, getSession, setSession } from "@lib/zitadel";
+
+import "server-only";
 
 export type CreateSessionFailedError = {
   error: string;

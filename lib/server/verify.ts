@@ -1,9 +1,6 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
 import { GCNotifyConnector } from "@gcforms/connectors";
 
 /*--------------------------------------------*
@@ -14,6 +11,8 @@ import { getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
+
+import "server-only";
 
 type SendPasswordChangedEmailCommand = {
   userId: string;

@@ -1,9 +1,6 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
 import { create } from "@zitadel/client";
 import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
@@ -23,6 +20,8 @@ import { loadActiveSession } from "../session";
 
 import { completeFlowAndRedirect } from "./auth-flow";
 import { sendPasswordChangedEmail } from "./verify";
+
+import "server-only";
 
 function didPasswordChangeSucceed(result: unknown): boolean {
   if (!result || typeof result !== "object") {
