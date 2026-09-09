@@ -1,7 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
+
 import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
@@ -11,15 +11,9 @@ import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { getSafeRedirectUrl } from "@lib/utils/redirect-validator";
-import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { LoginU2F } from "@components/mfa/LoginU2F";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("u2f");
-  return { title: t("verify.title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
