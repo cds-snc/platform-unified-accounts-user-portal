@@ -47,7 +47,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <>
-      <PageTitle key="navigation.title" namespace="account" />
+      <PageTitle i18nKey="navigation.title" namespace="account" />
       <PersonalDetails firstName={firstName} lastName={lastName} className="mb-4" />
       <VerifiedAccount email={email} className="mb-4" />
       <PasswordAuthentication className="mb-4" />
