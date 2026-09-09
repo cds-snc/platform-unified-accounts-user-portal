@@ -123,6 +123,6 @@ export const checkVerificationCode = AuthenticatedAction(
       return { error: t("errors.couldNotVerify") };
     }
 
-    return { redirect: buildUrlWithRequestId("/verify/success", command.requestId) };
+    return { redirect: buildUrlWithRequestId("/mfa/set", command.requestId) };
   }
 );
