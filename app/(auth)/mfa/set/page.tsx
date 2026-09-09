@@ -2,18 +2,12 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { logMessage } from "@lib/logger";
-import {
-  AuthLevel,
-  checkAuthenticationLevel,
-  requiresStrongMfaSetupVerification,
-} from "@lib/server/route-protection";
-import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { SearchParams } from "@lib/utils";
 import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -30,16 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId, {
-    requireEmailVerified: true,
-  });
-
-  if (requiresStrongMfaSetupVerification(session)) {
-    logMessage.debug({
-      message: "MFA setup page requires strong MFA re-verification",
-    });
-    redirect(buildUrlWithRequestId("/mfa", requestId));
-  }
+  await checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED, requestId);
 
   return (
     <>
