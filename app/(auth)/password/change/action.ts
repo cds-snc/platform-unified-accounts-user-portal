@@ -14,7 +14,7 @@ import { changePassword, verifyPassword } from "@lib/server/password";
 import { validatePassword } from "@lib/validation/validationSchemas";
 
 export const changePasswordFormAction = AuthenticatedAction(
-  { authLevel: "strong_mfa_required" },
+  { authLevel: "mfa_required" },
   async function changePasswordFormAction(session, password: string, requestId?: string) {
     const validationResult = await validatePassword({ password } as {
       [k: string]: FormDataEntryValue;

@@ -18,7 +18,7 @@ import { validatePersonalDetails, validateU2fId } from "@lib/validation/validati
 import { getU2FList, removeTOTP, removeU2F, updateHuman } from "@lib/zitadel";
 
 export const removeU2FAction = AuthenticatedAction(
-  { authLevel: "strong_mfa_required" },
+  { authLevel: "mfa_required" },
   async (session, u2fId: string) => {
     const validationResult = validateU2fId(u2fId);
     if (!validationResult.success) {
@@ -51,7 +51,7 @@ export const removeU2FAction = AuthenticatedAction(
 );
 
 export const removeTOTPAction = AuthenticatedAction(
-  { authLevel: "strong_mfa_required" },
+  { authLevel: "mfa_required" },
   async (session) => {
     const userId = session.factors.user.id;
     const hasMultipleMFA = await _hasMultipleMFAMethods(session);
@@ -75,7 +75,7 @@ export const removeTOTPAction = AuthenticatedAction(
 );
 
 export const updatePersonalDetailsAction = AuthenticatedAction(
-  { authLevel: "strong_mfa_required" },
+  { authLevel: "mfa_required" },
   async (
     session,
     {
