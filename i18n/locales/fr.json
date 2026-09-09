@@ -438,9 +438,6 @@
     "sendingNewCode": "Envoi d'un nouveau code...",
     "sentNewCode": "Nouveau code envoyé",
     "help": "Besoin d'aide?",
-    "successTitle": "Courriel initialisé et validé",
-    "successDescription": "Votre courriel a été vérifié. Continuez pour configurer l'authentification à deux facteurs pour sécuriser votre compte.",
-    "continueButton": "Continuer la configuration",
     "validation": {
       "required": "Ce champ ne peut pas être vide",
       "length": "Doit contenir 6 caractères"
@@ -488,7 +485,7 @@
       "title": "Étape 1 ",
       "description": "Connectez-vous à votre compte de courriel gouvernemental.",
       "callout1": "Vous aurez besoin d’accéder à vos courriels pour créer un compte Plateforme GC.",
-      
+
       "callout2": "Utilisez la même adresse de courriel que celle de votre compte Formulaires GC."
     },
     "step2": {
