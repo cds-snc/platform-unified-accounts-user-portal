@@ -42,7 +42,8 @@
     "prepare": "husky",
     "knip": "knip",
     "lint-staged": "lint-staged",
-    "util:flow": "tsx ./dev_utils/oidc_flows/start.ts"
+    "util:flow": "tsx ./dev_utils/oidc_flows/start.ts",
+    "util:account": "tsx ./dev_utils/account_management/manage.ts"
   },
   "dependencies": {
     "@gcforms/connectors": "^2.2.20",
@@ -69,6 +70,7 @@
     "valibot": "^1.4.0"
   },
   "devDependencies": {
+    "@clack/prompts": "^1.7.0",
     "@connectrpc/connect": "^2.1.1",
     "@gcds-core/tokens": "^1.0.0",
     "@gcforms/types": "1.0.38",
