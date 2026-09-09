@@ -1,9 +1,6 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { PasskeysType } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
@@ -36,6 +33,8 @@ import {
 
 import { createSessionAndUpdateCookie } from "./cookie";
 import { getOriginalHost } from "./host";
+
+import "server-only";
 
 export type SendLoginnameCommand = {
   loginName: string;

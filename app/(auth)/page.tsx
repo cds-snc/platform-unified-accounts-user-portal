@@ -1,24 +1,18 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getAllSessions } from "@lib/cookies";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
-import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
 import { SignIn } from "./components/SignIn";
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("start");
-  return { title: t("title") };
-}
 
 export default async function LoginPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
