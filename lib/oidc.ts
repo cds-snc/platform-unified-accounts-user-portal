@@ -58,15 +58,18 @@ export async function loginWithOIDCAndSession({
           requestId: oidcRequestId,
         };
 
-        const res = await sendLoginname(command);
+        const response = await sendLoginname(command);
 
-        if (res && "redirect" in res && res?.redirect) {
-          logMessage.debug(`Re-authentication redirect initiated for requestId: ${oidcRequestId}`);
-          return { redirect: res.redirect };
-        }
-
-        if (res && "error" in res && res.error) {
-          return { error: res.error };
+        if (response) {
+          if ("redirect" in response && response.redirect) {
+            logMessage.debug(
+              `Re-authentication redirect initiated for requestId: ${oidcRequestId}`
+            );
+            return { redirect: response.redirect };
+          }
+          if ("error" in response && response.error) {
+            return { error: response.error };
+          }
         }
       }
 

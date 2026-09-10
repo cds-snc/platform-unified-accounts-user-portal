@@ -1,3 +1,5 @@
+import { create } from "@zitadel/client";
+import { CreateCallbackResponseSchema } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { sendLoginname } from "@lib/server/loginname";
@@ -31,6 +33,44 @@ vi.mock("./session", () => ({
 describe("loginWithOIDCAndSession", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("creates a callback for a valid session", async () => {
+    vi.mocked(isSessionValid).mockResolvedValue(true);
+    vi.mocked(createCallback).mockResolvedValue(
+      create(CreateCallbackResponseSchema, { callbackUrl: "/account" })
+    );
+
+    const result = await loginWithOIDCAndSession({
+      authRequest: "oidc_auth-request-123",
+      sessionId: "session-123",
+      sessions: [
+        {
+          id: "session-123",
+        } as never,
+      ],
+      sessionCookies: [
+        {
+          id: "session-123",
+          token: "session-token",
+        } as never,
+      ],
+    });
+
+    expect(result).toEqual({ redirect: "/account" });
+    expect(createCallback).toHaveBeenCalledWith({
+      req: expect.objectContaining({
+        authRequestId: "auth-request-123",
+        callbackKind: expect.objectContaining({
+          case: "session",
+          value: expect.objectContaining({
+            sessionId: "session-123",
+            sessionToken: "session-token",
+          }),
+        }),
+      }),
+    });
+    expect(sendLoginname).not.toHaveBeenCalled();
   });
 
   it("does not create a callback for an incomplete registration session", async () => {
