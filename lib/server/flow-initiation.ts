@@ -169,7 +169,7 @@ export async function handleOIDCFlowInitiation(
       return NextResponse.json({ error: completion.error }, { status: 500 });
     }
 
-    const registerUrl = constructUrl(request, "/register");
+    const registerUrl = constructUrl(request, "/before-you-start");
     registerUrl.searchParams.set("requestId", oidcRequestId);
 
     if (organization) {
