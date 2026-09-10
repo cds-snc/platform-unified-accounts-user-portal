@@ -9,7 +9,7 @@ export async function GET() {
     "ZITADEL_API_URL",
     "ZITADEL_ORGANIZATION",
     "ZITADEL_SERVICE_USER_TOKEN",
-    "NEXT_PUBLIC_HCAPTCHA_SITE_KEY",
+    "HCAPTCHA_SITE_KEY",
     "HCAPTCHA_SECRET",
   ];
   const missing = requiredEnvVars.filter((key) => !process.env[key]);

@@ -37,7 +37,7 @@ describe("submitContactFormAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("HCAPTCHA_SECRET", "captcha-secret");
-    vi.stubEnv("NEXT_PUBLIC_HCAPTCHA_SITE_KEY", "site-key");
+    vi.stubEnv("HCAPTCHA_SITE_KEY", "site-key");
     vi.mocked(validateContactForm).mockResolvedValue({ success: true } as never);
     vi.mocked(verifyHCaptchaToken).mockResolvedValue({ verified: true });
   });

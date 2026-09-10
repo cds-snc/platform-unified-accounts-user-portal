@@ -33,7 +33,7 @@ export async function submitContactFormAction(
 
   const captchaResult = await verifyHCaptchaToken(command.captchaToken, {
     secret: process.env.HCAPTCHA_SECRET,
-    siteKey: process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY,
+    siteKey: process.env.HCAPTCHA_SITE_KEY,
     logger: {
       info: (message) => logMessage.info(message),
       warn: (message) => logMessage.warn(message),
