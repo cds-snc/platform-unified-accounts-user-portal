@@ -15,8 +15,8 @@ importers:
         specifier: 2.2.27
         version: 2.2.27(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.3)(@gcforms/types@1.0.38)(oxc-resolver@11.24.2)(supports-color@7.2.0)(typescript@6.0.3)
       '@gcforms/hcaptcha':
-        specifier: 1.1.0
-        version: 1.1.0(@hcaptcha/react-hcaptcha@2.2.0)(react@19.2.8)
+        specifier: 1.1.2
+        version: 1.1.2(@hcaptcha/react-hcaptcha@2.2.0)(react@19.2.8)
       '@hcaptcha/react-hcaptcha':
         specifier: ^2.2.0
         version: 2.2.0
@@ -718,8 +718,8 @@ packages:
     peerDependencies:
       '@gcforms/types': '*'
 
-  '@gcforms/hcaptcha@1.1.0':
-    resolution: {integrity: sha512-y689pNVl+qWXkkBLD4hv5+n/F2BodyH2fv3qunjXmvc1gOPPZhMmr7ZsEt3jkcusKLHUMnED0ejYjJjfmNpo+Q==}
+  '@gcforms/hcaptcha@1.1.2':
+    resolution: {integrity: sha512-hRl64gCrDSfkqUhCNX3WYgxMAGesPdtQ0WOeFgneSvIQ7MU7lQzTO4RjqoFllP9rbPXkrHcw5ClT4rrhBVeg7Q==}
     engines: {node: '>=17.3'}
     peerDependencies:
       '@hcaptcha/react-hcaptcha': ^2.0.2
@@ -5413,7 +5413,7 @@ snapshots:
       - unrun
       - vue-tsc
 
-  '@gcforms/hcaptcha@1.1.0(@hcaptcha/react-hcaptcha@2.2.0)(react@19.2.8)':
+  '@gcforms/hcaptcha@1.1.2(@hcaptcha/react-hcaptcha@2.2.0)(react@19.2.8)':
     dependencies:
       '@hcaptcha/react-hcaptcha': 2.2.0
       react: 19.2.8
