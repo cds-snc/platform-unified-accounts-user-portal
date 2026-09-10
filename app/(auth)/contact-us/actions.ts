@@ -5,6 +5,7 @@
  *--------------------------------------------*/
 import { verifyHCaptchaToken } from "@gcforms/hcaptcha/server";
 
+import { getClientIp } from "@lib/ip";
 import { logMessage } from "@lib/logger";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
@@ -15,6 +16,8 @@ type ContactFormCommand = {
   message: string;
   captchaToken: string;
 };
+
+const HCAPTCHA_MAX_ALLOWED_SCORE = 0.79;
 
 export async function submitContactFormAction(
   command: ContactFormCommand
@@ -34,6 +37,8 @@ export async function submitContactFormAction(
   const captchaResult = await verifyHCaptchaToken(command.captchaToken, {
     secret: process.env.HCAPTCHA_SECRET,
     siteKey: process.env.HCAPTCHA_SITE_KEY,
+    remoteIp: process.env.HCAPTCHA_SITE_KEY ? String(await getClientIp()) : undefined,
+    maxAllowedScore: HCAPTCHA_MAX_ALLOWED_SCORE,
     logger: {
       info: (message) => logMessage.info(message),
       warn: (message) => logMessage.warn(message),
