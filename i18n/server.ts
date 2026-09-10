@@ -1,3 +1,4 @@
+"use server";
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -12,7 +13,6 @@ import { initReactI18next } from "react-i18next/initReactI18next";
 import { getOptions } from "./settings";
 import { getCurrentLanguage } from "./utils";
 
-import "server-only";
 export const serverTranslation = cache(
   async (ns?: string | string[], options?: { keyPrefix?: string; lang?: string }) => {
     const i18nLang = options?.lang ?? (await getCurrentLanguage());
