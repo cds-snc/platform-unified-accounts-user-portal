@@ -9,7 +9,6 @@ import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
-import { AuthenticatedAction } from "@lib/actions/authenticated";
 import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
@@ -17,6 +16,7 @@ import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
 import { loginWithOIDCAndSession } from "@lib/oidc";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { loadActiveSession } from "@lib/session";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateSessionId, validateUsernameAndPassword } from "@lib/validation/validationSchemas";
@@ -181,6 +181,10 @@ export const continueOidcSessionSelection = async (sessionId: string, requestId:
   });
 };
 
-export const checkActiveSession = AuthenticatedAction(async function checkActiveSession(session) {
+export const checkActiveSession = async () => {
+  const session = await loadActiveSession();
+  if (!session.factors?.user) {
+    throw new Error("User does not exist on session");
+  }
   return isSessionValid({ session });
-});
+};

@@ -25,6 +25,7 @@ const eslintConfig = defineConfig([
         "error",
         {
           groups: [
+            ["dotenv/config"],
             ["^react$", "^next", "^@?\\w"],
             ["^@root", "^@lib", "^@i18n", "^@components"],
             ["^\\.\\.(?!/?$)", "^\\.\\./?$"],

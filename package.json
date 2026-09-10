@@ -42,11 +42,12 @@
     "prepare": "husky",
     "knip": "knip",
     "lint-staged": "lint-staged",
-    "util:flow": "tsx ./dev_utils/oidc_flows/start.ts"
+    "util:flow": "tsx ./dev_utils/oidc_flows/start.ts",
+    "util:account": "tsx ./dev_utils/account_management/manage.ts"
   },
   "dependencies": {
     "@gcforms/connectors": "^2.2.20",
-    "@gcforms/core": "2.2.26",
+    "@gcforms/core": "2.2.27",
     "@gcforms/hcaptcha": "1.1.0",
     "@hcaptcha/react-hcaptcha": "^2.2.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -71,6 +72,7 @@
     "valibot": "^1.4.0"
   },
   "devDependencies": {
+    "@clack/prompts": "^1.7.0",
     "@connectrpc/connect": "^2.1.1",
     "@gcds-core/tokens": "^1.0.0",
     "@gcforms/types": "1.0.38",
@@ -104,9 +106,10 @@
     "sass": "^1.97.1",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.23.13",
     "typescript": "^6.0.2",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.6"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@11.24.0"
 }

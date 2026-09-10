@@ -1,7 +1,6 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
 
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
@@ -10,17 +9,11 @@ import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/utils/imageUrl";
 import { I18n } from "@i18n";
-import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { CircleCheckIcon } from "@components/icons/CircleCheckIcon";
 import { LinkButton } from "@components/ui/button/LinkButton";
 import { Image } from "@components/ui/image/Image";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("allSet");
-  return { title: t("title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;

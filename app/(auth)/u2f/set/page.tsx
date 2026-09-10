@@ -1,29 +1,19 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
+
 import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import {
-  AuthLevel,
-  checkAuthenticationLevel,
-  requiresStrongMfaSetupVerification,
-} from "@lib/server/route-protection";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId } from "@lib/utils";
-import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 import { RegisterU2f } from "./components/RegisterU2f";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("u2f");
-  return { title: t("set.title") };
-}
 
 export default async function Page(props: {
   searchParams: Promise<Record<string | number | symbol, string | undefined>>;
@@ -31,14 +21,7 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const { checkAfter, requestId } = searchParams;
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
-
-  if (requiresStrongMfaSetupVerification(session)) {
-    logMessage.debug({
-      message: "OTPsetup page requires strong MFA re-verification",
-    });
-    redirect(buildUrlWithRequestId("/mfa", requestId));
-  }
+  const session = await checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED, requestId);
 
   if (!session.factors?.user?.loginName) {
     logMessage.debug({

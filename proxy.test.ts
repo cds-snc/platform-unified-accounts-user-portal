@@ -41,8 +41,7 @@ vi.mock("./lib/server/route-protection", () => ({
     OPEN: "open",
     BASIC_SESSION: "basic_session",
     PASSWORD_REQUIRED: "password_required",
-    ANY_MFA_REQUIRED: "any_mfa_required",
-    STRONG_MFA_REQUIRED: "strong_mfa_required",
+    MFA_REQUIRED: "mfa_required",
   },
   checkAuthenticationLevel: vi.fn(),
 }));
@@ -67,7 +66,7 @@ vi.mock("./lib/middleware-config", () => ({
       return "open";
     }
     if (pathname.startsWith("/account")) {
-      return "any_mfa_required";
+      return "mfa_required";
     }
     return "password_required";
   }),

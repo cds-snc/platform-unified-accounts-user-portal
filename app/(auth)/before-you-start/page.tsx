@@ -1,13 +1,7 @@
 /*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-import { Metadata } from "next";
-
-/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { SearchParams } from "@lib/utils";
-import { serverTranslation } from "@i18n/server";
 import { I18n } from "@i18n/Translate";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -18,11 +12,6 @@ import { Step } from "./components/Step";
  * Parent Relative
  *--------------------------------------------*/
 import { Title } from "./components/Title";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("beforeYouStart");
-  return { title: t("title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;

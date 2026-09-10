@@ -55,9 +55,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
           type="image/x-icon"
           sizes="32x32"
         />
-        {process.env.NEXT_PUBLIC_BASE_PATH && (
-          <style nonce={nonce}>
-            {`@font-face {
+        <style nonce={nonce}>
+          {`@font-face {
   font-family: "gcds-icons";
   src: url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.eot");
   src:
@@ -69,8 +68,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   font-style: normal;
   font-display: block;
   }`}
-          </style>
-        )}
+        </style>
       </head>
       <body>
         {process.env.DEBUG && <RouterDebugger />}

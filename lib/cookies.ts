@@ -1,5 +1,3 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -12,6 +10,8 @@ import { ZITADEL_ORGANIZATION } from "@root/constants/config";
  * Local Relative
  *--------------------------------------------*/
 import { logMessage } from "./logger";
+
+import "server-only";
 
 // TODO: improve this to handle overflow
 const MAX_COOKIE_SIZE = 2048;

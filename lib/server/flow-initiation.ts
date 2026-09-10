@@ -14,6 +14,7 @@ import { IdentityProviderType } from "@zitadel/proto/zitadel/settings/v2/login_s
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 import { Cookie } from "@lib/cookies";
 import { idpTypeToSlug } from "@lib/idp";
+import { loginWithOIDCAndSession } from "@lib/oidc";
 import { toAuthRequestId, toOidcRequestId } from "@lib/oidc-request-id";
 import { sendLoginname, SendLoginnameCommand } from "@lib/server/loginname";
 import { constructUrl } from "@lib/service-url";
@@ -149,7 +150,26 @@ export async function handleOIDCFlowInitiation(
   }
 
   if (authRequest && authRequest.prompt.includes(Prompt.CREATE)) {
-    const registerUrl = constructUrl(request, "/before-you-start");
+    const cookie = sessionCookies.find((cookie) => cookie.id && cookie.requestId === oidcRequestId);
+    const registrationSession = sessions.find((session) => session.id && session.id === cookie?.id);
+
+    if (cookie && registrationSession) {
+      const completion = await loginWithOIDCAndSession({
+        authRequest: oidcRequestId,
+        sessionId: registrationSession.id,
+        sessions,
+        sessionCookies,
+      });
+
+      if ("redirect" in completion) {
+        return NextResponse.redirect(completion.redirect);
+      }
+
+      logMessage.error("Could not complete OIDC registration flow", completion.error);
+      return NextResponse.json({ error: completion.error }, { status: 500 });
+    }
+
+    const registerUrl = constructUrl(request, "/register");
     registerUrl.searchParams.set("requestId", oidcRequestId);
 
     if (organization) {

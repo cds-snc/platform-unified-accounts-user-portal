@@ -28,8 +28,6 @@ on:
         required: true
       waf_geo_restriction_bypass:
         required: true
-      zitadel_service_account_key:
-        required: true
 
 env:
   AWS_REGION: ca-central-1
@@ -76,7 +74,6 @@ jobs:
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
           WAF_GEO_RESTRICTION_BYPASS: ${{ secrets.waf_geo_restriction_bypass }}
-          ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
         run: pnpm test:playwright test/playwright/login.totp.spec.ts
 
       - name: Configure AWS credentials using OIDC
