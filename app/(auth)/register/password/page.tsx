@@ -28,7 +28,7 @@ export default async function Page() {
 
   return (
     <AuthPanel
-      titleI18nKey="create.title"
+      titleI18nKey="password.title"
       descriptionI18nKey="password.description"
       namespace="register"
     >
