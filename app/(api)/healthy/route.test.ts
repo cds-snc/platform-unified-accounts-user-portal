@@ -7,6 +7,8 @@ describe("GET /healthy", () => {
     "ZITADEL_API_URL",
     "ZITADEL_ORGANIZATION",
     "ZITADEL_SERVICE_USER_TOKEN",
+    "NEXT_PUBLIC_HCAPTCHA_SITE_KEY",
+    "HCAPTCHA_SECRET",
   ];
   const originalEnv: Record<string, string | undefined> = {};
 
