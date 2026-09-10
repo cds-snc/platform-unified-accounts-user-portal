@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { confirm, intro, multiselect, outro, text } from "@clack/prompts";
+import { confirm, intro, log, multiselect, outro, text } from "@clack/prompts";
 import { TextQueryMethod } from "@zitadel/proto/zitadel/object_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
@@ -27,7 +27,7 @@ const manage = async () => {
 
   const searchCriteria = devEmail.split("@")[0];
 
-  const userAccounts = await userManagement
+  const activeUserAccounts = await userManagement
     .listUsers({
       queries: [
         {
@@ -51,9 +51,45 @@ const manage = async () => {
       }));
     });
 
+  const inactiveUserAccounts = await userManagement
+    .listUsers({
+      queries: [
+        {
+          query: {
+            value: { emailAddress: searchCriteria, method: TextQueryMethod.CONTAINS },
+            case: "emailQuery",
+          },
+        },
+        {
+          query: {
+            case: "stateQuery",
+            value: { state: UserState.INACTIVE },
+          },
+        },
+      ],
+    })
+    .then((response) => {
+      return response.result.map(({ userId, username }) => ({
+        userId,
+        username,
+      }));
+    });
+
+  if (inactiveUserAccounts.length) {
+    log.info(`The following accounts are currently inactive and will soon be deleted:`);
+    inactiveUserAccounts.forEach((account) => {
+      log.message(`- ${account.username}`);
+    });
+  }
+
+  if (activeUserAccounts.length <= 1) {
+    outro("No active accounts to delete");
+    return;
+  }
+
   const selectedAccounts = await multiselect({
     message: "Select which accounts from the following you would like to flag for deletion",
-    options: userAccounts
+    options: activeUserAccounts
       .filter((val) => val.username !== devEmail)
       .map((val) => ({
         value: val.userId,
