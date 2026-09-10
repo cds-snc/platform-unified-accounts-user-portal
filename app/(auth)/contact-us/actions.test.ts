@@ -9,6 +9,10 @@ vi.mock("@gcforms/hcaptcha/server", () => ({
   verifyHCaptchaToken: vi.fn(),
 }));
 
+vi.mock("@lib/ip", () => ({
+  getClientIp: vi.fn().mockResolvedValue("0.0.0.0"),
+}));
+
 vi.mock("@lib/validation/validationSchemas", () => ({
   validateContactForm: vi.fn(),
 }));
@@ -63,6 +67,8 @@ describe("submitContactFormAction", () => {
     expect(verifyHCaptchaToken).toHaveBeenCalledWith("captcha-token", {
       secret: "captcha-secret",
       siteKey: "site-key",
+      remoteIp: "0.0.0.0",
+      maxAllowedScore: 0.79,
       logger: expect.any(Object),
     });
   });
