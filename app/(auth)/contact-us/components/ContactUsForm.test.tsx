@@ -161,7 +161,6 @@ describe("ContactUsForm", () => {
     const user = userEvent.setup();
     const execute = vi.fn().mockResolvedValue({
       verified: false,
-      allowed: false,
       reason: "captcha-error",
     });
     vi.mocked(useHCaptcha).mockReturnValue({

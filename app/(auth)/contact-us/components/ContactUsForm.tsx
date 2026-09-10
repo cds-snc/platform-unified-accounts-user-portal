@@ -49,10 +49,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submissionInProgress = useRef(false);
 
-  const { captcha, execute, reset } = useHCaptcha({
-    siteKey,
-    failureMode: "block",
-  });
+  const { captcha, execute, reset } = useHCaptcha({ siteKey });
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
