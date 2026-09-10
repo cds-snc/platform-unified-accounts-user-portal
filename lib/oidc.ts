@@ -44,23 +44,33 @@ export async function loginWithOIDCAndSession({
 
     logMessage.debug(`OIDC session validity for requestId ${oidcRequestId}: ${isValid}`);
 
-    if (!isValid && selectedSession.factors?.user) {
+    if (!isValid) {
       logMessage.info(
         `OIDC session expired for requestId: ${oidcRequestId}, redirecting for re-authentication`
       );
       // if the session is not valid anymore, we need to redirect the user to re-authenticate /
       // TODO: handle IDP intent direcly if available
-      const command: SendLoginnameCommand = {
-        loginName: selectedSession.factors.user?.loginName,
-        requestId: oidcRequestId,
-      };
+      const loginName = selectedSession.factors?.user?.loginName;
 
-      const res = await sendLoginname(command);
+      if (loginName) {
+        const command: SendLoginnameCommand = {
+          loginName,
+          requestId: oidcRequestId,
+        };
 
-      if (res && "redirect" in res && res?.redirect) {
-        logMessage.debug(`Re-authentication redirect initiated for requestId: ${oidcRequestId}`);
-        return { redirect: res.redirect };
+        const res = await sendLoginname(command);
+
+        if (res && "redirect" in res && res?.redirect) {
+          logMessage.debug(`Re-authentication redirect initiated for requestId: ${oidcRequestId}`);
+          return { redirect: res.redirect };
+        }
+
+        if (res && "error" in res && res.error) {
+          return { error: res.error };
+        }
       }
+
+      return { error: "Session not found or invalid" };
     }
 
     const cookie = sessionCookies.find((cookie) => cookie.id === selectedSession?.id);
