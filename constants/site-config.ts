@@ -21,7 +21,7 @@ const createLinks = (): SiteLinksConfig => {
     termsOfUse: false,
     sla: false,
     support: false,
-    gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/profile/oidc",
+    gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/forms",
   };
 };
 
