@@ -43,7 +43,7 @@ describe("submitContactFormAction", () => {
     vi.stubEnv("HCAPTCHA_SECRET", "captcha-secret");
     vi.stubEnv("HCAPTCHA_SITE_KEY", "site-key");
     vi.mocked(validateContactForm).mockResolvedValue({ success: true } as never);
-    vi.mocked(verifyHCaptchaToken).mockResolvedValue({ verified: true });
+    vi.mocked(verifyHCaptchaToken).mockResolvedValue({ verified: true, score: 0.5 });
   });
 
   it("returns a generic error before CAPTCHA verification when validation fails", async () => {
