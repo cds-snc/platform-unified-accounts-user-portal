@@ -9,7 +9,6 @@ const PRESSURE_WARNING_INTERVALS = 2;
 const EVENT_LOOP_DELAY_P99_WARNING_MS = 200;
 const EVENT_LOOP_DELAY_MAX_WARNING_MS = 1_000;
 const EVENT_LOOP_UTILIZATION_WARNING = 0.9;
-const MEMORY_USAGE_WARNING = 0.85;
 
 export function registerRuntimeMetrics() {
   const eventLoopDelay = monitorEventLoopDelay({ resolution: 20 });
@@ -41,9 +40,6 @@ export function registerRuntimeMetrics() {
         previousEventLoopUtilization
       );
       const memoryUsage = process.memoryUsage();
-      const constrainedMemoryBytes = process.constrainedMemory();
-      const memoryUsageRatio =
-        constrainedMemoryBytes > 0 ? memoryUsage.rss / constrainedMemoryBytes : null;
       const eventLoopDelayP99Ms =
         eventLoopDelay.count > 0 ? eventLoopDelay.percentile(99) / NANOSECONDS_PER_MILLISECOND : 0;
       const eventLoopDelayMaxMs =
@@ -54,9 +50,6 @@ export function registerRuntimeMetrics() {
         eventLoopDelayMaxMs >= EVENT_LOOP_DELAY_MAX_WARNING_MS ? "event_loop_delay_max" : null,
         eventLoopUtilization.utilization >= EVENT_LOOP_UTILIZATION_WARNING
           ? "event_loop_utilization"
-          : null,
-        memoryUsageRatio !== null && memoryUsageRatio >= MEMORY_USAGE_WARNING
-          ? "memory_usage"
           : null,
       ].filter((reason): reason is string => reason !== null);
 
@@ -85,8 +78,6 @@ export function registerRuntimeMetrics() {
         heapTotalMB: Number((memoryUsage.heapTotal / BYTES_PER_MEGABYTE).toFixed(2)),
         externalMB: Number((memoryUsage.external / BYTES_PER_MEGABYTE).toFixed(2)),
         arrayBuffersMB: Number((memoryUsage.arrayBuffers / BYTES_PER_MEGABYTE).toFixed(2)),
-        constrainedMemoryMB: Number((constrainedMemoryBytes / BYTES_PER_MEGABYTE).toFixed(2)),
-        memoryUsageRatio: memoryUsageRatio === null ? null : Number(memoryUsageRatio.toFixed(4)),
         pressure,
       };
 
