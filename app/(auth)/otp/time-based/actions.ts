@@ -116,6 +116,6 @@ async function _submitOTPCode(values: Inputs, requestId?: string) {
       message: "TOTP code verification failed during session update",
       error: e,
     });
-    return { error: e.message };
+    return { error: e };
   });
 }
