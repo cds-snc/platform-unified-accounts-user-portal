@@ -168,7 +168,7 @@ export async function updateSession(options: UpdateSessionCommand): Promise<{
     const serializedError = serializeActionError(error, "Could not update session");
     logMessage.error("Failed to update session with checks/challenges", serializedError);
 
-    throw new Error("Could not update Session");
+    throw error;
   });
 
   // if password, check if user has MFA methods
