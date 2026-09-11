@@ -27,8 +27,8 @@ const pinoLogger = pino({
  */
 type AppLogger = {
   debug(message: string | Record<string, unknown>): void;
-  info(message: string): void;
-  warn(message: string): void;
+  info(message: string, context?: Record<string, unknown>): void;
+  warn(message: string, context?: Record<string, unknown>): void;
   error(message: string, cause?: unknown): void;
 };
 
@@ -63,8 +63,10 @@ export const logMessage: AppLogger = {
       }
     }
   },
-  info: (message: string) => pinoLogger.info(message),
-  warn: (message: string) => pinoLogger.warn(message),
+  info: (message: string, context?: Record<string, unknown>) =>
+    context ? pinoLogger.info(context, message) : pinoLogger.info(message),
+  warn: (message: string, context?: Record<string, unknown>) =>
+    context ? pinoLogger.warn(context, message) : pinoLogger.warn(message),
   error: (message: string, cause?: unknown) => {
     try {
       if (cause instanceof Error) {
