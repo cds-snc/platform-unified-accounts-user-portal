@@ -82,6 +82,27 @@ const manage = async () => {
     });
   }
 
+  // temp clean
+  await Promise.all(
+    inactiveUserAccounts.map(async (account) => {
+      await userManagement.updateUser({
+        userId: account.userId,
+        userType: {
+          case: "human",
+          value: {
+            email: {
+              email: "noreply@cds-snc.ca",
+              verification: {
+                case: "returnCode",
+                value: {},
+              },
+            },
+          },
+        },
+      });
+    })
+  );
+
   if (activeUserAccounts.length <= 1) {
     outro("No active accounts to delete");
     return;
@@ -115,8 +136,8 @@ const manage = async () => {
   const deletePromises = selectedAccounts.map(async (accountId) => {
     const factors = await userManagement.listAuthenticationFactors({ userId: accountId });
 
-    await Promise.all(
-      factors.result.map(async (factor) => {
+    await Promise.all([
+      ...factors.result.map(async (factor) => {
         switch (factor.type.case) {
           case "otp":
             return userManagement.removeTOTP({ userId: accountId });
@@ -124,8 +145,25 @@ const manage = async () => {
           case "u2f":
             return userManagement.removeU2F({ userId: accountId, u2fId: factor.type.value.id });
         }
-      })
-    );
+      }),
+      async () => {
+        await userManagement.updateUser({
+          userId: accountId,
+          userType: {
+            case: "human",
+            value: {
+              email: {
+                email: "noreply@cds-snc.ca",
+                verification: {
+                  case: "returnCode",
+                  value: {},
+                },
+              },
+            },
+          },
+        });
+      },
+    ]);
     return userManagement.deactivateUser({ userId: accountId });
   });
   await Promise.all(deletePromises);
