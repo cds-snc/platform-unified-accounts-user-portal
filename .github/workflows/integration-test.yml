@@ -34,7 +34,7 @@ env:
 
 jobs:
   integration-test:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-platform-unified-accounts-user-portal-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       id-token: write
       contents: read
