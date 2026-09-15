@@ -78,7 +78,7 @@ describe("generateCSP", () => {
       vi.stubEnv("NODE_ENV", "development");
       const { csp, nonce } = generateCSP();
 
-      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic'`);
+      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'strict-dynamic';`);
     });
 
     it("uses unsafe-inline in style-src instead of nonce", () => {
