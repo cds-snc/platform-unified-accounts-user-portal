@@ -65,6 +65,7 @@ jobs:
       username: ${{ secrets.STAGING_INTEGRATION_TEST_USERNAME }}
       password: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD }}
       totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
+      zitadel_service_account_key: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_SERVICE_ACCOUNT_KEY }}
 
   workflow-failure:
     needs: 
