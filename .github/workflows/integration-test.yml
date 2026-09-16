@@ -20,6 +20,8 @@ on:
         required: true
       log_analytics_workspace_key:
         required: true
+      register_email:
+        required: true
       username:
         required: true
       password:
@@ -70,6 +72,7 @@ jobs:
         env:
           IDP_URL: ${{ inputs.idp_url }}
           PORTAL_URL: ${{ inputs.portal_url }}
+          REGISTER_EMAIL: ${{ secrets.register_email }}
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}

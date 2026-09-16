@@ -19,7 +19,7 @@ test.describe("register user flow", () => {
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
-    email = getRandomEmail(getRequiredEnv("USERNAME"));
+    email = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
     password = getRandomPassword();
     portalUrl = getRequiredEnv("PORTAL_URL");
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
