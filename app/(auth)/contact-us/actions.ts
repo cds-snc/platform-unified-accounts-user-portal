@@ -3,9 +3,10 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { headers } from "next/headers";
 import { verifyHCaptchaToken } from "@gcforms/hcaptcha/server";
+import { isIP } from "node:net";
 
-import { getClientIp } from "@lib/ip";
 import { logMessage } from "@lib/logger";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
@@ -18,6 +19,23 @@ type ContactFormCommand = {
 };
 
 const HCAPTCHA_MAX_ALLOWED_SCORE = 0.79;
+
+async function getClientIp(): Promise<string | undefined> {
+  const requestHeaders = await headers();
+  const xForwardedForHeader = requestHeaders.get("x-forwarded-for");
+
+  if (xForwardedForHeader === null) {
+    return undefined;
+  }
+
+  /**
+   * Only consider last IP as the source of truth as it has been added by AWS ECS Load balancer
+   * See https://docs.aws.amazon.com/elasticloadbalancing/latest/application/x-forwarded-headers.html#x-forwarded-for-append
+   */
+  const clientIp = xForwardedForHeader.split(",").at(-1)?.trim();
+
+  return clientIp && isIP(clientIp) ? clientIp : undefined;
+}
 
 export async function submitContactFormAction(
   command: ContactFormCommand
@@ -37,7 +55,7 @@ export async function submitContactFormAction(
   const captchaResult = await verifyHCaptchaToken(command.captchaToken, {
     secret: process.env.HCAPTCHA_SECRET,
     siteKey: process.env.HCAPTCHA_SITE_KEY,
-    remoteIp: process.env.HCAPTCHA_SITE_KEY ? String(await getClientIp()) : undefined,
+    remoteIp: process.env.HCAPTCHA_SITE_KEY ? await getClientIp() : undefined,
     maxAllowedScore: HCAPTCHA_MAX_ALLOWED_SCORE,
     logger: {
       info: (message) => logMessage.info(message),
