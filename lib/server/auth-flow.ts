@@ -6,9 +6,12 @@ import { redirect } from "next/navigation";
 
 import { logMessage } from "@lib/logger";
 import { loginWithOIDCAndSession } from "@lib/oidc";
+import { loadActiveSession } from "@lib/session";
+import { getLoginSettings } from "@lib/zitadel";
 
 import { buildUrlWithRequestId } from "../utils";
 
+import { checkSessionFactors } from "./route-protection";
 import { loadSessionsWithCookies } from "./session";
 
 type FinishFlowCommand = {
@@ -21,17 +24,12 @@ type FinishFlowCommand = {
  * - For OIDC flows with sessionId+requestId: completes flow directly via server action
  * - For other cases: returns default redirect or fallback URL
  */
-export async function completeFlowAndRedirect(
-  command: FinishFlowCommand,
-  defaultRedirectUri?: string
-) {
-  // Complete OIDC flows directly with server action
-  if (command.requestId && command.requestId.startsWith("oidc_")) {
-    if (defaultRedirectUri && shouldDeferOIDCCompletion(defaultRedirectUri)) {
-      redirect(buildUrlWithRequestId(defaultRedirectUri, command.requestId), "push");
-    }
+export async function completeFlowAndRedirect(command: FinishFlowCommand) {
+  await shouldDeferOIDCCompletion(command.requestId);
 
-    // This completes the flow and redirects to URL or returns error
+  const loginSettings = await getLoginSettings();
+
+  if (command.requestId && command.requestId.startsWith("oidc_")) {
     const result = await completeAuthFlow({
       sessionId: command.sessionId,
       requestId: command.requestId,
@@ -44,7 +42,7 @@ export async function completeFlowAndRedirect(
 
   // For all other cases, redirect to the url
   const requestId = "requestId" in command ? command.requestId : undefined;
-  const url = await getNextUrl(defaultRedirectUri, requestId);
+  const url = await getNextUrl(loginSettings?.defaultRedirectUri, requestId);
   redirect(url, "push");
 }
 
@@ -111,7 +109,15 @@ async function completeAuthFlow(command: {
  * @param redirect
  * @returns
  */
-function shouldDeferOIDCCompletion(redirect: string): boolean {
-  const deferOidcPaths = ["/password/reset/set"];
-  return deferOidcPaths.some((path) => redirect.startsWith(path));
+async function shouldDeferOIDCCompletion(requestId?: string) {
+  const session = await loadActiveSession();
+  const factors = checkSessionFactors(session);
+  const mfaVerified = factors.totpVerified || factors.u2fVerified;
+
+  // On password reset flow, redirect to next auth flow step without completing
+  if (mfaVerified && factors.emailVerified && !factors.passwordVerified) {
+    redirect(buildUrlWithRequestId("/password/reset/set", requestId), "push");
+  }
+
+  return;
 }

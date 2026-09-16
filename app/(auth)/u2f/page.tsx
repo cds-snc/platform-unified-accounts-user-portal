@@ -10,16 +10,14 @@ import { redirect } from "next/navigation";
 import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
-import { getSafeRedirectUrl } from "@lib/utils/redirect-validator";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginU2F } from "@components/mfa/LoginU2F";
+
+import { LoginU2F } from "./components/LoginU2F";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
-  const { redirect: redirectParam, requestId } = searchParams;
-
-  const safeRedirect = getSafeRedirectUrl(redirectParam);
+  const { redirect: requestId } = searchParams;
 
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
@@ -46,7 +44,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       ></UserAvatar>
 
       <div className="w-full">
-        <LoginU2F requestId={requestId} redirect={safeRedirect} />
+        <LoginU2F requestId={requestId} />
       </div>
     </AuthPanel>
   );
