@@ -89,8 +89,9 @@ jobs:
         env:
           BUCKET_NAME: ${{ inputs.bucket_name }}
         run: |
-          DATE=$(date +"%Y-%m-%d")
-          apt-get update && apt-get install -y unzip  
+          find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) \
+            -exec sed -i 's|http://|https://|g' {} +
+          apt-get update && apt-get install -y --no-install-recommends unzip
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip && ./aws/install
-          aws s3 cp ./test-results s3://$BUCKET_NAME/$DATE/${{ github.run_id }} --recursive
+          aws s3 cp ./test-results s3://$BUCKET_NAME/$(date +"%Y-%m-%d")/${{ github.run_id }} --recursive
