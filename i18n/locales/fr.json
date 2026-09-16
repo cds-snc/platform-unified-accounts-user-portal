@@ -498,5 +498,9 @@
       "createAccount": "Créer un compte Plateforme GC",
       "alreadyHaveAccount": "J’ai déjà un compte Plateforme GC"
     }
+  },
+  "404": {
+    "title": "Page non trouvée",
+    "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
   }
 }
