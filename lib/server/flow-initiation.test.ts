@@ -4,14 +4,9 @@ import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Cookie } from "@lib/cookies";
-import { loginWithOIDCAndSession } from "@lib/oidc";
 import { getAuthRequest } from "@lib/zitadel";
 
 import { handleOIDCFlowInitiation } from "./flow-initiation";
-
-vi.mock("@lib/oidc", () => ({
-  loginWithOIDCAndSession: vi.fn(),
-}));
 
 vi.mock("@lib/zitadel", () => ({
   createCallback: vi.fn(),
@@ -65,10 +60,6 @@ describe("handleOIDCFlowInitiation", () => {
   });
 
   it("completes a create flow for the session created by registration", async () => {
-    vi.mocked(loginWithOIDCAndSession).mockResolvedValue({
-      redirect: "https://forms.example/callback?code=abc",
-    });
-
     const response = await handleOIDCFlowInitiation(
       createFlowParams(
         [{ id: "session-123", requestId } as Cookie],
@@ -76,12 +67,8 @@ describe("handleOIDCFlowInitiation", () => {
       )
     );
 
-    expect(loginWithOIDCAndSession).toHaveBeenCalledWith({
-      authRequest: requestId,
-      sessionId: "session-123",
-      sessions: [{ id: "session-123" }],
-      sessionCookies: [{ id: "session-123", requestId }],
-    });
-    expect(response.headers.get("location")).toBe("https://forms.example/callback?code=abc");
+    expect(response.headers.get("location")).toContain(
+      "/before-you-start?requestId=oidc_auth-request-123"
+    );
   });
 });
