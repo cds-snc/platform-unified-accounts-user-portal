@@ -71,7 +71,7 @@ jobs:
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
-        run: pnpm test:playwright test/playwright/login.totp.spec.ts
+        run: pnpm test:playwright
 
       - name: Configure AWS credentials using OIDC
         if: failure() && steps.test.outcome == 'failure'
