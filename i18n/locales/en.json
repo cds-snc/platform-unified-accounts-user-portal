@@ -403,6 +403,9 @@
         "couldNotRetrievePasskey": "An error occurred while retrieving security key",
         "verificationCancelled": "Security key verification was cancelled",
         "verificationFailed": "An error occurred during security key verification"
+      },
+      "confirmation": {
+        "title": "To continue, Tap your security Key"
       }
     },
     "set": {
