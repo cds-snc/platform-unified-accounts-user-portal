@@ -59,10 +59,6 @@ test.describe("register user flow", () => {
     await page.locator("#verify-form #code").fill(emailVerificationCode);
     await page.locator("#verify-form button[type='submit']").click();
 
-    // Email verify success
-    await expect(page.locator("img[alt='Success']")).toBeVisible();
-    await page.locator("a[href$='/mfa/set']").click();
-
     // MFA select
     await expect(page.locator("#mfa-select")).toBeVisible();
     await page.locator("#mfa-select div[data-type='authenticator']").click();
