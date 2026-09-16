@@ -20,13 +20,15 @@ on:
         required: true
       log_analytics_workspace_key:
         required: true
+      register_email:
+        required: true
       username:
         required: true
       password:
         required: true
       totp_secret:
         required: true
-      waf_geo_restriction_bypass:
+      zitadel_service_account_key:
         required: true
 
 env:
@@ -34,7 +36,7 @@ env:
 
 jobs:
   integration-test:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-platform-unified-accounts-user-portal-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       id-token: write
       contents: read
@@ -70,11 +72,12 @@ jobs:
         env:
           IDP_URL: ${{ inputs.idp_url }}
           PORTAL_URL: ${{ inputs.portal_url }}
+          REGISTER_EMAIL: ${{ secrets.register_email }}
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
-          WAF_GEO_RESTRICTION_BYPASS: ${{ secrets.waf_geo_restriction_bypass }}
-        run: pnpm test:playwright test/playwright/login.totp.spec.ts
+          ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
+        run: pnpm test:playwright
 
       - name: Configure AWS credentials using OIDC
         if: failure() && steps.test.outcome == 'failure'
@@ -89,8 +92,9 @@ jobs:
         env:
           BUCKET_NAME: ${{ inputs.bucket_name }}
         run: |
-          DATE=$(date +"%Y-%m-%d")
-          apt-get update && apt-get install -y unzip  
+          find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) \
+            -exec sed -i 's|http://|https://|g' {} +
+          apt-get update && apt-get install -y --no-install-recommends unzip
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip && ./aws/install
-          aws s3 cp ./test-results s3://$BUCKET_NAME/$DATE/${{ github.run_id }} --recursive
+          aws s3 cp ./test-results s3://$BUCKET_NAME/$(date +"%Y-%m-%d")/${{ github.run_id }} --recursive
