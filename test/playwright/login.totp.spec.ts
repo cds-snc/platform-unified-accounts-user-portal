@@ -3,12 +3,14 @@ import { expect, test } from "@playwright/test";
 import { generateTOTP, getRequiredEnv } from "./utils/utils";
 
 test.describe("login user flow", () => {
+  let formsUrl = "";
   let portalUrl = "";
   let username = "";
   let password = "";
   let totpSecret = "";
 
   test.beforeAll(() => {
+    formsUrl = getRequiredEnv("FORMS_URL");
     portalUrl = getRequiredEnv("PORTAL_URL");
     username = getRequiredEnv("USERNAME");
     password = getRequiredEnv("PASSWORD");
@@ -18,7 +20,7 @@ test.describe("login user flow", () => {
   test("logs in with TOTP and lands on the account page", async ({ page }) => {
     await page.goto(portalUrl);
 
-    // Login
+    // Login to Account management
     await expect(page.locator("#login #username")).toBeVisible();
     await page.locator("#login #username").fill(username);
     await page.locator("#login #password").fill(password);
@@ -30,5 +32,14 @@ test.describe("login user flow", () => {
 
     await expect(page.locator("#personal-details-title")).toBeVisible();
     await expect(page).toHaveURL(/\/account$/);
+
+    // OIDC auth flow
+    await page.goto(`${formsUrl}/en/auth/login`);
+    await page
+      .getByTestId("gc-platform-migration-panel")
+      .getByRole("button", { name: "Sign in with GC Platform" })
+      .click();
+    await page.locator("#auth-panel").getByRole("button", { name: username }).click();
+    await expect(page).toHaveURL(/\/en\/auth\/policy$/);
   });
 });
