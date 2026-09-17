@@ -19,7 +19,7 @@ test.describe("register user flow", () => {
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
-    email = getRandomEmail(getRequiredEnv("USERNAME"));
+    email = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
     password = getRandomPassword();
     portalUrl = getRequiredEnv("PORTAL_URL");
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
@@ -58,10 +58,6 @@ test.describe("register user flow", () => {
     const emailVerificationCode = await getEmailVerificationCode(userId, accessToken, idpUrl);
     await page.locator("#verify-form #code").fill(emailVerificationCode);
     await page.locator("#verify-form button[type='submit']").click();
-
-    // Email verify success
-    await expect(page.locator("img[alt='Success']")).toBeVisible();
-    await page.locator("a[href$='/mfa/set']").click();
 
     // MFA select
     await expect(page.locator("#mfa-select")).toBeVisible();
