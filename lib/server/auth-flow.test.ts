@@ -91,7 +91,7 @@ describe("completeFlowAndRedirect", () => {
   describe("OIDC flows — normal completion", () => {
     beforeEach(() => {
       vi.clearAllMocks();
-      setupSessionMock;
+      setupSessionMock();
       setupFactorsMock();
     });
     it("completes OIDC flow and redirects on success", async () => {
