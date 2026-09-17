@@ -6,7 +6,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { getSessionCookieById } from "@lib/cookies";
 import { loginWithOIDCAndSession } from "@lib/oidc";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { loadSessionsWithCookies } from "@lib/server/session";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import {
   checkEmailVerification,
@@ -36,6 +38,14 @@ vi.mock("@zitadel/client", () => ({
 vi.mock("@lib/server/cookie", () => ({
   createSessionAndUpdateCookie: vi.fn(),
   CreateSessionFailedError: class CreateSessionFailedError extends Error {},
+}));
+
+vi.mock("@lib/session", () => ({
+  loadActiveSession: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("@lib/server/session", () => ({
+  loadSessionsWithCookies: vi.fn(),
 }));
 
 vi.mock("@lib/cookies", () => ({
@@ -80,6 +90,10 @@ vi.mock("@lib/logger", () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   },
+}));
+
+vi.mock("@lib/server/auth-flow", () => ({
+  completeFlowAndRedirect: vi.fn(),
 }));
 
 describe("submitLoginForm", () => {
@@ -277,17 +291,8 @@ describe("submitLoginForm", () => {
         },
       },
     } as never);
-    vi.mocked(loginWithOIDCAndSession).mockResolvedValue({
-      redirect: "https://forms.example.ca/api/auth/callback/gcForms",
-    } as never);
 
-    const response = await continueOidcSessionSelection("session-123", "oidc_req-123");
-
-    expect(getSessionCookieById).toHaveBeenCalledWith({ sessionId: "session-123" });
-    expect(getSession).toHaveBeenCalledWith("session-123", "token-123");
-    expect(loginWithOIDCAndSession).toHaveBeenCalledWith({
-      authRequest: "oidc_req-123",
-      sessionId: "session-123",
+    vi.mocked(loadSessionsWithCookies).mockResolvedValue({
       sessions: [
         {
           id: "session-123",
@@ -311,9 +316,17 @@ describe("submitLoginForm", () => {
           changeTs: "3",
         },
       ],
-    });
-    expect(response).toEqual({
+    } as never);
+    vi.mocked(loginWithOIDCAndSession).mockResolvedValue({
       redirect: "https://forms.example.ca/api/auth/callback/gcForms",
+    } as never);
+
+    await continueOidcSessionSelection("session-123", "oidc_req-123");
+    expect(getSessionCookieById).toHaveBeenCalledWith({ sessionId: "session-123" });
+    expect(getSession).toHaveBeenCalledWith("session-123", "token-123");
+    expect(completeFlowAndRedirect).toHaveBeenCalledWith({
+      sessionId: "session-123",
+      requestId: "oidc_req-123",
     });
   });
 });
