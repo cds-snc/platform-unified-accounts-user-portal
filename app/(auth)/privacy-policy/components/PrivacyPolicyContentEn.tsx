@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { PolicySection } from "./PolicySection";
+
 export function PrivacyPolicyContentEn() {
   return (
     <article className="space-y-6">
@@ -31,8 +33,7 @@ export function PrivacyPolicyContentEn() {
         such as GC Forms.
       </p>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">We collect your personal information</h2>
+      <PolicySection title="We collect your personal information">
         <p>
           We use your contact information to communicate with you about Single Sign-On and CDS
           products.
@@ -73,12 +74,9 @@ export function PrivacyPolicyContentEn() {
           experience. We use third-party software tools to analyze this data. We may also use your
           contact information to invite you to participate in our research.
         </p>
-      </section>
+      </PolicySection>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">
-          We use web analytics and may use artificial intelligence (AI)
-        </h2>
+      <PolicySection title="We use web analytics and may use artificial intelligence (AI)">
         <p>
           Analytics show how people use our websites. By studying how people navigate, we can
           improve Single Sign-On.
@@ -117,10 +115,9 @@ export function PrivacyPolicyContentEn() {
           </a>
           .
         </p>
-      </section>
+      </PolicySection>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">We share some information</h2>
+      <PolicySection title="We share some information">
         <p>
           We may share general use case information about Single Sign-On in public forums, such as
           blog posts, presentations, and conferences.
@@ -151,10 +148,9 @@ export function PrivacyPolicyContentEn() {
           <li>Share your personal information for marketing purposes.</li>
         </ul>
         <p>We may share information with law enforcement by court order.</p>
-      </section>
+      </PolicySection>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">We protect your privacy</h2>
+      <PolicySection title="We protect your privacy">
         <p>
           We handle your information under Part 4 of the{" "}
           <a
@@ -194,10 +190,9 @@ export function PrivacyPolicyContentEn() {
           . To learn how we use technology to protect information, visit Single Sign-On’s Security
           Statement.
         </p>
-      </section>
+      </PolicySection>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">You have privacy rights</h2>
+      <PolicySection title="You have privacy rights">
         <p>
           The law requires that we protect your privacy. You have the right to access and review
           your personal information. Use your Single Sign-On account to check, correct, or update
@@ -215,16 +210,15 @@ export function PrivacyPolicyContentEn() {
           </a>
           .
         </p>
-      </section>
+      </PolicySection>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Questions?</h2>
+      <PolicySection title="Questions?">
         <p>
           <Link href="/contact-us" prefetch={false}>
             Contact us.
           </Link>
         </p>
-      </section>
+      </PolicySection>
     </article>
   );
 }
