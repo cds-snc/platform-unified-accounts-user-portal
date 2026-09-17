@@ -78,7 +78,8 @@ test.describe("register user flow", () => {
 
     // TOTP setup success
     await expect(page.locator("img[alt='All set']")).toBeVisible();
-    await page.locator("a[href$='/account']").click();
+    await expect(page.getByTestId("continue-button")).toBeVisible();
+    await page.getByTestId("continue-button").click();
 
     // Account page
     await expect(page.locator("#personal-details-title")).toBeVisible();

@@ -7,7 +7,9 @@ export const NextReditect = () => {
   const { t } = useTranslation("allSet");
   return (
     <div>
-      <Button onClick={nextRedirect}>{t("continueButton")}</Button>
+      <Button dataTestId="continue-button" onClick={nextRedirect}>
+        {t("continueButton")}
+      </Button>
     </div>
   );
 };
