@@ -169,7 +169,7 @@ describe("completeFlowAndRedirect", () => {
       });
 
       await expect(
-        completeFlowAndRedirect({ sessionId: SESSION_ID, requestId: OIDC_REQUEST_ID }, "/account")
+        completeFlowAndRedirect({ sessionId: SESSION_ID, requestId: OIDC_REQUEST_ID })
       ).rejects.toThrow("NEXT_REDIRECT");
 
       expect(loginWithOIDCAndSession).toHaveBeenCalled();
