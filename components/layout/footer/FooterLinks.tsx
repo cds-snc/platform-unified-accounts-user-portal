@@ -44,6 +44,10 @@ export const FooterLinks = () => {
           <BulletPoint />
         </>
       )}
+      <Link className="whitespace-nowrap" href="/privacy-policy">
+        <I18n i18nKey="privacy-policy.desc" namespace="footer" />
+      </Link>
+      <BulletPoint />
       <Link className="whitespace-nowrap" href="/contact-us">
         <I18n i18nKey="contact-us.desc" namespace="footer" />
       </Link>
