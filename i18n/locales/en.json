@@ -47,6 +47,9 @@
     "support": {
       "desc": "Support"
     },
+    "privacy-policy": {
+      "desc": "Privacy policy"
+    },
     "contact-us": {
       "desc": "Contact us"
     },
@@ -473,6 +476,10 @@
       "requiredMessage": "Message is required.",
       "maxLengthMessage": "Message must be less than 2000 characters."
     }
+  },
+  "privacy-policy": {
+    "title": "Privacy policy",
+    "content": ""
   },
   "beforeYouStart": {
     "title": "Before you start",

@@ -52,6 +52,9 @@
       "link": "/fr/support",
       "desc": "Soutien"
     },
+    "privacy-policy": {
+      "desc": "Politique de confidentialité"
+    },
     "contact-us": {
       "desc": "Nous contacter"
     },
@@ -478,6 +481,10 @@
       "requiredMessage": "Le message est obligatoire.",
       "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
     }
+  },
+  "privacy-policy": {
+    "title": "Politique de confidentialité",
+    "content": ""
   },
   "beforeYouStart": {
     "title": "Avant de commencer",
