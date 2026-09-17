@@ -26,7 +26,6 @@ type PublicKeyCredentialRequestOptionsData = {
 
 type Props = {
   requestId?: string;
-  redirect?: string | null;
 };
 
 async function getCredentialAssertionData(
@@ -73,7 +72,7 @@ async function getCredentialAssertionData(
   } as JsonObject;
 }
 
-export function LoginU2F({ requestId, redirect }: Props) {
+export function LoginU2F({ requestId }: Props) {
   const [error, setError] = useState<string>("");
 
   const { t } = useTranslation("u2f");
@@ -105,9 +104,8 @@ export function LoginU2F({ requestId, redirect }: Props) {
     const result = await verifyU2FLogin({
       checks: { webAuthN: { credentialAssertionData: data } } as Checks,
       requestId,
-      redirect,
     });
-    if ("error" in result) {
+    if (result && "error" in result) {
       // result translation handled server side
       setError(result.error);
     }

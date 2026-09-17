@@ -11,7 +11,7 @@ import { SetPasswordRequestSchema } from "@zitadel/proto/zitadel/user/v2/user_se
  *--------------------------------------------*/
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { hasStrongMFA } from "@lib/server/route-protection";
-import { getLoginSettings, getUserByID, setPassword, setUserPassword } from "@lib/zitadel";
+import { getUserByID, setPassword, setUserPassword } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 import { logMessage } from "../../lib/logger";
@@ -53,7 +53,6 @@ type UpdateSessionCommand = {
 export async function verifyPassword(command: UpdateSessionCommand) {
   const sessionCookie = await getActiveSessionCookie();
   const { t } = await serverTranslation("password");
-  const loginSettings = await getLoginSettings();
 
   const session = await setSessionAndUpdateCookie({
     activeCookie: sessionCookie,
@@ -67,13 +66,10 @@ export async function verifyPassword(command: UpdateSessionCommand) {
     throw new Error(t("errors.failedToAuthenticate"));
   });
 
-  await completeFlowAndRedirect(
-    {
-      sessionId: session.id,
-      requestId: command.requestId,
-    },
-    loginSettings?.defaultRedirectUri
-  );
+  await completeFlowAndRedirect({
+    sessionId: session.id,
+    requestId: command.requestId,
+  });
 }
 
 export async function passwordResetWithCode(command: {

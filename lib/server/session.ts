@@ -10,16 +10,13 @@ import { logMessage } from "@lib/logger";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import {
   deleteSession,
-  getLoginSettings,
   getSecuritySettings,
   listAuthenticationMethodTypes,
   listSessions,
 } from "@lib/zitadel";
-import { serverTranslation } from "@i18n/server";
 
 import {
   Cookie,
@@ -69,8 +66,6 @@ export async function loadSessionsWithCookies({
   return { sessions, sessionCookies };
 }
 
-type ContinueWithSessionCommand = Session & { requestId?: string; redirect?: string | null };
-
 type SerializedActionError = {
   message: string;
   rawMessage?: string;
@@ -99,40 +94,6 @@ function serializeActionError(
   }
 
   return serializedError;
-}
-
-export async function continueWithSession({
-  requestId,
-  redirect,
-  ...session
-}: ContinueWithSessionCommand) {
-  const { t } = await serverTranslation("error");
-
-  const loginSettings = await getLoginSettings();
-
-  // Use provided redirect if available, otherwise use defaultRedirectUri
-  const targetRedirect = redirect || loginSettings?.defaultRedirectUri;
-
-  if (requestId && session.id && session.factors?.user) {
-    return completeFlowAndRedirect(
-      {
-        sessionId: session.id,
-        requestId: requestId,
-      },
-      targetRedirect
-    );
-  } else if (session.factors?.user) {
-    // Always include sessionId to ensure we load the exact session that was just updated
-    return completeFlowAndRedirect(
-      {
-        sessionId: session.id,
-      },
-      targetRedirect
-    );
-  }
-
-  // Fallback error if we couldn't determine where to redirect
-  return { error: t("couldNotContinueSession") };
 }
 
 type UpdateSessionCommand = {

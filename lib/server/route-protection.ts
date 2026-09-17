@@ -56,7 +56,7 @@ export function checkSessionFactors(session: SessionWithAuthData | null) {
       emailVerified: false,
     };
   }
-  logMessage.debug(session.factors);
+
   const hasUser = !!session.factors?.user?.id;
   const notExpired = session.expirationDate
     ? timestampDate(session.expirationDate).getTime() > new Date().getTime()

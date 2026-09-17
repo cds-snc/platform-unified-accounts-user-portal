@@ -13,7 +13,7 @@ import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
-import { LoginU2F } from "./components/LoginU2F";
+import { ConfirmU2F } from "./components/ConfirmU2F";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -32,7 +32,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <AuthPanel
-      titleI18nKey="verify.title"
+      titleI18nKey="verify.confirmation.title"
       descriptionI18nKey="none"
       namespace="u2f"
       imageSrc="/img/key-icon.png"
@@ -44,7 +44,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       ></UserAvatar>
 
       <div className="w-full">
-        <LoginU2F requestId={requestId} />
+        <ConfirmU2F requestId={requestId} />
       </div>
     </AuthPanel>
   );

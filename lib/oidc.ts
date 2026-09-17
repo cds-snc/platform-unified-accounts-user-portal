@@ -46,7 +46,7 @@ export async function loginWithOIDCAndSession({
 
     if (!isValid) {
       logMessage.info(
-        `OIDC session expired for requestId: ${oidcRequestId}, redirecting for re-authentication`
+        `OIDC session expired or incomplete for requestId: ${oidcRequestId}, redirecting for re-authentication`
       );
       // if the session is not valid anymore, we need to redirect the user to re-authenticate /
       // TODO: handle IDP intent direcly if available

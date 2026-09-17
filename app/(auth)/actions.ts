@@ -14,7 +14,7 @@ import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { loginWithOIDCAndSession } from "@lib/oidc";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { loadActiveSession } from "@lib/session";
 import { isSessionValid } from "@lib/session";
@@ -173,11 +173,9 @@ export const continueOidcSessionSelection = async (sessionId: string, requestId:
     return { error: "Session not found or invalid" };
   }
 
-  return loginWithOIDCAndSession({
-    authRequest: requestId,
+  return completeFlowAndRedirect({
     sessionId,
-    sessions: [sessionResponse.session],
-    sessionCookies: [sessionCookie],
+    requestId,
   });
 };
 
