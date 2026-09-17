@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 import { logMessage } from "@lib/logger";
 import { loginWithOIDCAndSession } from "@lib/oidc";
 import { loadActiveSession } from "@lib/session";
-import { getLoginSettings } from "@lib/zitadel";
 
 import { buildUrlWithRequestId } from "../utils";
 
@@ -27,8 +26,6 @@ type FinishFlowCommand = {
 export async function completeFlowAndRedirect(command: FinishFlowCommand) {
   await shouldDeferOIDCCompletion(command.requestId);
 
-  const loginSettings = await getLoginSettings();
-
   if (command.requestId && command.requestId.startsWith("oidc_")) {
     const result = await completeAuthFlow({
       sessionId: command.sessionId,
@@ -40,24 +37,7 @@ export async function completeFlowAndRedirect(command: FinishFlowCommand) {
     return result;
   }
 
-  // For all other cases, redirect to the url
-  const requestId = "requestId" in command ? command.requestId : undefined;
-  const url = await getNextUrl(loginSettings?.defaultRedirectUri, requestId);
-  redirect(url, "push");
-}
-
-/**
- * Returns the next URL for navigation after successful authentication
- *
- * @param command
- * @returns
- */
-async function getNextUrl(defaultRedirectUri?: string, requestId?: string): Promise<string> {
-  if (defaultRedirectUri) {
-    return defaultRedirectUri;
-  }
-
-  return buildUrlWithRequestId("/account", requestId);
+  redirect("/account", "push");
 }
 
 async function completeAuthFlow(command: {
