@@ -17,7 +17,7 @@ import { LoginU2F } from "./components/LoginU2F";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
-  const { redirect: requestId } = searchParams;
+  const { requestId } = searchParams;
 
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
