@@ -9,6 +9,9 @@ on:
       bucket_name:
         required: true
         type: string
+      forms_url:
+        required: true
+        type: string
       idp_url:
         required: true
         type: string
@@ -70,6 +73,7 @@ jobs:
       - name: Run integration tests
         id: test
         env:
+          FORMS_URL: ${{ inputs.forms_url }}
           IDP_URL: ${{ inputs.idp_url }}
           PORTAL_URL: ${{ inputs.portal_url }}
           REGISTER_EMAIL: ${{ secrets.register_email }}

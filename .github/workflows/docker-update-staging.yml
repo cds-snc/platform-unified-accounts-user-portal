@@ -57,6 +57,7 @@ jobs:
     with:
       account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
       bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
+      forms_url: ${{ vars.STAGING_INTEGRATION_TEST_FORMS_URL }}
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
       portal_url: ${{ vars.STAGING_INTEGRATION_TEST_PORTAL_URL }}
     secrets:
