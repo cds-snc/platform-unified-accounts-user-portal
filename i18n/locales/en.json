@@ -496,5 +496,9 @@
       "createAccount": "Create GC Platform account",
       "alreadyHaveAccount": "I already have a GC Platform account"
     }
+  },
+  "404": {
+    "title": "Page not found ",
+    "body": "Sorry, the page you’re looking for was not found."
   }
 }

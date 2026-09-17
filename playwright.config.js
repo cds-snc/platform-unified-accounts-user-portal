@@ -13,8 +13,6 @@ module.exports = defineConfig({
     headless: true,
     screenshot: "only-on-failure",
     trace: "on-first-retry",
-    extraHTTPHeaders: {
-      "waf-geo-restriction-bypass": `${process.env.WAF_GEO_RESTRICTION_BYPASS ?? ""}`,
-    },
+    video: "retain-on-failure",
   },
 });

@@ -18,7 +18,7 @@ export function getRandomEmail(email: string, aliasLength = 8): string {
   }
 
   const randomAlias = randomBytes(aliasLength).toString("hex").slice(0, aliasLength);
-  return `${email.slice(0, atIndex)}+${randomAlias}${email.slice(atIndex)}`;
+  return `${email.slice(0, atIndex)}+integration-tests-${randomAlias}${email.slice(atIndex)}`;
 }
 
 export function getRandomPassword(length = 16): string {
