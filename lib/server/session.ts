@@ -3,7 +3,7 @@
  *--------------------------------------------*/
 import { Challenges, RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
-import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { Checks, GetSessionResponse } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { logMessage } from "@lib/logger";
@@ -11,11 +11,13 @@ import { logMessage } from "@lib/logger";
  * Internal Aliases
  *--------------------------------------------*/
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
+import { SessionWithAuthData } from "@lib/session";
 import {
   deleteSession,
   getSecuritySettings,
+  getSession,
+  getUserByID,
   listAuthenticationMethodTypes,
-  listSessions,
 } from "@lib/zitadel";
 
 import {
@@ -31,39 +33,54 @@ import { getOriginalHost } from "./host";
 import "server-only";
 
 /**
- * Load sessions by their IDs
- * @param ids - Array of session IDs to load
- * @returns Array of Session objects
- */
-async function loadSessionsByIds({ ids }: { ids: string[] }): Promise<Session[]> {
-  const response = await listSessions({
-    ids: ids.filter((id: string | undefined) => !!id),
-  });
-
-  return response?.sessions ?? [];
-}
-
-/**
  * Load sessions with their corresponding cookies
  * Useful when you need both Session objects and cookie tokens (e.g., for OIDC callbacks)
  * @param cleanup - Whether to filter out expired sessions (default: true)
  * @returns Object containing both sessions and sessionCookies arrays
  */
-export async function loadSessionsWithCookies({
+export async function getSessionWithCookie({
+  sessionId,
   cleanup = true,
 }: {
+  sessionId: string;
   cleanup?: boolean;
-} = {}): Promise<{ sessions: Session[]; sessionCookies: Cookie[] }> {
-  const sessionCookies = await getAllSessions(cleanup);
+}): Promise<{ session?: SessionWithAuthData; cookie?: Cookie }> {
+  const sessionCookie = (await getAllSessions(cleanup)).find((cookie) => (cookie.id = sessionId));
 
-  if (!sessionCookies.length) {
-    return { sessions: [], sessionCookies: [] };
+  if (!sessionCookie) {
+    return { session: undefined, cookie: undefined };
   }
 
-  const ids = sessionCookies.map((s) => s.id).filter((id) => !!id);
-  const sessions = await loadSessionsByIds({ ids });
+  const sessionResponse = await getSession(sessionId, sessionCookie.token)
+    .then(async ({ session }: GetSessionResponse) => {
+      if (!session?.factors?.user) {
+        throw Error("No User found on session");
+      }
 
-  return { sessions, sessionCookies };
+      const methods = await listAuthenticationMethodTypes(session.factors.user.id);
+
+      const user = await getUserByID(session.factors.user.id);
+      const humanUser = user.user?.type.case === "human" ? user.user?.type.value : undefined;
+
+      return {
+        ...session,
+        authMethods: methods.authMethodTypes ?? [],
+        phoneVerified: humanUser?.phone?.isVerified ?? false,
+        emailVerified: humanUser?.email?.isVerified ?? false,
+      } as SessionWithAuthData;
+    })
+    .catch(async () => {
+      // Unhandled error, possibly locked account
+      // Remove session from cookie and redirect to start a new session
+      await removeSessionFromCookie({ sessionId });
+      return undefined;
+    });
+
+  if (!sessionResponse) {
+    return { session: undefined, cookie: undefined };
+  }
+
+  return { session: sessionResponse, cookie: sessionCookie };
 }
 
 type SerializedActionError = {
