@@ -1,7 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { redirect, RedirectType } from "next/navigation";
+import { redirect } from "next/navigation";
 import { Timestamp, timestampDate } from "@zitadel/client";
 import { AuthRequest } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
 import { Factors, Session, UserFactor } from "@zitadel/proto/zitadel/session/v2/session_pb";
@@ -53,7 +53,7 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
 
   // If the selected session no longer exists on the server redirect to start a new session
   if (!session) {
-    redirect("/", RedirectType.push);
+    redirect("/", "push");
   }
 
   const requestId = active.requestId;
@@ -126,8 +126,7 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   // At least one MFA (TOTP or U2F) must be verified
   const totpValid = !!session.factors.totp?.verifiedAt;
   const u2fValid = !!session.factors.webAuthN?.verifiedAt;
-  const optEmail = !!session.factors.otpEmail?.verifiedAt;
-  const mfaValid = totpValid || u2fValid || optEmail;
+  const mfaValid = totpValid || u2fValid;
 
   if (!mfaValid) {
     logMessage.debug(
