@@ -80,7 +80,7 @@ describe("handleOTPFormSubmit", () => {
 
     expect(result).toEqual({
       validationErrors: undefined,
-      error: "translated:set.invalidCode",
+      errorKey: "set.invalidCode",
       formData: { code: "123456" },
     });
   });
