@@ -14,11 +14,6 @@ import { createSessionFromChecks, getLoginSettings, getSession, setSession } fro
 
 import "server-only";
 
-export type CreateSessionFailedError = {
-  error: string;
-  failedAttempts?: number;
-};
-
 const passwordAttemptsHandler = (error: ConnectError) => {
   const details = error.findDetails(CredentialsCheckErrorSchema);
 
