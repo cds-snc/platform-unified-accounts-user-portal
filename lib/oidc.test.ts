@@ -2,7 +2,7 @@ import { create } from "@zitadel/client";
 import { CreateCallbackResponseSchema } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { sendLoginname } from "@lib/server/loginname";
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { createCallback } from "@lib/zitadel";
 
 import { loginWithOIDCAndSession } from "./oidc";
@@ -14,10 +14,6 @@ vi.mock("@lib/logger", () => ({
     error: vi.fn(),
     info: vi.fn(),
   },
-}));
-
-vi.mock("@lib/server/loginname", () => ({
-  sendLoginname: vi.fn(),
 }));
 
 vi.mock("@lib/zitadel", () => ({
@@ -43,18 +39,15 @@ describe("loginWithOIDCAndSession", () => {
 
     const result = await loginWithOIDCAndSession({
       authRequest: "oidc_auth-request-123",
-      sessionId: "session-123",
-      sessions: [
-        {
-          id: "session-123",
-        } as never,
-      ],
-      sessionCookies: [
-        {
-          id: "session-123",
-          token: "session-token",
-        } as never,
-      ],
+
+      session: {
+        id: "session-123",
+      } as never,
+
+      cookie: {
+        id: "session-123",
+        token: "session-token",
+      } as never,
     });
 
     expect(result).toEqual({ redirect: "/account" });
@@ -70,18 +63,15 @@ describe("loginWithOIDCAndSession", () => {
         }),
       }),
     });
-    expect(sendLoginname).not.toHaveBeenCalled();
   });
 
   it("does not create a callback for an incomplete registration session", async () => {
     vi.mocked(isSessionValid).mockResolvedValue(false);
-    vi.mocked(sendLoginname).mockResolvedValue({ error: "Registration is incomplete" });
 
-    const result = await loginWithOIDCAndSession({
-      authRequest: "oidc_auth-request-123",
-      sessionId: "session-123",
-      sessions: [
-        {
+    await expect(
+      loginWithOIDCAndSession({
+        authRequest: "oidc_auth-request-123",
+        session: {
           id: "session-123",
           factors: {
             user: {
@@ -90,20 +80,14 @@ describe("loginWithOIDCAndSession", () => {
             },
           },
         } as never,
-      ],
-      sessionCookies: [
-        {
+
+        cookie: {
           id: "session-123",
           token: "session-token",
         } as never,
-      ],
-    });
-
-    expect(result).toEqual({ error: "Registration is incomplete" });
-    expect(sendLoginname).toHaveBeenCalledWith({
-      loginName: "user@example.com",
-      requestId: "oidc_auth-request-123",
-    });
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/");
     expect(createCallback).not.toHaveBeenCalled();
   });
 });
