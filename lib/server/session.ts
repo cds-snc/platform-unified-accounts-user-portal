@@ -45,7 +45,7 @@ export async function getSessionWithCookie({
   sessionId: string;
   cleanup?: boolean;
 }): Promise<{ session?: SessionWithAuthData; cookie?: Cookie }> {
-  const sessionCookie = (await getAllSessions(cleanup)).find((cookie) => (cookie.id = sessionId));
+  const sessionCookie = (await getAllSessions(cleanup)).find((cookie) => cookie.id === sessionId);
 
   if (!sessionCookie) {
     return { session: undefined, cookie: undefined };
