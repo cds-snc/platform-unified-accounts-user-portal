@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 
   // All other flows go to interactive login
 
-  const loginNameUrl = constructUrl(request, buildUrlWithRequestId("/", requestId));
+  const loginNameUrl = constructUrl(request, buildUrlWithRequestId("/", oidcRequestId));
 
   return NextResponse.redirect(loginNameUrl);
 }
