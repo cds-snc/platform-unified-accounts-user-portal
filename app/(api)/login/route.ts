@@ -48,7 +48,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(registerUrl);
   }
 
-  // All other flows go to interactive login
+  // `prompt=none` must never start an interactive login. There is no
+  // authenticated session to complete this request in this flow, so return
+  // the OIDC error instead.
+  if (authRequest?.prompt.includes(Prompt.NONE)) {
+    return NextResponse.json({ error: "login_required" }, { status: 400 });
+  }
 
   const loginNameUrl = constructUrl(request, buildUrlWithRequestId("/", oidcRequestId));
 
