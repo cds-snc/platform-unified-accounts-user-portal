@@ -50,7 +50,7 @@ export async function loginWithOIDCAndSession({
     );
     // if the session is not valid anymore, we need to redirect the user to re-authenticate
     // Checking the authentication level will redirect the user to the appropriate page to add missing factors
-    await checkAuthenticationLevel("mfa_required", session.requestId, { session });
+    await checkAuthenticationLevel("mfa_required", oidcRequestId, { session });
   }
 
   try {
