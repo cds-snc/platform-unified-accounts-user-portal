@@ -68,7 +68,7 @@ describe("GET /login", () => {
   it("redirects non-registration requests to interactive login", async () => {
     getAuthRequest.mockResolvedValue({
       authRequest: {
-        id: "zitadel-request-456",
+        id: "request-123",
         prompt: [],
       },
     });
@@ -76,9 +76,14 @@ describe("GET /login", () => {
     const response = await GET(new NextRequest("https://portal.test/login?requestId=request-123"));
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://portal.test/?requestId=request-123");
+    expect(response.headers.get("location")).toBe(
+      "https://portal.test/?requestId=oidc_request-123"
+    );
     expect(getAuthRequest).toHaveBeenCalledWith({ authRequestId: "request-123" });
-    expect(constructUrl).toHaveBeenCalledWith(expect.any(NextRequest), "/?requestId=request-123");
+    expect(constructUrl).toHaveBeenCalledWith(
+      expect.any(NextRequest),
+      "/?requestId=oidc_request-123"
+    );
   });
 
   it("uses the original request ID when no authentication request is returned", async () => {
@@ -87,7 +92,9 @@ describe("GET /login", () => {
     const response = await GET(new NextRequest("https://portal.test/login?requestId=request-789"));
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://portal.test/?requestId=request-789");
+    expect(response.headers.get("location")).toBe(
+      "https://portal.test/?requestId=oidc_request-789"
+    );
     expect(getAuthRequest).toHaveBeenCalledWith({ authRequestId: "request-789" });
   });
 });
