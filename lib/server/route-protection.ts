@@ -124,19 +124,16 @@ export function requiresStrongMfaSetupVerification(
 export async function checkAuthenticationLevel(
   requiredLevel: AuthLevel,
   requestId?: string,
-  options: { requireEmailVerified?: boolean } = {}
+  options: { requireEmailVerified?: boolean; session?: SessionWithAuthData } = {}
 ): Promise<SessionWithAuthData> {
   // Default for email verified to be true
-  const { requireEmailVerified = true } = options;
+  const { requireEmailVerified = true, session = await getActiveSessionFromCookies() } = options;
 
   const headerList = await headers();
   const pathname = headerList.get("x-current-path");
   logMessage.debug(
     `[Authentication Level] Checking page level authentication for ${pathname} with ${requiredLevel}`
   );
-
-  // Get session from cookies (non-throwing)
-  const session = await getActiveSessionFromCookies();
 
   // Get requestId from session cookie as backup in case it was not passed in
   const requestIdRef = requestId || session?.requestId;

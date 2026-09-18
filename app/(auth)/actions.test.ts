@@ -8,7 +8,7 @@ import { getSessionCookieById } from "@lib/cookies";
 import { loginWithOIDCAndSession } from "@lib/oidc";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
-import { loadSessionsWithCookies } from "@lib/server/session";
+import { getSessionWithCookie } from "@lib/server/session";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import {
   checkEmailVerification,
@@ -45,7 +45,7 @@ vi.mock("@lib/session", () => ({
 }));
 
 vi.mock("@lib/server/session", () => ({
-  loadSessionsWithCookies: vi.fn(),
+  getSessionWithCookie: vi.fn(),
 }));
 
 vi.mock("@lib/cookies", () => ({
@@ -292,7 +292,7 @@ describe("submitLoginForm", () => {
       },
     } as never);
 
-    vi.mocked(loadSessionsWithCookies).mockResolvedValue({
+    vi.mocked(getSessionWithCookie).mockResolvedValue({
       sessions: [
         {
           id: "session-123",

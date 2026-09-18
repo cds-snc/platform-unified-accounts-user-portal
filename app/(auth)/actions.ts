@@ -161,8 +161,6 @@ export const setSession = async (sessionId: string) => {
 };
 
 export const continueOidcSessionSelection = async (sessionId: string, requestId: string) => {
-  await setSelectedSession(sessionId);
-
   const sessionCookie = await getSessionCookieById({ sessionId }).catch(() => null);
   if (!sessionCookie) {
     return { error: "Session not found or invalid" };
