@@ -11,7 +11,7 @@ import { loadActiveSession } from "@lib/session";
 import { buildUrlWithRequestId } from "../utils";
 
 import { checkSessionFactors } from "./route-protection";
-import { loadSessionsWithCookies } from "./session";
+import { getSessionWithCookie } from "./session";
 
 type FinishFlowCommand = {
   sessionId: string;
@@ -50,17 +50,14 @@ async function completeAuthFlow(command: {
     `Completing ${requestId.startsWith("oidc_") ? "OIDC" : "unknown"} auth flow for requestId: ${requestId}`
   );
 
-  const { sessions, sessionCookies } = await loadSessionsWithCookies({
-    cleanup: true,
-  });
+  const { session, cookie } = await getSessionWithCookie({ sessionId, cleanup: true });
 
   if (requestId.startsWith("oidc_")) {
     // Complete OIDC flow
     const result = await loginWithOIDCAndSession({
       authRequest: requestId.replace("oidc_", ""),
-      sessionId,
-      sessions,
-      sessionCookies,
+      session,
+      cookie,
     });
 
     // Safety net - ensure we always return a valid object

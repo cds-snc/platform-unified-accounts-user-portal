@@ -5,7 +5,7 @@ import { loginWithOIDCAndSession } from "@lib/oidc";
 
 import { completeFlowAndRedirect } from "./auth-flow";
 import { checkSessionFactors } from "./route-protection";
-import { loadSessionsWithCookies } from "./session";
+import { getSessionWithCookie } from "./session";
 
 /*--------------------------------------------*
  * Mock all dependencies
@@ -32,7 +32,7 @@ vi.mock("./route-protection", () => ({
 }));
 
 vi.mock("./session", () => ({
-  loadSessionsWithCookies: vi.fn(),
+  getSessionWithCookie: vi.fn(),
 }));
 
 /*--------------------------------------------*
@@ -55,7 +55,7 @@ function setupFactorsMock() {
 }
 
 function setupSessionMock() {
-  vi.mocked(loadSessionsWithCookies).mockResolvedValue({
+  vi.mocked(getSessionWithCookie).mockResolvedValue({
     sessions: [],
     sessionCookies: [],
   } as never);
@@ -104,7 +104,8 @@ describe("completeFlowAndRedirect", () => {
       expect(loginWithOIDCAndSession).toHaveBeenCalledWith(
         expect.objectContaining({
           authRequest: "auth-request-123",
-          sessionId: SESSION_ID,
+          cookie: undefined,
+          session: undefined,
         })
       );
       expect(mockRedirect).toHaveBeenCalledWith("/callback");
