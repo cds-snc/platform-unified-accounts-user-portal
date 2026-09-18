@@ -56,8 +56,8 @@ function setupFactorsMock() {
 
 function setupSessionMock() {
   vi.mocked(getSessionWithCookie).mockResolvedValue({
-    session: {},
-    cookie: {},
+    session: undefined,
+    cookie: undefined,
   } as never);
 }
 

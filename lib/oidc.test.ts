@@ -87,7 +87,7 @@ describe("loginWithOIDCAndSession", () => {
         } as never,
       })
     ).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/");
+    expect(mockRedirect).toHaveBeenCalledWith("/?requestId=oidc_auth-request-123");
     expect(createCallback).not.toHaveBeenCalled();
   });
 });
