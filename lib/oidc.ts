@@ -33,7 +33,7 @@ export async function loginWithOIDCAndSession({
 
   if (!session || !cookie) {
     // No session detected redirecting
-const startAuthUrl = buildUrlWithRequestId("/", oidcRequestId);
+    const startAuthUrl = buildUrlWithRequestId("/", oidcRequestId);
     return { redirect: startAuthUrl };
   }
   logMessage.debug(`Found session ${session?.id} for OIDC requestId: ${oidcRequestId}`);
