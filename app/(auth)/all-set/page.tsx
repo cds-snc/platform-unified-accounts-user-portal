@@ -32,6 +32,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
             <Image
               src={getImageUrl("/img/goose_all_set.png")}
               alt="All set"
+              data-testid="all-set"
               width={352}
               height={261}
               className="h-auto w-full max-w-62.5"
