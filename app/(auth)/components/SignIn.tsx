@@ -79,7 +79,7 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       <p className="mt-10">
         {t("register")}
         &nbsp;
-        <Link href={registerLink} prefetch={false}>
+        <Link href={registerLink} prefetch={false} data-testid="register-link">
           {t("registerLinkText")}
         </Link>
         .
