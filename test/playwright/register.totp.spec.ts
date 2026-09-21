@@ -36,8 +36,8 @@ test.describe("register user flow", () => {
     await page.goto(portalUrl);
 
     // Login
-    await expect(page.locator("a[href$='/register']")).toBeVisible();
-    await page.locator("a[href$='/register']").click();
+    await expect(page.getByTestId("register-link")).toBeVisible();
+    await page.getByTestId("register-link").click();
 
     // User details
     await expect(page.locator("#register-form #firstname")).toBeVisible();
@@ -65,7 +65,7 @@ test.describe("register user flow", () => {
     await page.locator("button#mfa-continue").click();
 
     // TOTP setup
-    const totpLink = page.locator("a[href^='otpauth://']");
+    const totpLink = page.getByTestId("totp-link");
     await expect(totpLink).toBeVisible();
     const totpUrl = await totpLink.getAttribute("href");
     const totpSecret = new URL(totpUrl!).searchParams.get("secret");
@@ -73,7 +73,7 @@ test.describe("register user flow", () => {
     await page.locator("#totp-form button[type='submit']").click();
 
     // TOTP setup success
-    await expect(page.locator("img[alt='All set']")).toBeVisible();
+    await expect(page.getByTestId("all-set")).toBeVisible();
     await expect(page.getByTestId("continue-button")).toBeVisible();
     await page.getByTestId("continue-button").click();
 
