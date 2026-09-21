@@ -43,10 +43,9 @@ type CredentialOptionsData =
 type Props = {
   sessionId: string;
   requestId?: string;
-  checkAfter: boolean;
 };
 
-export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
+export function RegisterU2f({ sessionId, requestId }: Props) {
   const { t } = useTranslation("u2f");
   const [error, setError] = useState<string>("");
   const [keyName, setKeyName] = useState<string>("");
@@ -194,12 +193,8 @@ export function RegisterU2f({ sessionId, requestId, checkAfter }: Props) {
         return;
       }
 
-      if (checkAfter) {
-        router.push(buildUrlWithRequestId("/u2f", requestId));
-      } else {
-        // Redirect to all-set page after successful setup
-        return router.push(buildUrlWithRequestId("/all-set", requestId));
-      }
+      // Redirect to verify U2F credential after successful setup
+      return router.push(buildUrlWithRequestId("/u2f/set/verify", requestId));
     }
   }
 

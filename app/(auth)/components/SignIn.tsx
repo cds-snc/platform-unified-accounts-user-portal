@@ -12,6 +12,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Cookie } from "@lib/cookies";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { useTranslation } from "@i18n";
+import { ToastContainer } from "@components/ui/toast/Toast";
+import { toast } from "@components/ui/toast/Toast";
 
 import { checkActiveSession, continueOidcSessionSelection, setSession } from "../actions";
 
@@ -41,11 +43,9 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       const isValidSession = await checkActiveSession();
       if (isValidSession) {
         if (requestId) {
-          const result = await continueOidcSessionSelection(sessionId, requestId);
-
-          if ("redirect" in result) {
-            // If a redirect is provided, redirect to the specified URL
-            window.location.assign(result.redirect);
+          const { error } = await continueOidcSessionSelection(sessionId, requestId);
+          if (error) {
+            toast.error(error, "login-authentication");
             return;
           }
 
@@ -79,11 +79,12 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       <p className="mt-10">
         {t("register")}
         &nbsp;
-        <Link href={registerLink} prefetch={false}>
+        <Link href={registerLink} prefetch={false} data-testid="register-link">
           {t("registerLinkText")}
         </Link>
         .
       </p>
+      <ToastContainer autoClose={false} containerId="login-authentication" />
     </>
   );
 };

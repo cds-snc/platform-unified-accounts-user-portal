@@ -63,6 +63,14 @@ describe("generateCSP", () => {
 
       expect(csp).toContain("'strict-dynamic'");
     });
+
+    it("allows hCaptcha resources", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      const { csp } = generateCSP();
+
+      expect(csp).toContain("frame-src hcaptcha.com *.hcaptcha.com;");
+      expect(csp).toContain("connect-src 'self' hcaptcha.com *.hcaptcha.com;");
+    });
   });
 
   describe("development mode (NODE_ENV === 'development')", () => {

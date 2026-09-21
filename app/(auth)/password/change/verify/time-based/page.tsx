@@ -30,7 +30,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     >
       <LoginTOTP
         loginName={session.factors?.user?.loginName}
-        redirect="/password/change"
         requestId={requestId}
         displayName={session.factors?.user?.displayName}
       />

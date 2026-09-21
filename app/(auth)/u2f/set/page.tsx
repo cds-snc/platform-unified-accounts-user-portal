@@ -19,7 +19,7 @@ export default async function Page(props: {
   searchParams: Promise<Record<string | number | symbol, string | undefined>>;
 }) {
   const searchParams = await props.searchParams;
-  const { checkAfter, requestId } = searchParams;
+  const { requestId } = searchParams;
 
   const session = await checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED, requestId);
 
@@ -46,11 +46,7 @@ export default async function Page(props: {
         ></UserAvatar>
       </div>
 
-      <RegisterU2f
-        sessionId={session.id}
-        requestId={requestId}
-        checkAfter={checkAfter === "true"}
-      />
+      <RegisterU2f sessionId={session.id} requestId={requestId} />
     </AuthPanel>
   );
 }

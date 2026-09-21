@@ -96,10 +96,6 @@ export const codeSchema = (min = 1, max = 10) => ({
   code: v.pipe(v.string(), v.trim(), v.minLength(min, "required"), v.maxLength(max, "maxLength")),
 });
 
-const redirectURLSchema = () => ({
-  redirect: v.optional(v.nullable(v.pipe(v.string(), v.trim(), v.maxLength(500, "maxLength")))),
-});
-
 const requestIdSchema = () => ({
   requestId: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(200, "maxLength"))),
 });
@@ -226,7 +222,6 @@ export const validateU2fId = (u2fId: unknown) => {
 export const validateU2FLoginCommand = (command: unknown) => {
   const schema = v.object({
     ...requestIdSchema(),
-    ...redirectURLSchema(),
   });
   return v.safeParse(schema, command, { abortPipeEarly: true });
 };

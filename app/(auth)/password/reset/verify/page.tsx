@@ -23,8 +23,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   if (!canUseTotp && !canUseU2F) {
     logMessage.info("Password reset recovery requires at least one strong MFA method");
-    //TODO: check if this need to point to a support page as this seems like a blocking action
-    redirect(buildUrlWithRequestId("/password/reset", requestId));
+    redirect(buildUrlWithRequestId("/password/contact-us", requestId));
   }
 
   return (

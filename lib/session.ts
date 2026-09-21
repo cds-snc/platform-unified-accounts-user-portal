@@ -1,9 +1,8 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { redirect, RedirectType } from "next/navigation";
-import { Timestamp, timestampDate } from "@zitadel/client";
-import { AuthRequest } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
+import { redirect } from "next/navigation";
+import { timestampDate } from "@zitadel/client";
 import { Factors, Session, UserFactor } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { GetSessionResponse } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
@@ -18,22 +17,6 @@ import { getSession, getUserByID, listAuthenticationMethodTypes } from "../lib/z
  *--------------------------------------------*/
 import { getActiveSessionCookie, removeSessionFromCookie } from "./cookies";
 import { logMessage } from "./logger";
-export function checkSessionFactorValidity(session: Partial<Session>): {
-  valid: boolean;
-  verifiedAt?: Timestamp;
-} {
-  const validPassword = session?.factors?.password?.verifiedAt;
-  const validPasskey = session?.factors?.webAuthN?.verifiedAt;
-  const validIDP = session?.factors?.intent?.verifiedAt;
-  const stillValid = session.expirationDate
-    ? timestampDate(session.expirationDate) > new Date()
-    : true;
-
-  const verifiedAt = validPassword || validPasskey || validIDP;
-  const valid = !!((validPassword || validPasskey || validIDP) && stillValid);
-
-  return { valid, verifiedAt };
-}
 
 export async function loadActiveSession(): Promise<SessionWithAuthData> {
   const active = await getActiveSessionCookie();
@@ -53,7 +36,7 @@ export async function loadActiveSession(): Promise<SessionWithAuthData> {
 
   // If the selected session no longer exists on the server redirect to start a new session
   if (!session) {
-    redirect("/", RedirectType.push);
+    redirect("/", "push");
   }
 
   const requestId = active.requestId;
@@ -126,8 +109,7 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   // At least one MFA (TOTP or U2F) must be verified
   const totpValid = !!session.factors.totp?.verifiedAt;
   const u2fValid = !!session.factors.webAuthN?.verifiedAt;
-  const optEmail = !!session.factors.otpEmail?.verifiedAt;
-  const mfaValid = totpValid || u2fValid || optEmail;
+  const mfaValid = totpValid || u2fValid;
 
   if (!mfaValid) {
     logMessage.debug(
@@ -154,43 +136,4 @@ export async function isSessionValid({ session }: { session: Session }): Promise
   }
 
   return true;
-}
-
-export async function findValidSession({
-  sessions,
-  authRequest,
-}: {
-  sessions: Session[];
-  authRequest?: AuthRequest;
-}): Promise<Session | undefined> {
-  const sessionsWithHint = sessions.filter((s) => {
-    if (authRequest && authRequest.hintUserId) {
-      return s.factors?.user?.id === authRequest.hintUserId;
-    }
-    if (authRequest && authRequest.loginHint) {
-      return s.factors?.user?.loginName === authRequest.loginHint;
-    }
-    return true;
-  });
-
-  if (sessionsWithHint.length === 0) {
-    return undefined;
-  }
-
-  // sort by change date descending
-  sessionsWithHint.sort((a, b) => {
-    const dateA = a.changeDate ? timestampDate(a.changeDate).getTime() : 0;
-    const dateB = b.changeDate ? timestampDate(b.changeDate).getTime() : 0;
-    return dateB - dateA;
-  });
-
-  // return the first valid session according to settings
-  for (const session of sessionsWithHint) {
-    // eslint-disable-next-line no-await-in-loop
-    if (await isSessionValid({ session })) {
-      return session;
-    }
-  }
-
-  return undefined;
 }

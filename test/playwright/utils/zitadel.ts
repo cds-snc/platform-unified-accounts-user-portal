@@ -1,9 +1,3 @@
-import type {
-  StreamRequest,
-  StreamResponse,
-  UnaryRequest,
-  UnaryResponse,
-} from "@connectrpc/connect";
 import { type Client, create, createClientFor } from "@zitadel/client";
 import { createServerTransport } from "@zitadel/client/node";
 import { TextQueryMethod } from "@zitadel/proto/zitadel/object/v2/object_pb.js";
@@ -18,13 +12,6 @@ import { createSign } from "crypto";
 
 let userService: Client<typeof UserService>;
 
-type AnyFn = (req: UnaryRequest | StreamRequest) => Promise<UnaryResponse | StreamResponse>;
-
-const addRequestHeaders = () => (next: AnyFn) => async (req: UnaryRequest | StreamRequest) => {
-  req.header.set("waf-geo-restriction-bypass", process.env.WAF_GEO_RESTRICTION_BYPASS ?? "");
-  return next(req);
-};
-
 function getUserService(accessToken: string, apiBaseUrl: string): Client<typeof UserService> {
   if (userService) {
     return userService;
@@ -32,7 +19,6 @@ function getUserService(accessToken: string, apiBaseUrl: string): Client<typeof 
 
   const transport = createServerTransport(accessToken, {
     baseUrl: apiBaseUrl,
-    interceptors: [addRequestHeaders()],
   });
 
   userService = createClientFor(UserService)(transport);
@@ -63,7 +49,6 @@ export async function getZitadelAccessToken(
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "waf-geo-restriction-bypass": process.env.WAF_GEO_RESTRICTION_BYPASS ?? "",
     },
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",

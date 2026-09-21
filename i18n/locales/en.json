@@ -406,6 +406,9 @@
         "couldNotRetrievePasskey": "An error occurred while retrieving security key",
         "verificationCancelled": "Security key verification was cancelled",
         "verificationFailed": "An error occurred during security key verification"
+      },
+      "confirmation": {
+        "title": "To continue, Tap your security Key"
       }
     },
     "set": {
@@ -499,5 +502,9 @@
       "createAccount": "Create GC Platform account",
       "alreadyHaveAccount": "I already have a GC Platform account"
     }
+  },
+  "404": {
+    "title": "Page not found ",
+    "body": "Sorry, the page you’re looking for was not found."
   }
 }

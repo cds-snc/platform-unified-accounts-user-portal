@@ -411,6 +411,9 @@
         "couldNotRetrievePasskey": "Une erreur s'est produite lors de la récupération de la clé de sécurité",
         "verificationCancelled": "La vérification de la clé de sécurité a été annulée",
         "verificationFailed": "Une erreur s'est produite lors de la vérification de la clé de sécurité"
+      },
+      "confirmation": {
+        "title": "FR - To continue, Tap your security Key"
       }
     },
     "set": {
@@ -504,5 +507,9 @@
       "createAccount": "Créer un compte Plateforme GC",
       "alreadyHaveAccount": "J’ai déjà un compte Plateforme GC"
     }
+  },
+  "404": {
+    "title": "Page non trouvée",
+    "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
   }
 }

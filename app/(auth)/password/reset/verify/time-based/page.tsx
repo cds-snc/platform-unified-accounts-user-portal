@@ -31,7 +31,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     >
       <LoginTOTP
         loginName={session.factors?.user?.loginName}
-        redirect="/password/reset/set"
         requestId={requestId}
         displayName={session.factors?.user?.displayName}
       />

@@ -3,7 +3,7 @@
  *--------------------------------------------*/
 
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
-import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { SearchParams } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -12,28 +12,16 @@ import { I18n } from "@i18n";
 import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 import { CircleCheckIcon } from "@components/icons/CircleCheckIcon";
-import { LinkButton } from "@components/ui/button/LinkButton";
 import { Image } from "@components/ui/image/Image";
+
+import { NextReditect } from "./components/NextRedirect";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
-  const { requestId, checkAfter, method } = searchParams;
+  const { requestId } = searchParams;
   const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
 
   const loginName = session.factors?.user?.loginName;
-
-  let continueUrl = buildUrlWithRequestId("/account", requestId);
-
-  if (checkAfter === "true") {
-    if (method === "time-based") {
-      continueUrl = buildUrlWithRequestId("/otp/time-based", requestId);
-    } else if (method === "u2f") {
-      continueUrl = buildUrlWithRequestId("/u2f", requestId);
-    }
-  } else if (requestId && requestId.startsWith("oidc_")) {
-    // Defer callback completion to click-time to avoid consuming one-time state during SSR.
-    continueUrl = buildUrlWithRequestId("/login", requestId);
-  }
 
   return (
     <div data-wide-panel="true">
@@ -44,6 +32,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
             <Image
               src={getImageUrl("/img/goose_all_set.png")}
               alt="All set"
+              data-testid="all-set"
               width={352}
               height={261}
               className="h-auto w-full max-w-62.5"
@@ -73,11 +62,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
             )}
 
             {/* Continue button */}
-            <div>
-              <LinkButton.Primary href={continueUrl}>
-                <I18n i18nKey="continueButton" namespace="allSet" />
-              </LinkButton.Primary>
-            </div>
+            <NextReditect />
           </div>
         </div>
       </AuthPanel>

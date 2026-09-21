@@ -5,13 +5,11 @@
 import { timestampDate } from "@zitadel/client";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { HumanUser } from "@zitadel/proto/zitadel/user/v2/user_pb";
-import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import moment from "moment";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { logMessage } from "./logger";
 import { buildUrlWithRequestId } from "./utils";
 import { getPasswordExpirySettings } from "./zitadel";
 export async function checkPasswordChangeRequired(
@@ -63,41 +61,4 @@ export function checkEmailVerification(
 
     return { redirect: `${basePath}?${mergedParams.toString()}` };
   }
-}
-
-export async function checkMFAFactors(
-  authMethods: AuthenticationMethodType[],
-  requestId?: string
-): Promise<{ error: string } | { redirect: string }> {
-  // Strong MFA methods (TOTP/U2F) - at least one must exist
-  const strongFactors = authMethods?.filter(
-    (m: AuthenticationMethodType) =>
-      m === AuthenticationMethodType.TOTP || m === AuthenticationMethodType.U2F
-  );
-
-  // If no strong factor exists, redirect to setup
-  if (!strongFactors.length) {
-    logMessage.debug("Redirecting user to MFA setup - strong MFA required");
-    return { redirect: buildUrlWithRequestId(`/mfa/set`, requestId) };
-  }
-
-  // If user has only one MFA method total, redirect directly to that
-  if (strongFactors.length === 1) {
-    const factor = strongFactors[0];
-    if (factor === AuthenticationMethodType.TOTP) {
-      logMessage.debug("Redirecting user to TOTP verification");
-      return { redirect: buildUrlWithRequestId(`/otp/time-based`, requestId) };
-    } else if (factor === AuthenticationMethodType.U2F) {
-      logMessage.debug("Redirecting user to U2F verification");
-      return { redirect: buildUrlWithRequestId(`/u2f`, requestId) };
-    }
-  }
-
-  // Multiple MFA methods available - show selection page
-  if (strongFactors.length > 1) {
-    logMessage.debug("Redirecting user to MFA selection page");
-    return { redirect: buildUrlWithRequestId(`/mfa`, requestId) };
-  }
-
-  return { error: "No MFA factors available" };
 }

@@ -15,7 +15,6 @@ import { logMessage } from "@lib/logger";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getLoginSettings } from "@lib/zitadel";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 export type FormState = {
@@ -34,15 +33,13 @@ export const handleOTPFormSubmit = AuthenticatedAction(
   { authLevel: "basic_session" },
   async function handleOTPFormSubmit(
     _,
-    { code, redirect, requestId }: { code: string; redirect?: string; requestId?: string }
+    { code, requestId }: { code: string; requestId?: string }
   ): Promise<FormState> {
     const { t } = await serverTranslation("otp");
 
     if (typeof code !== "string" || (requestId && typeof requestId !== "string")) {
       throw new Error("Invalid parameters");
     }
-
-    const loginSettings = await getLoginSettings();
 
     const normalizedCode = code.trim();
 
@@ -86,16 +83,11 @@ export const handleOTPFormSubmit = AuthenticatedAction(
       };
     }
 
-    const redirectUrl = redirect ?? loginSettings?.defaultRedirectUri;
-
     // Always include sessionId to ensure we load the exact session that was just updated
-    const callbackResponse = await completeFlowAndRedirect(
-      {
-        sessionId: response.sessionId,
-        requestId: requestId,
-      },
-      redirectUrl
-    );
+    const callbackResponse = await completeFlowAndRedirect({
+      sessionId: response.sessionId,
+      requestId: requestId,
+    });
 
     // If this code is reached there was an error in the completeFlowAndRedirect
 
