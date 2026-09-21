@@ -1,6 +1,6 @@
 import { create } from "@zitadel/client";
-import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockRedirect } from "@root/test/mocks/next/navigation";
@@ -10,11 +10,7 @@ import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { getSessionWithCookie } from "@lib/server/session";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
-import {
-  checkEmailVerification,
-  checkMFAFactors,
-  checkPasswordChangeRequired,
-} from "@lib/verify-helper";
+import { checkEmailVerification, checkPasswordChangeRequired } from "@lib/verify-helper";
 import {
   getLockoutSettings,
   getLoginSettings,
@@ -67,7 +63,6 @@ vi.mock("@lib/validation/validationSchemas", () => ({
 
 vi.mock("@lib/verify-helper", () => ({
   checkEmailVerification: vi.fn(),
-  checkMFAFactors: vi.fn(),
   checkPasswordChangeRequired: vi.fn(),
 }));
 
@@ -128,7 +123,6 @@ describe("submitLoginForm", () => {
     vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
       authMethodTypes: [{ type: "password" }],
     } as never);
-    vi.mocked(checkMFAFactors).mockResolvedValue({} as never);
     vi.mocked(getLockoutSettings).mockResolvedValue({ maxPasswordAttempts: BigInt(5) } as never);
     vi.mocked(checkPasswordChangeRequired).mockResolvedValue(undefined);
   });
@@ -226,8 +220,9 @@ describe("submitLoginForm", () => {
   });
 
   it("returns MFA redirect when additional factor is required", async () => {
-    vi.mocked(checkMFAFactors).mockResolvedValue({ redirect: "/mfa?requestId=req-123" } as never);
-
+    vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
+      authMethodTypes: [AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F],
+    } as never);
     await expect(
       submitLoginForm({
         username: "person@canada.ca",
@@ -239,8 +234,9 @@ describe("submitLoginForm", () => {
   });
 
   it("returns generic error when MFA factor check fails", async () => {
-    vi.mocked(checkMFAFactors).mockResolvedValue({ error: "failed-precondition" } as never);
-
+    vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
+      authMethodTypes: [],
+    } as never);
     const response = await submitLoginForm({
       username: "person@canada.ca",
       password: "P@ssw0rd",
@@ -248,25 +244,6 @@ describe("submitLoginForm", () => {
     });
 
     expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
-  });
-
-  it("redirects to account when login is successful", async () => {
-    const command = {
-      username: "person@canada.ca",
-      password: "P@ssw0rd",
-      requestId: "req-123",
-    };
-
-    await expect(submitLoginForm(command)).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/account?requestId=req-123");
-    expect(create).toHaveBeenCalledWith(ChecksSchema, {
-      user: { search: { case: "loginName", value: command.username } },
-      password: { password: command.password },
-    });
-    expect(createSessionAndUpdateCookie).toHaveBeenCalledWith({
-      checks: { checks: "value" },
-      requestId: command.requestId,
-    });
   });
 
   it("completes OIDC callback when a valid stored session is selected", async () => {

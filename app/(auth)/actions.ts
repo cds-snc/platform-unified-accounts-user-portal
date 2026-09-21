@@ -136,15 +136,9 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   if ("error" in mfaFactorCheck) {
     logMessage.error(`MFA factor check failed: ${mfaFactorCheck.error}`);
     return { error: t("validation.invalidCredentials") };
-  }
-
-  if ("redirect" in mfaFactorCheck) {
+  } else {
     redirect(mfaFactorCheck.redirect, "push");
   }
-
-  // If no MFA redirect, authentication is complete
-  logMessage.info("Login successful, redirecting to account page");
-  redirect(buildUrlWithRequestId("/account", requestId), "push");
 };
 
 // Unauthenticated Action to ensure a user can select an existing non-active session
