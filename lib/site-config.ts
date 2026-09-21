@@ -6,6 +6,8 @@ import type { SiteConfig, SiteId, TrustedDomainConfig } from "@root/constants/si
 
 import { getOriginalHost, normalizeHost } from "./server/host";
 
+// Provides the site configuration for the different links between
+// Staging and Production
 export class SiteConfigService {
   private static instance: SiteConfigService;
   private static resolvedHost: string;
