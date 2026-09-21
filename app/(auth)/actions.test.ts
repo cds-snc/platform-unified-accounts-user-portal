@@ -233,6 +233,20 @@ describe("submitLoginForm", () => {
     expect(mockRedirect).toHaveBeenCalledWith("/mfa?requestId=req-123");
   });
 
+  it("returns MFA set when no strong MFA is set", async () => {
+    vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
+      authMethodTypes: [AuthenticationMethodType.PASSWORD],
+    } as never);
+    await expect(
+      submitLoginForm({
+        username: "person@canada.ca",
+        password: "P@ssw0rd",
+        requestId: "req-123",
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/mfa/set?requestId=req-123");
+  });
+
   it("returns generic error when MFA factor check fails", async () => {
     vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
       authMethodTypes: [],
