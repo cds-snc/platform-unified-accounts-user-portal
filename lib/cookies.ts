@@ -242,29 +242,6 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
   }
 }
 
-/**
- * Get session credentials from the http-only session cookie
- * @returns sessionId, loginName, organization, and requestId (if linked to OIDC flow)
- */
-// TODO - Refactor to see if we still need this transformative function
-export async function getSessionCredentials() {
-  try {
-    const { id, loginName, userId, organization, requestId, displayName } =
-      await getActiveSessionCookie();
-
-    return {
-      sessionId: id,
-      loginName,
-      displayName,
-      userId,
-      organization,
-      requestId, // Include requestId for OIDC flows
-    };
-  } catch (error) {
-    throw new Error("No session found in cookies");
-  }
-}
-
 export async function setSelectedSession(sessionId: string) {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
