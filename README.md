@@ -33,7 +33,10 @@ pnpm test        # run tests
 ## Required environment variables
 
 - `ZITADEL_API_URL`
-- `NEXT_PUBLIC_BASE_PATH`
+- `HCAPTCHA_SITE_KEY`
+- `HCAPTCHA_SECRET`
+- `FRESHDESK_API_URL`
+- `FRESHDESK_API_KEY`
 
 ## Stack
 
@@ -41,3 +44,7 @@ pnpm test        # run tests
 - React 19
 - TypeScript
 - Tailwind + SCSS
+
+## Local dev
+
+If you're developing against our Staging environment, use the `make help` command to see how to connect to the VPN. You will need the [AWS VPN Client installed](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/client-vpn-connect-macos-release-notes.html).

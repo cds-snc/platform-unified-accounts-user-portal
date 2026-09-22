@@ -1,5 +1,3 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -14,10 +12,7 @@ import { Cookie } from "@lib/cookies";
 import { addSessionToCookie, updateSessionCookie } from "@lib/cookies";
 import { createSessionFromChecks, getLoginSettings, getSession, setSession } from "@lib/zitadel";
 
-export type CreateSessionFailedError = {
-  error: string;
-  failedAttempts?: number;
-};
+import "server-only";
 
 const passwordAttemptsHandler = (error: ConnectError) => {
   const details = error.findDetails(CredentialsCheckErrorSchema);

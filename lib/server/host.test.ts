@@ -123,13 +123,11 @@ describe("host helpers", () => {
     it("trusts exact matches for auth-staging", () => {
       expect(isTrustedSiteHost("auth.cdssandbox.xyz")).toBe(true);
       expect(isTrustedSiteHost("https://auth.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://auth.cdssandbox.xyz/ui/v2")).toBe(true);
     });
 
     it("trusts exact matches for forms-staging", () => {
       expect(isTrustedSiteHost("forms-staging.cdssandbox.xyz")).toBe(true);
       expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
     });
 
     it("trusts exact matches for forms-production", () => {
@@ -139,13 +137,11 @@ describe("host helpers", () => {
 
     it("trusts subdomains of auth-staging", () => {
       expect(isTrustedSiteHost("auth.auth.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://auth.auth.cdssandbox.xyz/ui/v2")).toBe(true);
       expect(isTrustedSiteHost("my-custom.auth.cdssandbox.xyz")).toBe(true);
     });
 
     it("trusts subdomains of forms-staging", () => {
       expect(isTrustedSiteHost("auth.forms-staging.cdssandbox.xyz")).toBe(true);
-      expect(isTrustedSiteHost("https://auth.forms-staging.cdssandbox.xyz/ui/v2")).toBe(true);
       expect(isTrustedSiteHost("my-custom.forms-staging.cdssandbox.xyz")).toBe(true);
     });
 

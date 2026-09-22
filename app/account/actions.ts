@@ -17,58 +17,65 @@ import { SessionWithAuthData } from "@lib/session";
 import { validatePersonalDetails, validateU2fId } from "@lib/validation/validationSchemas";
 import { getU2FList, removeTOTP, removeU2F, updateHuman } from "@lib/zitadel";
 
-export const removeU2FAction = AuthenticatedAction(async (session, u2fId: string) => {
-  const validationResult = validateU2fId(u2fId);
-  if (!validationResult.success) {
-    logMessage.warn("Server side validation failed for u2fId");
-    throw new Error("Invalid parameters");
+export const removeU2FAction = AuthenticatedAction(
+  { authLevel: "mfa_required" },
+  async (session, u2fId: string) => {
+    const validationResult = validateU2fId(u2fId);
+    if (!validationResult.success) {
+      logMessage.warn("Server side validation failed for u2fId");
+      throw new Error("Invalid parameters");
+    }
+
+    const userId = session.factors.user.id;
+
+    const hasMultipleMFA = await _hasMultipleMFAMethods(session);
+    if (!hasMultipleMFA) {
+      return {
+        error:
+          "Cannot remove security key. At least one strong authentication method must be configured to remove one.",
+      };
+    }
+
+    const result = await removeU2F({ userId, u2fId }).catch((e) => {
+      logMessage.error(`Failed to remove U2F for ${userId}`, e);
+      return { error: "Failed to remove U2F" };
+    });
+
+    if ("error" in result) {
+      return result;
+    }
+
+    revalidatePath("/account");
+    return { success: true };
   }
+);
 
-  const userId = session.factors.user.id;
+export const removeTOTPAction = AuthenticatedAction(
+  { authLevel: "mfa_required" },
+  async (session) => {
+    const userId = session.factors.user.id;
+    const hasMultipleMFA = await _hasMultipleMFAMethods(session);
+    if (!hasMultipleMFA) {
+      return {
+        error:
+          "Cannot remove authenticator. At least one strong authentication methods must be configured to remove one.",
+      };
+    }
 
-  const hasMultipleMFA = await _hasMultipleMFAMethods(session);
-  if (!hasMultipleMFA) {
-    return {
-      error:
-        "Cannot remove security key. At least one strong authentication method must be configured to remove one.",
-    };
+    const result = await removeTOTP({ userId }).catch((e) => {
+      logMessage.error("Failed to remove TOTP", e);
+      return { error: "Failed to remove Authentication method" };
+    });
+    if ("error" in result) {
+      return result;
+    }
+    revalidatePath("/account");
+    return { success: true };
   }
-
-  const result = await removeU2F({ userId, u2fId }).catch((e) => {
-    logMessage.error(`Failed to remove U2F for ${userId}`, e);
-    return { error: "Failed to remove U2F" };
-  });
-
-  if ("error" in result) {
-    return result;
-  }
-
-  revalidatePath("/account");
-  return { success: true };
-});
-
-export const removeTOTPAction = AuthenticatedAction(async (session) => {
-  const userId = session.factors.user.id;
-  const hasMultipleMFA = await _hasMultipleMFAMethods(session);
-  if (!hasMultipleMFA) {
-    return {
-      error:
-        "Cannot remove authenticator. At least one strong authentication methods must be configured to remove one.",
-    };
-  }
-
-  const result = await removeTOTP({ userId }).catch((e) => {
-    logMessage.error("Failed to remove TOTP", e);
-    return { error: "Failed to remove Authentication method" };
-  });
-  if ("error" in result) {
-    return result;
-  }
-  revalidatePath("/account");
-  return { success: true };
-});
+);
 
 export const updatePersonalDetailsAction = AuthenticatedAction(
+  { authLevel: "mfa_required" },
   async (
     session,
     {
@@ -141,7 +148,7 @@ async function _hasMultipleMFAMethods(session: SessionWithAuthData): Promise<boo
   return false;
 }
 
-export const logoutAndRegister = AuthenticatedAction(async (_) => {
+export const logoutAndRegister = AuthenticatedAction({ authLevel: "basic_session" }, async (_) => {
   const result = await logoutCurrentSession({ postLogoutRedirectUri: "/register" });
   if ("error" in result) {
     throw new Error(result.error);

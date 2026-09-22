@@ -1,7 +1,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
+
 import { redirect } from "next/navigation";
 
 /*--------------------------------------------*
@@ -12,17 +12,12 @@ import { AuthLevel, checkAuthenticationLevel, hasStrongMFA } from "@lib/server/r
 import { buildUrlWithRequestId } from "@lib/utils";
 import { SearchParams } from "@lib/utils";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
-import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
 import { ChangePasswordForm } from "./components/ChangePasswordForm";
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("password");
-  return { title: t("change.title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;

@@ -2,12 +2,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { generateCSP } from "@lib/cspScripts";
+import { logMessage } from "@lib/logger";
 
 /*--------------------------------------------*
  * Local Relative
@@ -40,8 +41,7 @@ vi.mock("./lib/server/route-protection", () => ({
     OPEN: "open",
     BASIC_SESSION: "basic_session",
     PASSWORD_REQUIRED: "password_required",
-    ANY_MFA_REQUIRED: "any_mfa_required",
-    STRONG_MFA_REQUIRED: "strong_mfa_required",
+    MFA_REQUIRED: "mfa_required",
   },
   checkAuthenticationLevel: vi.fn(),
 }));
@@ -66,7 +66,7 @@ vi.mock("./lib/middleware-config", () => ({
       return "open";
     }
     if (pathname.startsWith("/account")) {
-      return "any_mfa_required";
+      return "mfa_required";
     }
     return "password_required";
   }),
@@ -86,6 +86,10 @@ describe("proxy middleware", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(generateCSP).mockReturnValue({ csp: "default-src 'self';", nonce: "test-nonce" });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   describe("Content-Security-Policy headers", () => {
@@ -118,6 +122,34 @@ describe("proxy middleware", () => {
       expect(generateCSP).toHaveBeenCalledOnce();
       expect(response.headers.get("x-middleware-request-x-nonce")).toBe("test-nonce");
       expect(response.headers.get("x-middleware-override-headers")).toContain("x-nonce");
+    });
+  });
+
+  describe("Zitadel proxy headers", () => {
+    it("forwards custom request headers to the Zitadel backend", async () => {
+      vi.stubEnv("ZITADEL_API_URL", "https://zitadel.example.com");
+      vi.stubEnv(
+        "CUSTOM_REQUEST_HEADERS",
+        "x-custom-header: custom-value,authorization:Bearer token:with:colons"
+      );
+
+      const response = await proxy(makeRequest("/.well-known/openid-configuration"));
+
+      expect(response.headers.get("x-middleware-request-x-custom-header")).toBe("custom-value");
+      expect(response.headers.get("x-middleware-request-authorization")).toBe(
+        "Bearer token:with:colons"
+      );
+    });
+
+    it("skips malformed custom request headers", async () => {
+      vi.stubEnv("ZITADEL_API_URL", "https://zitadel.example.com");
+      vi.stubEnv("CUSTOM_REQUEST_HEADERS", "malformed-header");
+
+      await proxy(makeRequest("/.well-known/openid-configuration"));
+
+      expect(logMessage.warn).toHaveBeenCalledWith(
+        "Skipping malformed CUSTOM_REQUEST_HEADERS entry (expected key:value format)"
+      );
     });
   });
 });

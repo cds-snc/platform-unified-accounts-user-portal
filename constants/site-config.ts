@@ -1,4 +1,4 @@
-export type SiteId = "dev" | "authStaging" | "formsStaging" | "formsProduction";
+export type SiteId = "dev" | "authStaging" | "authProduction" | "formsStaging" | "formsProduction";
 export type SiteConfig = {
   id: SiteId;
   baseUrl: string;
@@ -15,15 +15,14 @@ export type TrustedDomainConfig = Pick<SiteConfig, "baseUrl"> & {
   links: SiteLinksConfig;
 };
 
-const createLinks = (): SiteLinksConfig => {
-  return {
-    about: false,
-    termsOfUse: false,
-    sla: false,
-    support: false,
-    gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/profile/oidc",
-  };
-};
+const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig => ({
+  about: false,
+  termsOfUse: false,
+  sla: false,
+  support: false,
+  gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/forms",
+  ...overrides,
+});
 
 export const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
   dev: {
@@ -33,6 +32,12 @@ export const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
   authStaging: {
     baseUrl: "https://auth.cdssandbox.xyz",
     links: createLinks(),
+  },
+  authProduction: {
+    baseUrl: "https://session.canada.ca",
+    links: createLinks({
+      gcForms: "https://forms-formulaires.alpha.canada.ca/{locale}/forms",
+    }),
   },
   formsStaging: {
     baseUrl: "https://forms-staging.cdssandbox.xyz",

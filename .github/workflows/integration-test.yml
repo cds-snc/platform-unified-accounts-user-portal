@@ -20,15 +20,15 @@ on:
         required: true
       log_analytics_workspace_key:
         required: true
+      register_email:
+        required: true
       username:
         required: true
       password:
         required: true
       totp_secret:
         required: true
-      waf_geo_restriction_bypass:
-        required: true
-      zitadel_bearer_token:
+      zitadel_service_account_key:
         required: true
 
 env:
@@ -36,13 +36,13 @@ env:
 
 jobs:
   integration-test:
-    runs-on: ubuntu-latest
+    runs-on: codebuild-platform-unified-accounts-user-portal-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       id-token: write
       contents: read
     container:
       # Playwright Docker image tag must match the pnpm-lock.yaml pinned version
-      image: mcr.microsoft.com/playwright:v1.62.0-noble@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
@@ -59,7 +59,7 @@ jobs:
           persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -72,16 +72,16 @@ jobs:
         env:
           IDP_URL: ${{ inputs.idp_url }}
           PORTAL_URL: ${{ inputs.portal_url }}
+          REGISTER_EMAIL: ${{ secrets.register_email }}
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
-          WAF_GEO_RESTRICTION_BYPASS: ${{ secrets.waf_geo_restriction_bypass }}
-          ZITADEL_BEARER_TOKEN: ${{ secrets.zitadel_bearer_token }}
+          ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
         run: pnpm test:playwright
 
       - name: Configure AWS credentials using OIDC
         if: failure() && steps.test.outcome == 'failure'
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: arn:aws:iam::${{ inputs.account_id }}:role/platform-unified-accounts-integration-tests
           role-session-name: IntegrationTests
@@ -92,8 +92,9 @@ jobs:
         env:
           BUCKET_NAME: ${{ inputs.bucket_name }}
         run: |
-          DATE=$(date +"%Y-%m-%d")
-          apt-get update && apt-get install -y unzip  
+          find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) \
+            -exec sed -i 's|http://|https://|g' {} +
+          apt-get update && apt-get install -y --no-install-recommends unzip
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip && ./aws/install
-          aws s3 cp ./test-results s3://$BUCKET_NAME/$DATE/${{ github.run_id }} --recursive
+          aws s3 cp ./test-results s3://$BUCKET_NAME/$(date +"%Y-%m-%d")/${{ github.run_id }} --recursive

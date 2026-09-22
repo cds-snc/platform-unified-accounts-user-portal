@@ -8,23 +8,20 @@ import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
-import { AuthenticatedAction } from "@lib/actions/authenticated";
 import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { loginWithOIDCAndSession } from "@lib/oidc";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { loadActiveSession } from "@lib/session";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateSessionId, validateUsernameAndPassword } from "@lib/validation/validationSchemas";
-import {
-  checkEmailVerification,
-  checkMFAFactors,
-  checkPasswordChangeRequired,
-} from "@lib/verify-helper";
+import { checkEmailVerification, checkPasswordChangeRequired } from "@lib/verify-helper";
 import { getSession, getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 import { parseZitadelError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
@@ -139,15 +136,9 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   if ("error" in mfaFactorCheck) {
     logMessage.error(`MFA factor check failed: ${mfaFactorCheck.error}`);
     return { error: t("validation.invalidCredentials") };
-  }
-
-  if ("redirect" in mfaFactorCheck) {
+  } else {
     redirect(mfaFactorCheck.redirect, "push");
   }
-
-  // If no MFA redirect, authentication is complete
-  logMessage.info("Login successful, redirecting to account page");
-  redirect(buildUrlWithRequestId("/account", requestId), "push");
 };
 
 // Unauthenticated Action to ensure a user can select an existing non-active session
@@ -161,8 +152,6 @@ export const setSession = async (sessionId: string) => {
 };
 
 export const continueOidcSessionSelection = async (sessionId: string, requestId: string) => {
-  await setSelectedSession(sessionId);
-
   const sessionCookie = await getSessionCookieById({ sessionId }).catch(() => null);
   if (!sessionCookie) {
     return { error: "Session not found or invalid" };
@@ -173,14 +162,53 @@ export const continueOidcSessionSelection = async (sessionId: string, requestId:
     return { error: "Session not found or invalid" };
   }
 
-  return loginWithOIDCAndSession({
-    authRequest: requestId,
+  return completeFlowAndRedirect({
     sessionId,
-    sessions: [sessionResponse.session],
-    sessionCookies: [sessionCookie],
+    requestId,
   });
 };
 
-export const checkActiveSession = AuthenticatedAction(async function checkActiveSession(session) {
+export const checkActiveSession = async () => {
+  const session = await loadActiveSession();
+  if (!session.factors?.user) {
+    throw new Error("User does not exist on session");
+  }
   return isSessionValid({ session });
-});
+};
+
+async function checkMFAFactors(
+  authMethods: AuthenticationMethodType[],
+  requestId?: string
+): Promise<{ error: string } | { redirect: string }> {
+  // Strong MFA methods (TOTP/U2F) - at least one must exist
+  const strongFactors = authMethods?.filter(
+    (m: AuthenticationMethodType) =>
+      m === AuthenticationMethodType.TOTP || m === AuthenticationMethodType.U2F
+  );
+
+  // If no strong factor exists, redirect to setup
+  if (!strongFactors.length) {
+    logMessage.debug("Redirecting user to MFA setup - strong MFA required");
+    return { redirect: buildUrlWithRequestId(`/mfa/set`, requestId) };
+  }
+
+  // If user has only one MFA method total, redirect directly to that
+  if (strongFactors.length === 1) {
+    const factor = strongFactors[0];
+    if (factor === AuthenticationMethodType.TOTP) {
+      logMessage.debug("Redirecting user to TOTP verification");
+      return { redirect: buildUrlWithRequestId(`/otp/time-based`, requestId) };
+    } else if (factor === AuthenticationMethodType.U2F) {
+      logMessage.debug("Redirecting user to U2F verification");
+      return { redirect: buildUrlWithRequestId(`/u2f`, requestId) };
+    }
+  }
+
+  // Multiple MFA methods available - show selection page
+  if (strongFactors.length > 1) {
+    logMessage.debug("Redirecting user to MFA selection page");
+    return { redirect: buildUrlWithRequestId(`/mfa`, requestId) };
+  }
+
+  return { error: "No MFA factors available" };
+}

@@ -1,0 +1,51 @@
+/*--------------------------------------------*
+ * Framework and Third-Party
+ *--------------------------------------------*/
+
+import { redirect } from "next/navigation";
+
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { logMessage } from "@lib/logger";
+import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
+import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
+import { UserAvatar } from "@components/account/user-avatar";
+import { AuthPanel } from "@components/auth/AuthPanel";
+
+import { ConfirmU2F } from "./components/ConfirmU2F";
+
+export default async function Page(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
+  const { requestId } = searchParams;
+
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
+
+  if (!session.factors?.user?.loginName || !session.factors?.user?.id) {
+    logMessage.debug({
+      message: "U2F verify page missing required user context",
+      hasLoginName: !!session.factors?.user?.loginName,
+      hasUserId: !!session.factors?.user?.id,
+    });
+    redirect(buildUrlWithRequestId("/mfa", requestId));
+  }
+
+  return (
+    <AuthPanel
+      titleI18nKey="verify.confirmation.title"
+      descriptionI18nKey="none"
+      namespace="u2f"
+      imageSrc="/img/key-icon.png"
+    >
+      <UserAvatar
+        loginName={session.factors.user.loginName}
+        displayName={session.factors.user.displayName}
+        showDropdown={false}
+      ></UserAvatar>
+
+      <div className="w-full">
+        <ConfirmU2F requestId={requestId} />
+      </div>
+    </AuthPanel>
+  );
+}

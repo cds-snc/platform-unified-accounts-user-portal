@@ -1,7 +1,7 @@
-import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { validateAccountWithPassword } from "@lib/validation/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";

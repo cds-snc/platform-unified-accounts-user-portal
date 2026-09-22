@@ -1,18 +1,16 @@
-import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
-import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { getSessionCookieById } from "@lib/cookies";
 import { loginWithOIDCAndSession } from "@lib/oidc";
+import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { getSessionWithCookie } from "@lib/server/session";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
-import {
-  checkEmailVerification,
-  checkMFAFactors,
-  checkPasswordChangeRequired,
-} from "@lib/verify-helper";
+import { checkEmailVerification, checkPasswordChangeRequired } from "@lib/verify-helper";
 import {
   getLockoutSettings,
   getLoginSettings,
@@ -38,6 +36,14 @@ vi.mock("@lib/server/cookie", () => ({
   CreateSessionFailedError: class CreateSessionFailedError extends Error {},
 }));
 
+vi.mock("@lib/session", () => ({
+  loadActiveSession: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("@lib/server/session", () => ({
+  getSessionWithCookie: vi.fn(),
+}));
+
 vi.mock("@lib/cookies", () => ({
   getSessionCookieById: vi.fn(),
   setSelectedSession: vi.fn(),
@@ -57,7 +63,6 @@ vi.mock("@lib/validation/validationSchemas", () => ({
 
 vi.mock("@lib/verify-helper", () => ({
   checkEmailVerification: vi.fn(),
-  checkMFAFactors: vi.fn(),
   checkPasswordChangeRequired: vi.fn(),
 }));
 
@@ -80,6 +85,10 @@ vi.mock("@lib/logger", () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   },
+}));
+
+vi.mock("@lib/server/auth-flow", () => ({
+  completeFlowAndRedirect: vi.fn(),
 }));
 
 describe("submitLoginForm", () => {
@@ -114,7 +123,6 @@ describe("submitLoginForm", () => {
     vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
       authMethodTypes: [{ type: "password" }],
     } as never);
-    vi.mocked(checkMFAFactors).mockResolvedValue({} as never);
     vi.mocked(getLockoutSettings).mockResolvedValue({ maxPasswordAttempts: BigInt(5) } as never);
     vi.mocked(checkPasswordChangeRequired).mockResolvedValue(undefined);
   });
@@ -212,8 +220,9 @@ describe("submitLoginForm", () => {
   });
 
   it("returns MFA redirect when additional factor is required", async () => {
-    vi.mocked(checkMFAFactors).mockResolvedValue({ redirect: "/mfa?requestId=req-123" } as never);
-
+    vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
+      authMethodTypes: [AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F],
+    } as never);
     await expect(
       submitLoginForm({
         username: "person@canada.ca",
@@ -224,9 +233,24 @@ describe("submitLoginForm", () => {
     expect(mockRedirect).toHaveBeenCalledWith("/mfa?requestId=req-123");
   });
 
-  it("returns generic error when MFA factor check fails", async () => {
-    vi.mocked(checkMFAFactors).mockResolvedValue({ error: "failed-precondition" } as never);
+  it("returns MFA set when no strong MFA is set", async () => {
+    vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
+      authMethodTypes: [AuthenticationMethodType.PASSWORD],
+    } as never);
+    await expect(
+      submitLoginForm({
+        username: "person@canada.ca",
+        password: "P@ssw0rd",
+        requestId: "req-123",
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(mockRedirect).toHaveBeenCalledWith("/mfa/set?requestId=req-123");
+  });
 
+  it("returns generic error when MFA factor check fails", async () => {
+    vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
+      authMethodTypes: [],
+    } as never);
     const response = await submitLoginForm({
       username: "person@canada.ca",
       password: "P@ssw0rd",
@@ -234,25 +258,6 @@ describe("submitLoginForm", () => {
     });
 
     expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
-  });
-
-  it("redirects to account when login is successful", async () => {
-    const command = {
-      username: "person@canada.ca",
-      password: "P@ssw0rd",
-      requestId: "req-123",
-    };
-
-    await expect(submitLoginForm(command)).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/account?requestId=req-123");
-    expect(create).toHaveBeenCalledWith(ChecksSchema, {
-      user: { search: { case: "loginName", value: command.username } },
-      password: { password: command.password },
-    });
-    expect(createSessionAndUpdateCookie).toHaveBeenCalledWith({
-      checks: { checks: "value" },
-      requestId: command.requestId,
-    });
   });
 
   it("completes OIDC callback when a valid stored session is selected", async () => {
@@ -277,17 +282,8 @@ describe("submitLoginForm", () => {
         },
       },
     } as never);
-    vi.mocked(loginWithOIDCAndSession).mockResolvedValue({
-      redirect: "https://forms.example.ca/api/auth/callback/gcForms",
-    } as never);
 
-    const response = await continueOidcSessionSelection("session-123", "oidc_req-123");
-
-    expect(getSessionCookieById).toHaveBeenCalledWith({ sessionId: "session-123" });
-    expect(getSession).toHaveBeenCalledWith("session-123", "token-123");
-    expect(loginWithOIDCAndSession).toHaveBeenCalledWith({
-      authRequest: "oidc_req-123",
-      sessionId: "session-123",
+    vi.mocked(getSessionWithCookie).mockResolvedValue({
       sessions: [
         {
           id: "session-123",
@@ -311,9 +307,17 @@ describe("submitLoginForm", () => {
           changeTs: "3",
         },
       ],
-    });
-    expect(response).toEqual({
+    } as never);
+    vi.mocked(loginWithOIDCAndSession).mockResolvedValue({
       redirect: "https://forms.example.ca/api/auth/callback/gcForms",
+    } as never);
+
+    await continueOidcSessionSelection("session-123", "oidc_req-123");
+    expect(getSessionCookieById).toHaveBeenCalledWith({ sessionId: "session-123" });
+    expect(getSession).toHaveBeenCalledWith("session-123", "token-123");
+    expect(completeFlowAndRedirect).toHaveBeenCalledWith({
+      sessionId: "session-123",
+      requestId: "oidc_req-123",
     });
   });
 });

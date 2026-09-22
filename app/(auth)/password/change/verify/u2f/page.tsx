@@ -1,24 +1,19 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
+
 import { redirect } from "next/navigation";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
+import { LoginU2F } from "@root/app/(auth)/u2f/components/LoginU2F";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import type { SearchParams } from "@lib/utils";
 import { buildUrlWithRequestId } from "@lib/utils";
-import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { LoginU2F } from "@components/mfa/LoginU2F";
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("u2f");
-  return { title: t("verify.title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
@@ -42,7 +37,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         showDropdown={false}
       />
       <div className="w-full">
-        <LoginU2F redirect="/password/change" requestId={requestId} />
+        <LoginU2F requestId={requestId} />
       </div>
     </AuthPanel>
   );

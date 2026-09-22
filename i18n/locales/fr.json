@@ -408,6 +408,9 @@
         "couldNotRetrievePasskey": "Une erreur s'est produite lors de la récupération de la clé de sécurité",
         "verificationCancelled": "La vérification de la clé de sécurité a été annulée",
         "verificationFailed": "Une erreur s'est produite lors de la vérification de la clé de sécurité"
+      },
+      "confirmation": {
+        "title": "FR - To continue, Tap your security Key"
       }
     },
     "set": {
@@ -438,9 +441,6 @@
     "sendingNewCode": "Envoi d'un nouveau code...",
     "sentNewCode": "Nouveau code envoyé",
     "help": "Besoin d'aide?",
-    "successTitle": "Courriel initialisé et validé",
-    "successDescription": "Votre courriel a été vérifié. Continuez pour configurer l'authentification à deux facteurs pour sécuriser votre compte.",
-    "continueButton": "Continuer la configuration",
     "validation": {
       "required": "Ce champ ne peut pas être vide",
       "length": "Doit contenir 6 caractères"
@@ -483,21 +483,27 @@
     }
   },
   "beforeYouStart": {
-    "title": "Before you start [FR]",
+    "title": "Avant de commencer",
     "step1": {
-      "title": "Step 1 [FR]",
-      "description": "Access your work email [FR]",
-      "callout": "Use the same email address as your GC Forms account. [FR]"
+      "title": "Étape 1 ",
+      "description": "Connectez-vous à votre compte de courriel gouvernemental.",
+      "callout1": "Vous aurez besoin d’accéder à vos courriels pour créer un compte Plateforme GC.",
+
+      "callout2": "Utilisez la même adresse de courriel que celle de votre compte Formulaires GC."
     },
     "step2": {
-      "title": "Step 2 [FR]",
-      "description": "Multi-factor authentication [FR]",
-      "callout1": "Hardware key [FR]",
-      "callout2": "Any device with Authenticator app [FR]"
+      "title": "Étape 2",
+      "description": "Choisissez une méthode de vérification.",
+      "callout1": "Clé physique",
+      "callout2": "Appareil avec une application d’authentification"
     },
     "cta": {
-      "createAccount": "Create GC Platform account [FR]",
-      "alreadyHaveAccount": "I already have a GC Platform account [FR]"
+      "createAccount": "Créer un compte Plateforme GC",
+      "alreadyHaveAccount": "J’ai déjà un compte Plateforme GC"
     }
+  },
+  "404": {
+    "title": "Page non trouvée",
+    "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
   }
 }

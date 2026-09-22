@@ -12,20 +12,14 @@ import { Code, ConnectError } from "@connectrpc/connect";
 import { create, Duration } from "@zitadel/client";
 import { createServerTransport as libCreateServerTransport } from "@zitadel/client/node";
 import { makeReqCtx } from "@zitadel/client/v2";
-import {
-  OrganizationSchema,
-  RequestContext,
-  TextQueryMethod,
-} from "@zitadel/proto/zitadel/object/v2/object_pb";
+import { OrganizationSchema, TextQueryMethod } from "@zitadel/proto/zitadel/object/v2/object_pb";
 import { CreateCallbackRequest } from "@zitadel/proto/zitadel/oidc/v2/oidc_service_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import {
   Checks,
   CreateSessionResponse,
 } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
-import { LoginSettings } from "@zitadel/proto/zitadel/settings/v2/login_settings_pb";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb";
-import type { RedirectURLsJson } from "@zitadel/proto/zitadel/user/v2/idp_pb";
 import { ReturnPasswordResetCodeSchema } from "@zitadel/proto/zitadel/user/v2/password_pb";
 import { SearchQuery, SearchQuerySchema } from "@zitadel/proto/zitadel/user/v2/query_pb";
 import {
@@ -39,8 +33,8 @@ import {
 } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
-import { serverTranslation } from "@i18n/server";
 
+import { applyCustomRequestHeaders } from "./utils/headers";
 import { getUserAgent } from "./fingerprint";
 import { logMessage } from "./logger";
 import { getServiceForHost } from "./service";
@@ -83,17 +77,6 @@ export const getPasswordExpirySettings = cache(async () => {
     .getPasswordExpirySettings({ ctx: makeReqCtx(ZITADEL_ORGANIZATION) }, {})
     .then((resp) => (resp.settings ? getSerializableObject(resp.settings) : undefined));
 });
-
-/**
- * @security Requires authenticated session. Use protectedListIDPLinks from lib/server/zitadel-protected.ts
- */
-export async function listIDPLinks({ userId }: { userId: string }) {
-  // TODO - cache in mem or Redis
-
-  const userService = await getServiceForHost("UserService");
-
-  return userService.listIDPLinks({ userId }, {}).then((obj) => getSerializableObject(obj));
-}
 
 /**
  * @security Requires authenticated session. Returns cryptographic secret material. Use protectedRegisterTOTP from lib/server/zitadel-protected.ts
@@ -205,31 +188,6 @@ export async function deleteSession({
   const sessionService = await getServiceForHost("SessionService");
 
   return sessionService.deleteSession({ sessionId, sessionToken }, {});
-}
-
-type ListSessionsCommand = {
-  ids: string[];
-};
-
-/**
- * @security Internal use only. Lists sessions by their IDs.
- */
-export async function listSessions({ ids }: ListSessionsCommand) {
-  const sessionService = await getServiceForHost("SessionService");
-
-  return sessionService.listSessions(
-    {
-      queries: [
-        {
-          query: {
-            case: "idsQuery",
-            value: { ids },
-          },
-        },
-      ],
-    },
-    {}
-  );
 }
 
 type AddHumanUserData = {
@@ -405,206 +363,6 @@ export async function listUsers({ loginName, userName, phone, email }: ListUsers
   return userService.listUsers({ queries });
 }
 
-export type SearchUsersCommand = {
-  searchValue: string;
-  loginSettings: LoginSettings;
-
-  suffix?: string;
-};
-
-const PhoneQuery = (searchValue: string) =>
-  create(SearchQuerySchema, {
-    query: {
-      case: "phoneQuery",
-      value: {
-        number: searchValue,
-        method: TextQueryMethod.EQUALS,
-      },
-    },
-  });
-
-const LoginNameQuery = (searchValue: string) =>
-  create(SearchQuerySchema, {
-    query: {
-      case: "loginNameQuery",
-      value: {
-        loginName: searchValue,
-        method: TextQueryMethod.EQUALS_IGNORE_CASE,
-      },
-    },
-  });
-
-const EmailQuery = (searchValue: string) =>
-  create(SearchQuerySchema, {
-    query: {
-      case: "emailQuery",
-      value: {
-        emailAddress: searchValue,
-        method: TextQueryMethod.EQUALS_IGNORE_CASE,
-      },
-    },
-  });
-
-/**
- * this is a dedicated search function to search for users from the loginname page
- * it searches users based on the loginName or userName and org suffix combination, and falls back to email and phone if no users are found
- *  */
-export async function searchUsers({
-  searchValue,
-  loginSettings,
-
-  suffix,
-}: SearchUsersCommand) {
-  const queries: SearchQuery[] = [];
-
-  const { t } = await serverTranslation("zitadel");
-
-  // if a suffix is provided, we search for the userName concatenated with the suffix
-  if (suffix) {
-    const searchValueWithSuffix = `${searchValue}@${suffix}`;
-    const loginNameQuery = LoginNameQuery(searchValueWithSuffix);
-    queries.push(loginNameQuery);
-  } else {
-    const loginNameQuery = LoginNameQuery(searchValue);
-    queries.push(loginNameQuery);
-  }
-
-  queries.push(
-    create(SearchQuerySchema, {
-      query: {
-        case: "organizationIdQuery",
-        value: {
-          organizationId: ZITADEL_ORGANIZATION,
-        },
-      },
-    })
-  );
-
-  const userService = await getServiceForHost("UserService");
-
-  const loginNameResult = await userService.listUsers({ queries });
-
-  if (!loginNameResult || !loginNameResult.details) {
-    return { error: t("errors.errorOccured") };
-  }
-
-  if (loginNameResult.result.length > 1) {
-    return { error: t("errors.multipleUsersFound") };
-  }
-
-  if (loginNameResult.result.length == 1) {
-    return loginNameResult;
-  }
-
-  const emailAndPhoneQueries: SearchQuery[] = [];
-  if (loginSettings.disableLoginWithEmail && loginSettings.disableLoginWithPhone) {
-    // Both email and phone login are disabled, return empty result
-    return { result: [] };
-  } else if (loginSettings.disableLoginWithEmail && searchValue.length <= 20) {
-    const phoneQuery = PhoneQuery(searchValue);
-    emailAndPhoneQueries.push(phoneQuery);
-  } else if (loginSettings.disableLoginWithPhone) {
-    const emailQuery = EmailQuery(searchValue);
-    emailAndPhoneQueries.push(emailQuery);
-  } else {
-    const orQuery: SearchQuery[] = [];
-
-    const emailQuery = EmailQuery(searchValue);
-    orQuery.push(emailQuery);
-
-    let phoneQuery;
-    if (searchValue.length <= 20) {
-      phoneQuery = PhoneQuery(searchValue);
-      orQuery.push(phoneQuery);
-    }
-
-    emailAndPhoneQueries.push(
-      create(SearchQuerySchema, {
-        query: {
-          case: "orQuery",
-          value: {
-            queries: orQuery,
-          },
-        },
-      })
-    );
-  }
-
-  emailAndPhoneQueries.push(
-    create(SearchQuerySchema, {
-      query: {
-        case: "organizationIdQuery",
-        value: {
-          organizationId: ZITADEL_ORGANIZATION,
-        },
-      },
-    })
-  );
-
-  const emailOrPhoneResult = await userService.listUsers({
-    queries: emailAndPhoneQueries,
-  });
-
-  if (!emailOrPhoneResult || !emailOrPhoneResult.details) {
-    return { error: t("errors.errorOccured") };
-  }
-
-  if (emailOrPhoneResult.result.length > 1) {
-    return { error: t("errors.multipleUsersFound") };
-  }
-
-  if (emailOrPhoneResult.result.length == 1) {
-    return emailOrPhoneResult;
-  }
-
-  // No users found - return empty result, not an error
-  return { result: [] };
-}
-
-export async function getOrgsByDomain({ domain }: { domain: string }) {
-  const orgService = await getServiceForHost("OrganizationService");
-
-  return orgService.listOrganizations(
-    {
-      queries: [
-        {
-          query: {
-            case: "domainQuery",
-            value: { domain, method: TextQueryMethod.EQUALS },
-          },
-        },
-      ],
-    },
-    {}
-  );
-}
-
-export async function startIdentityProviderFlow({
-  idpId,
-  urls,
-}: {
-  idpId: string;
-  urls: RedirectURLsJson;
-}): Promise<string | null> {
-  const userService = await getServiceForHost("UserService");
-
-  return userService
-    .startIdentityProviderIntent({
-      idpId,
-      content: {
-        case: "urls",
-        value: urls,
-      },
-    })
-    .then(async (resp) => {
-      if (resp.nextStep.case === "authUrl" && resp.nextStep.value) {
-        return resp.nextStep.value;
-      } else {
-        return null;
-      }
-    });
-}
-
 export async function getAuthRequest({ authRequestId }: { authRequestId: string }) {
   const oidcService = await getServiceForHost("OIDCService");
 
@@ -635,12 +393,6 @@ export async function verifyEmail({
     },
     {}
   );
-}
-
-export async function getIDPByID({ id }: { id: string }) {
-  const idpService = await getServiceForHost("IdentityProviderService");
-
-  return idpService.getIDPByID({ id }, {}).then((resp) => resp.idp);
 }
 
 /**
@@ -738,28 +490,6 @@ export async function verifyU2FRegistration({
 }
 
 /**
- *
- * @param host
- * @param linking_allowed whether linking is allowed
- * @returns the active identity providers
- */
-export async function getActiveIdentityProviders({
-  linking_allowed,
-}: {
-  linking_allowed?: boolean;
-} = {}) {
-  const props: { ctx: RequestContext; linkingAllowed?: boolean } = {
-    ctx: makeReqCtx(ZITADEL_ORGANIZATION),
-  };
-  if (linking_allowed) {
-    props.linkingAllowed = linking_allowed;
-  }
-  const settingsService = await getServiceForHost("SettingsService");
-
-  return settingsService.getActiveIdentityProviders(props, {});
-}
-
-/**
  * @security Requires authenticated session. Use protectedListAuthenticationMethodTypes from lib/server/zitadel-protected.ts
  */
 export const listAuthenticationMethodTypes = cache(async (userId: string) => {
@@ -779,18 +509,7 @@ const loggingInterceptor = (next: AnyFn) => async (req: UnaryRequest | StreamReq
 };
 
 const customHeaderInterceptor = (next: AnyFn) => async (req: UnaryRequest | StreamRequest) => {
-  if (process.env.CUSTOM_REQUEST_HEADERS) {
-    process.env.CUSTOM_REQUEST_HEADERS.split(",").forEach((header) => {
-      const kv = header.indexOf(":");
-      if (kv > 0) {
-        req.header.set(header.slice(0, kv).trim(), header.slice(kv + 1).trim());
-      } else {
-        logMessage.warn(
-          `Skipping malformed CUSTOM_REQUEST_HEADERS entry (expected key:value format)`
-        );
-      }
-    });
-  }
+  applyCustomRequestHeaders(req.header, process.env.CUSTOM_REQUEST_HEADERS);
   return next(req);
 };
 
@@ -800,22 +519,6 @@ export function createServerTransport(token: string, baseUrl: string) {
     defaultTimeoutMs: 10000,
     interceptors: [customHeaderInterceptor, loggingInterceptor],
   });
-}
-
-/**
- * Check whether a user has an authentication method (TOTP) attached to their account.
- * The current Zitadel API does not include the TOTP name so we can only show whether
- * TOTP is added/enabled or not.
- *
- * @security Requires authenticated session. Use protectedGetTOTPStatus from lib/server/zitadel-protected.ts
- */
-export async function getTOTPStatus({ userId }: { userId: string }) {
-  const userService = await getServiceForHost("UserService");
-
-  const authMethodsResponse = await userService.listAuthenticationMethodTypes({ userId });
-  const authMethodTypes = authMethodsResponse.authMethodTypes ?? [];
-
-  return authMethodTypes.includes(4); // 4 = AuthenticationMethodType.TOTP
 }
 
 /**

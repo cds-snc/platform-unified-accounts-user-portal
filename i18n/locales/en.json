@@ -403,6 +403,9 @@
         "couldNotRetrievePasskey": "An error occurred while retrieving security key",
         "verificationCancelled": "Security key verification was cancelled",
         "verificationFailed": "An error occurred during security key verification"
+      },
+      "confirmation": {
+        "title": "To continue, Tap your security Key"
       }
     },
     "set": {
@@ -433,9 +436,6 @@
     "sendingNewCode": "Sending new code...",
     "sentNewCode": "New code sent!",
     "help": "Need help?",
-    "successTitle": "Email initialized and validated",
-    "successDescription": "Your email has been verified. Continue to set up two-factor authentication to secure your account.",
-    "continueButton": "Continue setup",
     "validation": {
       "required": "Cannot be empty",
       "length": "Must be 6 characters"
@@ -481,18 +481,24 @@
     "title": "Before you start",
     "step1": {
       "title": "Step 1 ",
-      "description": "Access your work email",
-      "callout": "Use the same email address as your GC Forms account."
+      "description": "Sign in to your GC email account",
+      "callout1": "You need email access to create a GC Platform account.",
+
+      "callout2": "Use the same email address as your GC Forms account."
     },
     "step2": {
       "title": "Step 2",
-      "description": "Multi-factor authentication",
+      "description": "Choose verification method",
       "callout1": "Hardware key",
-      "callout2": "Any device with Authenticator app "
+      "callout2": "Device with Authenticator app "
     },
     "cta": {
       "createAccount": "Create GC Platform account",
       "alreadyHaveAccount": "I already have a GC Platform account"
     }
+  },
+  "404": {
+    "title": "Page not found ",
+    "body": "Sorry, the page you’re looking for was not found."
   }
 }

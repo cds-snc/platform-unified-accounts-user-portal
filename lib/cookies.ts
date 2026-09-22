@@ -1,5 +1,3 @@
-"use server";
-
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -12,6 +10,8 @@ import { ZITADEL_ORGANIZATION } from "@root/constants/config";
  * Local Relative
  *--------------------------------------------*/
 import { logMessage } from "./logger";
+
+import "server-only";
 
 // TODO: improve this to handle overflow
 const MAX_COOKIE_SIZE = 2048;
@@ -239,29 +239,6 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
   } else {
     logMessage.info("getAllSessions: No session cookie found, returning empty array");
     return [];
-  }
-}
-
-/**
- * Get session credentials from the http-only session cookie
- * @returns sessionId, loginName, organization, and requestId (if linked to OIDC flow)
- */
-// TODO - Refactor to see if we still need this transformative function
-export async function getSessionCredentials() {
-  try {
-    const { id, loginName, userId, organization, requestId, displayName } =
-      await getActiveSessionCookie();
-
-    return {
-      sessionId: id,
-      loginName,
-      displayName,
-      userId,
-      organization,
-      requestId, // Include requestId for OIDC flows
-    };
-  } catch (error) {
-    throw new Error("No session found in cookies");
   }
 }
 

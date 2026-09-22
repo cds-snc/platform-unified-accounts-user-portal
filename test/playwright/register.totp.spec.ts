@@ -1,7 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 import { generateTOTP, getRandomEmail, getRandomPassword, getRequiredEnv } from "./utils/utils";
-import { deleteUserById, getEmailVerificationCode, getUserIdByEmail } from "./utils/zitadel";
+import {
+  deleteUserById,
+  getEmailVerificationCode,
+  getUserIdByEmail,
+  getZitadelAccessToken,
+} from "./utils/zitadel";
 
 test.describe("register user flow", () => {
   let idpUrl = "";
@@ -9,19 +14,21 @@ test.describe("register user flow", () => {
   let password = "";
   let portalUrl = "";
   let userId = "";
-  let zitadelBearerToken = "";
+  let serviceAccountKey = "";
+  let accessToken = "";
 
-  test.beforeAll(() => {
+  test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
-    email = getRandomEmail(getRequiredEnv("USERNAME"));
+    email = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
     password = getRandomPassword();
     portalUrl = getRequiredEnv("PORTAL_URL");
-    zitadelBearerToken = getRequiredEnv("ZITADEL_BEARER_TOKEN");
+    serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
+    accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
   });
 
   test.afterAll(async () => {
     if (userId) {
-      await deleteUserById(userId, zitadelBearerToken, idpUrl);
+      await deleteUserById(userId, accessToken, idpUrl);
     }
   });
 
@@ -29,8 +36,8 @@ test.describe("register user flow", () => {
     await page.goto(portalUrl);
 
     // Login
-    await expect(page.locator("a[href$='/register']")).toBeVisible();
-    await page.locator("a[href$='/register']").click();
+    await expect(page.getByTestId("register-link")).toBeVisible();
+    await page.getByTestId("register-link").click();
 
     // User details
     await expect(page.locator("#register-form #firstname")).toBeVisible();
@@ -47,18 +54,10 @@ test.describe("register user flow", () => {
 
     // Email verify
     await expect(page.locator("#verify-form #code")).toBeVisible();
-    userId = await getUserIdByEmail(email, zitadelBearerToken, idpUrl);
-    const emailVerificationCode = await getEmailVerificationCode(
-      userId,
-      zitadelBearerToken,
-      idpUrl
-    );
+    userId = await getUserIdByEmail(email, accessToken, idpUrl);
+    const emailVerificationCode = await getEmailVerificationCode(userId, accessToken, idpUrl);
     await page.locator("#verify-form #code").fill(emailVerificationCode);
     await page.locator("#verify-form button[type='submit']").click();
-
-    // Email verify success
-    await expect(page.locator("img[alt='Success']")).toBeVisible();
-    await page.locator("a[href$='/mfa/set']").click();
 
     // MFA select
     await expect(page.locator("#mfa-select")).toBeVisible();
@@ -66,7 +65,7 @@ test.describe("register user flow", () => {
     await page.locator("button#mfa-continue").click();
 
     // TOTP setup
-    const totpLink = page.locator("a[href^='otpauth://']");
+    const totpLink = page.getByTestId("totp-link");
     await expect(totpLink).toBeVisible();
     const totpUrl = await totpLink.getAttribute("href");
     const totpSecret = new URL(totpUrl!).searchParams.get("secret");
@@ -74,8 +73,9 @@ test.describe("register user flow", () => {
     await page.locator("#totp-form button[type='submit']").click();
 
     // TOTP setup success
-    await expect(page.locator("img[alt='All set']")).toBeVisible();
-    await page.locator("a[href$='/account']").click();
+    await expect(page.getByTestId("all-set")).toBeVisible();
+    await expect(page.getByTestId("continue-button")).toBeVisible();
+    await page.getByTestId("continue-button").click();
 
     // Account page
     await expect(page.locator("#personal-details-title")).toBeVisible();

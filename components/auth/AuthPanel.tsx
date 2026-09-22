@@ -9,6 +9,7 @@ import { ReactNode } from "react";
 import { getImageUrl } from "@lib/utils/imageUrl";
 import { I18n } from "@i18n";
 import { Image } from "@components/ui/image/Image";
+import { PageTitle } from "@components/ui/title/PageTitle";
 
 /*--------------------------------------------*
  * Local Relative
@@ -44,6 +45,7 @@ export const AuthPanel = ({
 
   return (
     <div id={panelId}>
+      <PageTitle i18nKey={titleI18nKey} namespace={namespace} />
       {imageSrc && (
         <div className="mb-6 flex justify-center">
           <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} />

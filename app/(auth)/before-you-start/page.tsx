@@ -1,13 +1,8 @@
 /*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-import { Metadata } from "next";
-
-/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { SearchParams } from "@lib/utils";
-import { serverTranslation } from "@i18n/server";
+import { I18n } from "@i18n/Translate";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 import ActionsClient from "./components/ActionsClient";
@@ -17,11 +12,6 @@ import { Step } from "./components/Step";
  * Parent Relative
  *--------------------------------------------*/
 import { Title } from "./components/Title";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("beforeYouStart");
-  return { title: t("title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -38,15 +28,28 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         <Title />
         <div className="mt-6 space-y-6">
           {/* Step 1: Verify your email address */}
-
           <Step
             titleKey="step1.title"
             descKey="step1.description"
             iconSrc="/img/email_@.svg"
           ></Step>
+          <CallOut className="mb-10">
+            <>
+              <I18n
+                i18nKey="step1.callout1"
+                namespace="beforeYouStart"
+                tagName="div"
+                className="mb-4 text-base"
+              />
 
-          <CallOut i18nKey="step1.callout" className="mb-10" />
-
+              <I18n
+                i18nKey="step1.callout2"
+                namespace="beforeYouStart"
+                tagName="div"
+                className="mb-0 text-base"
+              />
+            </>
+          </CallOut>
           {/* Step 2: Set up two-factor authentication */}
           <Step
             titleKey="step2.title"

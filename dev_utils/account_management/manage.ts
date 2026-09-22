@@ -1,0 +1,173 @@
+import "dotenv/config";
+
+import { confirm, intro, log, multiselect, outro, text } from "@clack/prompts";
+import { TextQueryMethod } from "@zitadel/proto/zitadel/object_pb";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
+
+import { getServiceForHost } from "@lib/service";
+
+const manage = async () => {
+  intro("User Management");
+  const userManagement = await getServiceForHost("UserService");
+
+  const devEmail = await text({
+    message: "What email address is your main account?",
+    validate: (value) => {
+      if (value && value?.indexOf("@") > 0) {
+        return undefined;
+      }
+      return "Email must contain the '@' character";
+    },
+  }).then((val) => {
+    if (typeof val !== "string") {
+      throw new Error("Email must not be empty");
+    }
+    return val;
+  });
+
+  const searchCriteria = devEmail.split("@")[0];
+
+  const activeUserAccounts = await userManagement
+    .listUsers({
+      queries: [
+        {
+          query: {
+            value: { emailAddress: searchCriteria, method: TextQueryMethod.CONTAINS },
+            case: "emailQuery",
+          },
+        },
+        {
+          query: {
+            case: "stateQuery",
+            value: { state: UserState.ACTIVE },
+          },
+        },
+      ],
+    })
+    .then((response) => {
+      return response.result.map(({ userId, username }) => ({
+        userId,
+        username,
+      }));
+    });
+
+  const inactiveUserAccounts = await userManagement
+    .listUsers({
+      queries: [
+        {
+          query: {
+            value: { emailAddress: searchCriteria, method: TextQueryMethod.CONTAINS },
+            case: "emailQuery",
+          },
+        },
+        {
+          query: {
+            case: "stateQuery",
+            value: { state: UserState.INACTIVE },
+          },
+        },
+      ],
+    })
+    .then((response) => {
+      return response.result.map(({ userId, username }) => ({
+        userId,
+        username,
+      }));
+    });
+
+  if (inactiveUserAccounts.length) {
+    log.info(`The following accounts are currently inactive and will soon be deleted:`);
+    inactiveUserAccounts.forEach((account) => {
+      log.message(`- ${account.username}`);
+    });
+  }
+
+  // temp clean
+  await Promise.all(
+    inactiveUserAccounts.map(async (account) => {
+      await userManagement.updateUser({
+        userId: account.userId,
+        userType: {
+          case: "human",
+          value: {
+            email: {
+              email: "noreply@cds-snc.ca",
+              verification: {
+                case: "returnCode",
+                value: {},
+              },
+            },
+          },
+        },
+      });
+    })
+  );
+
+  if (activeUserAccounts.length <= 1) {
+    outro("No active accounts to delete");
+    return;
+  }
+
+  const selectedAccounts = await multiselect({
+    message: "Select which accounts from the following you would like to flag for deletion",
+    options: activeUserAccounts
+      .filter((val) => val.username !== devEmail)
+      .map((val) => ({
+        value: val.userId,
+        label: val.username,
+      })),
+    required: false,
+  });
+
+  if (typeof selectedAccounts !== "object") {
+    outro("No Accounts selected");
+    return;
+  }
+
+  const shouldContinue = await confirm({
+    message: "Are you sure you want to delete the accounts",
+  });
+
+  if (typeof shouldContinue === "symbol" || !shouldContinue) {
+    console.info("Exiting without making any changes to accounts");
+    return;
+  }
+
+  const deletePromises = selectedAccounts.map(async (accountId) => {
+    const factors = await userManagement.listAuthenticationFactors({ userId: accountId });
+
+    await Promise.all([
+      ...factors.result.map(async (factor) => {
+        switch (factor.type.case) {
+          case "otp":
+            return userManagement.removeTOTP({ userId: accountId });
+
+          case "u2f":
+            return userManagement.removeU2F({ userId: accountId, u2fId: factor.type.value.id });
+        }
+      }),
+      async () => {
+        await userManagement.updateUser({
+          userId: accountId,
+          userType: {
+            case: "human",
+            value: {
+              email: {
+                email: "noreply@cds-snc.ca",
+                verification: {
+                  case: "returnCode",
+                  value: {},
+                },
+              },
+            },
+          },
+        });
+      },
+    ]);
+    return userManagement.deactivateUser({ userId: accountId });
+  });
+  await Promise.all(deletePromises);
+  outro("Selected Accounts marked as inactive and MFA deleted");
+};
+
+manage();

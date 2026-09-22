@@ -1,14 +1,12 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { Metadata } from "next";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { SearchParams } from "@lib/utils";
-import { serverTranslation } from "@i18n/server";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -18,11 +16,6 @@ import { AuthPanel } from "@components/auth/AuthPanel";
 import { VerifyEmailForm } from "./components/VerifyEmailForm";
 import { sendVerificationEmail } from "./action";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("otp");
-  return { title: t("verify.title") };
-}
-
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
 
@@ -31,7 +24,9 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   // TODO: Do we want to allow a user to verify their email in a different browser where they didn't
   // start their session.
 
-  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId);
+  const session = await checkAuthenticationLevel(AuthLevel.PASSWORD_REQUIRED, requestId, {
+    requireEmailVerified: false,
+  });
 
   if (!session.factors?.user?.id) {
     throw new Error("Used as a type guard to ensure user has id property");
