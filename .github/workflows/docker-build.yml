@@ -60,7 +60,19 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
+      - name: Check if image already exists
+        id: check-image
+        run: |
+          IMAGE_COUNT="$(aws ecr batch-get-image \
+            --repository-name "idp-login" \
+            --image-ids "imageTag=$IMAGE_TAG" \
+            --query 'length(images)' \
+            --region "$AWS_REGION" \
+            --output text)"
+          echo "exists=$([[ "$IMAGE_COUNT" == "1" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Build and push tagged image
+        if: steps.check-image.outputs.exists == 'false'
         run: |
           docker buildx build \
             --push \
