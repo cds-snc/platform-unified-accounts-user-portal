@@ -9,6 +9,9 @@ on:
       GITHUB_SHA:
         required: true
         type: string
+      IMAGE_TAG:
+        required: true
+        type: string
     secrets:
       LOG_ANALYTICS_WORKSPACE_ID:
         required: true
@@ -19,6 +22,7 @@ env:
   AWS_REGION: ca-central-1
   REGISTRY_PREFIX: ${{ inputs.ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
   GITHUB_SHA: ${{ inputs.GITHUB_SHA }}
+  IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
 
 jobs:
   docker-push:
@@ -26,16 +30,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    strategy:
-      matrix:
-        include:
-          - image: idp-login
-            directory: .
-            tag-latest: false
-          - image: idp-load-test
-            directory: ./test/perf
-            tag-latest: true
-
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
@@ -53,6 +47,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ inputs.GITHUB_SHA }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
@@ -65,19 +60,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
-      - name: Build and push SHA tagged image
-        working-directory: ${{ matrix.directory }}
+      - name: Build and push tagged image
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64 \
             --build-arg GIT_SHA=$GITHUB_SHA \
-            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA" \
+            --tag "$REGISTRY_PREFIX/idp-login:$IMAGE_TAG" \
             .
-
-      - name: Tag latest image
-        if: matrix.tag-latest == true
-        run: |
-          docker buildx imagetools create \
-            --tag "$REGISTRY_PREFIX/${{ matrix.image }}:latest" \
-            "$REGISTRY_PREFIX/${{ matrix.image }}:sha-$GITHUB_SHA"

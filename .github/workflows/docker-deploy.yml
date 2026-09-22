@@ -6,7 +6,7 @@ on:
       ACCOUNT_ID:
         required: true
         type: string
-      GITHUB_SHA:
+      IMAGE_TAG:
         required: true
         type: string
     secrets:
@@ -19,7 +19,7 @@ env:
   AWS_REGION: ca-central-1
   ECS_CLUSTER: idp
   REGISTRY_PREFIX: ${{ inputs.ACCOUNT_ID }}.dkr.ecr.ca-central-1.amazonaws.com
-  GITHUB_SHA: ${{ inputs.GITHUB_SHA }}
+  IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
 
 jobs:
   docker-deploy:
@@ -49,7 +49,7 @@ jobs:
         with:
           task-definition-family: idp-login
           container-name: idp-login
-          image: ${{ env.REGISTRY_PREFIX }}/idp-login:sha-${{ env.GITHUB_SHA }}
+          image: ${{ env.REGISTRY_PREFIX }}/idp-login:${{ env.IMAGE_TAG }}
 
       - name: Deploy updated ECS task
         uses: aws-actions/amazon-ecs-deploy-task-definition@c465972ecbd160473f22e683363b422a5412a3de # v2.6.3
@@ -64,6 +64,6 @@ jobs:
         run: |
           aws ssm put-parameter \
             --name "/ecs/$ECS_CLUSTER/idp-login/container-image" \
-            --value "$REGISTRY_PREFIX/idp-login:sha-$GITHUB_SHA" \
+            --value "$REGISTRY_PREFIX/idp-login:$IMAGE_TAG" \
             --type "String" \
             --overwrite
