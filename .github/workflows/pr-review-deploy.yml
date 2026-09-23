@@ -151,7 +151,6 @@ jobs:
     with:
       account_id: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
       bucket_name: ${{ vars.STAGING_INTEGRATION_TEST_BUCKET_NAME }}
-      forms_url: ${{ vars.STAGING_INTEGRATION_TEST_FORMS_URL }}
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
       portal_url: ${{ needs.pr-review-deploy.outputs.url }}
     secrets:
@@ -160,5 +159,7 @@ jobs:
       register_email: ${{ secrets.STAGING_INTEGRATION_TEST_REGISTER_EMAIL }}
       username: ${{ secrets.STAGING_INTEGRATION_TEST_USERNAME }}
       password: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD }}
+      test_callback_url: ${{ secrets.STAGING_INTEGRATION_TEST_CALLBACK_URL }}
+      test_client_id: ${{ secrets.STAGING_INTEGRATION_TEST_CLIENT_ID }}
       totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
       zitadel_service_account_key: ${{ secrets.STAGING_INTEGRATION_TEST_ZITADEL_SERVICE_ACCOUNT_KEY }}
