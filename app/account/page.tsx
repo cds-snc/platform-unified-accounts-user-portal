@@ -45,8 +45,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     userId: userId!,
   });
 
-  // RequestingAppProvider is needed here because of the shared PageTitle component
-
   return (
     <>
       <PageTitle i18nKey="navigation.title" namespace="account" />
