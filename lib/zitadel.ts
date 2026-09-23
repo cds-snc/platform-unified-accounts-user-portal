@@ -561,3 +561,45 @@ export async function removeTOTP({ userId }: { userId: string }) {
     userId,
   });
 }
+
+export async function getApplications(): Promise<
+  { name: string; clientId: string; projectId: string; projectName: string }[]
+> {
+  const projectService = await getServiceForHost("ProjectService");
+  const appService = await getServiceForHost("AppService");
+
+  const { projects } = await projectService.listProjects({ filters: [] });
+
+  return Promise.all(
+    projects.map(async (project) => {
+      const { applications } = await appService.listApplications({
+        projectId: project.id,
+        filters: [{ filter: { case: "oidcAppOnly", value: true } }],
+      });
+      return applications.flatMap((app) => {
+        if (app.config.case === "oidcConfig") {
+          return [
+            {
+              name: app.name,
+              clientId: app.config.value.clientId,
+              projectId: project.id,
+              projectName: project.name,
+            },
+          ];
+        }
+        return [];
+      });
+    })
+  ).then((result) => {
+    return result.reduce(
+      (
+        prev: { name: string; clientId: string; projectId: string; projectName: string }[],
+        curr
+      ) => {
+        prev.push(...curr);
+        return prev;
+      },
+      []
+    );
+  });
+}
