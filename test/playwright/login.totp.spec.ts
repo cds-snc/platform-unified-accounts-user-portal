@@ -16,7 +16,7 @@ test.describe("login user flow", () => {
   test.beforeAll(() => {
     portalUrl = getRequiredEnv("PORTAL_URL");
 
-    username = getRequiredEnv("TEST_USER");
+    username = getRequiredEnv("USERNAME");
     password = getRequiredEnv("PASSWORD");
     totpSecret = getRequiredEnv("TOTP_SECRET");
 
