@@ -20,6 +20,7 @@ jobs:
     with:
       ACCOUNT_ID: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
       GITHUB_SHA: ${{ github.sha }}
+      IMAGE_TAG: sha-${{ github.sha }}
     secrets:
       LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
       LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
@@ -32,7 +33,7 @@ jobs:
     uses: ./.github/workflows/docker-deploy.yml
     with:
       ACCOUNT_ID: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
-      GITHUB_SHA: ${{ github.sha }}
+      IMAGE_TAG: sha-${{ github.sha }}
     secrets:
       LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
       LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
