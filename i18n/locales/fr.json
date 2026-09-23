@@ -126,7 +126,7 @@
     }
   },
   "start": {
-    "title": "Se connecter",
+    "title": "Se connecter{{app}}",
     "signUpText": "Si vous n'avez pas de compte, vous pouvez",
     "signUpLink": "en créer un maintenant.",
     "userName": "Nom",
@@ -454,7 +454,7 @@
   "allSet": {
     "title": "Vous êtes prêt !",
     "description": "Votre compte est maintenant sécurisé avec l'authentification à deux facteurs.",
-    "continueButton": "Continuer"
+    "continueButton": "Continuer{{app}}"
   },
   "contact-us": {
     "title": "Nous contacter",
@@ -505,5 +505,10 @@
   "404": {
     "title": "Page non trouvée",
     "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
+  },
+  "rpApps": {
+    "GC Forms": " à GC Formulaires",
+    "GC Notify": " à GC Notify",
+    "defaultAppName": ""
   }
 }
