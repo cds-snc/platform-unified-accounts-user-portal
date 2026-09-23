@@ -2,6 +2,7 @@
 
 import React, { createContext, ReactNode, useContext } from "react";
 
+import { logMessage } from "@lib/logger";
 import { useTranslation } from "@i18n";
 type RequestingAppContextType = {
   requestingAppName?: string;
@@ -36,7 +37,10 @@ export const RequestingAppProvider: React.FC<RequestingAppProviderProps> = ({
 export const useRequestingApp = (): RequestingAppContextType => {
   const context = useContext(RequestingAppContext);
   if (context === undefined) {
-    throw new Error("useRequestingApp must be used within a RequestingAppProvider");
+    logMessage.debug(
+      "useRequestingApp must be used within a RequestingAppProvider - using default context value"
+    );
+    return { requestingAppName: undefined };
   }
   return context;
 };
