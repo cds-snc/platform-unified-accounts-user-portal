@@ -41,11 +41,31 @@ test.describe("login user flow", () => {
   });
 
   test("logs in with TOTP and completes the OIDC PKCE auth flow", async ({ page }) => {
-    const issuerUrl = new URL(portalUrl);
+    const proxyOrigin = new URL(portalUrl);
     const redirectUri = new URL(testRedirectUri);
+    const discoveryResponse = await fetch(
+      new URL("/.well-known/openid-configuration", proxyOrigin)
+    );
 
-    const config = await oidc.discovery(
-      issuerUrl,
+    expect(discoveryResponse.ok).toBe(true);
+
+    // Transform the discovery response to use the proxy origin for all endpoints
+    // This is to support using PR review environments with the integration tests
+    const serverMetadata = (await discoveryResponse.json()) as oidc.ServerMetadata;
+    const proxiedMetadata = Object.fromEntries(
+      Object.entries(serverMetadata).map(([key, value]) => {
+        if ((key.endsWith("_endpoint") || key.endsWith("_uri")) && typeof value === "string") {
+          const endpoint = new URL(value, serverMetadata.issuer);
+          endpoint.protocol = proxyOrigin.protocol;
+          endpoint.host = proxyOrigin.host;
+          return [key, endpoint.href];
+        }
+        return [key, value];
+      })
+    ) as oidc.ServerMetadata;
+
+    const config = new oidc.Configuration(
+      proxiedMetadata,
       testClientId,
       { token_endpoint_auth_method: "none" },
       oidc.None()
