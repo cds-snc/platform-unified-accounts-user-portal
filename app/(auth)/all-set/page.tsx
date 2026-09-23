@@ -25,7 +25,14 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <div data-wide-panel="true">
-      <AuthPanel titleI18nKey="none" descriptionI18nKey="none" namespace="allSet" wide={true}>
+      <AuthPanel
+        titleI18nKey="none"
+        pageTitleI18nKey="title"
+        descriptionI18nKey="none"
+        namespace="allSet"
+        wide={true}
+        requestId={requestId}
+      >
         <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2">
           {/* Left column: Goose image */}
           <div className="flex items-center justify-center">

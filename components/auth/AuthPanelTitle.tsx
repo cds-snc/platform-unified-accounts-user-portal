@@ -1,7 +1,9 @@
+"use client";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { I18n } from "@i18n";
+import { useRequestingApp } from "@components/contexts/RequestingAppContext";
 export const AuthPanelTitle = ({
   i18nKey,
   namespace,
@@ -13,10 +15,11 @@ export const AuthPanelTitle = ({
   data?: Record<string, unknown>;
   className?: string;
 }) => {
+  const { requestingAppName } = useRequestingApp();
   return (
     <div className={`mt-4 mb-6 ${className || ""}`}>
       <h1 className="mb-0">
-        <I18n i18nKey={i18nKey} namespace={namespace} data={data} />
+        <I18n i18nKey={i18nKey} namespace={namespace} data={{ ...data, app: requestingAppName }} />
       </h1>
     </div>
   );

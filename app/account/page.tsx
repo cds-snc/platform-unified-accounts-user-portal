@@ -11,6 +11,7 @@ import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, SearchParams } from "@lib/utils";
 import { getU2FList, getUserByID } from "@lib/zitadel";
+import { RequestingAppProvider } from "@components/contexts/RequestingAppContext";
 import { PageTitle } from "@components/ui/title/PageTitle";
 
 /*--------------------------------------------*
@@ -45,13 +46,15 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     userId: userId!,
   });
 
+  // RequestingAppProvider is needed here because of the shared PageTitle component
+
   return (
-    <>
+    <RequestingAppProvider>
       <PageTitle i18nKey="navigation.title" namespace="account" />
       <PersonalDetails firstName={firstName} lastName={lastName} className="mb-4" />
       <VerifiedAccount email={email} className="mb-4" />
       <PasswordAuthentication className="mb-4" />
       <MFAAuthentication u2fList={u2fList} authenticatorStatus={session.authMethods.includes(4)} />
-    </>
+    </RequestingAppProvider>
   );
 }
