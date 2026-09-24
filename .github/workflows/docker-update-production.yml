@@ -1,0 +1,83 @@
+name: Docker update Production
+
+concurrency:
+  group: docker-update-production
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .release-please-manifest.json
+
+permissions: {}
+
+jobs:
+  get-version:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/get-version.yml
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+  docker-build:
+    needs: get-version
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      ACCOUNT_ID: ${{ vars.PROD_AWS_ACCOUNT_ID }}
+      GITHUB_SHA: ${{ needs.get-version.outputs.version }}
+      IMAGE_TAG: ${{ needs.get-version.outputs.version }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+  docker-deploy:
+    needs: 
+      - get-version
+      - docker-build
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/docker-deploy.yml
+    with:
+      ACCOUNT_ID: ${{ vars.PROD_AWS_ACCOUNT_ID }}
+      IMAGE_TAG: ${{ needs.get-version.outputs.version }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+  docker-sbom:
+    needs: 
+      - get-version
+      - docker-build
+    permissions:
+      contents: write
+    uses: ./.github/workflows/docker-sbom.yml
+    with:
+      GITHUB_SHA: ${{ needs.get-version.outputs.version }}
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+
+  workflow-failure:
+    needs:
+      - get-version
+      - docker-build
+      - docker-deploy
+    if: >-
+      always() && (
+        needs.get-version.result == 'failure' ||
+        needs.docker-build.result == 'failure' ||
+        needs.docker-deploy.result == 'failure'
+      )
+    permissions: {}
+    uses: ./.github/workflows/workflow-failure.yml
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.PROD_CLOUDWATCH_ALERT_SLACK_WEBHOOK }}
