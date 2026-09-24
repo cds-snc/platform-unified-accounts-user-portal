@@ -36,43 +36,8 @@ vi.mock("@root/constants/config", () => ({
   ZITADEL_ORGANIZATION: "test-org",
 }));
 
-vi.mock("./lib/server/route-protection", () => ({
-  AuthLevel: {
-    OPEN: "open",
-    BASIC_SESSION: "basic_session",
-    PASSWORD_REQUIRED: "password_required",
-    MFA_REQUIRED: "mfa_required",
-  },
-  checkAuthenticationLevel: vi.fn(),
-}));
-
 vi.mock("./lib/service", () => ({
   getServiceForHost: vi.fn(),
-}));
-
-vi.mock("./lib/middleware-config", () => ({
-  API_ROUTES: ["/api", "/healthy", "/security", "/version", "/login", "/logout-session"],
-  AUTH_FLOW_ROUTES: [
-    "/password",
-    "/password/reset",
-    "/mfa",
-    "/mfa/set",
-    "/otp/time-based",
-    "/u2f",
-    "/verify",
-  ],
-  getRequiredAuthLevel: vi.fn((pathname: string) => {
-    if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/register")) {
-      return "open";
-    }
-    if (pathname.startsWith("/account")) {
-      return "mfa_required";
-    }
-    return "password_required";
-  }),
-  matchesPattern: vi.fn((pathname: string, patterns: string[]) =>
-    patterns.some((p) => pathname === p || pathname.startsWith(p + "/"))
-  ),
 }));
 
 function makeRequest(pathname: string, headers: Record<string, string> = {}): NextRequest {
