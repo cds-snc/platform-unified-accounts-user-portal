@@ -26,6 +26,10 @@ on:
         required: true
       password:
         required: true
+      test_callback_url:
+        required: true
+      test_client_id:
+        required: true
       totp_secret:
         required: true
       zitadel_service_account_key:
@@ -75,6 +79,8 @@ jobs:
           REGISTER_EMAIL: ${{ secrets.register_email }}
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
+          TEST_CALLBACK_URL: ${{ secrets.test_callback_url }}
+          TEST_CLIENT_ID: ${{ secrets.test_client_id }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
           ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
         run: pnpm test:playwright

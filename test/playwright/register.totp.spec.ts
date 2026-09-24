@@ -9,13 +9,13 @@ import {
 } from "./utils/zitadel";
 
 test.describe("register user flow", () => {
-  let idpUrl = "";
-  let email = "";
-  let password = "";
-  let portalUrl = "";
-  let userId = "";
-  let serviceAccountKey = "";
-  let accessToken = "";
+  let idpUrl: string;
+  let email: string;
+  let password: string;
+  let portalUrl: string;
+  let userId: string;
+  let serviceAccountKey: string;
+  let accessToken: string;
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
