@@ -36,6 +36,7 @@ export const MFAAuthentication = ({
 
   const [mfaForDeletion, setMfaForDeletion] = useState<{ id: string; name: string }>();
   const hasMFAMethods = (Array.isArray(u2fList) && u2fList.length > 0) || authenticatorStatus;
+  const hasMultipleMFAMethods = (u2fList.length > 0 && authenticatorStatus) || u2fList.length > 1;
 
   const handleRemoveU2F = async (u2fId: string) => {
     const result = await removeU2FAction(u2fId);
@@ -98,15 +99,17 @@ export const MFAAuthentication = ({
                               <span>({data.name || t("mfaAuthentication.unknownDevice")})</span>
                             </div>
                           </div>
-                          <div>
-                            <Button
-                              onClick={() => setMfaForDeletion({ id: data.id, name: data.name })}
-                              theme="link"
-                              aria-describedby={id}
-                            >
-                              {t("mfaAuthentication.remove")}
-                            </Button>
-                          </div>
+                          {hasMultipleMFAMethods && (
+                            <div>
+                              <Button
+                                onClick={() => setMfaForDeletion({ id: data.id, name: data.name })}
+                                theme="link"
+                                aria-describedby={id}
+                              >
+                                {t("mfaAuthentication.remove")}
+                              </Button>
+                            </div>
+                          )}
                         </li>
                       );
                     })}
@@ -125,14 +128,16 @@ export const MFAAuthentication = ({
                         {t("mfaAuthentication.authenticatorApp")}
                       </span>
                     </div>
-                    <div>
-                      <Button
-                        onClick={() => setMfaForDeletion({ id: "totp", name: "totp" })}
-                        theme="link"
-                      >
-                        {t("mfaAuthentication.remove")}
-                      </Button>
-                    </div>
+                    {hasMultipleMFAMethods && (
+                      <div>
+                        <Button
+                          onClick={() => setMfaForDeletion({ id: "totp", name: "totp" })}
+                          theme="link"
+                        >
+                          {t("mfaAuthentication.remove")}
+                        </Button>
+                      </div>
+                    )}
                   </li>
                 )}
               </ul>
