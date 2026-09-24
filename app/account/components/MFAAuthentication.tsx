@@ -3,10 +3,10 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
-import { cn } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -21,6 +21,8 @@ import { toast } from "@components/ui/toast/Toast";
  *--------------------------------------------*/
 import { removeTOTPAction, removeU2FAction } from "../actions";
 
+import { ConfirmDeleteMFADialog } from "./ConfirmDeleteMFA";
+
 export const MFAAuthentication = ({
   u2fList,
   authenticatorStatus,
@@ -31,7 +33,10 @@ export const MFAAuthentication = ({
   className?: string;
 }) => {
   const { t } = useTranslation("account");
+
+  const [mfaForDeletion, setMfaForDeletion] = useState<{ id: string; name: string }>();
   const hasMFAMethods = (Array.isArray(u2fList) && u2fList.length > 0) || authenticatorStatus;
+  const hasMultipleMFAMethods = (u2fList.length > 0 && authenticatorStatus) || u2fList.length > 1;
 
   const handleRemoveU2F = async (u2fId: string) => {
     const result = await removeU2FAction(u2fId);
@@ -59,8 +64,11 @@ export const MFAAuthentication = ({
 
   return (
     <>
-      <div className={cn("rounded-2xl border-1 border-[#D1D5DB] bg-white p-6", className)}>
-        <h3 className="mb-6">{t("mfaAuthentication.title")}</h3>
+      <div className={className}>
+        <div className="mb-6 flex flex-row items-baseline gap-2">
+          <h3 className="-mb-2">{t("mfaAuthentication.title")}</h3>
+          <span className="">{t("mfaAuthentication.minimumNum")}</span>
+        </div>
 
         {!hasMFAMethods && <p>{t("mfaAuthentication.noTwoFactor")}</p>}
 
@@ -74,46 +82,62 @@ export const MFAAuthentication = ({
                     .map((data) => {
                       const id = `u2f-${data.id}`;
                       return (
-                        <li key={data.id} className="mb-4 flex items-center gap-2">
-                          <Image
-                            src={getImageUrl("/img/fingerprint_24px.png")}
-                            alt=""
-                            width={32}
-                            height={32}
-                            className="inline-block"
-                          />
-                          <div id={id} className="flex items-center gap-1">
-                            <span className="font-semibold">
-                              {t("mfaAuthentication.securityKey")}
-                            </span>
-                            <span>({data.name || t("mfaAuthentication.unknownDevice")})</span>
+                        <li key={data.id} className="mb-4 flex flex-row">
+                          <div className="flex grow items-center gap-2">
+                            <Image
+                              src={getImageUrl("/img/fingerprint_24px.png")}
+                              alt=""
+                              width={32}
+                              height={32}
+                              className="inline-block"
+                            />
+
+                            <div id={id} className="flex items-center gap-1">
+                              <span className="font-semibold">
+                                {t("mfaAuthentication.securityKey")}
+                              </span>
+                              <span>({data.name || t("mfaAuthentication.unknownDevice")})</span>
+                            </div>
                           </div>
-                          <span className="">&#8226;</span>
-                          <Button
-                            onClick={() => handleRemoveU2F(data.id)}
-                            theme="link"
-                            aria-describedby={id}
-                          >
-                            {t("mfaAuthentication.remove")}
-                          </Button>
+                          {hasMultipleMFAMethods && (
+                            <div>
+                              <Button
+                                onClick={() => setMfaForDeletion({ id: data.id, name: data.name })}
+                                theme="link"
+                                aria-describedby={id}
+                              >
+                                {t("mfaAuthentication.remove")}
+                              </Button>
+                            </div>
+                          )}
                         </li>
                       );
                     })}
 
                 {authenticatorStatus && (
-                  <li className="mb-4 flex items-center gap-2">
-                    <Image
-                      src={getImageUrl("/img/verified_user_24px.png")}
-                      alt=""
-                      width={32}
-                      height={32}
-                      className="inline-block"
-                    />
-                    <span className="font-semibold">{t("mfaAuthentication.authenticatorApp")}</span>
-                    <span>&#8226;</span>
-                    <Button onClick={handleRemoveAuthenticator} theme="link">
-                      {t("mfaAuthentication.remove")}
-                    </Button>
+                  <li className="mb-4 flex flex-row">
+                    <div className="flex grow items-center gap-2">
+                      <Image
+                        src={getImageUrl("/img/verified_user_24px.png")}
+                        alt=""
+                        width={32}
+                        height={32}
+                        className="inline-block"
+                      />
+                      <span className="font-semibold">
+                        {t("mfaAuthentication.authenticatorApp")}
+                      </span>
+                    </div>
+                    {hasMultipleMFAMethods && (
+                      <div>
+                        <Button
+                          onClick={() => setMfaForDeletion({ id: "totp", name: "totp" })}
+                          theme="link"
+                        >
+                          {t("mfaAuthentication.remove")}
+                        </Button>
+                      </div>
+                    )}
                   </li>
                 )}
               </ul>
@@ -133,6 +157,22 @@ export const MFAAuthentication = ({
         )}
       </div>
       <ToastContainer autoClose={false} containerId="account-authentication" />
+      {mfaForDeletion && (
+        <ConfirmDeleteMFADialog
+          mfaName={mfaForDeletion.name}
+          handleClose={() => setMfaForDeletion(undefined)}
+          handleConfirm={async () => {
+            if (mfaForDeletion) {
+              if (mfaForDeletion.id === "totp") {
+                await handleRemoveAuthenticator();
+              } else {
+                await handleRemoveU2F(mfaForDeletion.id);
+              }
+            }
+            setMfaForDeletion(undefined);
+          }}
+        />
+      )}
     </>
   );
 };
