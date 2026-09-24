@@ -69,13 +69,17 @@
       "noSession": "Your account information could not be retrieved from the session."
     },
     "personalDetails": {
-      "title": "Personal details",
+      "title": "Profile",
+      "fullName": "Full name",
       "firstName": "First name",
       "lastName": "Last name",
       "change": "Change",
       "cancel": "Cancel",
       "updateAccount": "Update",
       "updateDetails": "Update your personal details",
+      "email": "Email address",
+      "cannotBeChanged": "Cannot change",
+      "createNewAccount": "Create new account",
       "success": {
         "updateSuccess": "Your personal details were updated"
       },
@@ -90,19 +94,15 @@
         "maxLengthLastname": "Last name must be less than 251 characters."
       }
     },
-    "verifiedAccount": {
-      "title": "Verified account",
-      "email": "Email address",
-      "cannotBeChanged": "Cannot be changed",
-      "createNewAccount": "Create new account"
-    },
+
     "authentication": {
-      "title": "Authentication",
+      "title": "Security verification",
       "password": "Password",
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "Two-factor authentication",
+      "title": "Other Verification",
+      "minimumNum": "(minimum one other)",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
       "authenticatorApp": "Authentication app",
@@ -112,6 +112,12 @@
       "success": {
         "keyRemoved": "Security key was removed.",
         "authAppRemoved": "Authenticator app was removed."
+      },
+      "confirmRemove": {
+        "title": "Confirm MFA Deletion",
+        "confirm": "Yes, remove",
+        "cancel": "Cancel",
+        "message": "Are you sure you want to remove {{mfa}}"
       },
       "errors": {
         "cannotRemoveSecurityKey": "Cannot remove security key. At least one additional authentication method must be configured.",
