@@ -4,28 +4,24 @@ import * as oidc from "openid-client";
 import { generateTOTP, getRequiredEnv } from "./utils/utils";
 
 test.describe("login user flow", () => {
-  let portalUrl = "";
-
-  let testClientId = "";
-  let testRedirectUri = "";
-
-  let username = "";
-  let password = "";
-  let totpSecret = "";
+  let portalUrl: URL;
+  let testRedirectUri: URL;
+  let testClientId: string;
+  let username: string;
+  let password: string;
+  let totpSecret: string;
 
   test.beforeAll(() => {
-    portalUrl = getRequiredEnv("PORTAL_URL");
-
+    portalUrl = new URL(getRequiredEnv("PORTAL_URL"));
+    testRedirectUri = new URL(getRequiredEnv("TEST_CALLBACK_URL"));
+    testClientId = getRequiredEnv("TEST_CLIENT_ID");
     username = getRequiredEnv("USERNAME");
     password = getRequiredEnv("PASSWORD");
     totpSecret = getRequiredEnv("TOTP_SECRET");
-
-    testClientId = getRequiredEnv("TEST_CLIENT_ID");
-    testRedirectUri = getRequiredEnv("TEST_CALLBACK_URL");
   });
 
   test("logs in with TOTP and lands on the account page", async ({ page }) => {
-    await page.goto(portalUrl);
+    await page.goto(portalUrl.href);
 
     await expect(page.locator("#login #username")).toBeVisible();
     await page.locator("#login #username").fill(username);
@@ -41,23 +37,18 @@ test.describe("login user flow", () => {
   });
 
   test("logs in with TOTP and completes the OIDC PKCE auth flow", async ({ page }) => {
-    const proxyOrigin = new URL(portalUrl);
-    const redirectUri = new URL(testRedirectUri);
-    const discoveryResponse = await fetch(
-      new URL("/.well-known/openid-configuration", proxyOrigin)
-    );
-
+    const discoveryResponse = await fetch(new URL("/.well-known/openid-configuration", portalUrl));
     expect(discoveryResponse.ok).toBe(true);
 
-    // Transform the discovery response to use the proxy origin for all endpoints
+    // Transform the discovery response to use the portal URL for all endpoints
     // This is to support using PR review environments with the integration tests
     const serverMetadata = (await discoveryResponse.json()) as oidc.ServerMetadata;
     const proxiedMetadata = Object.fromEntries(
       Object.entries(serverMetadata).map(([key, value]) => {
         if ((key.endsWith("_endpoint") || key.endsWith("_uri")) && typeof value === "string") {
           const endpoint = new URL(value, serverMetadata.issuer);
-          endpoint.protocol = proxyOrigin.protocol;
-          endpoint.host = proxyOrigin.host;
+          endpoint.protocol = portalUrl.protocol;
+          endpoint.host = portalUrl.host;
           return [key, endpoint.href];
         }
         return [key, value];
@@ -76,12 +67,12 @@ test.describe("login user flow", () => {
     const nonce = oidc.randomNonce();
 
     await page.route(
-      (url) => url.origin === redirectUri.origin && url.pathname === redirectUri.pathname,
+      (url) => url.origin === testRedirectUri.origin && url.pathname === testRedirectUri.pathname,
       (route) => route.fulfill({ status: 200, body: "OIDC callback received" })
     );
 
     const authorizationUrl = oidc.buildAuthorizationUrl(config, {
-      redirect_uri: redirectUri.href,
+      redirect_uri: testRedirectUri.href,
       response_type: "code",
       scope: "openid profile email",
       code_challenge: codeChallenge,
@@ -101,7 +92,7 @@ test.describe("login user flow", () => {
     await page.locator("#totp button[type=submit]").click();
 
     await expect(page).toHaveURL(
-      (url) => url.origin === redirectUri.origin && url.pathname === redirectUri.pathname
+      (url) => url.origin === testRedirectUri.origin && url.pathname === testRedirectUri.pathname
     );
     const callbackUrl = new URL(page.url());
     expect(callbackUrl.searchParams.get("error")).toBeNull();
