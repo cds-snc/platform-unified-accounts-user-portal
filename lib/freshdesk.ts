@@ -22,6 +22,8 @@ const ISSUE_TYPE_LABELS: Record<ContactUsIssueType, string> = {
   other: "Other",
 };
 
+const FRESHDESK_FETCH_TIMEOUT_MS = 5000;
+
 export async function createFreshdeskTicket(
   params: CreateTicketParams
 ): Promise<{ success: true; ticketId: number } | { error: string }> {
@@ -53,6 +55,7 @@ export async function createFreshdeskTicket(
         Authorization: `Basic ${credentials}`,
       },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(FRESHDESK_FETCH_TIMEOUT_MS),
     });
 
     if (!response.ok) {
