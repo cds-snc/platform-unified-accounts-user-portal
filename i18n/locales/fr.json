@@ -52,6 +52,9 @@
       "link": "/fr/support",
       "desc": "Soutien"
     },
+    "privacy-policy": {
+      "desc": "Politique de confidentialité"
+    },
     "contact-us": {
       "desc": "Nous contacter"
     },
@@ -487,6 +490,9 @@
       "requiredMessage": "Le message est obligatoire.",
       "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
     }
+  },
+  "privacy-policy": {
+    "title": "FR Privacy Notice for Staff Using Canadian Digital Services’ Single Sign-On"
   },
   "beforeYouStart": {
     "title": "Avant de commencer",

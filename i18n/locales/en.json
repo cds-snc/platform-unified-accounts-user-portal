@@ -47,6 +47,9 @@
     "support": {
       "desc": "Support"
     },
+    "privacy-policy": {
+      "desc": "Privacy policy"
+    },
     "contact-us": {
       "desc": "Contact us"
     },
@@ -482,6 +485,9 @@
       "requiredMessage": "Message is required.",
       "maxLengthMessage": "Message must be less than 2000 characters."
     }
+  },
+  "privacy-policy": {
+    "title": "Privacy Notice for Staff Using Canadian Digital Services’ Single Sign-On"
   },
   "beforeYouStart": {
     "title": "Before you start",
