@@ -11,7 +11,8 @@ import { useHCaptcha } from "@gcforms/hcaptcha/client";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { cn } from "@lib/utils";
-import { CONTACT_US_ISSUE_TYPES, validateContactForm } from "@lib/validation/validationSchemas";
+import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
+import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButton } from "@components/ui/button/SubmitButton";

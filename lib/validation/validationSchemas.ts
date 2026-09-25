@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 import * as v from "valibot";
 
+import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -251,15 +252,6 @@ export const validateVerifyU2FCommand = (command: unknown) => {
   });
   return v.safeParse(schema, command, { abortPipeEarly: true });
 };
-
-export const CONTACT_US_ISSUE_TYPES = [
-  "password-reset",
-  "mfa-issue",
-  "sign-up-issue",
-  "other",
-] as const;
-
-export type ContactUsIssueType = (typeof CONTACT_US_ISSUE_TYPES)[number];
 
 export const validateContactForm = async (formEntries: { [k: string]: FormDataEntryValue }) => {
   const formValidationSchema = v.object({
