@@ -252,6 +252,15 @@ export const validateVerifyU2FCommand = (command: unknown) => {
   return v.safeParse(schema, command, { abortPipeEarly: true });
 };
 
+export const CONTACT_US_ISSUE_TYPES = [
+  "password-reset",
+  "mfa-issue",
+  "sign-up-issue",
+  "other",
+] as const;
+
+export type ContactUsIssueType = (typeof CONTACT_US_ISSUE_TYPES)[number];
+
 export const validateContactForm = async (formEntries: { [k: string]: FormDataEntryValue }) => {
   const formValidationSchema = v.object({
     fullName: v.pipe(
@@ -266,6 +275,12 @@ export const validateContactForm = async (formEntries: { [k: string]: FormDataEn
       v.minLength(1, "requiredEmail"),
       v.maxLength(254, "maxLengthEmail"),
       v.email("invalidEmail")
+    ),
+    issueType: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredIssueType"),
+      v.picklist(CONTACT_US_ISSUE_TYPES, "invalidIssueType")
     ),
     message: v.pipe(
       v.string(),
