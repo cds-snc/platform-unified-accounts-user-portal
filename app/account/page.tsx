@@ -19,7 +19,6 @@ import { PageTitle } from "@components/ui/title/PageTitle";
 import { MFAAuthentication } from "./components/MFAAuthentication";
 import { PasswordAuthentication } from "./components/PasswordAuthentication";
 import { PersonalDetails } from "./components/PersonalDetails";
-import { VerifiedAccount } from "./components/VerifiedAccount";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -48,10 +47,14 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   return (
     <>
       <PageTitle i18nKey="navigation.title" namespace="account" />
-      <PersonalDetails firstName={firstName} lastName={lastName} className="mb-4" />
-      <VerifiedAccount email={email} className="mb-4" />
-      <PasswordAuthentication className="mb-4" />
-      <MFAAuthentication u2fList={u2fList} authenticatorStatus={session.authMethods.includes(4)} />
+      <PersonalDetails firstName={firstName} lastName={lastName} email={email} className="mb-4" />
+      <div className="rounded-2xl border-2 border-gray-300 bg-white p-6">
+        <PasswordAuthentication className="mb-4" />
+        <MFAAuthentication
+          u2fList={u2fList}
+          authenticatorStatus={session.authMethods.includes(4)}
+        />
+      </div>
     </>
   );
 }

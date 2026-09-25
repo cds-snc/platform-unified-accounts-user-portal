@@ -75,12 +75,16 @@
     },
     "personalDetails": {
       "title": "Renseignements personnels",
+      "fullName": "Nom complet",
       "firstName": "Prénom",
       "lastName": "Nom de famille",
       "change": "Modifier",
       "cancel": "Annuler",
       "updateAccount": "Mettre à jour",
       "updateDetails": "[FR]Update your personal details",
+      "email": "Adresse courriel",
+      "cannotBeChanged": "Ne peut être modifié",
+      "createNewAccount": "créer un nouveau compte",
       "success": {
         "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
@@ -95,12 +99,7 @@
         "maxLengthLastname": "Le nom de famille doit comporter moins de 251 caractères."
       }
     },
-    "verifiedAccount": {
-      "title": "Compte vérifié",
-      "email": "Adresse courriel",
-      "cannotBeChanged": "Ne peut être modifié",
-      "createNewAccount": "créer un nouveau compte"
-    },
+
     "authentication": {
       "title": "Authentification",
       "password": "Mot de passe",
@@ -108,12 +107,19 @@
     },
     "mfaAuthentication": {
       "title": "Authentification à deux facteurs",
+      "minimumNum": "FR(minimum one other)",
       "securityKey": "Clé de sécurité",
       "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
       "authenticatorApp": "Application d'authentification",
       "addlMethods": "Ajouter une autre méthode",
       "remove": "Retirer",
       "unknownDevice": "Appareil inconnu",
+      "confirmRemove": {
+        "title": "Confirm MFA Deletion",
+        "confirm": "Yes, remove",
+        "cancel": "Cancel",
+        "message": "Are you sure you want to remove {{mfa}}"
+      },
       "success": {
         "keyRemoved": "La clé de sécurité a été supprimée.",
         "authAppRemoved": "L'application d'authentification a été supprimée."
