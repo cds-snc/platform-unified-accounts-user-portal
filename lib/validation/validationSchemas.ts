@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 import * as v from "valibot";
 
+import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -266,6 +267,12 @@ export const validateContactForm = async (formEntries: { [k: string]: FormDataEn
       v.minLength(1, "requiredEmail"),
       v.maxLength(254, "maxLengthEmail"),
       v.email("invalidEmail")
+    ),
+    issueType: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredIssueType"),
+      v.picklist(CONTACT_US_ISSUE_TYPES, "invalidIssueType")
     ),
     message: v.pipe(
       v.string(),

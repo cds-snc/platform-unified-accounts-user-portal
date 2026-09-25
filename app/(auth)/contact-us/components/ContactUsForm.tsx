@@ -10,6 +10,8 @@ import { useHCaptcha } from "@gcforms/hcaptcha/client";
  * Internal Aliases
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
+import { cn } from "@lib/utils";
+import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
@@ -23,6 +25,13 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
  *--------------------------------------------*/
 import { submitContactFormAction } from "../actions";
 
+const ISSUE_TYPE_I18N_KEYS: Record<(typeof CONTACT_US_ISSUE_TYPES)[number], string> = {
+  "password-reset": "issueTypeOptions.passwordReset",
+  "mfa-issue": "issueTypeOptions.mfaIssue",
+  "sign-up-issue": "issueTypeOptions.signUpIssue",
+  other: "issueTypeOptions.other",
+};
+
 type FormState = {
   success?: boolean;
   error?: string;
@@ -30,6 +39,7 @@ type FormState = {
   formData?: {
     fullName?: string;
     email?: string;
+    issueType?: string;
     message?: string;
   };
 };
@@ -43,6 +53,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
     formData: {
       fullName: "",
       email: "",
+      issueType: "",
       message: "",
     },
   });
@@ -61,6 +72,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
     const formEntries = {
       fullName: (formData.get("fullName") as string) || "",
       email: (formData.get("email") as string) || "",
+      issueType: (formData.get("issueType") as string) || "",
       message: (formData.get("message") as string) || "",
     };
 
@@ -198,6 +210,41 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
                   }
                   invalid={hasError("email", state.validationErrors)}
                 />
+              </div>
+
+              <div
+                className={cn(
+                  "gcds-select-wrapper",
+                  hasError("issueType", state.validationErrors) && "gcds-error"
+                )}
+              >
+                <Label htmlFor="issueType" required>
+                  {t("labels.issueType")}
+                </Label>
+                {hasError("issueType", state.validationErrors) && (
+                  <ErrorMessage id="errorMessageIssueType">
+                    {getError("issueType", state.validationErrors)}
+                  </ErrorMessage>
+                )}
+                <select
+                  id="issueType"
+                  name="issueType"
+                  required
+                  defaultValue={state.formData?.issueType ?? ""}
+                  aria-invalid={hasError("issueType", state.validationErrors)}
+                  {...(hasError("issueType", state.validationErrors) && {
+                    "aria-describedby": "errorMessageIssueType",
+                  })}
+                >
+                  <option value="" disabled>
+                    {t("issueTypeOptions.placeholder")}
+                  </option>
+                  {CONTACT_US_ISSUE_TYPES.map((issueType) => (
+                    <option key={issueType} value={issueType}>
+                      {t(ISSUE_TYPE_I18N_KEYS[issueType])}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="gcds-textarea-wrapper">

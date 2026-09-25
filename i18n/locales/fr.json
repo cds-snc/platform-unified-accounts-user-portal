@@ -468,7 +468,15 @@
     "labels": {
       "fullName": "Nom complet",
       "email": "Adresse courriel",
+      "issueType": "À quoi votre problème est-il lié?",
       "message": "Message"
+    },
+    "issueTypeOptions": {
+      "placeholder": "Sélectionnez une option",
+      "passwordReset": "Impossible de réinitialiser le mot de passe",
+      "mfaIssue": "L'authentification à deux facteurs est manquante ou ne fonctionne pas",
+      "signUpIssue": "Impossible de s'inscrire",
+      "other": "Autre"
     },
     "success": {
       "title": "Message envoyé",
@@ -484,6 +492,8 @@
       "requiredEmail": "L'adresse courriel est obligatoire.",
       "invalidEmail": "Entrez une adresse courriel valide.",
       "maxLengthEmail": "L'adresse courriel doit comporter moins de 255 caractères.",
+      "requiredIssueType": "Veuillez sélectionner un type de problème.",
+      "invalidIssueType": "Veuillez sélectionner un type de problème valide.",
       "requiredMessage": "Le message est obligatoire.",
       "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
     }
