@@ -35,6 +35,8 @@ pnpm test        # run tests
 - `ZITADEL_API_URL`
 - `HCAPTCHA_SITE_KEY`
 - `HCAPTCHA_SECRET`
+- `FRESHDESK_API_URL`
+- `FRESHDESK_API_KEY`
 
 ## Stack
 
