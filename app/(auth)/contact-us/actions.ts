@@ -9,6 +9,7 @@ import { isIP } from "node:net";
 
 import { createFreshdeskTicket } from "@lib/freshdesk";
 import { logMessage } from "@lib/logger";
+import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
 
@@ -73,6 +74,7 @@ export async function submitContactFormAction(
   const result = await createFreshdeskTicket({
     fullName: command.fullName,
     email: command.email,
+    issueType: command.issueType as ContactUsIssueType,
     message: command.message,
   });
 

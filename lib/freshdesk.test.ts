@@ -15,6 +15,7 @@ import { createFreshdeskTicket } from "./freshdesk";
 const validParams = {
   fullName: "Test User",
   email: "test@canada.ca",
+  issueType: "other" as const,
   message: "Hello there",
 };
 
@@ -80,7 +81,7 @@ describe("createFreshdeskTicket", () => {
     expect(body.name).toBe("Test User");
     expect(body.email).toBe("test@canada.ca");
     expect(body.description).toBe("Hello there");
-    expect(body.subject).toBe("Contact Us Form Submission");
+    expect(body.subject).toBe("Contact Us Form Submission: Other");
   });
 
   it("returns an error when the API responds with a non-OK status", async () => {

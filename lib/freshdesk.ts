@@ -2,15 +2,24 @@
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
+import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
 
 type CreateTicketParams = {
   fullName: string;
   email: string;
+  issueType: ContactUsIssueType;
   message: string;
 };
 
 type FreshdeskTicketResponse = {
   id: number;
+};
+
+const ISSUE_TYPE_LABELS: Record<ContactUsIssueType, string> = {
+  "password-reset": "Unable to reset password",
+  "mfa-issue": "Second factor authentication is missing or not working",
+  "sign-up-issue": "Unable to sign up",
+  other: "Other",
 };
 
 export async function createFreshdeskTicket(
@@ -29,7 +38,7 @@ export async function createFreshdeskTicket(
   const body = {
     name: params.fullName,
     email: params.email,
-    subject: "Contact Us Form Submission",
+    subject: `Contact Us Form Submission: ${ISSUE_TYPE_LABELS[params.issueType]}`,
     description: params.message,
     source: 2, // Portal
     priority: 1, // Low
