@@ -4,6 +4,8 @@
 import { logMessage } from "@lib/logger";
 import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
 
+import "server-only";
+
 type CreateTicketParams = {
   fullName: string;
   email: string;
