@@ -14,6 +14,7 @@ import { serverTranslation } from "@i18n/server";
 type ContactFormCommand = {
   fullName: string;
   email: string;
+  issueType: string;
   message: string;
   captchaToken: string;
 };

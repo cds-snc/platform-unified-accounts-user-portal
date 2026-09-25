@@ -463,7 +463,15 @@
     "labels": {
       "fullName": "Full name",
       "email": "Email address",
+      "issueType": "What is your issue related to?",
       "message": "Message"
+    },
+    "issueTypeOptions": {
+      "placeholder": "Select an option",
+      "passwordReset": "Unable to reset password",
+      "mfaIssue": "Second factor authentication is missing or not working",
+      "signUpIssue": "Unable to sign up",
+      "other": "Other"
     },
     "success": {
       "title": "Message sent",
@@ -479,6 +487,8 @@
       "requiredEmail": "Email address is required.",
       "invalidEmail": "Enter a valid email address.",
       "maxLengthEmail": "Email address must be less than 255 characters.",
+      "requiredIssueType": "Please select an issue type.",
+      "invalidIssueType": "Please select a valid issue type.",
       "requiredMessage": "Message is required.",
       "maxLengthMessage": "Message must be less than 2000 characters."
     }
