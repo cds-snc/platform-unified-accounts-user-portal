@@ -15,8 +15,8 @@ importers:
         specifier: 2.2.28
         version: 2.2.28(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.3)(@gcforms/types@1.0.39)(oxc-resolver@11.24.2)(supports-color@7.2.0)(typescript@6.0.3)
       '@gcforms/hcaptcha':
-        specifier: 1.1.2
-        version: 1.1.2(@hcaptcha/react-hcaptcha@2.2.0)(react@19.3.0)
+        specifier: 1.1.3
+        version: 1.1.3(@hcaptcha/react-hcaptcha@2.2.0)(react@19.3.0)
       '@hcaptcha/react-hcaptcha':
         specifier: ^2.2.0
         version: 2.2.0
@@ -52,7 +52,7 @@ importers:
         version: 2.30.1
       next:
         specifier: 16.3.5
-        version: 16.3.5(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.104.1)
+        version: 16.3.5(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@24.13.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.104.1)
       pino:
         specifier: ^10.1.0
         version: 10.3.1
@@ -110,7 +110,7 @@ importers:
         version: 14.6.7(@testing-library/dom@10.4.2)
       '@types/node':
         specifier: ^24.12.4
-        version: 24.13.4
+        version: 24.13.6
       '@types/react':
         specifier: ^19.2.14
         version: 19.3.0
@@ -119,7 +119,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^6.0.0
-        version: 6.1.1(babel-plugin-react-compiler@1.0.0)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
+        version: 6.1.1(babel-plugin-react-compiler@1.0.0)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
       '@vitest/coverage-v8':
         specifier: ^4.1.6
         version: 4.1.11(vitest@4.1.11)
@@ -191,10 +191,10 @@ importers:
         version: 6.0.3
       vite-tsconfig-paths:
         specifier: ^6.1.1
-        version: 6.1.1(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
+        version: 6.1.1(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
       vitest:
         specifier: ^4.1.6
-        version: 4.1.11(@types/node@24.13.4)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
+        version: 4.1.11(@types/node@24.13.6)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
 
 packages:
 
@@ -724,8 +724,8 @@ packages:
     peerDependencies:
       '@gcforms/types': '*'
 
-  '@gcforms/hcaptcha@1.1.2':
-    resolution: {integrity: sha512-hRl64gCrDSfkqUhCNX3WYgxMAGesPdtQ0WOeFgneSvIQ7MU7lQzTO4RjqoFllP9rbPXkrHcw5ClT4rrhBVeg7Q==}
+  '@gcforms/hcaptcha@1.1.3':
+    resolution: {integrity: sha512-zKTiG/PNoxiIqauQleOhqJuPWtVKOPpIdrrxDDwX4lF4GsfkHn+pa4BA8myvuAZNV5S3+SZUsWE/XMx3+8zB2w==}
     engines: {node: '>=17.3'}
     peerDependencies:
       '@hcaptcha/react-hcaptcha': ^2.0.2
@@ -2029,8 +2029,8 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
-  '@types/node@24.13.4':
-    resolution: {integrity: sha512-YJ7EqCstVTzIr0fMr7qul/977en+pQHrfmuKIo6Zr9i75Be21dr3MovcfvGtyvi2HAUrRerWps5sMO9I7WaxDw==}
+  '@types/node@24.13.6':
+    resolution: {integrity: sha512-SGrw/h3KPFshy3OE6ZL53LMBG5vGQQ8/gIpiqz/kRZhPJ7HgwCEs8LBuNtWLa8dvGZVpSF7+Bf+c11HUrCb/yg==}
 
   '@types/react-dom@19.3.0':
     resolution: {integrity: sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==}
@@ -5447,7 +5447,7 @@ snapshots:
       - unrun
       - vue-tsc
 
-  '@gcforms/hcaptcha@1.1.2(@hcaptcha/react-hcaptcha@2.2.0)(react@19.3.0)':
+  '@gcforms/hcaptcha@1.1.3(@hcaptcha/react-hcaptcha@2.2.0)(react@19.3.0)':
     dependencies:
       '@hcaptcha/react-hcaptcha': 2.2.0
       react: 19.3.0
@@ -6412,7 +6412,7 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
-  '@types/node@24.13.4':
+  '@types/node@24.13.6':
     dependencies:
       undici-types: 7.18.2
 
@@ -6585,10 +6585,10 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vitejs/plugin-react@6.1.1(babel-plugin-react-compiler@1.0.0)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))':
+  '@vitejs/plugin-react@6.1.1(babel-plugin-react-compiler@1.0.0)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
     optionalDependencies:
       babel-plugin-react-compiler: 1.0.0
 
@@ -6604,7 +6604,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 4.1.11(@types/node@24.13.4)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
+      vitest: 4.1.11(@types/node@24.13.6)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
 
   '@vitest/expect@4.1.11':
     dependencies:
@@ -6615,13 +6615,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.1
 
-  '@vitest/mocker@4.1.11(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))':
+  '@vitest/mocker@4.1.11(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -8150,7 +8150,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next@16.3.5(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@24.13.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.104.1):
+  next@16.3.5(@babel/core@7.29.7(supports-color@7.2.0))(@playwright/test@1.63.0)(@types/node@24.13.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.104.1):
     dependencies:
       '@next/env': 16.3.5
       '@swc/helpers': 0.5.23
@@ -8172,7 +8172,7 @@ snapshots:
       '@playwright/test': 1.63.0
       babel-plugin-react-compiler: 1.0.0
       sass: 1.104.1
-      sharp: 0.35.4(@types/node@24.13.4)
+      sharp: 0.35.4(@types/node@24.13.6)
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/node'
@@ -8866,7 +8866,7 @@ snapshots:
       es-errors: 1.3.0
       es-object-atoms: 1.1.2
 
-  sharp@0.35.4(@types/node@24.13.4):
+  sharp@0.35.4(@types/node@24.13.6):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -8897,7 +8897,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.4
       '@img/sharp-win32-ia32': 0.35.4
       '@img/sharp-win32-x64': 0.35.4
-      '@types/node': 24.13.4
+      '@types/node': 24.13.6
     optional: true
 
   shebang-command@2.0.0:
@@ -9303,17 +9303,17 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
-  vite-tsconfig-paths@6.1.1(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)):
+  vite-tsconfig-paths@6.1.1(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)):
     dependencies:
       debug: 4.4.3(supports-color@7.2.0)
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@6.0.3)
-      vite: 8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1):
+  vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -9321,7 +9321,7 @@ snapshots:
       rolldown: 1.2.8
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 24.13.4
+      '@types/node': 24.13.6
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 2.7.0
@@ -9329,10 +9329,10 @@ snapshots:
       tsx: 4.23.13
       yaml: 2.9.1
 
-  vitest@4.1.11(@types/node@24.13.4)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)):
+  vitest@4.1.11(@types/node@24.13.6)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
+      '@vitest/mocker': 4.1.11(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -9349,10 +9349,10 @@ snapshots:
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.1
-      vite: 8.3.0(@types/node@24.13.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
+      vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(tsx@4.23.13)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 24.13.4
+      '@types/node': 24.13.6
       '@vitest/coverage-v8': 4.1.11(vitest@4.1.11)
       jsdom: 29.1.1
     transitivePeerDependencies:
