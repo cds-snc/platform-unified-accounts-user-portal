@@ -7,7 +7,9 @@ import { headers } from "next/headers";
 import { verifyHCaptchaToken } from "@gcforms/hcaptcha/server";
 import { isIP } from "node:net";
 
+import { createFreshdeskTicket } from "@lib/freshdesk";
 import { logMessage } from "@lib/logger";
+import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
 
@@ -69,8 +71,17 @@ export async function submitContactFormAction(
     return genericErrorResponse;
   }
 
-  // TODO: Implement actual message delivery
-  // For now, we just log the message to the server logs
-  logMessage.info("Contact form submitted");
+  const result = await createFreshdeskTicket({
+    fullName: command.fullName,
+    email: command.email,
+    issueType: command.issueType as ContactUsIssueType,
+    message: command.message,
+  });
+
+  if ("error" in result) {
+    logMessage.error("Failed to create Freshdesk ticket");
+    return genericErrorResponse;
+  }
+
   return { success: true };
 }
