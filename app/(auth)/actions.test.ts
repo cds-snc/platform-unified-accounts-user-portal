@@ -194,7 +194,7 @@ describe("submitLoginForm", () => {
 
   it("returns email verification redirect when required", async () => {
     vi.mocked(checkEmailVerification).mockReturnValue({
-      redirect: "/verify?requestId=req-123",
+      redirect: "/register/verify?requestId=req-123",
     });
 
     await expect(
@@ -205,7 +205,7 @@ describe("submitLoginForm", () => {
       })
     ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
+    expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
   });
 
   it("returns generic error when no auth methods are available", async () => {

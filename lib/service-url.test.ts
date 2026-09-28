@@ -63,9 +63,9 @@ describe("service-url", () => {
           protocol: "https:",
         },
       } as never,
-      "/verify"
+      "/register/verify"
     );
 
-    expect(url.toString()).toBe("https://forms-staging.cdssandbox.xyz/auth/verify");
+    expect(url.toString()).toBe("https://forms-staging.cdssandbox.xyz/auth/register/verify");
   });
 });

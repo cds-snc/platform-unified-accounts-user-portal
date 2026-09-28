@@ -156,10 +156,10 @@ export async function checkAuthenticationLevel(
 
   if (requireEmailVerified && !factors.emailVerified) {
     logMessage.debug(
-      `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified, Redirecting: "/verify"`
+      `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified, Redirecting: "/register/verify"`
     );
 
-    redirect(buildUrlWithRequestId("/verify", requestIdRef));
+    redirect(buildUrlWithRequestId("/register/verify", requestIdRef));
   }
 
   switch (requiredLevel) {
