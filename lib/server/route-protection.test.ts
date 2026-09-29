@@ -139,7 +139,7 @@ describe("route-protection", () => {
       })
     ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
+    expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
   });
 
   it("allows initial MFA enrollment with a verified password", async () => {

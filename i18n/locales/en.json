@@ -457,6 +457,11 @@
     "description": "Your account is now secured with two-factor authentication.",
     "continueButton": "Continue{{app}}"
   },
+  "welcome": {
+    "title": "Welcome to GC Platform!",
+    "description": "You've created your account and verification method",
+    "continueButton": "Continue{{app}}"
+  },
   "contact-us": {
     "title": "Contact us",
     "description": "Have a question or need help? Fill out the form below and we will get back to you as soon as possible.",

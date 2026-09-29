@@ -2,7 +2,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -34,6 +34,12 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedSession = searchParams.get("session");
+
+  useEffect(() => {
+    // Ensure session storage is cleared of any previous session data
+    sessionStorage.clear();
+  }, []);
+
   const selectedSessionQuery = (sessionId: string) =>
     `?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`;
 

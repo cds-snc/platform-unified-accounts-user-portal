@@ -8,12 +8,11 @@ import { SearchParams } from "@lib/utils";
  * Internal Aliases
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/utils/imageUrl";
-import { I18n } from "@i18n";
 import { UserAvatar } from "@components/account/user-avatar/UserAvatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { CircleCheckIcon } from "@components/icons/CircleCheckIcon";
 import { Image } from "@components/ui/image/Image";
 
+import { ContentHolder } from "./components/ContentHolder";
 import { NextReditect } from "./components/NextRedirect";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
@@ -32,6 +31,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         namespace="allSet"
         wide={true}
         requestId={requestId}
+        variant="wide"
       >
         <div className="grid grid-cols-1 gap-8 tablet:grid-cols-2">
           {/* Left column: Goose image */}
@@ -48,18 +48,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
           {/* Right column: Title, user info, and button */}
           <div className="flex flex-col justify-center">
-            {/* Title with checkmark icon */}
-            <div className="mb-8 flex items-center gap-3">
-              <h1 className="mb-0! text-4xl font-bold">
-                <I18n i18nKey="title" namespace="allSet" />
-              </h1>
-              <CircleCheckIcon className="size-10 text-gcds-green-700" />
-            </div>
-
-            {/* Description */}
-            <p className="mb-8">
-              <I18n i18nKey="description" namespace="allSet" />
-            </p>
+            <ContentHolder />
 
             {/* User email display */}
             {loginName && (

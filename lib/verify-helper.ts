@@ -54,7 +54,7 @@ export function checkEmailVerification(
       userId: session.factors?.user?.id as string,
       send: "true", // set this to true as we dont expect old email codes to be valid anymore
     });
-    const verifyUrl = buildUrlWithRequestId("/verify", requestId);
+    const verifyUrl = buildUrlWithRequestId("/register/verify", requestId);
     const [basePath, existingQuery = ""] = verifyUrl.split("?");
     const mergedParams = new URLSearchParams(existingQuery);
     params.forEach((value, key) => mergedParams.set(key, value));
