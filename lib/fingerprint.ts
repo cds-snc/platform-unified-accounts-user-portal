@@ -24,12 +24,12 @@ async function setFingerprintIdCookie(fingerprintId: string) {
   });
 }
 
-export async function getFingerprintIdCookie() {
+async function getFingerprintIdCookie() {
   const cookiesList = await cookies();
   return cookiesList.get("fingerprintId");
 }
 
-export async function getOrSetFingerprintId(): Promise<string> {
+async function getOrSetFingerprintId(): Promise<string> {
   const cookie = await getFingerprintIdCookie();
   if (cookie) {
     return cookie.value;

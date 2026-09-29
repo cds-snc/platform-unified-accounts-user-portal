@@ -82,7 +82,12 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
         <>
           <QRCodeSVG className="my-4 size-40 rounded-md bg-white p-2" value={uri} />
           <div className="my-2 mb-4 flex w-96 rounded-lg border px-4 py-2 pr-2 text-sm">
-            <Link href={uri} target="_blank" className="flex-1 overflow-x-auto">
+            <Link
+              href={uri}
+              target="_blank"
+              className="flex-1 overflow-x-auto"
+              data-testid="totp-link"
+            >
               {uri}
             </Link>
             <CopyToClipboard value={uri}></CopyToClipboard>

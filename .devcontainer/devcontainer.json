@@ -1,12 +1,12 @@
 {
   "name": "platform-unified-accounts-user-portal",
-  "image": "mcr.microsoft.com/devcontainers/base:bullseye@sha256:6c9ed5e39f498694fcd2eb2ac4a28eeea16ab0e5f6c44393d692e6cbb2eef08b",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye@sha256:d233ca1cefb8829b5a474659dc32537652772d702bdc49a20f366eedf588da35",
   "containerEnv": {
     "SHELL": "/bin/zsh"
   },
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "24.18.0",
+      "version": "24.21.0",
       "pnpmVersion": "11.15.1"
     },
     "ghcr.io/grafana/devcontainer-features/k6:1": {

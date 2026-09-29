@@ -2,13 +2,17 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { NextRequest, NextResponse } from "next/server";
+import { Prompt } from "@zitadel/proto/zitadel/oidc/v2/authorization_pb";
 
-import { FlowInitiationParams, handleOIDCFlowInitiation } from "@lib/server/flow-initiation";
-import { loadSessionsWithCookies } from "@lib/server/session";
+import { ZITADEL_ORGANIZATION } from "@root/constants/config";
+import { toAuthRequestId, toOidcRequestId } from "@lib/oidc-request-id";
+import { constructUrl } from "@lib/service-url";
+import { buildUrlWithRequestId } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { isRSCRequest, validateAuthRequest } from "@lib/utils/auth";
+import { getAuthRequest } from "@lib/zitadel";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -24,19 +28,34 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "No valid authentication request found" }, { status: 400 });
   }
 
-  const { sessions, sessionCookies } = await loadSessionsWithCookies({});
+  const authRequestId = toAuthRequestId(requestId);
 
-  // Flow initiation - delegate to appropriate handler
-  const flowParams: FlowInitiationParams = {
-    requestId,
-    sessions,
-    sessionCookies,
-    request,
-  };
+  const { authRequest } = await getAuthRequest({
+    authRequestId,
+  });
 
-  if (requestId.startsWith("oidc_")) {
-    return handleOIDCFlowInitiation(flowParams);
-  } else {
-    return NextResponse.json({ error: "Invalid request ID format" }, { status: 400 });
+  const oidcRequestId = authRequest?.id
+    ? toOidcRequestId(authRequest.id)
+    : toOidcRequestId(requestId);
+
+  // RP is requesting the registration flow
+  if (authRequest && authRequest.prompt.includes(Prompt.CREATE)) {
+    const registerUrl = constructUrl(request, "/before-you-start");
+    registerUrl.searchParams.set("requestId", oidcRequestId);
+
+    registerUrl.searchParams.set("organization", ZITADEL_ORGANIZATION);
+
+    return NextResponse.redirect(registerUrl);
   }
+
+  // `prompt=none` must never start an interactive login. There is no
+  // authenticated session to complete this request in this flow, so return
+  // the OIDC error instead.
+  if (authRequest?.prompt.includes(Prompt.NONE)) {
+    return NextResponse.json({ error: "login_required" }, { status: 400 });
+  }
+
+  const loginNameUrl = constructUrl(request, buildUrlWithRequestId("/", oidcRequestId));
+
+  return NextResponse.redirect(loginNameUrl);
 }

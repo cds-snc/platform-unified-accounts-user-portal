@@ -62,7 +62,7 @@ pnpm type-check   # TypeScript validation
 
 ## Environment
 - `ZITADEL_API_URL`: Zitadel instance URL
-- `NEXT_PUBLIC_BASE_PATH`: URL base path (default: `/ui/v2` in Docker)
+- `NEXT_PUBLIC_BASE_PATH`: URL base path
 - Organization ID: hardcoded in [constants/config.ts](../constants/config.ts)
 
 ## Important Files

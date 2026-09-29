@@ -47,6 +47,9 @@
     "support": {
       "desc": "Support"
     },
+    "contact-us": {
+      "desc": "Contact us"
+    },
     "ariaLabel": "Footer"
   },
   "versionUpdater": {
@@ -66,13 +69,17 @@
       "noSession": "Your account information could not be retrieved from the session."
     },
     "personalDetails": {
-      "title": "Personal details",
+      "title": "Profile",
+      "fullName": "Full name",
       "firstName": "First name",
       "lastName": "Last name",
       "change": "Change",
       "cancel": "Cancel",
       "updateAccount": "Update",
       "updateDetails": "Update your personal details",
+      "email": "Email address",
+      "cannotBeChanged": "Cannot change",
+      "createNewAccount": "Create new account",
       "success": {
         "updateSuccess": "Your personal details were updated"
       },
@@ -87,19 +94,15 @@
         "maxLengthLastname": "Last name must be less than 251 characters."
       }
     },
-    "verifiedAccount": {
-      "title": "Verified account",
-      "email": "Email address",
-      "cannotBeChanged": "Cannot be changed",
-      "createNewAccount": "Create new account"
-    },
+
     "authentication": {
-      "title": "Authentication",
+      "title": "Security verification",
       "password": "Password",
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "Two-factor authentication",
+      "title": "Other Verification",
+      "minimumNum": "(minimum one other)",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
       "authenticatorApp": "Authentication app",
@@ -110,6 +113,12 @@
         "keyRemoved": "Security key was removed.",
         "authAppRemoved": "Authenticator app was removed."
       },
+      "confirmRemove": {
+        "title": "Confirm MFA Deletion",
+        "confirm": "Yes, remove",
+        "cancel": "Cancel",
+        "message": "Are you sure you want to remove {{mfa}}"
+      },
       "errors": {
         "cannotRemoveSecurityKey": "Cannot remove security key. At least one additional authentication method must be configured.",
         "failedToRemoveSecurityKey": "Failed to remove security key.",
@@ -118,7 +127,7 @@
     }
   },
   "start": {
-    "title": "Sign in",
+    "title": "Sign in{{app}}",
     "signUpText": "If you do not have an account, you can",
     "signUpLink": "create one now.",
     "userName": "Name",
@@ -400,6 +409,9 @@
         "couldNotRetrievePasskey": "An error occurred while retrieving security key",
         "verificationCancelled": "Security key verification was cancelled",
         "verificationFailed": "An error occurred during security key verification"
+      },
+      "confirmation": {
+        "title": "To continue, Tap your security Key"
       }
     },
     "set": {
@@ -430,9 +442,6 @@
     "sendingNewCode": "Sending new code...",
     "sentNewCode": "New code sent!",
     "help": "Need help?",
-    "successTitle": "Email initialized and validated",
-    "successDescription": "Your email has been verified. Continue to set up two-factor authentication to secure your account.",
-    "continueButton": "Continue setup",
     "validation": {
       "required": "Cannot be empty",
       "length": "Must be 6 characters"
@@ -446,11 +455,81 @@
   "allSet": {
     "title": "You're all set!",
     "description": "Your account is now secured with two-factor authentication.",
-    "continueButton": "Continue"
+    "continueButton": "Continue{{app}}"
   },
   "deactivated": {
     "title": "Account deactivated",
     "description": "You can no longer access this account. To find out more or request account reactivation, contact us.",
     "contactSupport": "Contact support"
+  },
+  "welcome": {
+    "title": "Welcome to GC Platform!",
+    "description": "You've created your account and verification method",
+    "continueButton": "Continue{{app}}"
+  },
+  "contact-us": {
+    "title": "Contact us",
+    "description": "Have a question or need help? Fill out the form below and we will get back to you as soon as possible.",
+    "labels": {
+      "fullName": "Full name",
+      "email": "Email address",
+      "issueType": "What is your issue related to?",
+      "message": "Message"
+    },
+    "issueTypeOptions": {
+      "placeholder": "Select an option",
+      "passwordReset": "Unable to reset password",
+      "mfaIssue": "Second factor authentication is missing or not working",
+      "signUpIssue": "Unable to sign up",
+      "other": "Other"
+    },
+    "success": {
+      "title": "Message sent",
+      "description": "Thank you for reaching out. We will respond to you within 2 business days."
+    },
+    "errors": {
+      "generic": "Something went wrong sending your message. Please try again.",
+      "submitFailed": "Failed to send message. Please try again."
+    },
+    "validation": {
+      "requiredFullName": "Full name is required.",
+      "maxLengthFullName": "Full name must be less than 251 characters.",
+      "requiredEmail": "Email address is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "maxLengthEmail": "Email address must be less than 255 characters.",
+      "requiredIssueType": "Please select an issue type.",
+      "invalidIssueType": "Please select a valid issue type.",
+      "requiredMessage": "Message is required.",
+      "maxLengthMessage": "Message must be less than 2000 characters."
+    }
+  },
+  "beforeYouStart": {
+    "title": "Before you start",
+    "step1": {
+      "title": "Step 1 ",
+      "description": "Sign in to your GC email account",
+      "callout1": "You need email access to create a GC Platform account.",
+
+      "callout2": "Use the same email address as your GC Forms account."
+    },
+    "step2": {
+      "title": "Step 2",
+      "description": "Choose verification method",
+      "callout1": "Hardware key",
+      "callout2": "Device with Authenticator app "
+    },
+    "cta": {
+      "createAccount": "Create GC Platform account",
+      "alreadyHaveAccount": "I already have a GC Platform account"
+    }
+  },
+  "404": {
+    "title": "Page not found ",
+    "body": "Sorry, the page you’re looking for was not found."
+  },
+  "rpApps": {
+    "GC Forms": " to GC Forms",
+    "GC Notify": " to GC Notify",
+    "defaultAppName": ""
   }
 }

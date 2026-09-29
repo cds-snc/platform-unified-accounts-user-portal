@@ -1,21 +1,10 @@
-/*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-import { Metadata } from "next";
-
 import { LoginTOTP } from "@root/app/(auth)/otp/time-based/components/LoginTOTP";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { SearchParams } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { serverTranslation } from "@i18n/server";
 import { AuthPanel } from "@components/auth/AuthPanel";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("otp");
-  return { title: t("verify.title") };
-}
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;

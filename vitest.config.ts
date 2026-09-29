@@ -33,6 +33,7 @@ export default defineConfig({
     alias: {
       "next/navigation": new URL("./test/mocks/next/navigation", import.meta.url).pathname,
       "next/headers": new URL("./test/mocks/next/headers", import.meta.url).pathname,
+      "server-only": new URL("./test/mocks/server-only", import.meta.url).pathname,
     },
   },
 });

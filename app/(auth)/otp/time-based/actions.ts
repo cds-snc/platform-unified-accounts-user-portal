@@ -15,7 +15,6 @@ import { logMessage } from "@lib/logger";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getLoginSettings } from "@lib/zitadel";
 import { getZitadelUiError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 export type FormState = {
@@ -30,83 +29,79 @@ type Inputs = {
   code: string;
 };
 
-export const handleOTPFormSubmit = AuthenticatedAction(async function handleOTPFormSubmit(
-  _,
-  { code, redirect, requestId }: { code: string; redirect?: string; requestId?: string }
-): Promise<FormState> {
-  const { t } = await serverTranslation("otp");
+export const handleOTPFormSubmit = AuthenticatedAction(
+  { authLevel: "basic_session" },
+  async function handleOTPFormSubmit(
+    _,
+    { code, requestId }: { code: string; requestId?: string }
+  ): Promise<FormState> {
+    const { t } = await serverTranslation("otp");
 
-  if (typeof code !== "string" || (requestId && typeof requestId !== "string")) {
-    throw new Error("Invalid parameters");
-  }
+    if (typeof code !== "string" || (requestId && typeof requestId !== "string")) {
+      throw new Error("Invalid parameters");
+    }
 
-  const loginSettings = await getLoginSettings();
+    const normalizedCode = code.trim();
 
-  const normalizedCode = code.trim();
+    const totpValidationResult = await validateTotpCode({ code: normalizedCode });
+    if (!totpValidationResult.success) {
+      return {
+        validationErrors: totpValidationResult.issues.map((issue) => ({
+          fieldKey: (issue.path?.[0]?.key as string) || "code",
+          fieldValue: t(`verify.validation.${issue.message}`),
+        })),
+        error: undefined,
+        formData: { code: normalizedCode },
+      };
+    }
 
-  const totpValidationResult = await validateTotpCode({ code: normalizedCode });
-  if (!totpValidationResult.success) {
-    return {
-      validationErrors: totpValidationResult.issues.map((issue) => ({
-        fieldKey: (issue.path?.[0]?.key as string) || "code",
-        fieldValue: t(`verify.validation.${issue.message}`),
-      })),
-      error: undefined,
-      formData: { code: normalizedCode },
-    };
-  }
+    const response = await _submitOTPCode({ code: normalizedCode }, requestId);
 
-  const response = await _submitOTPCode({ code: normalizedCode }, requestId);
+    if (!response) {
+      return {
+        validationErrors: undefined,
+        error: undefined,
+        formData: { code: normalizedCode },
+      };
+    }
 
-  if (!response) {
-    return {
-      validationErrors: undefined,
-      error: undefined,
-      formData: { code: normalizedCode },
-    };
-  }
+    if ("error" in response) {
+      const mappedUiError = getZitadelUiError("otp.verify", response.error);
+      const mappedErrorMessage = mappedUiError ? t(mappedUiError.i18nKey) : undefined;
 
-  if ("error" in response) {
-    const mappedUiError = getZitadelUiError("otp.verify", response.error);
-    const mappedErrorMessage = mappedUiError ? t(mappedUiError.i18nKey) : undefined;
+      logMessage.debug({
+        message: "TOTP code submission returned error",
+        error: response.error,
+      });
 
-    logMessage.debug({
-      message: "TOTP code submission returned error",
-      error: response.error,
-    });
+      return {
+        validationErrors: undefined,
+        error:
+          mappedErrorMessage ||
+          (typeof response.error === "string" ? response.error : t("set.genericError")),
+        formData: { code: normalizedCode },
+      };
+    }
 
-    return {
-      validationErrors: undefined,
-      error:
-        mappedErrorMessage ||
-        (typeof response.error === "string" ? response.error : t("set.genericError")),
-      formData: { code: normalizedCode },
-    };
-  }
-
-  const redirectUrl = redirect ?? loginSettings?.defaultRedirectUri;
-
-  // Always include sessionId to ensure we load the exact session that was just updated
-  const callbackResponse = await completeFlowAndRedirect(
-    {
+    // Always include sessionId to ensure we load the exact session that was just updated
+    const callbackResponse = await completeFlowAndRedirect({
       sessionId: response.sessionId,
       requestId: requestId,
-    },
-    redirectUrl
-  );
+    });
 
-  // If this code is reached there was an error in the completeFlowAndRedirect
+    // If this code is reached there was an error in the completeFlowAndRedirect
 
-  logMessage.debug({
-    message: "TOTP callback flow returned error",
-    error: callbackResponse.error,
-  });
-  return {
-    validationErrors: undefined,
-    formData: { code: normalizedCode },
-    error: callbackResponse.error,
-  };
-});
+    logMessage.debug({
+      message: "TOTP callback flow returned error",
+      error: callbackResponse.error,
+    });
+    return {
+      validationErrors: undefined,
+      formData: { code: normalizedCode },
+      error: callbackResponse.error,
+    };
+  }
+);
 
 async function _submitOTPCode(values: Inputs, requestId?: string) {
   const checks = create(ChecksSchema, {

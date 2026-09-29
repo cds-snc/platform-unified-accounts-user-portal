@@ -5,7 +5,6 @@ import { create } from "@zitadel/client";
 import { SessionSchema } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getSessionCredentials } from "@lib/cookies";
 import { checkAuthenticationLevel, hasStrongMFA } from "@lib/server/route-protection";
 import { getPasswordComplexitySettings } from "@lib/zitadel";
 
@@ -85,10 +84,6 @@ describe("password/change page", () => {
     vi.clearAllMocks();
 
     vi.mocked(headers).mockResolvedValue(new Headers());
-    vi.mocked(getSessionCredentials).mockResolvedValue({
-      sessionId: "session-123",
-      loginName: "person@canada.ca",
-    } as never);
 
     vi.mocked(checkAuthenticationLevel).mockResolvedValue({
       session: strongMfaSession,

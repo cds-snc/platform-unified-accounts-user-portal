@@ -42,12 +42,24 @@ describe("logMessage.info", () => {
     logMessage.info("info message");
     expect(mockPinoInstance.info).toHaveBeenCalledWith("info message");
   });
+
+  it("logs structured context with a message", () => {
+    const context = { event: "runtime_metrics", cpuPercent: 12.5 };
+    logMessage.info("Runtime metrics", context);
+    expect(mockPinoInstance.info).toHaveBeenCalledWith(context, "Runtime metrics");
+  });
 });
 
 describe("logMessage.warn", () => {
   it("logs a string message", () => {
     logMessage.warn("warn message");
     expect(mockPinoInstance.warn).toHaveBeenCalledWith("warn message");
+  });
+
+  it("logs structured context with a message", () => {
+    const context = { event: "runtime_pressure", pressure: ["event_loop_delay_p99"] };
+    logMessage.warn("Runtime pressure detected", context);
+    expect(mockPinoInstance.warn).toHaveBeenCalledWith(context, "Runtime pressure detected");
   });
 });
 

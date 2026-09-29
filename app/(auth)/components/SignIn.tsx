@@ -2,7 +2,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -12,8 +12,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Cookie } from "@lib/cookies";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { useTranslation } from "@i18n";
+import { ToastContainer } from "@components/ui/toast/Toast";
+import { toast } from "@components/ui/toast/Toast";
 
-import { checkActiveSession, setSession } from "../actions";
+import { checkActiveSession, continueOidcSessionSelection, setSession } from "../actions";
 
 /*--------------------------------------------*
  * Local Relative
@@ -33,16 +35,36 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
   const searchParams = useSearchParams();
   const selectedSession = searchParams.get("session");
 
+  useEffect(() => {
+    // Ensure session storage is cleared of any previous session data
+    sessionStorage.clear();
+  }, []);
+
+  const selectedSessionQuery = (sessionId: string) =>
+    `?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`;
+
   const selectSession = async (sessionId: string) => {
     if (sessionId !== "other") {
       await setSession(sessionId);
       const isValidSession = await checkActiveSession();
       if (isValidSession) {
+        if (requestId) {
+          const { error } = await continueOidcSessionSelection(sessionId, requestId);
+          if (error) {
+            toast.error(error, "login-authentication");
+            return;
+          }
+
+          // If no redirect is provided, redirect to the selected session page
+          return router.push(selectedSessionQuery(sessionId));
+        }
+
+        // If no requestId is provided, redirect to the account page
         return router.push(buildUrlWithRequestId("/account", requestId));
       }
     }
     // Used to set state on the page not as the result of a mutation action
-    router.push(`?session=${sessionId}${requestId ? `&requestId=${requestId}` : ""}`);
+    router.push(selectedSessionQuery(sessionId));
   };
 
   return (
@@ -63,11 +85,12 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       <p className="mt-10">
         {t("register")}
         &nbsp;
-        <Link href={registerLink} prefetch={false}>
+        <Link href={registerLink} prefetch={false} data-testid="register-link">
           {t("registerLinkText")}
         </Link>
         .
       </p>
+      <ToastContainer autoClose={false} containerId="login-authentication" />
     </>
   );
 };

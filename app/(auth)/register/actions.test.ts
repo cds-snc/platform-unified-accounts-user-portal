@@ -1,7 +1,7 @@
-import { mockRedirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { validateAccountWithPassword } from "@lib/validation/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
@@ -111,11 +111,11 @@ describe("registerUser", () => {
 
   it("returns email verification redirect when required", async () => {
     vi.mocked(checkEmailVerification).mockReturnValue({
-      redirect: "/verify?requestId=req-123",
+      redirect: "/register/verify?requestId=req-123",
     });
 
     await expect(registerUser(baseCommand)).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/verify?requestId=req-123");
+    expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
   });
 
   it("creates session with retry enabled", async () => {

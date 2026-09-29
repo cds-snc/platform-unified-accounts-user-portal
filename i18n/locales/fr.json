@@ -52,6 +52,9 @@
       "link": "/fr/support",
       "desc": "Soutien"
     },
+    "contact-us": {
+      "desc": "Nous contacter"
+    },
     "ariaLabel": "Pied de page"
   },
   "versionUpdater": {
@@ -72,12 +75,16 @@
     },
     "personalDetails": {
       "title": "Renseignements personnels",
+      "fullName": "Nom complet",
       "firstName": "Prénom",
       "lastName": "Nom de famille",
       "change": "Modifier",
       "cancel": "Annuler",
       "updateAccount": "Mettre à jour",
       "updateDetails": "[FR]Update your personal details",
+      "email": "Adresse courriel",
+      "cannotBeChanged": "Ne peut être modifié",
+      "createNewAccount": "créer un nouveau compte",
       "success": {
         "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
@@ -92,12 +99,7 @@
         "maxLengthLastname": "Le nom de famille doit comporter moins de 251 caractères."
       }
     },
-    "verifiedAccount": {
-      "title": "Compte vérifié",
-      "email": "Adresse courriel",
-      "cannotBeChanged": "Ne peut être modifié",
-      "createNewAccount": "créer un nouveau compte"
-    },
+
     "authentication": {
       "title": "Authentification",
       "password": "Mot de passe",
@@ -105,12 +107,19 @@
     },
     "mfaAuthentication": {
       "title": "Authentification à deux facteurs",
+      "minimumNum": "FR(minimum one other)",
       "securityKey": "Clé de sécurité",
       "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
       "authenticatorApp": "Application d'authentification",
       "addlMethods": "Ajouter une autre méthode",
       "remove": "Retirer",
       "unknownDevice": "Appareil inconnu",
+      "confirmRemove": {
+        "title": "Confirm MFA Deletion",
+        "confirm": "Yes, remove",
+        "cancel": "Cancel",
+        "message": "Are you sure you want to remove {{mfa}}"
+      },
       "success": {
         "keyRemoved": "La clé de sécurité a été supprimée.",
         "authAppRemoved": "L'application d'authentification a été supprimée."
@@ -123,7 +132,7 @@
     }
   },
   "start": {
-    "title": "Se connecter",
+    "title": "Se connecter{{app}}",
     "signUpText": "Si vous n'avez pas de compte, vous pouvez",
     "signUpLink": "en créer un maintenant.",
     "userName": "Nom",
@@ -405,6 +414,9 @@
         "couldNotRetrievePasskey": "Une erreur s'est produite lors de la récupération de la clé de sécurité",
         "verificationCancelled": "La vérification de la clé de sécurité a été annulée",
         "verificationFailed": "Une erreur s'est produite lors de la vérification de la clé de sécurité"
+      },
+      "confirmation": {
+        "title": "FR - To continue, Tap your security Key"
       }
     },
     "set": {
@@ -435,9 +447,6 @@
     "sendingNewCode": "Envoi d'un nouveau code...",
     "sentNewCode": "Nouveau code envoyé",
     "help": "Besoin d'aide?",
-    "successTitle": "Courriel initialisé et validé",
-    "successDescription": "Votre courriel a été vérifié. Continuez pour configurer l'authentification à deux facteurs pour sécuriser votre compte.",
-    "continueButton": "Continuer la configuration",
     "validation": {
       "required": "Ce champ ne peut pas être vide",
       "length": "Doit contenir 6 caractères"
@@ -451,11 +460,81 @@
   "allSet": {
     "title": "Vous êtes prêt !",
     "description": "Votre compte est maintenant sécurisé avec l'authentification à deux facteurs.",
-    "continueButton": "Continuer"
+    "continueButton": "Continuer{{app}}"
   },
   "deactivated": {
     "title": "Compte désactivé",
     "description": "Vous ne pouvez plus accéder à ce compte. Pour en savoir plus ou demander la réactivation de votre compte, contactez-nous.",
     "contactSupport": "Contacter le support"
+  },
+  "welcome": {
+    "title": "Welcome to GC Platform!",
+    "description": "You've created your account and verification method",
+    "continueButton": "Continue{{app}}"
+  },
+  "contact-us": {
+    "title": "Nous contacter",
+    "description": "Vous avez une question ou besoin d'aide? Remplissez le formulaire ci-dessous et nous vous répondrons dès que possible.",
+    "labels": {
+      "fullName": "Nom complet",
+      "email": "Adresse courriel",
+      "issueType": "À quoi votre problème est-il lié?",
+      "message": "Message"
+    },
+    "issueTypeOptions": {
+      "placeholder": "Sélectionnez une option",
+      "passwordReset": "Impossible de réinitialiser le mot de passe",
+      "mfaIssue": "L'authentification à deux facteurs est manquante ou ne fonctionne pas",
+      "signUpIssue": "Impossible de s'inscrire",
+      "other": "Autre"
+    },
+    "success": {
+      "title": "Message envoyé",
+      "description": "Merci de nous avoir contactés. Nous vous répondrons dans un délai de 2 jours ouvrables."
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer.",
+      "submitFailed": "Échec de l'envoi du message. Veuillez réessayer."
+    },
+    "validation": {
+      "requiredFullName": "Le nom complet est obligatoire.",
+      "maxLengthFullName": "Le nom complet doit comporter moins de 251 caractères.",
+      "requiredEmail": "L'adresse courriel est obligatoire.",
+      "invalidEmail": "Entrez une adresse courriel valide.",
+      "maxLengthEmail": "L'adresse courriel doit comporter moins de 255 caractères.",
+      "requiredIssueType": "Veuillez sélectionner un type de problème.",
+      "invalidIssueType": "Veuillez sélectionner un type de problème valide.",
+      "requiredMessage": "Le message est obligatoire.",
+      "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
+    }
+  },
+  "beforeYouStart": {
+    "title": "Avant de commencer",
+    "step1": {
+      "title": "Étape 1 ",
+      "description": "Connectez-vous à votre compte de courriel gouvernemental.",
+      "callout1": "Vous aurez besoin d’accéder à vos courriels pour créer un compte Plateforme GC.",
+
+      "callout2": "Utilisez la même adresse de courriel que celle de votre compte Formulaires GC."
+    },
+    "step2": {
+      "title": "Étape 2",
+      "description": "Choisissez une méthode de vérification.",
+      "callout1": "Clé physique",
+      "callout2": "Appareil avec une application d’authentification"
+    },
+    "cta": {
+      "createAccount": "Créer un compte Plateforme GC",
+      "alreadyHaveAccount": "J’ai déjà un compte Plateforme GC"
+    }
+  },
+  "404": {
+    "title": "Page non trouvée",
+    "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
+  },
+  "rpApps": {
+    "GC Forms": " à GC Formulaires",
+    "GC Notify": " à GC Notify",
+    "defaultAppName": ""
   }
 }

@@ -1,0 +1,49 @@
+name: Get version to deploy
+
+on:
+  workflow_call:
+    secrets:
+      LOG_ANALYTICS_WORKSPACE_ID:
+        required: true
+      LOG_ANALYTICS_WORKSPACE_KEY:
+        required: true
+    outputs:
+      version:
+        value: ${{ jobs.get-version.outputs.version }}
+
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version-from-tag.outputs.version }}
+    steps:
+    - name: Audit DNS requests
+      uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
+      env:
+        DNS_PROXY_FORWARDTOSENTINEL: "true"
+        DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}"
+        DNS_PROXY_LOGANALYTICSSHAREDKEY: "${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}"
+        DNS_PROXY_SAFELIST: "${{ vars.DNS_PROXY_SAFELIST }}"
+        DNS_PROXY_WILDCARDGREEDY: "true"
+
+    - name: Checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Get version
+      id: version-from-tag
+      run: |
+        VERSION="$(jq -r '.["."] // empty' .release-please-manifest.json)"
+        if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::Invalid version format in .release-please-manifest.json: '$VERSION'"
+          exit 1
+        fi
+        echo "version=v${VERSION}" >> "$GITHUB_OUTPUT"
+
+    - name: Wait for ref to exist
+      env:
+        VERSION: ${{ steps.version-from-tag.outputs.version }}
+      run: ./.github/workflows/scripts/wait-for-ref.sh "$VERSION"
