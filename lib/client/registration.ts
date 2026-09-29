@@ -9,7 +9,7 @@ export const removeRegistrationFlag = () => {
 };
 
 export const checkRegistrationFlag = () => {
-  if (typeof window === undefined) {
+  if (typeof window === "undefined") {
     return null;
   }
   return Boolean(sessionStorage.getItem(sessionStorageKey));

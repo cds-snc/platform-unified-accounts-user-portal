@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,10 +43,14 @@ export function VerifyEmailForm({
   children?: React.ReactNode;
 }) {
   const { clearRegistrationData } = useRegistration();
-  // Set global flag for ongoing registration flow
-  setRegistrationFlag();
-  // Clean up data from preivous page of username / password
-  clearRegistrationData();
+
+  useEffect(() => {
+    setRegistrationFlag;
+    // Set global flag for ongoing registration flow
+    setRegistrationFlag();
+    // Clean up data from preivous page of username / password
+    clearRegistrationData();
+  });
 
   const router = useRouter();
 
