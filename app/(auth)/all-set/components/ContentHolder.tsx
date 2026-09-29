@@ -1,18 +1,24 @@
 "use client";
+import { useSyncExternalStore } from "react";
+
 import { checkRegistrationFlag } from "@lib/client/registration";
 
 import { AllSet } from "./AllSet";
 import { Welcome } from "./Welcome";
 
 export const ContentHolder = () => {
-  const onRegistrationPath = checkRegistrationFlag();
+  const registrationFlag = useSyncExternalStore(
+    () => () => {},
+    checkRegistrationFlag,
+    () => null
+  );
 
   // Server rendering return null
-  if (onRegistrationPath === null) {
+  if (registrationFlag === null) {
     return null;
   }
 
-  if (onRegistrationPath) {
+  if (registrationFlag) {
     return <Welcome />;
   }
 
