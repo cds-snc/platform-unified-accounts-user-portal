@@ -11,7 +11,7 @@ import { useHCaptcha } from "@gcforms/hcaptcha/client";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { cn } from "@lib/utils";
-import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
+import { CONTACT_US_ISSUE_TYPES, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
@@ -24,13 +24,6 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
  * Parent Relative
  *--------------------------------------------*/
 import { submitContactFormAction } from "../actions";
-
-const ISSUE_TYPE_I18N_KEYS: Record<(typeof CONTACT_US_ISSUE_TYPES)[number], string> = {
-  "password-reset": "issueTypeOptions.passwordReset",
-  "mfa-issue": "issueTypeOptions.mfaIssue",
-  "sign-up-issue": "issueTypeOptions.signUpIssue",
-  other: "issueTypeOptions.other",
-};
 
 type FormState = {
   success?: boolean;

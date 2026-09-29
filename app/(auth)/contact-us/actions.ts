@@ -9,7 +9,7 @@ import { isIP } from "node:net";
 
 import { createFreshdeskTicket } from "@lib/freshdesk";
 import { logMessage } from "@lib/logger";
-import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
+import { ContactUsIssueType, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
 import { getCurrentLanguage } from "@i18n/utils";
@@ -72,11 +72,13 @@ export async function submitContactFormAction(
     return genericErrorResponse;
   }
 
+  const issueTypeLabel = t(ISSUE_TYPE_I18N_KEYS[command.issueType as ContactUsIssueType]);
+  const description = `${t("issueTypeLabel")}: ${issueTypeLabel}\n\n${command.message}`;
+
   const result = await createFreshdeskTicket({
     fullName: command.fullName,
     email: command.email,
-    issueType: command.issueType as ContactUsIssueType,
-    message: command.message,
+    message: description,
     language: await getCurrentLanguage(),
   });
 

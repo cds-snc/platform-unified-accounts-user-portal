@@ -2,14 +2,12 @@
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
 
 import "server-only";
 
 type CreateTicketParams = {
   fullName: string;
   email: string;
-  issueType: ContactUsIssueType;
   message: string;
   language: string;
 };
@@ -18,14 +16,16 @@ type FreshdeskTicketResponse = {
   id: number;
 };
 
-const ISSUE_TYPE_LABELS: Record<ContactUsIssueType, string> = {
-  "password-reset": "Unable to reset password",
-  "mfa-issue": "Second factor authentication is missing or not working",
-  "sign-up-issue": "Unable to sign up",
-  other: "Other",
-};
-
 const FRESHDESK_FETCH_TIMEOUT_MS = 5000;
+
+const FRESHDESK_PRODUCT_ID = 61000004602;
+const FRESHDESK_GROUP_ID = 61000176987;
+const FRESHDESK_TAGS = ["GCPlatform_Usability_SSO"];
+
+const SUBJECT_BY_LANGUAGE: Record<"en" | "fr", string> = {
+  en: "GC Platform - Contact us",
+  fr: "Plateforme GC - Nous contacter",
+};
 
 export async function createFreshdeskTicket(
   params: CreateTicketParams
@@ -39,18 +39,22 @@ export async function createFreshdeskTicket(
   }
 
   const credentials = Buffer.from(`${apiKey}:X`).toString("base64");
+  const isFrench = params.language === "fr";
 
   const body = {
     name: params.fullName,
     email: params.email,
-    subject: `Contact Us Form Submission: ${ISSUE_TYPE_LABELS[params.issueType]}`,
-    type: ISSUE_TYPE_LABELS[params.issueType],
-    description: params.message,
+    type: "Question",
     source: 2, // Portal
     priority: 1, // Low
     status: 2, // Open
+    product_id: FRESHDESK_PRODUCT_ID,
+    tags: FRESHDESK_TAGS,
+    group_id: FRESHDESK_GROUP_ID,
+    subject: isFrench ? SUBJECT_BY_LANGUAGE.fr : SUBJECT_BY_LANGUAGE.en,
+    description: params.message,
     custom_fields: {
-      cf_language: params.language === "fr" ? "Français" : "English",
+      cf_language: isFrench ? "Français" : "English",
     },
   };
 

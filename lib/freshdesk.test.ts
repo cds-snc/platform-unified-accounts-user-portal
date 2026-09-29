@@ -15,7 +15,6 @@ import { createFreshdeskTicket } from "./freshdesk";
 const validParams = {
   fullName: "Test User",
   email: "test@canada.ca",
-  issueType: "other" as const,
   message: "Hello there",
   language: "en",
 };
@@ -82,12 +81,15 @@ describe("createFreshdeskTicket", () => {
     expect(body.name).toBe("Test User");
     expect(body.email).toBe("test@canada.ca");
     expect(body.description).toBe("Hello there");
-    expect(body.subject).toBe("Contact Us Form Submission: Other");
-    expect(body.type).toBe("Other");
+    expect(body.subject).toBe("GC Platform - Contact us");
+    expect(body.type).toBe("Question");
+    expect(body.product_id).toBe(61000004602);
+    expect(body.group_id).toBe(61000176987);
+    expect(body.tags).toEqual(["GCPlatform_Usability_SSO"]);
     expect(body.custom_fields).toEqual({ cf_language: "English" });
   });
 
-  it("sets the French language custom field when language is fr", async () => {
+  it("sets the French subject and language custom field when language is fr", async () => {
     const fetchSpy = vi
       .spyOn(global, "fetch")
       .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
@@ -96,6 +98,7 @@ describe("createFreshdeskTicket", () => {
 
     const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
     const body = JSON.parse(options.body as string);
+    expect(body.subject).toBe("Plateforme GC - Nous contacter");
     expect(body.custom_fields).toEqual({ cf_language: "Français" });
   });
 
