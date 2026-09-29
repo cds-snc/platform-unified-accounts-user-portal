@@ -17,6 +17,7 @@ const validParams = {
   email: "test@canada.ca",
   issueType: "other" as const,
   message: "Hello there",
+  language: "en",
 };
 
 beforeEach(() => {
@@ -82,6 +83,20 @@ describe("createFreshdeskTicket", () => {
     expect(body.email).toBe("test@canada.ca");
     expect(body.description).toBe("Hello there");
     expect(body.subject).toBe("Contact Us Form Submission: Other");
+    expect(body.type).toBe("Other");
+    expect(body.custom_fields).toEqual({ cf_language: "English" });
+  });
+
+  it("sets the French language custom field when language is fr", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket({ ...validParams, language: "fr" });
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.custom_fields).toEqual({ cf_language: "Français" });
   });
 
   it("returns an error when the API responds with a non-OK status", async () => {

@@ -11,6 +11,7 @@ type CreateTicketParams = {
   email: string;
   issueType: ContactUsIssueType;
   message: string;
+  language: string;
 };
 
 type FreshdeskTicketResponse = {
@@ -43,10 +44,14 @@ export async function createFreshdeskTicket(
     name: params.fullName,
     email: params.email,
     subject: `Contact Us Form Submission: ${ISSUE_TYPE_LABELS[params.issueType]}`,
+    type: ISSUE_TYPE_LABELS[params.issueType],
     description: params.message,
     source: 2, // Portal
     priority: 1, // Low
     status: 2, // Open
+    custom_fields: {
+      cf_language: params.language === "fr" ? "Français" : "English",
+    },
   };
 
   try {

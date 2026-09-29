@@ -12,6 +12,7 @@ import { logMessage } from "@lib/logger";
 import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
+import { getCurrentLanguage } from "@i18n/utils";
 
 type ContactFormCommand = {
   fullName: string;
@@ -76,6 +77,7 @@ export async function submitContactFormAction(
     email: command.email,
     issueType: command.issueType as ContactUsIssueType,
     message: command.message,
+    language: await getCurrentLanguage(),
   });
 
   if ("error" in result) {
