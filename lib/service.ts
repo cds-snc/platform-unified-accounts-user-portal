@@ -10,6 +10,7 @@ import { ProjectService } from "@zitadel/proto/zitadel/project/v2beta/project_se
 import { SessionService } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { SettingsService } from "@zitadel/proto/zitadel/settings/v2/settings_service_pb";
 import { UserService } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
+import { readFileSync } from "node:fs";
 
 /*--------------------------------------------*
  * Parent Relative
@@ -32,13 +33,16 @@ const ServiceClass = {
 
 type Services = (typeof ServiceClass)[keyof typeof ServiceClass];
 
-if (!process.env.ZITADEL_SERVICE_USER_TOKEN) {
+let token: string = "dummy_token_for_building";
+if (process.env.ZITADEL_SERVICE_USER_TOKEN) {
+  token = process.env.ZITADEL_SERVICE_USER_TOKEN;
+} else if (process.env.ZITADEL_SERVICE_USER_TOKEN_FILE) {
+  token = readFileSync(process.env.ZITADEL_SERVICE_USER_TOKEN_FILE, "utf8").trim();
+} else {
   logMessage.error("No Zitadel Service Token found");
 }
 
 const services: Record<string, Client<Services>> = {};
-const token: string = process.env.ZITADEL_SERVICE_USER_TOKEN ?? "dummy_token_for_building";
-
 export const getServiceForHost = async <S extends keyof typeof ServiceClass>(service: S) => {
   if (!services[service]) {
     const { serviceUrl } = await getServiceUrlFromHeaders();
