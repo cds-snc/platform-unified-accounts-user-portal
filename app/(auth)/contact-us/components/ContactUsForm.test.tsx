@@ -196,7 +196,12 @@ describe("ContactUsForm", () => {
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
-    await waitFor(() => expect(screen.getByText("failPage.title")).toBeInTheDocument());
+    await waitFor(() => {
+      const heading = screen.getByRole("heading", { name: "failPage.title" });
+
+      expect(heading).toHaveFocus();
+      expect(document.title).toBe("failPage.title - contact-us:title");
+    });
     expect(reset).toHaveBeenCalledTimes(1);
     expect(document.getElementById("contact-us-form")).not.toBeInTheDocument();
     expect(submitContactFormAction).not.toHaveBeenCalled();
