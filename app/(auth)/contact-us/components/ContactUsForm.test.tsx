@@ -53,8 +53,19 @@ describe("ContactUsForm", () => {
 
     expect(screen.getByLabelText(/labels.fullName/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels.email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.issueType/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels.message/i)).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeInTheDocument();
+  });
+
+  it("renders the issue type options", () => {
+    render(<ContactUsForm siteKey="site-key" />);
+
+    const select = screen.getByLabelText(/labels.issueType/i);
+    expect(select).toContainHTML("issueTypeOptions.passwordReset");
+    expect(select).toContainHTML("issueTypeOptions.mfaIssue");
+    expect(select).toContainHTML("issueTypeOptions.signUpIssue");
+    expect(select).toContainHTML("issueTypeOptions.other");
   });
 
   it("shows validation errors when form is submitted empty", async () => {
@@ -67,6 +78,7 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(screen.getByText("validation.requiredFullName")).toBeInTheDocument();
       expect(screen.getByText("validation.requiredEmail")).toBeInTheDocument();
+      expect(screen.getByText("validation.requiredIssueType")).toBeInTheDocument();
       expect(screen.getByText("validation.requiredMessage")).toBeInTheDocument();
     });
   });
@@ -78,6 +90,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "not-an-email");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -93,6 +106,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -113,6 +127,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -130,6 +145,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -145,6 +161,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -152,6 +169,7 @@ describe("ContactUsForm", () => {
     expect(submitContactFormAction).toHaveBeenCalledWith({
       fullName: "Test User",
       email: "test@canada.ca",
+      issueType: "other",
       message: "Hello there",
       captchaToken: "captcha-token",
     });
@@ -173,6 +191,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -196,6 +215,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     const submitButton = screen.getByRole("button");
     await user.click(submitButton);
