@@ -45,8 +45,6 @@ async function getClientIp(): Promise<string | undefined> {
 export async function submitContactFormAction(
   command: ContactFormCommand
 ): Promise<{ success: true } | { error: string }> {
-  // Prefer the language reported by the client's i18next instance since it can
-  // diverge from the "i18next" cookie (e.g. cookie cleared while localStorage persists).
   const language = command.language
     ? normalizeLocaleToSupportedLanguage(command.language)
     : await getCurrentLanguage();
