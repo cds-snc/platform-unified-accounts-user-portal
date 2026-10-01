@@ -27,7 +27,7 @@ jobs:
         persist-credentials: false
 
     - name: Start local service stack
-      run: docker-compose up --detach --wait
+      run: docker compose up --detach --wait
 
     - name: ZAP Scan
       uses: zaproxy/action-full-scan@4f7523a09110bc63d6b349713de6aa697ec7fbe9
@@ -37,11 +37,11 @@ jobs:
         allow_issue_writing: false
         fail_action: true
 
-  workflow-failure:
-    needs: dast
-    if: failure()
-    uses: ./.github/workflows/workflow-failure.yml
-    secrets:
-      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
-      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
-      SLACK_WEBHOOK_URL: ${{ secrets.STAGING_CLOUDWATCH_ALERT_SLACK_WEBHOOK }}
+  # workflow-failure:
+  #   needs: dast
+  #   if: failure()
+  #   uses: ./.github/workflows/workflow-failure.yml
+  #   secrets:
+  #     LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
+  #     LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+  #     SLACK_WEBHOOK_URL: ${{ secrets.STAGING_CLOUDWATCH_ALERT_SLACK_WEBHOOK }}
