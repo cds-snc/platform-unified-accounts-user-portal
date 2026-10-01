@@ -39,7 +39,10 @@ type FormState = {
 };
 
 export function ContactUsForm({ siteKey }: { siteKey: string }) {
-  const { t } = useTranslation(["contact-us", "common"]);
+  const {
+    t,
+    i18n: { language },
+  } = useTranslation(["contact-us", "common"]);
   const genericErrorMessage = t("errors.generic");
   const submitFailedMessage = t("errors.submitFailed");
   const [state, setState] = useState<FormState>({
@@ -102,6 +105,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
       const result = await submitContactFormAction({
         ...formEntries,
         captchaToken: captchaResult.token,
+        language,
       });
 
       if ("error" in result) {
