@@ -18,10 +18,6 @@ type FreshdeskTicketResponse = {
 
 const FRESHDESK_FETCH_TIMEOUT_MS = 5000;
 
-const FRESHDESK_PRODUCT_ID = 61000004602;
-const FRESHDESK_GROUP_ID = 61000176987;
-const FRESHDESK_TAGS = ["GCPlatform_Usability_SSO"];
-
 const SUBJECT_BY_LANGUAGE: Record<"en" | "fr", string> = {
   en: "GC Platform - Contact us",
   fr: "Plateforme GC - Nous contacter",
@@ -32,8 +28,11 @@ export async function createFreshdeskTicket(
 ): Promise<{ success: true; ticketId: number } | { error: string }> {
   const apiUrl = process.env.FRESHDESK_API_URL;
   const apiKey = process.env.FRESHDESK_API_KEY;
+  const productId = process.env.FRESHDESK_PRODUCT_ID;
+  const groupId = process.env.FRESHDESK_GROUP_ID;
+  const tags = process.env.FRESHDESK_TAGS;
 
-  if (!apiUrl || !apiKey) {
+  if (!apiUrl || !apiKey || !productId || !groupId || !tags) {
     logMessage.error("Freshdesk env vars not configured");
     return { error: "Service unavailable" };
   }
@@ -48,9 +47,9 @@ export async function createFreshdeskTicket(
     source: 2, // Portal
     priority: 1, // Low
     status: 2, // Open
-    product_id: FRESHDESK_PRODUCT_ID,
-    tags: FRESHDESK_TAGS,
-    group_id: FRESHDESK_GROUP_ID,
+    product_id: Number(productId),
+    tags: tags.split(",").map((tag) => tag.trim()),
+    group_id: Number(groupId),
     subject: isFrench ? SUBJECT_BY_LANGUAGE.fr : SUBJECT_BY_LANGUAGE.en,
     description: params.message,
     custom_fields: {

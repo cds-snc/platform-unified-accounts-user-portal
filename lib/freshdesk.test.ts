@@ -23,11 +23,17 @@ beforeEach(() => {
   vi.clearAllMocks();
   process.env.FRESHDESK_API_URL = "https://cds-snc.freshdesk.com";
   process.env.FRESHDESK_API_KEY = "test-api-key";
+  process.env.FRESHDESK_PRODUCT_ID = "61000004602";
+  process.env.FRESHDESK_GROUP_ID = "61000176987";
+  process.env.FRESHDESK_TAGS = "GCPlatform_Usability_SSO";
 });
 
 afterEach(() => {
   delete process.env.FRESHDESK_API_URL;
   delete process.env.FRESHDESK_API_KEY;
+  delete process.env.FRESHDESK_PRODUCT_ID;
+  delete process.env.FRESHDESK_GROUP_ID;
+  delete process.env.FRESHDESK_TAGS;
   vi.restoreAllMocks();
 });
 
@@ -43,6 +49,33 @@ describe("createFreshdeskTicket", () => {
 
   it("returns an error when FRESHDESK_API_KEY is not set", async () => {
     delete process.env.FRESHDESK_API_KEY;
+
+    const result = await createFreshdeskTicket(validParams);
+
+    expect(result).toEqual({ error: "Service unavailable" });
+    expect(logMessage.error).toHaveBeenCalledWith("Freshdesk env vars not configured");
+  });
+
+  it("returns an error when FRESHDESK_PRODUCT_ID is not set", async () => {
+    delete process.env.FRESHDESK_PRODUCT_ID;
+
+    const result = await createFreshdeskTicket(validParams);
+
+    expect(result).toEqual({ error: "Service unavailable" });
+    expect(logMessage.error).toHaveBeenCalledWith("Freshdesk env vars not configured");
+  });
+
+  it("returns an error when FRESHDESK_GROUP_ID is not set", async () => {
+    delete process.env.FRESHDESK_GROUP_ID;
+
+    const result = await createFreshdeskTicket(validParams);
+
+    expect(result).toEqual({ error: "Service unavailable" });
+    expect(logMessage.error).toHaveBeenCalledWith("Freshdesk env vars not configured");
+  });
+
+  it("returns an error when FRESHDESK_TAGS is not set", async () => {
+    delete process.env.FRESHDESK_TAGS;
 
     const result = await createFreshdeskTicket(validParams);
 
@@ -100,6 +133,19 @@ describe("createFreshdeskTicket", () => {
     const body = JSON.parse(options.body as string);
     expect(body.subject).toBe("Plateforme GC - Nous contacter");
     expect(body.custom_fields).toEqual({ cf_language: "Français" });
+  });
+
+  it("splits and trims multiple comma-separated tags from FRESHDESK_TAGS", async () => {
+    process.env.FRESHDESK_TAGS = "GCPlatform_Usability_SSO, Another_Tag";
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket(validParams);
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.tags).toEqual(["GCPlatform_Usability_SSO", "Another_Tag"]);
   });
 
   it("returns an error when the API responds with a non-OK status", async () => {
