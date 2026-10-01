@@ -32,10 +32,7 @@ services:
       ZITADEL_SAML_DEFAULTLOGINURLV2: http://localhost:3000/login?samlRequest=
 
     healthcheck:
-      test:
-        - CMD
-        - /app/zitadel
-        - ready
+      test: ["CMD", "/app/zitadel", "ready"]
       interval: 10s
       timeout: 60s
       retries: 5
@@ -64,6 +61,12 @@ services:
     user: "0"
     volumes:
       - zitadel:/zitadel:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.kill(1, 0)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       zitadel:
         condition: service_healthy
@@ -76,13 +79,7 @@ services:
       PGUSER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
-      test: 
-      - CMD-SHELL
-      - pg_isready
-      - -d
-      - zitadel
-      - -U
-      - postgres
+      test: ["CMD-SHELL", "pg_isready -d zitadel -U postgres"]
       interval: 10s
       timeout: 30s
       retries: 5
