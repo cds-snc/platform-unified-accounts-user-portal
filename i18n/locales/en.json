@@ -474,6 +474,7 @@
       "signUpIssue": "Unable to sign up",
       "other": "Other"
     },
+    "issueTypeLabel": "Issue type",
     "success": {
       "title": "Message sent",
       "description": "Thank you for reaching out. We will respond to you within 2 business days."

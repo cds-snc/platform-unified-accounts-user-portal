@@ -166,6 +166,9 @@ importers:
 
   .:
     dependencies:
+      '@cdssnc/sanitize-pii':
+        specifier: ^2.2.0
+        version: 2.2.0
       '@gcforms/connectors':
         specifier: ^2.2.20
         version: 2.2.21(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
@@ -568,6 +571,9 @@ packages:
 
   '@cacheable/utils@2.5.0':
     resolution: {integrity: sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA==}
+
+  '@cdssnc/sanitize-pii@2.2.0':
+    resolution: {integrity: sha512-s4xQivfuCoPP1/HY0kEWq3DKk5vhXvOXWh9DATESg9LJOIrwbOGHrEELqzCOPSVFhTbD8bRQsE1qgr8SnC+m6g==}
 
   '@clack/core@1.5.1':
     resolution: {integrity: sha512-iHTrHA8MtVuLl2TfZySmcKv1qO2PoyC9Z7pfSDozEuV5vtY3/wcOPKJXlqJ5Oq2Cx5DDGQGAMVx6HZfRRoVEbQ==}
@@ -5345,6 +5351,8 @@ snapshots:
     dependencies:
       hashery: 1.5.1
       keyv: 5.6.0
+
+  '@cdssnc/sanitize-pii@2.2.0': {}
 
   '@clack/core@1.5.1':
     dependencies:
