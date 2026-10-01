@@ -264,7 +264,6 @@
       "couldNotCreateSessionForUser": "Could not create session for this user",
       "couldNotVerifyPassword": "Could not verify password",
       "couldNotResetPassword": "Could not reset password",
-      "couldNotRegisterUser": "Could not register user account",
       "failedToAuthenticate": "Failed to authenticate. You had {failedAttempts} of {maxPasswordAttempts} password attempts. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Failed to authenticate.",
       "accountLockedContactAdmin": " Contact your administrator to unlock your account",
@@ -389,10 +388,7 @@
     },
     "password": {
       "title": "Password creation",
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider.",
-      "errors": {
-        "couldNotRegisterUser": "Could not register user account"
-      }
+      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider."
     }
   },
   "u2f": {

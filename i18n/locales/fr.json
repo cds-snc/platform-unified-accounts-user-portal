@@ -269,7 +269,6 @@
       "couldNotCreateSessionForUser": "Problème de création de session pour cet utilisateur",
       "couldNotVerifyPassword": "Problème de vérification du mot de passe",
       "couldNotResetPassword": "Problème de réinitialisation du mot de passe",
-      "couldNotRegisterUser": "Problème d'enregistrement du compte utilisateur",
       "failedToAuthenticate": "Échec de l'authentification. Vous avez essayé {failedAttempts} des {maxPasswordAttempts} tentatives de mot de passe. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Échec d'authentification.",
       "accountLockedContactAdmin": " Contactez votre administrateur pour déverrouiller votre compte",
@@ -394,10 +393,7 @@
     },
     "password": {
       "title": "Création du mot de passe",
-      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
-      "errors": {
-        "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur"
-      }
+      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification."
     }
   },
   "u2f": {

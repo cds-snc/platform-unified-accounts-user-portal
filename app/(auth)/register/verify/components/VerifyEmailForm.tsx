@@ -19,7 +19,6 @@ import { Alert, ErrorStatus } from "@components/ui/form";
 import { CodeEntry } from "@components/ui/form/CodeEntry";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 
-import { useRegistration } from "../../context/RegistrationContext";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -42,14 +41,9 @@ export function VerifyEmailForm({
   requestId?: string;
   children?: React.ReactNode;
 }) {
-  const { clearRegistrationData } = useRegistration();
-
   useEffect(() => {
-    setRegistrationFlag;
     // Set global flag for ongoing registration flow
     setRegistrationFlag();
-    // Clean up data from preivous page of username / password
-    clearRegistrationData();
   });
 
   const router = useRouter();
