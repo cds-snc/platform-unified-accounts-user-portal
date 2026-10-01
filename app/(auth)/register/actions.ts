@@ -83,7 +83,12 @@ export async function registerUser(command: RegisterUserCommand) {
         `[Registration Error] Could not complete registration flow for ${session.factors.user.loginName}`
       );
     }
-  } catch {
+  } catch (e) {
+    logMessage.error(
+      `[Registration Error] Could not complete registration flow for ${command.email}`,
+      (e as Error).message
+    );
+
     return { error: t("errors.couldNotRegisterUser") };
   }
   redirect(redirectUrl.redirect, "push");
