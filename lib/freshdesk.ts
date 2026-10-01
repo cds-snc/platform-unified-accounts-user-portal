@@ -1,3 +1,5 @@
+import { sanitizePii } from "@cdssnc/sanitize-pii";
+
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -39,6 +41,7 @@ export async function createFreshdeskTicket(
 
   const credentials = Buffer.from(`${apiKey}:X`).toString("base64");
   const isFrench = params.language === "fr";
+  const sanitizedMessage = sanitizePii(params.message);
 
   const body = {
     name: params.fullName,
@@ -51,7 +54,7 @@ export async function createFreshdeskTicket(
     tags: tags.split(",").map((tag) => tag.trim()),
     group_id: Number(groupId),
     subject: isFrench ? SUBJECT_BY_LANGUAGE.fr : SUBJECT_BY_LANGUAGE.en,
-    description: params.message,
+    description: sanitizedMessage,
     custom_fields: {
       cf_language: isFrench ? "Français" : "English",
     },

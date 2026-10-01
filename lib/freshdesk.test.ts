@@ -148,6 +148,22 @@ describe("createFreshdeskTicket", () => {
     expect(body.tags).toEqual(["GCPlatform_Usability_SSO", "Another_Tag"]);
   });
 
+  it("sanitizes personally identifiable information from the message before sending", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket({
+      ...validParams,
+      message: "Call me at (555) 123-4567",
+    });
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.description).not.toContain("(555) 123-4567");
+    expect(body.description).toContain("[Redacted: phone_number]");
+  });
+
   it("returns an error when the API responds with a non-OK status", async () => {
     vi.spyOn(global, "fetch").mockResolvedValueOnce(new Response(null, { status: 500 }));
 
