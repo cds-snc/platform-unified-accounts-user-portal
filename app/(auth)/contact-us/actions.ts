@@ -73,7 +73,7 @@ export async function submitContactFormAction(
   }
 
   const issueTypeLabel = t(ISSUE_TYPE_I18N_KEYS[command.issueType as ContactUsIssueType]);
-  const description = `${t("issueTypeLabel")}: ${issueTypeLabel}\n\n${command.message}`;
+  const description = `${t("issueTypeLabel")}: ${issueTypeLabel}<br><br>${command.message}`;
 
   const result = await createFreshdeskTicket({
     fullName: command.fullName,
