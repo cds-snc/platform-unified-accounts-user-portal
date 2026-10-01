@@ -527,5 +527,17 @@
     "GC Forms": " to GC Forms",
     "GC Notify": " to GC Notify",
     "defaultAppName": ""
+  },
+  "hCaptcha": {
+    "failPage": {
+      "title": "We did not receive your submission",
+      "helpOptions": {
+        "title": "Try:",
+        "item1": "Turning off any virtual private network (VPN), firewall or proxy server.",
+        "item2": "Using a different browser, device or network.",
+        "item3": "Checking browser plugins as some may block submissions.",
+        "tryAgain": "You can also try submitting again."
+      }
+    }
   }
 }

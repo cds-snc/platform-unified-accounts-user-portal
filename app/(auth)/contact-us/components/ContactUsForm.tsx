@@ -19,6 +19,7 @@ import { SubmitButton } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
+import { CaptchaFail } from "@components/ui/form-captcha/CaptchaFail";
 
 /*--------------------------------------------*
  * Parent Relative
@@ -91,7 +92,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
         reset();
         setState((previousState) => ({
           ...previousState,
-          error: submitFailedMessage,
+          error: "captchaFailed",
           validationErrors: undefined,
           formData: formEntries,
         }));
@@ -131,6 +132,10 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
       setIsSubmitting(false);
     }
   };
+
+  if (state.error === "captchaFailed") {
+    return <CaptchaFail />;
+  }
 
   return (
     <div>
