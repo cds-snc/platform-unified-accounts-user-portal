@@ -172,6 +172,7 @@ describe("ContactUsForm", () => {
       issueType: "other",
       message: "Hello there",
       captchaToken: "captcha-token",
+      language: "en",
     });
   });
 
