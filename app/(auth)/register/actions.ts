@@ -27,58 +27,69 @@ type RegisterUserCommand = {
 export async function registerUser(command: RegisterUserCommand) {
   const { t } = await serverTranslation("register");
 
-  const validationResult = await validateAccountWithPassword({
-    email: command.email,
-    firstname: command.firstName,
-    lastname: command.lastName,
-    password: command.password,
-  } as { [k: string]: FormDataEntryValue });
+  let redirectUrl = null;
 
-  if (!validationResult.success) {
-    logMessage.warn("Server side validation failed for registration");
-    return {
-      error: t("errors.couldNotCreateUser"),
-    };
-  }
+  try {
+    const validationResult = await validateAccountWithPassword({
+      email: command.email,
+      firstname: command.firstName,
+      lastname: command.lastName,
+      password: command.password,
+    } as { [k: string]: FormDataEntryValue });
 
-  const addResponse = await addHumanUser({
-    email: command.email,
-    firstName: command.firstName,
-    lastName: command.lastName,
-    password: command.password,
-  });
+    if (!validationResult.success) {
+      logMessage.warn("Server side validation failed for registration");
+      return {
+        error: t("errors.couldNotCreateUser"),
+      };
+    }
 
-  if (!addResponse) {
-    logMessage.error("Failed to create user account during registration");
-    return { error: t("errors.couldNotCreateUser") };
-  }
+    const addResponse = await addHumanUser({
+      email: command.email,
+      firstName: command.firstName,
+      lastName: command.lastName,
+      password: command.password,
+    });
 
-  const checks = create(ChecksSchema, {
-    user: { search: { case: "userId", value: addResponse.userId } },
-    password: { password: command.password },
-  });
+    if (!addResponse) {
+      logMessage.error("Failed to create user account during registration");
+      return { error: t("errors.couldNotCreateUser") };
+    }
 
-  const session = await createSessionAndUpdateCookie({
-    checks,
-    requestId: command.requestId,
-    retry: true,
-  });
+    const checks = create(ChecksSchema, {
+      user: { search: { case: "userId", value: addResponse.userId } },
+      password: { password: command.password },
+    });
 
-  if (!session || !session.factors?.user) {
-    logMessage.error("Failed to create session after registration");
-    return { error: t("errors.couldNotCreateSession") };
-  }
+    const session = await createSessionAndUpdateCookie({
+      checks,
+      requestId: command.requestId,
+      retry: true,
+    });
 
-  // An undefined humanUser is passed as the newly created user will not have their
-  // email verified yet so the behaviour we want is to trigger the email verification flow.
+    if (!session || !session.factors?.user) {
+      logMessage.error("Failed to create session after registration");
+      return { error: t("errors.couldNotCreateSession") };
+    }
 
-  const redirectUrl = checkEmailVerification(session, undefined, command.requestId);
+    // An undefined humanUser is passed as the newly created user will not have their
+    // email verified yet so the behaviour we want is to trigger the email verification flow.
 
-  // type check as there should always be a redirect in this use case
-  if (!redirectUrl) {
-    throw new Error(
-      `[Registration Error] Could not complete registration flow for ${session.factors.user.loginName}`
+    redirectUrl = checkEmailVerification(session, undefined, command.requestId);
+
+    // type check as there should always be a redirect in this use case
+    if (!redirectUrl) {
+      throw new Error(
+        `[Registration Error] Could not complete registration flow for ${session.factors.user.loginName}`
+      );
+    }
+  } catch (e) {
+    logMessage.error(
+      `[Registration Error] Could not complete registration flow for ${command.email}`,
+      (e as Error).message
     );
+
+    return { error: t("errors.couldNotRegisterUser") };
   }
   redirect(redirectUrl.redirect, "push");
 }

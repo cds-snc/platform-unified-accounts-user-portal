@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 const STORAGE_KEY = "registration-data";
 
 type RegistrationData = {
@@ -16,7 +16,6 @@ type RegistrationData = {
 type RegistrationContextType = {
   registrationData: RegistrationData | null;
   setRegistrationData: (data: RegistrationData) => void;
-  clearRegistrationData: () => void;
   isHydrated: boolean;
 };
 
@@ -59,21 +58,18 @@ export function RegistrationProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const clearRegistrationData = () => {
-    setRegistrationDataState(null);
-    try {
+  // Clean up data in storage when Registration Provider unmounts
+  useEffect(() => {
+    return () => {
       sessionStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // sessionStorage may not be available
-    }
-  };
+    };
+  }, []);
 
   return (
     <RegistrationContext.Provider
       value={{
         registrationData,
         setRegistrationData,
-        clearRegistrationData,
         isHydrated,
       }}
     >

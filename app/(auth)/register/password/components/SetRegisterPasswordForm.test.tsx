@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { validateAccount } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n";
 
-import { createRouterStub, createTranslationStub } from "../../../../../test/helpers/client";
+import { createTranslationStub } from "../../../../../test/helpers/client";
 import { registerUser } from "../../actions";
 
 import { SetRegisterPasswordForm } from "./SetRegisterPasswordForm";
@@ -42,8 +42,6 @@ vi.mock("@components/auth/password-validation/PasswordValidationForm", () => ({
 }));
 
 describe("SetRegisterPasswordForm", () => {
-  const router = createRouterStub();
-
   const baseProps = {
     passwordComplexitySettings: {} as never,
     email: "person@canada.ca",
@@ -91,19 +89,6 @@ describe("SetRegisterPasswordForm", () => {
     await waitFor(() => {
       expect(screen.getByText("errors.couldNotCreateUser")).toBeInTheDocument();
     });
-  });
-
-  it("shows generic registration error when registerUser rejects", async () => {
-    vi.mocked(registerUser).mockRejectedValue(new Error("network error"));
-
-    render(<SetRegisterPasswordForm {...baseProps} />);
-
-    await userEvent.click(screen.getByRole("button", { name: "trigger-password-submit" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("errors.couldNotRegisterUser")).toBeInTheDocument();
-    });
-    expect(router.push).not.toHaveBeenCalled();
   });
 
   it("continues registration call even when account validation fails", async () => {

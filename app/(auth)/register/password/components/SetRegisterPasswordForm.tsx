@@ -49,9 +49,9 @@ export function SetRegisterPasswordForm({
       lastName: lastname,
       password,
       requestId,
-    }).catch(() => setError(t("errors.couldNotRegisterUser")));
+    });
 
-    if (response && "error" in response && response.error) {
+    if (response?.error) {
       setError(response.error);
       return;
     }
