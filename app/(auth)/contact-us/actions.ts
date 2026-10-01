@@ -12,7 +12,7 @@ import { logMessage } from "@lib/logger";
 import { ContactUsIssueType, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
-import { getCurrentLanguage } from "@i18n/utils";
+import { getCurrentLanguage, normalizeLocaleToSupportedLanguage } from "@i18n/utils";
 
 type ContactFormCommand = {
   fullName: string;
@@ -20,6 +20,7 @@ type ContactFormCommand = {
   issueType: string;
   message: string;
   captchaToken: string;
+  language: string;
 };
 
 const HCAPTCHA_MAX_ALLOWED_SCORE = 0.79;
@@ -44,7 +45,10 @@ async function getClientIp(): Promise<string | undefined> {
 export async function submitContactFormAction(
   command: ContactFormCommand
 ): Promise<{ success: true } | { error: string }> {
-  const { t } = await serverTranslation("contact-us");
+  const language = command.language
+    ? normalizeLocaleToSupportedLanguage(command.language)
+    : await getCurrentLanguage();
+  const { t } = await serverTranslation("contact-us", { lang: language });
   const genericErrorResponse = {
     error: t("errors.submitFailed"),
   };
@@ -79,7 +83,7 @@ export async function submitContactFormAction(
     fullName: command.fullName,
     email: command.email,
     message: description,
-    language: await getCurrentLanguage(),
+    language,
   });
 
   if ("error" in result) {
