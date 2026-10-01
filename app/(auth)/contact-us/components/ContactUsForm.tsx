@@ -160,7 +160,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
               })}
             </Alert>
           )}
-          <form id="contact-us-form" onSubmit={handleSubmit} noValidate>
+          <form id="contact-us-form" method="post" onSubmit={handleSubmit} noValidate>
             <div className="mb-6 flex flex-col gap-4">
               <div className="gcds-input-wrapper">
                 <Label htmlFor="fullName" required>
