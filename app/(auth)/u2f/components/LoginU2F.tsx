@@ -4,14 +4,13 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useEffect, useRef, useState } from "react";
-import { JsonObject } from "@zitadel/client";
-import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
 import { updateSessionForU2FChallenge, verifyU2FLogin } from "@root/app/(auth)/u2f/actions";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { coerceToArrayBuffer, coerceToBase64Url } from "@lib/utils/base64";
+import type { U2FAssertionData } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n";
 import { Alert, ErrorStatus } from "@components/ui/form";
 
@@ -30,7 +29,7 @@ type Props = {
 
 async function getCredentialAssertionData(
   publicKey: PublicKeyCredentialRequestOptionsData
-): Promise<JsonObject | null> {
+): Promise<U2FAssertionData | null> {
   const normalizedPublicKey: PublicKeyCredentialRequestOptionsData = {
     ...publicKey,
     challenge: coerceToArrayBuffer(publicKey.challenge, "publicKey.challenge"),
@@ -45,31 +44,30 @@ async function getCredentialAssertionData(
 
   const credential = (await navigator.credentials.get({
     publicKey: normalizedPublicKey,
-  } as CredentialRequestOptions)) as Credential | null;
+  } as CredentialRequestOptions)) as PublicKeyCredential | null;
 
   if (!credential) {
     return null;
   }
 
-  const assertedCredential = credential as PublicKeyCredential;
-  const assertionResponse = assertedCredential.response as AuthenticatorAssertionResponse;
+  const assertionResponse = credential.response as AuthenticatorAssertionResponse;
   const authData = new Uint8Array(assertionResponse.authenticatorData);
   const clientDataJSON = new Uint8Array(assertionResponse.clientDataJSON);
-  const rawId = new Uint8Array(assertedCredential.rawId);
+  const rawId = new Uint8Array(credential.rawId);
   const sig = new Uint8Array(assertionResponse.signature);
   const userHandle = new Uint8Array(assertionResponse.userHandle || []);
 
   return {
-    id: assertedCredential.id,
+    id: credential.id,
     rawId: coerceToBase64Url(rawId, "rawId"),
-    type: assertedCredential.type,
+    type: "public-key",
     response: {
       authenticatorData: coerceToBase64Url(authData, "authData"),
       clientDataJSON: coerceToBase64Url(clientDataJSON, "clientDataJSON"),
       signature: coerceToBase64Url(sig, "sig"),
       userHandle: coerceToBase64Url(userHandle, "userHandle"),
     },
-  } as JsonObject;
+  };
 }
 
 export function LoginU2F({ requestId }: Props) {
@@ -102,7 +100,7 @@ export function LoginU2F({ requestId }: Props) {
       return;
     }
     const result = await verifyU2FLogin({
-      checks: { webAuthN: { credentialAssertionData: data } } as Checks,
+      publicKeyCredential: data,
       requestId,
     });
     if (result && "error" in result) {
