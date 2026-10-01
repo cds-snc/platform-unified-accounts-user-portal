@@ -28,11 +28,6 @@ import { PasswordComplexity } from "./PasswordComplexity";
 type FormState = {
   error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
-  formData?: {
-    password?: string;
-    confirmPassword?: string;
-    code?: string;
-  };
 };
 
 const validateCreatePassword = async (
@@ -121,11 +116,6 @@ export function PasswordValidationForm({
   const [state, formAction] = useActionState(validateAndSubmit, {
     error: undefined,
     validationErrors: undefined,
-    formData: {
-      password: "",
-      confirmPassword: "",
-      ...(requireConfirmationCode ? { code: "" } : {}),
-    },
   });
 
   const [dirty, setDirty] = useState(false);
@@ -193,7 +183,7 @@ export function PasswordValidationForm({
                   ? ["errorMessagePassword", "password-complexity-requirements"]
                   : "password-complexity-requirements"
               }
-              defaultValue={state.formData?.password ?? ""}
+              defaultValue={""}
               onChange={(e) => setWatchPassword(e.target.value)}
               invalid={hasError("password", state.validationErrors)}
             />
@@ -217,7 +207,7 @@ export function PasswordValidationForm({
                   ? "errorMessageConfirmPassword"
                   : undefined
               }
-              defaultValue={state.formData?.confirmPassword ?? ""}
+              defaultValue={""}
               invalid={hasError("confirmPassword", state.validationErrors)}
             />
           </div>
