@@ -105,6 +105,7 @@ export const MFAAuthentication = ({
                                 onClick={() => setMfaForDeletion({ id: data.id, name: data.name })}
                                 theme="link"
                                 aria-describedby={id}
+                                dataTestId="account-mfa-u2f-remove"
                               >
                                 {t("mfaAuthentication.remove")}
                               </Button>
@@ -133,6 +134,7 @@ export const MFAAuthentication = ({
                         <Button
                           onClick={() => setMfaForDeletion({ id: "totp", name: "totp" })}
                           theme="link"
+                          dataTestId="account-mfa-totp-remove"
                         >
                           {t("mfaAuthentication.remove")}
                         </Button>
@@ -151,7 +153,9 @@ export const MFAAuthentication = ({
                 className="mr-1"
                 style={{ color: "" }}
               />{" "}
-              <Link href="/mfa/set">{t("mfaAuthentication.addlMethods")}</Link>
+              <Link href="/mfa/set" data-testid="account-mfa-add">
+                {t("mfaAuthentication.addlMethods")}
+              </Link>
             </div>
           </>
         )}
