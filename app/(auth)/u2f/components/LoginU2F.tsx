@@ -10,7 +10,7 @@ import { updateSessionForU2FChallenge, verifyU2FLogin } from "@root/app/(auth)/u
  * Internal Aliases
  *--------------------------------------------*/
 import { coerceToArrayBuffer, coerceToBase64Url } from "@lib/utils/base64";
-import type { U2FAssertionData } from "@lib/validation/validationSchemas";
+import type { PublicKeyCredentialAssertionData } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n";
 import { Alert, ErrorStatus } from "@components/ui/form";
 
@@ -29,7 +29,7 @@ type Props = {
 
 async function getCredentialAssertionData(
   publicKey: PublicKeyCredentialRequestOptionsData
-): Promise<U2FAssertionData | null> {
+): Promise<PublicKeyCredentialAssertionData | null> {
   const normalizedPublicKey: PublicKeyCredentialRequestOptionsData = {
     ...publicKey,
     challenge: coerceToArrayBuffer(publicKey.challenge, "publicKey.challenge"),

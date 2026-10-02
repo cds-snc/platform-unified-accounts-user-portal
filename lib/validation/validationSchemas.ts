@@ -118,7 +118,7 @@ const u2fIdSchema = () => ({
   u2fId: v.pipe(v.string(), v.trim(), v.minLength(1, "required"), v.maxLength(200, "maxLength")),
 });
 
-const u2fAssertionDataSchema = v.object({
+const publicKeyCredentialAssertionDataSchema = v.object({
   id: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
   rawId: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
   type: v.literal("public-key"),
@@ -134,7 +134,9 @@ const u2fAssertionDataSchema = v.object({
   }),
 });
 
-export type U2FAssertionData = v.InferOutput<typeof u2fAssertionDataSchema>;
+export type PublicKeyCredentialAssertionData = v.InferOutput<
+  typeof publicKeyCredentialAssertionDataSchema
+>;
 
 // Shared "composed" validation functions using the above schemas
 
@@ -241,7 +243,7 @@ export const validateU2fId = (u2fId: unknown) => {
 export const validateU2FLoginCommand = (command: unknown) => {
   const schema = v.object({
     ...requestIdSchema(),
-    publicKeyCredential: u2fAssertionDataSchema,
+    publicKeyCredential: publicKeyCredentialAssertionDataSchema,
     completeFlow: v.optional(v.boolean()),
   });
   return v.safeParse(schema, command, { abortPipeEarly: true });

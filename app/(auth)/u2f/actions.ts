@@ -20,7 +20,7 @@ import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { updateSession } from "@lib/server/session";
 import {
-  type U2FAssertionData,
+  type PublicKeyCredentialAssertionData,
   validateRequestId,
   validateU2FLoginCommand,
 } from "@lib/validation/validationSchemas";
@@ -28,7 +28,7 @@ import {
 import { U2F_ERRORS } from "./u2f-errors";
 
 type VerifyU2FLoginCommand = {
-  publicKeyCredential: U2FAssertionData;
+  publicKeyCredential: PublicKeyCredentialAssertionData;
   requestId?: string;
   completeFlow?: boolean;
 };
