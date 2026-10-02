@@ -11,11 +11,13 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { logMessage } from "@lib/logger";
 import { AuthLevel } from "@lib/server/route-protection";
 import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { verifyTOTPRegistration } from "@lib/zitadel";
+import { getZitadelUiError } from "@lib/zitadel-errors";
 
 /*--------------------------------------------*
  * Local Relative
@@ -45,10 +47,20 @@ export const verifyAndRegisterTOTP = AuthenticatedAction(
       }
     });
 
-    await verifyTOTPRegistration({
-      code: normalizedCode,
-      userId: session.factors.user.id,
-    });
+    try {
+      await verifyTOTPRegistration({
+        code: normalizedCode,
+        userId: session.factors.user.id,
+      });
+    } catch (error) {
+      logMessage.debug({
+        message: "TOTP registration verification failed",
+        error,
+      });
+
+      const mappedUiError = getZitadelUiError("otp.set", error);
+      return { errorKey: mappedUiError?.i18nKey ?? "set.genericError" };
+    }
 
     if (checkAfter) {
       // Reuse the just-entered TOTP code to verify the active session inline.
@@ -66,6 +78,7 @@ export const verifyAndRegisterTOTP = AuthenticatedAction(
         throw sessionResponse.error;
       }
     }
+
     const url = buildUrlWithRequestId("/all-set", requestId);
     redirect(url);
   }
