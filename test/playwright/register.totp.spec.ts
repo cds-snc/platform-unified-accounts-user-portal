@@ -1,5 +1,6 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
+import { addVirtualAuthenticator, type VirtualAuthenticatorCredential } from "./utils/browser";
 import { generateTOTP, getRandomEmail, getRandomPassword, getRequiredEnv } from "./utils/utils";
 import {
   deleteUserById,
@@ -8,74 +9,39 @@ import {
   getZitadelAccessToken,
 } from "./utils/zitadel";
 
-type VirtualAuthenticatorCredential = {
-  credentialId: string;
-  isResidentCredential: boolean;
-  rpId: string;
-  privateKey: string;
-  signCount: number;
-  userHandle?: string;
-};
-
-type RegisteredU2FUser = {
+type RegisteredUser = {
   email: string;
   password: string;
   userId: string;
+  totpSecret?: string;
+  u2fCredential?: VirtualAuthenticatorCredential;
 };
-
-async function addVirtualAuthenticator(page: Page, credential?: VirtualAuthenticatorCredential) {
-  const cdpSession = await page.context().newCDPSession(page);
-  await cdpSession.send("WebAuthn.enable");
-
-  const { authenticatorId } = await cdpSession.send("WebAuthn.addVirtualAuthenticator", {
-    options: {
-      protocol: "ctap2",
-      transport: "usb",
-      hasResidentKey: false,
-      hasUserVerification: false,
-      isUserVerified: false,
-      automaticPresenceSimulation: true,
-    },
-  });
-
-  if (credential) {
-    await cdpSession.send("WebAuthn.addCredential", { authenticatorId, credential });
-  }
-
-  return { cdpSession, authenticatorId };
-}
 
 test.describe("register user flow", () => {
   let idpUrl: string;
-  let email: string;
-  let password: string;
   let portalUrl: string;
   let userId: string;
   let serviceAccountKey: string;
   let accessToken: string;
-  let registeredU2FUser: RegisteredU2FUser | undefined;
-  let registeredU2FCredential: VirtualAuthenticatorCredential | undefined;
+  const registeredUsers: RegisteredUser[] = [];
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
-    email = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
-    password = getRandomPassword();
     portalUrl = getRequiredEnv("PORTAL_URL");
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
     accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
   });
 
   test.afterAll(async () => {
-    if (userId) {
-      await deleteUserById(userId, accessToken, idpUrl);
-    }
-
-    if (registeredU2FUser) {
-      await deleteUserById(registeredU2FUser.userId, accessToken, idpUrl);
-    }
+    await Promise.all(
+      registeredUsers.map((user) => deleteUserById(user.userId, accessToken, idpUrl))
+    );
   });
 
   test("creates a new users with TOTP MFA", async ({ page }) => {
+    const email = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
+    const password = getRandomPassword();
+
     await page.goto(portalUrl);
 
     // Login
@@ -111,7 +77,7 @@ test.describe("register user flow", () => {
     const totpLink = page.getByTestId("totp-link");
     await expect(totpLink).toBeVisible();
     const totpUrl = await totpLink.getAttribute("href");
-    const totpSecret = new URL(totpUrl!).searchParams.get("secret");
+    const totpSecret = new URL(totpUrl!).searchParams.get("secret")!;
     await page.locator("#totp-form #code").fill(generateTOTP(totpSecret!));
     await page.locator("#totp-form button[type='submit']").click();
 
@@ -123,11 +89,13 @@ test.describe("register user flow", () => {
     // Account page
     await expect(page.locator("#personal-details-title")).toBeVisible();
     await expect(page).toHaveURL(/\/account$/);
+
+    registeredUsers.push({ email, password, userId, totpSecret: totpSecret });
   });
 
   test("creates a new users with U2F MFA", async ({ page }) => {
-    const u2fEmail = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
-    const u2fPassword = getRandomPassword();
+    const email = getRandomEmail(getRequiredEnv("REGISTER_EMAIL"));
+    const password = getRandomPassword();
 
     await page.goto(portalUrl);
     const { cdpSession, authenticatorId } = await addVirtualAuthenticator(page);
@@ -140,19 +108,18 @@ test.describe("register user flow", () => {
     await expect(page.locator("#register-form #firstname")).toBeVisible();
     await page.locator("#register-form #firstname").fill("Integration");
     await page.locator("#register-form #lastname").fill("Test");
-    await page.locator("#register-form #email").fill(u2fEmail);
+    await page.locator("#register-form #email").fill(email);
     await page.locator("#register-form button[type='submit']").click();
 
     // Password
     await expect(page.locator("#password-form #password")).toBeVisible();
-    await page.locator("#password-form #password").fill(u2fPassword);
-    await page.locator("#password-form #confirmPassword").fill(u2fPassword);
+    await page.locator("#password-form #password").fill(password);
+    await page.locator("#password-form #confirmPassword").fill(password);
     await page.locator("#password-form button[type='submit']").click();
 
     // Email verify
     await expect(page.locator("#verify-form #code")).toBeVisible();
-    const u2fUserId = await getUserIdByEmail(u2fEmail, accessToken, idpUrl);
-    registeredU2FUser = { email: u2fEmail, password: u2fPassword, userId: u2fUserId };
+    const u2fUserId = await getUserIdByEmail(email, accessToken, idpUrl);
     const emailVerificationCode = await getEmailVerificationCode(u2fUserId, accessToken, idpUrl);
     await page.locator("#verify-form #code").fill(emailVerificationCode);
     await page.locator("#verify-form button[type='submit']").click();
@@ -178,7 +145,10 @@ test.describe("register user flow", () => {
 
     const { credentials } = await cdpSession.send("WebAuthn.getCredentials", { authenticatorId });
     expect(credentials).toHaveLength(1);
-    registeredU2FCredential = credentials[0] as VirtualAuthenticatorCredential;
-    expect(registeredU2FCredential.credentialId).toBeTruthy();
+
+    const u2fCredential = credentials[0] as VirtualAuthenticatorCredential;
+    expect(u2fCredential.credentialId).toBeTruthy();
+
+    registeredUsers.push({ email, password, userId, u2fCredential: u2fCredential });
   });
 });
