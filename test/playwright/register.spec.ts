@@ -27,7 +27,7 @@ test.describe("register user flow", () => {
     );
   });
 
-  test("creates a new users with TOTP MFA", async ({ page }) => {
+  test("creates a new user with TOTP MFA", async ({ page }) => {
     registeredUsers.push(
       await registerUser(page, {
         portalUrl,
@@ -39,7 +39,7 @@ test.describe("register user flow", () => {
     );
   });
 
-  test("creates a new users with U2F MFA", async ({ page }) => {
+  test("creates a new user with U2F MFA", async ({ page }) => {
     registeredUsers.push(
       await registerUser(page, {
         portalUrl,
