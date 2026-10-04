@@ -164,6 +164,23 @@ describe("createFreshdeskTicket", () => {
     expect(body.description).toContain("[Redacted: phone_number]");
   });
 
+  it("escapes HTML in the message and preserves line breaks", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket({
+      ...validParams,
+      message: `<img src=x onerror="alert('x')">\nNext line`,
+    });
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.description).toBe(
+      "&lt;img src=x onerror=&quot;alert(&#39;x&#39;)&quot;&gt;<br>Next line"
+    );
+  });
+
   it("returns an error when the API responds with a non-OK status", async () => {
     vi.spyOn(global, "fetch").mockResolvedValueOnce(new Response(null, { status: 500 }));
 
