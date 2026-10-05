@@ -6,12 +6,14 @@ import { getRequiredEnv } from "./utils/utils";
 import { deleteUserById, getZitadelAccessToken } from "./utils/zitadel";
 
 test.describe("account edit flow", () => {
+  test.describe.configure({ mode: "serial" });
+
   let idpUrl: string;
   let portalUrl: string;
   let serviceAccountKey: string;
   let registerEmail: string;
   let accessToken: string;
-  let registeredUsers: RegisteredUser | null = null;
+  let registeredUser: RegisteredUser | null = null;
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
@@ -22,11 +24,12 @@ test.describe("account edit flow", () => {
   });
 
   test.afterAll(async () => {
-    await deleteUserById(registeredUsers!.userId, accessToken, idpUrl);
+    await deleteUserById(registeredUser!.userId, accessToken, idpUrl);
   });
 
-  test("updates a user's name", async ({ page }) => {
-    registeredUsers = await registerUser(page, {
+  test("updates a user's name and password", async ({ page }) => {
+    const newPassword = "NewPassword123!";
+    registeredUser = await registerUser(page, {
       portalUrl,
       idpUrl,
       accessToken,
@@ -39,6 +42,15 @@ test.describe("account edit flow", () => {
     await page.locator("#personal-details-form #lastname").fill("Account");
     await page.locator("#personal-details-form button[type='submit']").click();
 
+    await page.getByTestId("account-password-change").click();
+    await expect(page.locator("#password-form #password")).toBeVisible();
+    await page.locator("#password-form #password").fill(newPassword);
+    await page.locator("#password-form #confirmPassword").fill(newPassword);
+    await page.locator("#password-form button[type='submit']").click();
+    registeredUser.password = newPassword;
+
+    await expect(page).toHaveURL(/\/account$/);
     await expect(page.getByTestId("account-name")).toHaveText("Updated Account");
+    await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
   });
 });
