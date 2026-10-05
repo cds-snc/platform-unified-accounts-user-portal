@@ -10,7 +10,6 @@ import { useTranslation } from "@i18n/client";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { Close } from "@components/icons/Close";
 import { RocketIcon } from "@components/icons/RocketIcon";
 import { Button } from "@components/ui/button/Button";
 
@@ -36,7 +35,7 @@ function closeDialog(dialog: HTMLDialogElement) {
   dialog.removeAttribute("open");
 }
 
-function VersionUpdaterDialog({ onDismiss }: { onDismiss: () => void }) {
+function VersionUpdaterDialog() {
   const { t } = useTranslation("versionUpdater");
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const refreshButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -66,10 +65,7 @@ function VersionUpdaterDialog({ onDismiss }: { onDismiss: () => void }) {
       aria-labelledby="version-updater-title"
       aria-describedby="version-updater-description"
       className="fixed inset-0 m-auto w-full max-w-2xl rounded-2xl border border-gray-300 bg-white p-8 shadow-xl backdrop:bg-black/45"
-      onCancel={onDismiss}
-      onClose={() => {
-        onDismiss();
-      }}
+      onCancel={(e) => e.preventDefault()}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-4">
@@ -86,12 +82,6 @@ function VersionUpdaterDialog({ onDismiss }: { onDismiss: () => void }) {
             {t("description")}
           </p>
         </div>
-
-        <Button theme="link" aria-label={t("close")} className="group shrink-0" onClick={onDismiss}>
-          <span className="block">
-            <Close className="inline-block size-6 fill-black group-hover:fill-gcds-blue-vivid group-focus:fill-white-default group-active:fill-white-default" />
-          </span>
-        </Button>
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
@@ -111,5 +101,5 @@ function VersionUpdaterDialog({ onDismiss }: { onDismiss: () => void }) {
 export function VersionUpdater() {
   const { updateRequired } = useAppStatus();
 
-  return updateRequired ? <VersionUpdaterDialog onDismiss={() => {}} /> : null;
+  return updateRequired ? <VersionUpdaterDialog /> : null;
 }
