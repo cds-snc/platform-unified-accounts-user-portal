@@ -6,6 +6,7 @@
 import { type FormEvent, useRef, useState } from "react";
 import { useHCaptcha } from "@gcforms/hcaptcha/client";
 
+import { getWafToken, isWafIntegrationEnabled } from "@lib/client/wafIntegration";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -100,6 +101,21 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
           formData: formEntries,
         }));
         return;
+      }
+
+      if (isWafIntegrationEnabled()) {
+        try {
+          await getWafToken();
+        } catch {
+          reset();
+          setState((previousState) => ({
+            ...previousState,
+            error: submitFailedMessage,
+            validationErrors: undefined,
+            formData: formEntries,
+          }));
+          return;
+        }
       }
 
       const result = await submitContactFormAction({

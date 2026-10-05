@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getWafToken, isWafIntegrationEnabled } from "@lib/client/wafIntegration";
 import { useTranslation } from "@i18n";
 import { toast } from "@components/ui/toast/Toast";
 
@@ -17,6 +18,11 @@ vi.mock("../actions", () => ({
 
 vi.mock("@gcforms/hcaptcha/client", () => ({
   useHCaptcha: vi.fn(),
+}));
+
+vi.mock("@lib/client/wafIntegration", () => ({
+  isWafIntegrationEnabled: vi.fn().mockReturnValue(false),
+  getWafToken: vi.fn().mockResolvedValue("waf-token"),
 }));
 
 vi.mock("@i18n", () => ({
@@ -46,6 +52,8 @@ describe("ContactUsForm", () => {
       execute: vi.fn().mockResolvedValue({ verified: true, token: "captcha-token" }),
       reset: vi.fn(),
     });
+    vi.mocked(isWafIntegrationEnabled).mockReturnValue(false);
+    vi.mocked(getWafToken).mockResolvedValue("waf-token");
   });
 
   it("renders all form fields", () => {
@@ -205,6 +213,68 @@ describe("ContactUsForm", () => {
     });
     expect(reset).toHaveBeenCalledTimes(1);
     expect(document.getElementById("contact-us-form")).not.toBeInTheDocument();
+    expect(submitContactFormAction).not.toHaveBeenCalled();
+  });
+
+  it("does not call getWafToken when the WAF integration is disabled", async () => {
+    const user = userEvent.setup();
+    vi.mocked(isWafIntegrationEnabled).mockReturnValue(false);
+
+    render(<ContactUsForm siteKey="site-key" />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => expect(submitContactFormAction).toHaveBeenCalled());
+    expect(getWafToken).not.toHaveBeenCalled();
+  });
+
+  it("submits normally when the WAF integration is enabled and getWafToken resolves", async () => {
+    const user = userEvent.setup();
+    vi.mocked(isWafIntegrationEnabled).mockReturnValue(true);
+    vi.mocked(getWafToken).mockResolvedValue("waf-token");
+
+    render(<ContactUsForm siteKey="site-key" />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("success.title")).toBeInTheDocument();
+    });
+    expect(getWafToken).toHaveBeenCalledTimes(1);
+    expect(submitContactFormAction).toHaveBeenCalled();
+  });
+
+  it("blocks submission and shows an error when the WAF integration is enabled and getWafToken rejects", async () => {
+    const user = userEvent.setup();
+    const reset = vi.fn();
+    vi.mocked(useHCaptcha).mockReturnValue({
+      captcha: <div data-testid="hcaptcha" />,
+      execute: vi.fn().mockResolvedValue({ verified: true, token: "captcha-token" }),
+      reset,
+    });
+    vi.mocked(isWafIntegrationEnabled).mockReturnValue(true);
+    vi.mocked(getWafToken).mockRejectedValue(new Error("AWS WAF SDK not loaded"));
+
+    render(<ContactUsForm siteKey="site-key" />);
+
+    await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
+    await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
+    await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
+    await user.click(screen.getByRole("button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("errors.submitFailed")).toBeInTheDocument();
+    });
+    expect(reset).toHaveBeenCalledTimes(1);
     expect(submitContactFormAction).not.toHaveBeenCalled();
   });
 
