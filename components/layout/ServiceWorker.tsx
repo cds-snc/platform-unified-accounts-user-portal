@@ -4,7 +4,7 @@ import { useEffect } from "react";
 async function registerServiceWorker() {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
   return navigator.serviceWorker.register(`${basePath}/service-worker.js`, {
-    scope: basePath ?? "/",
+    scope: basePath || "/",
     updateViaCache: "none",
   });
 }
