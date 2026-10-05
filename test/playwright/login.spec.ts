@@ -34,6 +34,7 @@ test.describe("login user flow", () => {
 
     await expect(page.locator("#personal-details-title")).toBeVisible();
     await expect(page).toHaveURL(/\/account$/);
+    await expect(page.getByTestId("account-email")).toHaveText(username);
   });
 
   test("logs in with TOTP and completes the OIDC PKCE auth flow", async ({ page }) => {
