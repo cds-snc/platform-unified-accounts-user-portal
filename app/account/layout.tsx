@@ -3,14 +3,13 @@
  *--------------------------------------------*/
 import { Suspense } from "react";
 
-/*--------------------------------------------*
- * Internal Aliases
- *--------------------------------------------*/
-import { VersionUpdater } from "@components/auth/VersionUpdater";
 import { YourAccount } from "@components/auth/YourAccount";
 import { Footer, FooterSkeleton } from "@components/layout/footer/Footer";
 import { FooterLinks } from "@components/layout/footer/FooterLinks";
 import { SiteHeader, SiteHeaderSkeleton } from "@components/layout/site-header/SiteHeader";
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
 import LanguageToggle from "@components/ui/language-toggle/LanguageToggle";
 /*--------------------------------------------*
  * Local Relative
@@ -20,8 +19,6 @@ import { NavMenu } from "@components/ui/nav-menu/NavMenu";
 import { AccountNavigation } from "./components/AccountNavigation";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const isDev = process.env.NODE_ENV === "development";
-
   return (
     <div className="min-h-screen bg-gray-soft">
       <Suspense fallback={<SiteHeaderSkeleton />}>
@@ -40,7 +37,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
           <section className="min-w-0">{children}</section>
         </div>
       </main>
-      {!isDev && <VersionUpdater />}
       <Suspense fallback={<FooterSkeleton />}>
         <Footer>
           <FooterLinks />
