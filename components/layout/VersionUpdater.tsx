@@ -3,8 +3,9 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
+import { useAppStatus } from "@lib/client/useAppStatus";
 import { useTranslation } from "@i18n/client";
 /*--------------------------------------------*
  * Internal Aliases
@@ -16,7 +17,6 @@ import { Button } from "@components/ui/button/Button";
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { useVersionUpdater } from "./useVersionUpdater";
 
 function openDialog(dialog: HTMLDialogElement) {
   if (typeof dialog.showModal === "function") {
@@ -36,17 +36,7 @@ function closeDialog(dialog: HTMLDialogElement) {
   dialog.removeAttribute("open");
 }
 
-function VersionUpdaterDialog({
-  didChange,
-  latestShortVersion,
-  previousShortVersion,
-  onDismiss,
-}: {
-  didChange: boolean;
-  latestShortVersion: string | null;
-  previousShortVersion: string | null;
-  onDismiss: () => void;
-}) {
+function VersionUpdaterDialog({ onDismiss }: { onDismiss: () => void }) {
   const { t } = useTranslation("versionUpdater");
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const refreshButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -78,10 +68,6 @@ function VersionUpdaterDialog({
       className="fixed inset-0 m-auto w-full max-w-2xl rounded-2xl border border-gray-300 bg-white p-8 shadow-xl backdrop:bg-black/45"
       onCancel={onDismiss}
       onClose={() => {
-        if (!didChange) {
-          return;
-        }
-
         onDismiss();
       }}
     >
@@ -109,10 +95,6 @@ function VersionUpdaterDialog({
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="text-xs text-gray-500" data-testid="version-updater-debug">
-          {latestShortVersion ?? "unknown"}:{previousShortVersion ?? "unknown"}
-        </div>
-
         <Button
           buttonRef={refreshButtonRef}
           onClick={() => {
@@ -127,19 +109,7 @@ function VersionUpdaterDialog({
 }
 
 export function VersionUpdater() {
-  const { didChange, latestVersion, latestShortVersion, previousShortVersion } =
-    useVersionUpdater();
-  const [dismissedVersion, setDismissedVersion] = useState<string | null>(null);
-  const showDialog = didChange && latestVersion !== null && latestVersion !== dismissedVersion;
+  const { updateRequired } = useAppStatus();
 
-  return showDialog ? (
-    <VersionUpdaterDialog
-      didChange={didChange}
-      latestShortVersion={latestShortVersion}
-      previousShortVersion={previousShortVersion}
-      onDismiss={() => {
-        setDismissedVersion(latestVersion);
-      }}
-    />
-  ) : null;
+  return updateRequired ? <VersionUpdaterDialog onDismiss={() => {}} /> : null;
 }
