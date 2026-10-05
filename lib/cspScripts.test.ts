@@ -71,6 +71,37 @@ describe("generateCSP", () => {
       expect(csp).toContain("frame-src hcaptcha.com *.hcaptcha.com;");
       expect(csp).toContain("connect-src 'self' hcaptcha.com *.hcaptcha.com;");
     });
+
+    it("does not widen script-src or connect-src when NEXT_PUBLIC_WAF_INTEGRATION_URL is not set", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("NEXT_PUBLIC_WAF_INTEGRATION_URL", "");
+      const { csp, nonce } = generateCSP();
+
+      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'strict-dynamic';`);
+      expect(csp).toContain("connect-src 'self' hcaptcha.com *.hcaptcha.com;");
+    });
+
+    it("widens script-src and connect-src with the WAF integration origin when cross-origin", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("NEXT_PUBLIC_WAF_INTEGRATION_URL", "https://waf-integration.example.com/path");
+      const { csp, nonce } = generateCSP();
+
+      expect(csp).toContain(
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://waf-integration.example.com;`
+      );
+      expect(csp).toContain(
+        "connect-src 'self' hcaptcha.com *.hcaptcha.com https://waf-integration.example.com;"
+      );
+    });
+
+    it("does not widen CSP when NEXT_PUBLIC_WAF_INTEGRATION_URL is not a valid URL", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("NEXT_PUBLIC_WAF_INTEGRATION_URL", "not-a-valid-url");
+      const { csp, nonce } = generateCSP();
+
+      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'strict-dynamic';`);
+      expect(csp).toContain("connect-src 'self' hcaptcha.com *.hcaptcha.com;");
+    });
   });
 
   describe("development mode (NODE_ENV === 'development')", () => {
