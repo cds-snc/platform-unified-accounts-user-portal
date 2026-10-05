@@ -22,11 +22,7 @@ export default async function ContactUsPage() {
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="contact-us">
       {wafIntegrationUrl && (
-        <Script
-          src={`${wafIntegrationUrl}/challenge.js`}
-          strategy="afterInteractive"
-          nonce={nonce}
-        />
+        <Script src={`${wafIntegrationUrl}/jsapi.js`} strategy="afterInteractive" nonce={nonce} />
       )}
       <ContactUsForm siteKey={process.env.HCAPTCHA_SITE_KEY ?? ""} />
     </AuthPanel>
