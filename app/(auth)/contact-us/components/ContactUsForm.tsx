@@ -220,6 +220,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
                   </ErrorMessage>
                 )}
                 <select
+                  key={state.formData?.issueType}
                   id="issueType"
                   name="issueType"
                   required
