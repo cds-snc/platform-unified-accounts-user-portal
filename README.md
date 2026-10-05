@@ -40,6 +40,7 @@ pnpm test        # run tests
 - `FRESHDESK_PRODUCT_ID`
 - `FRESHDESK_GROUP_ID`
 - `FRESHDESK_TAGS`
+- `NEXT_PUBLIC_WAF_INTEGRATION_URL`
 
 ## Stack
 
