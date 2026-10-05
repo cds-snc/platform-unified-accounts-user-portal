@@ -60,6 +60,8 @@ export async function submitContactFormAction(
     return genericErrorResponse;
   }
 
+  const { fullName, email, issueType, message } = validationResult.output;
+
   const captchaResult = await verifyHCaptchaToken(command.captchaToken, {
     secret: process.env.HCAPTCHA_SECRET,
     siteKey: process.env.HCAPTCHA_SITE_KEY,
@@ -76,12 +78,12 @@ export async function submitContactFormAction(
     return genericErrorResponse;
   }
 
-  const issueTypeLabel = t(ISSUE_TYPE_I18N_KEYS[command.issueType as ContactUsIssueType]);
-  const description = `${t("issueTypeLabel")}: ${issueTypeLabel}<br><br>${command.message}`;
+  const issueTypeLabel = t(ISSUE_TYPE_I18N_KEYS[issueType as ContactUsIssueType]);
+  const description = `${t("issueTypeLabel")}: ${issueTypeLabel}\n\n${message}`;
 
   const result = await createFreshdeskTicket({
-    fullName: command.fullName,
-    email: command.email,
+    fullName,
+    email,
     message: description,
     language,
   });

@@ -25,6 +25,15 @@ const SUBJECT_BY_LANGUAGE: Record<"en" | "fr", string> = {
   fr: "Plateforme GC - Nous contacter",
 };
 
+const formatDescription = (message: string) =>
+  sanitizePii(message)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;")
+    .replace(/\r\n|\r|\n/g, "<br>");
+
 export async function createFreshdeskTicket(
   params: CreateTicketParams
 ): Promise<{ success: true; ticketId: number } | { error: string }> {
@@ -41,7 +50,6 @@ export async function createFreshdeskTicket(
 
   const credentials = Buffer.from(`${apiKey}:X`).toString("base64");
   const isFrench = params.language === "fr";
-  const sanitizedMessage = sanitizePii(params.message);
 
   const body = {
     name: params.fullName,
@@ -54,7 +62,7 @@ export async function createFreshdeskTicket(
     tags: tags.split(",").map((tag) => tag.trim()),
     group_id: Number(groupId),
     subject: isFrench ? SUBJECT_BY_LANGUAGE.fr : SUBJECT_BY_LANGUAGE.en,
-    description: sanitizedMessage,
+    description: formatDescription(params.message),
     custom_fields: {
       cf_language: isFrench ? "Français" : "English",
     },
