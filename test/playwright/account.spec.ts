@@ -24,7 +24,9 @@ test.describe("account edit flow", () => {
   });
 
   test.afterAll(async () => {
-    await deleteUserById(registeredUser!.userId, accessToken, idpUrl);
+    if (registeredUser) {
+      await deleteUserById(registeredUser!.userId, accessToken, idpUrl);
+    }
   });
 
   test("updates a user's name and password", async ({ page }) => {
@@ -55,11 +57,13 @@ test.describe("account edit flow", () => {
 
   test("updates a user's password using forgot password", async ({ page }) => {
     const newPassword = "ForgotPassword123!";
-    expect(registeredUser!.email).toBeTruthy();
+    if (!registeredUser) {
+      throw new Error("Registered user is required for this test");
+    }
 
     await page.goto(portalUrl);
     await page.getByTestId("forgot-password").click();
-    await page.locator("#login #username").fill(registeredUser!.email);
+    await page.locator("#login #username").fill(registeredUser.email);
     await page.getByTestId("user-name-continue").click();
 
     await expect(page).toHaveURL(/\/password\/reset\/verify/);
@@ -67,12 +71,12 @@ test.describe("account edit flow", () => {
     await page.getByTestId("strong-factor-continue").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(generateTOTP(registeredUser!.totpSecret!));
+    await page.locator("#totp #code").fill(generateTOTP(registeredUser.totpSecret!));
     await page.getByTestId("totp-submit").click();
 
     await expect(page).toHaveURL(/\/password\/reset\/set/);
     const passwordResetCode = await getPasswordResetCode(
-      registeredUser!.userId,
+      registeredUser.userId,
       accessToken,
       idpUrl
     );
@@ -82,6 +86,6 @@ test.describe("account edit flow", () => {
     await page.getByTestId("password-validation-continue").click();
 
     await expect(page).toHaveURL(/\/account$/);
-    await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
+    await expect(page.getByTestId("account-email")).toHaveText(registeredUser.email);
   });
 });
