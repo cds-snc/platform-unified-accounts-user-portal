@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { type FormEvent, useRef, useState } from "react";
+import { useActionState, useRef } from "react";
 import { useHCaptcha } from "@gcforms/hcaptcha/client";
 
 import { getWafToken, isWafIntegrationEnabled } from "@lib/client/wafIntegration";
@@ -46,7 +46,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
   } = useTranslation(["contact-us", "common"]);
   const genericErrorMessage = t("errors.generic");
   const submitFailedMessage = t("errors.submitFailed");
-  const [state, setState] = useState<FormState>({
+  const initialState: FormState = {
     validationErrors: undefined,
     formData: {
       fullName: "",
@@ -54,19 +54,15 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
       issueType: "",
       message: "",
     },
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  };
   const submissionInProgress = useRef(false);
 
   const { captcha, execute, reset } = useHCaptcha({ siteKey });
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (submissionInProgress.current) return;
+  const handleSubmit = async (previousState: FormState, formData: FormData) => {
+    if (submissionInProgress.current) return previousState;
     submissionInProgress.current = true;
 
-    const formData = new FormData(event.currentTarget);
     const formEntries = {
       fullName: (formData.get("fullName") as string) || "",
       email: (formData.get("email") as string) || "",
@@ -77,30 +73,27 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
     const validationResult = await validateContactForm(formEntries);
     if (!validationResult.success) {
       submissionInProgress.current = false;
-      setState({
+      return {
         error: undefined,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
           fieldValue: t(`validation.${issue.message}`),
         })),
         formData: formEntries,
-      });
-      return;
+      };
     }
+    const normalizedEntries = validationResult.output;
 
-    setIsSubmitting(true);
     try {
       const captchaResult = await execute();
 
       if (!captchaResult.verified) {
         reset();
-        setState((previousState) => ({
-          ...previousState,
+        return {
           error: "captchaFailed",
           validationErrors: undefined,
-          formData: formEntries,
-        }));
-        return;
+          formData: normalizedEntries,
+        };
       }
 
       if (isWafIntegrationEnabled()) {
@@ -119,39 +112,37 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
       }
 
       const result = await submitContactFormAction({
-        ...formEntries,
+        ...normalizedEntries,
         captchaToken: captchaResult.token,
         language,
       });
 
       if ("error" in result) {
-        setState((previousState) => ({
-          ...previousState,
+        return {
           validationErrors: undefined,
           error: result.error,
-          formData: formEntries,
-        }));
-        return;
+          formData: normalizedEntries,
+        };
       }
 
-      setState({
+      return {
         success: true,
         error: undefined,
         validationErrors: undefined,
-        formData: formEntries,
-      });
+        formData: normalizedEntries,
+      };
     } catch {
-      setState((previousState) => ({
-        ...previousState,
+      return {
         error: submitFailedMessage,
         validationErrors: undefined,
-        formData: formEntries,
-      }));
+        formData: normalizedEntries,
+      };
     } finally {
       submissionInProgress.current = false;
-      setIsSubmitting(false);
     }
   };
+
+  const [state, formAction, isPending] = useActionState(handleSubmit, initialState);
 
   if (state.error === "captchaFailed") {
     return <CaptchaFail />;
@@ -180,7 +171,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
               })}
             </Alert>
           )}
-          <form id="contact-us-form" method="post" onSubmit={handleSubmit} noValidate>
+          <form id="contact-us-form" action={formAction} noValidate>
             <div className="mb-6 flex flex-col gap-4">
               <div className="gcds-input-wrapper">
                 <Label htmlFor="fullName" required>
@@ -245,6 +236,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
                   </ErrorMessage>
                 )}
                 <select
+                  key={state.formData?.issueType}
                   id="issueType"
                   name="issueType"
                   required
@@ -289,9 +281,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
             </div>
 
             {captcha}
-            <SubmitButton loading={isSubmitting}>
-              {t("button.submit", { ns: "common" })}
-            </SubmitButton>
+            <SubmitButton loading={isPending}>{t("button.submit", { ns: "common" })}</SubmitButton>
           </form>
         </>
       )}

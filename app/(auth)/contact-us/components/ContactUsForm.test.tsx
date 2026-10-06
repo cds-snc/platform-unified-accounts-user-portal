@@ -105,6 +105,7 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(screen.getByText("validation.invalidEmail")).toBeInTheDocument();
     });
+    expect(screen.getByLabelText(/labels.issueType/i)).toHaveValue("other");
   });
 
   it("shows success panel after valid form submission", async () => {

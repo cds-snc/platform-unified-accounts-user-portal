@@ -4,7 +4,6 @@
 import { Suspense } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
-import { VersionUpdater } from "@components/auth/VersionUpdater";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -18,8 +17,6 @@ import { NavMenu } from "@components/ui/nav-menu/NavMenu";
 import { ToastContainer } from "@components/ui/toast/Toast";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-  const isDev = process.env.NODE_ENV === "development";
-
   return (
     <div className="flex min-h-full flex-col bg-gray-soft">
       <Suspense fallback={<GcdsHeaderSkeleton />}>
@@ -46,7 +43,6 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         </div>
       </div>
       <div id="outside-auth-container"></div>
-      {!isDev && <VersionUpdater />}
       <Suspense fallback={<FooterSkeleton />}>
         <Footer>
           <FooterLinks />

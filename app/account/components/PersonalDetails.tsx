@@ -131,7 +131,7 @@ export const PersonalDetails = ({
                 <li>
                   <div className="mb-1 font-bold">{t("personalDetails.fullName")}</div>
                   <div>
-                    <em>
+                    <em data-testid="account-name">
                       {firstName} {lastName}
                     </em>
                   </div>
@@ -147,6 +147,7 @@ export const PersonalDetails = ({
                   disabled={editMode}
                   buttonRef={changeButtonRef}
                   className="mt-auto"
+                  dataTestId="account-name-change"
                 >
                   {t("personalDetails.change")}
                 </Button>
@@ -229,7 +230,7 @@ export const PersonalDetails = ({
             <div className="grow">
               <div className="mb-2 font-semibold">{t("personalDetails.email")}</div>
               <div>
-                <em>{email}</em>
+                <em data-testid="account-email">{email}</em>
               </div>
             </div>
             <div className="flex flex-col">
@@ -237,7 +238,7 @@ export const PersonalDetails = ({
                 <strong>{t("personalDetails.cannotBeChanged")}</strong>
               </div>
               <div>
-                <Button theme="link" onClick={logoutAndRegister}>
+                <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
                   {t("personalDetails.createNewAccount")}
                 </Button>
               </div>

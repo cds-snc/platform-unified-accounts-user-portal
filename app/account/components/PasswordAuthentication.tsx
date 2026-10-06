@@ -29,7 +29,12 @@ export const PasswordAuthentication = ({ className }: { className: string }) => 
           </div>
         </div>
         <div className="flex">
-          <Link href="/password/change" aria-describedby="password-title" className="mt-auto mb-1">
+          <Link
+            href="/password/change"
+            aria-describedby="password-title"
+            className="mt-auto mb-1"
+            data-testid="account-password-change"
+          >
             {t("authentication.change")}
           </Link>
         </div>

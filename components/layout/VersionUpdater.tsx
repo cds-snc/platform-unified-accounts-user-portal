@@ -3,20 +3,19 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
+import { useAppStatus } from "@lib/client/useAppStatus";
 import { useTranslation } from "@i18n/client";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { Close } from "@components/icons/Close";
 import { RocketIcon } from "@components/icons/RocketIcon";
 import { Button } from "@components/ui/button/Button";
 
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { useVersionUpdater } from "./useVersionUpdater";
 
 function openDialog(dialog: HTMLDialogElement) {
   if (typeof dialog.showModal === "function") {
@@ -36,17 +35,7 @@ function closeDialog(dialog: HTMLDialogElement) {
   dialog.removeAttribute("open");
 }
 
-function VersionUpdaterDialog({
-  didChange,
-  latestShortVersion,
-  previousShortVersion,
-  onDismiss,
-}: {
-  didChange: boolean;
-  latestShortVersion: string | null;
-  previousShortVersion: string | null;
-  onDismiss: () => void;
-}) {
+function VersionUpdaterDialog() {
   const { t } = useTranslation("versionUpdater");
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const refreshButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -76,14 +65,7 @@ function VersionUpdaterDialog({
       aria-labelledby="version-updater-title"
       aria-describedby="version-updater-description"
       className="fixed inset-0 m-auto w-full max-w-2xl rounded-2xl border border-gray-300 bg-white p-8 shadow-xl backdrop:bg-black/45"
-      onCancel={onDismiss}
-      onClose={() => {
-        if (!didChange) {
-          return;
-        }
-
-        onDismiss();
-      }}
+      onCancel={(e) => e.preventDefault()}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-4">
@@ -100,19 +82,9 @@ function VersionUpdaterDialog({
             {t("description")}
           </p>
         </div>
-
-        <Button theme="link" aria-label={t("close")} className="group shrink-0" onClick={onDismiss}>
-          <span className="block">
-            <Close className="inline-block size-6 fill-black group-hover:fill-gcds-blue-vivid group-focus:fill-white-default group-active:fill-white-default" />
-          </span>
-        </Button>
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="text-xs text-gray-500" data-testid="version-updater-debug">
-          {latestShortVersion ?? "unknown"}:{previousShortVersion ?? "unknown"}
-        </div>
-
         <Button
           buttonRef={refreshButtonRef}
           onClick={() => {
@@ -127,19 +99,7 @@ function VersionUpdaterDialog({
 }
 
 export function VersionUpdater() {
-  const { didChange, latestVersion, latestShortVersion, previousShortVersion } =
-    useVersionUpdater();
-  const [dismissedVersion, setDismissedVersion] = useState<string | null>(null);
-  const showDialog = didChange && latestVersion !== null && latestVersion !== dismissedVersion;
+  const { updateRequired } = useAppStatus();
 
-  return showDialog ? (
-    <VersionUpdaterDialog
-      didChange={didChange}
-      latestShortVersion={latestShortVersion}
-      previousShortVersion={previousShortVersion}
-      onDismiss={() => {
-        setDismissedVersion(latestVersion);
-      }}
-    />
-  ) : null;
+  return updateRequired ? <VersionUpdaterDialog /> : null;
 }
