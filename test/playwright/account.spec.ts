@@ -60,6 +60,7 @@ test.describe("account edit flow", () => {
     if (!registeredUser) {
       throw new Error("Registered user is required for this test");
     }
+    expect(registeredUser.email).toBeTruthy();
 
     await page.goto(portalUrl);
     await page.getByTestId("forgot-password").click();
