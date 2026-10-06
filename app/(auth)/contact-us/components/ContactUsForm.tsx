@@ -101,13 +101,11 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
           await getWafToken();
         } catch {
           reset();
-          setState((previousState) => ({
-            ...previousState,
+          return {
             error: submitFailedMessage,
             validationErrors: undefined,
             formData: formEntries,
-          }));
-          return;
+          };
         }
       }
 
