@@ -76,7 +76,7 @@ export function LoginTOTP({
           <CodeEntry state={state} code={""} className="mt-8" />
           <div className="mt-6 flex items-center gap-4">
             <BackButton />
-            <SubmitButtonAction>
+            <SubmitButtonAction dataTestId="totp-submit">
               <I18n i18nKey="submit" namespace="verify" />
             </SubmitButtonAction>
           </div>

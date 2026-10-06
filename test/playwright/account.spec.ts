@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 
 import { type RegisteredUser, registerUser } from "./utils/register";
 import { MfaType } from "./utils/register";
-import { getRequiredEnv } from "./utils/utils";
-import { deleteUserById, getZitadelAccessToken } from "./utils/zitadel";
+import { generateTOTP, getRequiredEnv } from "./utils/utils";
+import { deleteUserById, getPasswordResetCode, getZitadelAccessToken } from "./utils/zitadel";
 
 test.describe("account edit flow", () => {
   test.describe.configure({ mode: "serial" });
@@ -46,11 +46,41 @@ test.describe("account edit flow", () => {
     await expect(page.locator("#password-form #password")).toBeVisible();
     await page.locator("#password-form #password").fill(newPassword);
     await page.locator("#password-form #confirmPassword").fill(newPassword);
-    await page.locator("#password-form button[type='submit']").click();
-    registeredUser.password = newPassword;
+    await page.getByTestId("password-validation-continue").click();
 
     await expect(page).toHaveURL(/\/account$/);
     await expect(page.getByTestId("account-name")).toHaveText("Updated Account");
+    await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
+  });
+
+  test("updates a user's password using forgot password", async ({ page }) => {
+    const newPassword = "ForgotPassword123!";
+
+    await page.goto(portalUrl);
+    await page.locator("#login a[href*='/password/reset']").click();
+    await page.locator("#login #username").fill(registeredUser!.email);
+    await page.getByTestId("user-name-continue").click();
+
+    await expect(page).toHaveURL(/\/password\/reset\/verify/);
+    await page.getByTestId("strong-factor-totp").click();
+    await page.getByTestId("strong-factor-continue").click();
+
+    await expect(page.locator("#totp #code")).toBeVisible();
+    await page.locator("#totp #code").fill(generateTOTP(registeredUser!.totpSecret!));
+    await page.getByTestId("totp-submit").click();
+
+    await expect(page).toHaveURL(/\/password\/reset\/set/);
+    const passwordResetCode = await getPasswordResetCode(
+      registeredUser!.userId,
+      accessToken,
+      idpUrl
+    );
+    await page.locator("#password-form #code").fill(passwordResetCode);
+    await page.locator("#password-form #password").fill(newPassword);
+    await page.locator("#password-form #confirmPassword").fill(newPassword);
+    await page.getByTestId("password-validation-continue").click();
+
+    await expect(page).toHaveURL(/\/account$/);
     await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
   });
 });
