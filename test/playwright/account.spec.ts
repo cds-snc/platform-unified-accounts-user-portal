@@ -55,9 +55,10 @@ test.describe("account edit flow", () => {
 
   test("updates a user's password using forgot password", async ({ page }) => {
     const newPassword = "ForgotPassword123!";
+    expect(registeredUser!.email).toBeTruthy();
 
     await page.goto(portalUrl);
-    await page.locator("#login a[href*='/password/reset']").click();
+    await page.getByTestId("forgot-password").click();
     await page.locator("#login #username").fill(registeredUser!.email);
     await page.getByTestId("user-name-continue").click();
 
