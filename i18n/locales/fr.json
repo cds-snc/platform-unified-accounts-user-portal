@@ -81,7 +81,7 @@
       "change": "Modifier",
       "cancel": "Annuler",
       "updateAccount": "Mettre à jour",
-      "updateDetails": "[FR]Update your personal details",
+      "updateDetails": "Mettez a jour vos re",
       "email": "Adresse courriel",
       "cannotBeChanged": "Ne peut être modifié",
       "createNewAccount": "créer un nouveau compte",
@@ -107,7 +107,7 @@
     },
     "mfaAuthentication": {
       "title": "Authentification à deux facteurs",
-      "minimumNum": "FR(minimum one other)",
+      "minimumNum": "(au moins un autre)",
       "securityKey": "Clé de sécurité",
       "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
       "authenticatorApp": "Application d'authentification",
@@ -412,7 +412,7 @@
         "verificationFailed": "Une erreur s'est produite lors de la vérification de la clé de sécurité"
       },
       "confirmation": {
-        "title": "FR - To continue, Tap your security Key"
+        "title": "Pour continuer, appuyez sur votre clé de sécurité"
       }
     },
     "set": {
@@ -450,7 +450,7 @@
     "errors": {
       "couldNotVerifyEmail": "Problème de vérification du courriel",
       "failedToAddOTPEmail": "Impossible de configurer la vérification par courriel. Veuillez réessayer.",
-      "couldNotResentEmail": "[FR]Could not resend verification email. Please try again."
+      "couldNotResentEmail": "Le courriel de vérification n'a pas pu être renvoyé. Veuillez réessayer."
     }
   },
   "allSet": {
