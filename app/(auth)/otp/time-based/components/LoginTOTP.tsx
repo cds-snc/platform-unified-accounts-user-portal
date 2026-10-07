@@ -42,7 +42,10 @@ export function LoginTOTP({
     const enteredCode = (formData?.get("code") as string) ?? "";
     const result = await handleOTPFormSubmit({ code: enteredCode, requestId });
 
-    return result;
+    return {
+      ...result,
+      error: result.errorKey ? t(result.errorKey) : result.error,
+    };
   };
 
   const [state, formAction, isPending] = useActionState(localFormAction, {
