@@ -72,7 +72,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   if (accountLocked) {
     logMessage.debug("Account is locked");
-    redirect("/deactivated");
+    return { error: t("validation.lockedOut") };
   }
 
   if (!session) {

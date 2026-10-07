@@ -147,7 +147,8 @@
       "validGovEmail": "Enter a valid individual Government of Canada email address.",
       "requiredPassword": "Password is required.",
       "invalidCredentials": "Invalid email address or password. Please try again.",
-      "lockedOut": "Contact Support - There is an issue with your account"
+      "lockedOut": "This account is disabled or does not exist, please",
+      "lockedOutLink": "contact us"
     },
     "session": {
       "otherAccount": "Different account",

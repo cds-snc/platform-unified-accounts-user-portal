@@ -21,11 +21,11 @@ export default async function Page() {
   const supportUrl =
     linkTemplate !== false
       ? linkTemplate.replaceAll("{baseUrl}", siteConfig.baseUrl).replaceAll("{locale}", locale)
-      : "/contact-us";
+      : false;
 
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="deactivated">
-      <LinkButton.Primary href={supportUrl}>{t("contactSupport")}</LinkButton.Primary>
+      <LinkButton.Primary href={supportUrl || "#"}>{t("contactSupport")}</LinkButton.Primary>
     </AuthPanel>
   );
 }

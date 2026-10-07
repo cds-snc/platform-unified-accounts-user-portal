@@ -157,7 +157,7 @@ describe("submitLoginForm", () => {
     expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
   });
 
-  it("redirects to deactivated page when user account is not active", async () => {
+  it("returns locked out error when user account is not active", async () => {
     const notActiveError = new Error("User is not active");
     vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(notActiveError);
     vi.mocked(parseZitadelError).mockReturnValue({
@@ -165,14 +165,13 @@ describe("submitLoginForm", () => {
       text: "errors.user.notactive",
     });
 
-    await expect(
-      submitLoginForm({
-        username: "person@canada.ca",
-        password: "P@ssw0rd",
-      })
-    ).rejects.toThrow("NEXT_REDIRECT");
+    const response = await submitLoginForm({
+      username: "person@canada.ca",
+      password: "P@ssw0rd",
+    });
 
-    expect(mockRedirect).toHaveBeenCalledWith("/deactivated");
+    expect(response).toEqual({ error: "translated:validation.lockedOut" });
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it("returns generic error when session has no user id", async () => {

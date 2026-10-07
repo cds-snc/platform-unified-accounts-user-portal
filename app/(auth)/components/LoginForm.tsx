@@ -108,11 +108,21 @@ export function LoginForm({ requestId, session }: Props) {
       {state.error && (
         <div className="py-4" data-testid="error">
           <Alert type={ErrorStatus.ERROR} focussable={true} id="loginError">
-            {getSafeErrorMessage({
-              error: state.error,
-              fallback: genericLoginError,
-              allowedMessages: [genericLoginError, accountLockedError],
-            })}
+            {state.error === accountLockedError ? (
+              <>
+                {accountLockedError}{" "}
+                <Link href="/contact-us" data-testid="locked-contact-us">
+                  {t("validation.lockedOutLink", { ns: "start" })}
+                </Link>
+                .
+              </>
+            ) : (
+              getSafeErrorMessage({
+                error: state.error,
+                fallback: genericLoginError,
+                allowedMessages: [genericLoginError],
+              })
+            )}
           </Alert>
         </div>
       )}
