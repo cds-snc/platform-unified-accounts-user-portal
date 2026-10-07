@@ -173,7 +173,11 @@ export function LoginForm({ requestId, session }: Props) {
 
             {/* Forgot password link */}
             <div className="mt-2">
-              <Link href={buildUrlWithRequestId("/password/reset", requestId)} prefetch={false}>
+              <Link
+                href={buildUrlWithRequestId("/password/reset", requestId)}
+                prefetch={false}
+                data-testid="forgot-password"
+              >
                 {t("form.forgotPasswordLink")}
               </Link>
             </div>

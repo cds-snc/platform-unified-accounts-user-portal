@@ -97,6 +97,7 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(screen.getByText("validation.invalidEmail")).toBeInTheDocument();
     });
+    expect(screen.getByLabelText(/labels.issueType/i)).toHaveValue("other");
   });
 
   it("shows success panel after valid form submission", async () => {
@@ -172,19 +173,21 @@ describe("ContactUsForm", () => {
       issueType: "other",
       message: "Hello there",
       captchaToken: "captcha-token",
+      language: "en",
     });
   });
 
-  it("shows a generic error when hCaptcha does not verify", async () => {
+  it("shows the hCaptcha failure page when hCaptcha does not verify", async () => {
     const user = userEvent.setup();
     const execute = vi.fn().mockResolvedValue({
       verified: false,
       reason: "captcha-error",
     });
+    const reset = vi.fn();
     vi.mocked(useHCaptcha).mockReturnValue({
       captcha: <div data-testid="hcaptcha" />,
       execute,
-      reset: vi.fn(),
+      reset,
     });
 
     render(<ContactUsForm siteKey="site-key" />);
@@ -195,7 +198,14 @@ describe("ContactUsForm", () => {
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
-    await waitFor(() => expect(screen.getByText("errors.submitFailed")).toBeInTheDocument());
+    await waitFor(() => {
+      const heading = screen.getByRole("heading", { name: "failPage.title" });
+
+      expect(heading).toHaveFocus();
+      expect(document.title).toBe("failPage.title - contact-us:title");
+    });
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(document.getElementById("contact-us-form")).not.toBeInTheDocument();
     expect(submitContactFormAction).not.toHaveBeenCalled();
   });
 

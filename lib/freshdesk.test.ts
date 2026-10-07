@@ -15,19 +15,25 @@ import { createFreshdeskTicket } from "./freshdesk";
 const validParams = {
   fullName: "Test User",
   email: "test@canada.ca",
-  issueType: "other" as const,
   message: "Hello there",
+  language: "en",
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
   process.env.FRESHDESK_API_URL = "https://cds-snc.freshdesk.com";
   process.env.FRESHDESK_API_KEY = "test-api-key";
+  process.env.FRESHDESK_PRODUCT_ID = "61000004602";
+  process.env.FRESHDESK_GROUP_ID = "61000176987";
+  process.env.FRESHDESK_TAGS = "GCPlatform_Usability_SSO";
 });
 
 afterEach(() => {
   delete process.env.FRESHDESK_API_URL;
   delete process.env.FRESHDESK_API_KEY;
+  delete process.env.FRESHDESK_PRODUCT_ID;
+  delete process.env.FRESHDESK_GROUP_ID;
+  delete process.env.FRESHDESK_TAGS;
   vi.restoreAllMocks();
 });
 
@@ -43,6 +49,33 @@ describe("createFreshdeskTicket", () => {
 
   it("returns an error when FRESHDESK_API_KEY is not set", async () => {
     delete process.env.FRESHDESK_API_KEY;
+
+    const result = await createFreshdeskTicket(validParams);
+
+    expect(result).toEqual({ error: "Service unavailable" });
+    expect(logMessage.error).toHaveBeenCalledWith("Freshdesk env vars not configured");
+  });
+
+  it("returns an error when FRESHDESK_PRODUCT_ID is not set", async () => {
+    delete process.env.FRESHDESK_PRODUCT_ID;
+
+    const result = await createFreshdeskTicket(validParams);
+
+    expect(result).toEqual({ error: "Service unavailable" });
+    expect(logMessage.error).toHaveBeenCalledWith("Freshdesk env vars not configured");
+  });
+
+  it("returns an error when FRESHDESK_GROUP_ID is not set", async () => {
+    delete process.env.FRESHDESK_GROUP_ID;
+
+    const result = await createFreshdeskTicket(validParams);
+
+    expect(result).toEqual({ error: "Service unavailable" });
+    expect(logMessage.error).toHaveBeenCalledWith("Freshdesk env vars not configured");
+  });
+
+  it("returns an error when FRESHDESK_TAGS is not set", async () => {
+    delete process.env.FRESHDESK_TAGS;
 
     const result = await createFreshdeskTicket(validParams);
 
@@ -81,7 +114,71 @@ describe("createFreshdeskTicket", () => {
     expect(body.name).toBe("Test User");
     expect(body.email).toBe("test@canada.ca");
     expect(body.description).toBe("Hello there");
-    expect(body.subject).toBe("Contact Us Form Submission: Other");
+    expect(body.subject).toBe("GC Platform - Contact us");
+    expect(body.type).toBe("Question");
+    expect(body.product_id).toBe(61000004602);
+    expect(body.group_id).toBe(61000176987);
+    expect(body.tags).toEqual(["GCPlatform_Usability_SSO"]);
+    expect(body.custom_fields).toEqual({ cf_language: "English" });
+  });
+
+  it("sets the French subject and language custom field when language is fr", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket({ ...validParams, language: "fr" });
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.subject).toBe("Plateforme GC - Nous contacter");
+    expect(body.custom_fields).toEqual({ cf_language: "Français" });
+  });
+
+  it("splits and trims multiple comma-separated tags from FRESHDESK_TAGS", async () => {
+    process.env.FRESHDESK_TAGS = "GCPlatform_Usability_SSO, Another_Tag";
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket(validParams);
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.tags).toEqual(["GCPlatform_Usability_SSO", "Another_Tag"]);
+  });
+
+  it("sanitizes personally identifiable information from the message before sending", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket({
+      ...validParams,
+      message: "Call me at (555) 123-4567",
+    });
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.description).not.toContain("(555) 123-4567");
+    expect(body.description).toContain("[Redacted: phone_number]");
+  });
+
+  it("escapes HTML in the message and preserves line breaks", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ id: 1 }), { status: 201 }));
+
+    await createFreshdeskTicket({
+      ...validParams,
+      message: `<img src=x onerror="alert('x')">\nNext line`,
+    });
+
+    const [, options] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(options.body as string);
+    expect(body.description).toBe(
+      "&lt;img src=x onerror=&quot;alert(&#39;x&#39;)&quot;&gt;<br>Next line"
+    );
   });
 
   it("returns an error when the API responds with a non-OK status", async () => {

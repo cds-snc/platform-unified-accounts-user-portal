@@ -9,7 +9,7 @@ import {
   RequestChallengesSchema,
   UserVerificationRequirement,
 } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
-import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
@@ -19,30 +19,33 @@ import { getActiveSessionCookie } from "@lib/cookies";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { setSessionAndUpdateCookie } from "@lib/server/cookie";
 import { updateSession } from "@lib/server/session";
-import { validateRequestId, validateU2FLoginCommand } from "@lib/validation/validationSchemas";
+import {
+  type PublicKeyCredentialAssertionData,
+  validateRequestId,
+  validateU2FLoginCommand,
+} from "@lib/validation/validationSchemas";
 
 import { U2F_ERRORS } from "./u2f-errors";
 
 type VerifyU2FLoginCommand = {
-  loginName?: string;
-  sessionId?: string;
-  checks: Checks;
+  publicKeyCredential: PublicKeyCredentialAssertionData;
   requestId?: string;
   completeFlow?: boolean;
 };
 
 export const verifyU2FLogin = AuthenticatedAction(
   { authLevel: "basic_session" },
-  async function verifyU2FLogin(
-    _,
-    { checks, requestId, completeFlow = true }: VerifyU2FLoginCommand
-  ) {
-    const loginValidation = validateU2FLoginCommand({ requestId });
+  async function verifyU2FLogin(_, command: VerifyU2FLoginCommand) {
+    const loginValidation = validateU2FLoginCommand(command);
     if (!loginValidation.success) {
       return { error: U2F_ERRORS.SESSION_VERIFICATION_FAILED };
     }
 
+    const { publicKeyCredential, requestId, completeFlow = true } = loginValidation.output;
     const activeSessionCookie = await getActiveSessionCookie();
+    const checks = create(ChecksSchema, {
+      webAuthN: { credentialAssertionData: publicKeyCredential },
+    });
 
     // Actually verify the U2F credential by updating the session with the checks
     const updatedSession = await setSessionAndUpdateCookie({

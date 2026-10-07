@@ -264,7 +264,6 @@
       "couldNotCreateSessionForUser": "Could not create session for this user",
       "couldNotVerifyPassword": "Could not verify password",
       "couldNotResetPassword": "Could not reset password",
-      "couldNotRegisterUser": "Could not register user account",
       "failedToAuthenticate": "Failed to authenticate. You had {failedAttempts} of {maxPasswordAttempts} password attempts. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Failed to authenticate.",
       "accountLockedContactAdmin": " Contact your administrator to unlock your account",
@@ -389,10 +388,7 @@
     },
     "password": {
       "title": "Password creation",
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider.",
-      "errors": {
-        "couldNotRegisterUser": "Could not register user account"
-      }
+      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider."
     }
   },
   "u2f": {
@@ -483,6 +479,7 @@
       "signUpIssue": "Unable to sign up",
       "other": "Other"
     },
+    "issueTypeLabel": "Issue type",
     "success": {
       "title": "Message sent",
       "description": "Thank you for reaching out. We will respond to you within 2 business days."
@@ -531,5 +528,17 @@
     "GC Forms": " to GC Forms",
     "GC Notify": " to GC Notify",
     "defaultAppName": ""
+  },
+  "hCaptcha": {
+    "failPage": {
+      "title": "We did not receive your submission",
+      "helpOptions": {
+        "title": "Try:",
+        "item1": "Turning off any virtual private network (VPN), firewall or proxy server.",
+        "item2": "Using a different browser, device or network.",
+        "item3": "Checking browser plugins as some may block submissions.",
+        "tryAgain": "You can also try submitting again."
+      }
+    }
   }
 }

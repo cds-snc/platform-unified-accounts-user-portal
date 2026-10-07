@@ -269,7 +269,6 @@
       "couldNotCreateSessionForUser": "Problème de création de session pour cet utilisateur",
       "couldNotVerifyPassword": "Problème de vérification du mot de passe",
       "couldNotResetPassword": "Problème de réinitialisation du mot de passe",
-      "couldNotRegisterUser": "Problème d'enregistrement du compte utilisateur",
       "failedToAuthenticate": "Échec de l'authentification. Vous avez essayé {failedAttempts} des {maxPasswordAttempts} tentatives de mot de passe. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Échec d'authentification.",
       "accountLockedContactAdmin": " Contactez votre administrateur pour déverrouiller votre compte",
@@ -394,10 +393,7 @@
     },
     "password": {
       "title": "Création du mot de passe",
-      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
-      "errors": {
-        "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur"
-      }
+      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification."
     }
   },
   "u2f": {
@@ -488,6 +484,7 @@
       "signUpIssue": "Impossible de s'inscrire",
       "other": "Autre"
     },
+    "issueTypeLabel": "Type de problème",
     "success": {
       "title": "Message envoyé",
       "description": "Merci de nous avoir contactés. Nous vous répondrons dans un délai de 2 jours ouvrables."
@@ -536,5 +533,17 @@
     "GC Forms": " à GC Formulaires",
     "GC Notify": " à GC Notify",
     "defaultAppName": ""
+  },
+  "hCaptcha": {
+    "failPage": {
+      "title": "Nous n’avons pas reçu votre soumission",
+      "helpOptions": {
+        "title": "Essayez les choses suivantes :",
+        "item1": "Désactivez tout réseau privé virtuel (VPN), pare-feu ou serveur proxy.",
+        "item2": "Utilisez un autre navigateur, un autre appareil ou un autre réseau.",
+        "item3": "Vérifiez si un plugiciel de navigateur bloque les soumissions.",
+        "tryAgain": "Vous pouvez également essayer de soumettre à nouveau."
+      }
+    }
   }
 }

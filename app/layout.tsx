@@ -7,6 +7,7 @@ import { Lato, Noto_Sans } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { dir } from "i18next";
 
+import { AppStatusProvider } from "@lib/client/useAppStatus";
 import { SiteConfigService } from "@lib/site-config";
 /*--------------------------------------------*
  * Internal Aliases
@@ -14,6 +15,7 @@ import { SiteConfigService } from "@lib/site-config";
 import { languages } from "@i18n/settings";
 import { SiteConfigProvider } from "@components/contexts/SiteConfigContext";
 import RouterDebugger from "@components/debugging/RouterDebugger";
+import ServiceWorker from "@components/layout/ServiceWorker";
 
 /*--------------------------------------------*
  * Styles
@@ -41,7 +43,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const [requestCookies, requestHeaders] = await Promise.all([cookies(), headers()]);
   const locale = requestCookies.get("i18next")?.value ?? languages[0];
   const nonce = requestHeaders.get("x-nonce") ?? undefined;
-
+  const isDev = process.env.NODE_ENV === "development";
   const siteConfig = await SiteConfigService.getInstance();
 
   return (
@@ -71,8 +73,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
         </style>
       </head>
       <body>
+        {!isDev && <ServiceWorker />}
         {process.env.DEBUG && <RouterDebugger />}
-        <SiteConfigProvider siteConfig={siteConfig.resolve()}>{children}</SiteConfigProvider>
+        <SiteConfigProvider siteConfig={siteConfig.resolve()}>
+          <AppStatusProvider>{children}</AppStatusProvider>
+        </SiteConfigProvider>
       </body>
     </html>
   );

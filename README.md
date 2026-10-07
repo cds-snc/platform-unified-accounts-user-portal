@@ -37,6 +37,9 @@ pnpm test        # run tests
 - `HCAPTCHA_SECRET`
 - `FRESHDESK_API_URL`
 - `FRESHDESK_API_KEY`
+- `FRESHDESK_PRODUCT_ID`
+- `FRESHDESK_GROUP_ID`
+- `FRESHDESK_TAGS`
 
 ## Stack
 

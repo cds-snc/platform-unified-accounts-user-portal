@@ -2,6 +2,7 @@ import { type Client, create, createClientFor } from "@zitadel/client";
 import { createServerTransport } from "@zitadel/client/node";
 import { TextQueryMethod } from "@zitadel/proto/zitadel/object/v2/object_pb.js";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb.js";
+import { ReturnPasswordResetCodeSchema } from "@zitadel/proto/zitadel/user/v2/password_pb.js";
 import { SearchQuerySchema } from "@zitadel/proto/zitadel/user/v2/query_pb.js";
 import {
   DeleteUserRequestSchema,
@@ -113,6 +114,27 @@ export async function getEmailVerificationCode(
   }
 
   return verificationCode;
+}
+
+export async function getPasswordResetCode(
+  userId: string,
+  accessToken: string,
+  apiBaseUrl: string
+): Promise<string> {
+  const response = await getUserService(accessToken, apiBaseUrl).passwordReset({
+    userId,
+    medium: {
+      case: "returnCode",
+      value: create(ReturnPasswordResetCodeSchema, {}),
+    },
+  });
+  const passwordResetCode = response.verificationCode;
+
+  if (!passwordResetCode) {
+    throw new Error(`Unable to fetch password reset code for user ${userId}`);
+  }
+
+  return passwordResetCode;
 }
 
 export async function deleteUserById(userId: string, accessToken: string, apiBaseUrl: string) {

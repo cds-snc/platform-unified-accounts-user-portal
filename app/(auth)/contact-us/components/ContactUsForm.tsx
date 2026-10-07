@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { type FormEvent, useRef, useState } from "react";
+import { useActionState, useRef } from "react";
 import { useHCaptcha } from "@gcforms/hcaptcha/client";
 
 /*--------------------------------------------*
@@ -11,7 +11,7 @@ import { useHCaptcha } from "@gcforms/hcaptcha/client";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { cn } from "@lib/utils";
-import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
+import { CONTACT_US_ISSUE_TYPES, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
@@ -19,18 +19,12 @@ import { SubmitButton } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
 import { ErrorSummary } from "@components/ui/form/ErrorSummary";
+import { CaptchaFail } from "@components/ui/form-captcha/CaptchaFail";
 
 /*--------------------------------------------*
  * Parent Relative
  *--------------------------------------------*/
 import { submitContactFormAction } from "../actions";
-
-const ISSUE_TYPE_I18N_KEYS: Record<(typeof CONTACT_US_ISSUE_TYPES)[number], string> = {
-  "password-reset": "issueTypeOptions.passwordReset",
-  "mfa-issue": "issueTypeOptions.mfaIssue",
-  "sign-up-issue": "issueTypeOptions.signUpIssue",
-  other: "issueTypeOptions.other",
-};
 
 type FormState = {
   success?: boolean;
@@ -45,10 +39,13 @@ type FormState = {
 };
 
 export function ContactUsForm({ siteKey }: { siteKey: string }) {
-  const { t } = useTranslation(["contact-us", "common"]);
+  const {
+    t,
+    i18n: { language },
+  } = useTranslation(["contact-us", "common"]);
   const genericErrorMessage = t("errors.generic");
   const submitFailedMessage = t("errors.submitFailed");
-  const [state, setState] = useState<FormState>({
+  const initialState: FormState = {
     validationErrors: undefined,
     formData: {
       fullName: "",
@@ -56,19 +53,15 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
       issueType: "",
       message: "",
     },
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  };
   const submissionInProgress = useRef(false);
 
   const { captcha, execute, reset } = useHCaptcha({ siteKey });
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (submissionInProgress.current) return;
+  const handleSubmit = async (previousState: FormState, formData: FormData) => {
+    if (submissionInProgress.current) return previousState;
     submissionInProgress.current = true;
 
-    const formData = new FormData(event.currentTarget);
     const formEntries = {
       fullName: (formData.get("fullName") as string) || "",
       email: (formData.get("email") as string) || "",
@@ -79,65 +72,65 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
     const validationResult = await validateContactForm(formEntries);
     if (!validationResult.success) {
       submissionInProgress.current = false;
-      setState({
+      return {
         error: undefined,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
           fieldValue: t(`validation.${issue.message}`),
         })),
         formData: formEntries,
-      });
-      return;
+      };
     }
+    const normalizedEntries = validationResult.output;
 
-    setIsSubmitting(true);
     try {
       const captchaResult = await execute();
 
       if (!captchaResult.verified) {
         reset();
-        setState((previousState) => ({
-          ...previousState,
-          error: submitFailedMessage,
+        return {
+          error: "captchaFailed",
           validationErrors: undefined,
-          formData: formEntries,
-        }));
-        return;
+          formData: normalizedEntries,
+        };
       }
 
       const result = await submitContactFormAction({
-        ...formEntries,
+        ...normalizedEntries,
         captchaToken: captchaResult.token,
+        language,
       });
 
       if ("error" in result) {
-        setState((previousState) => ({
-          ...previousState,
+        return {
           validationErrors: undefined,
           error: result.error,
-          formData: formEntries,
-        }));
-        return;
+          formData: normalizedEntries,
+        };
       }
 
-      setState({
+      return {
         success: true,
         error: undefined,
         validationErrors: undefined,
-        formData: formEntries,
-      });
+        formData: normalizedEntries,
+      };
     } catch {
-      setState((previousState) => ({
-        ...previousState,
+      return {
         error: submitFailedMessage,
         validationErrors: undefined,
-        formData: formEntries,
-      }));
+        formData: normalizedEntries,
+      };
     } finally {
       submissionInProgress.current = false;
-      setIsSubmitting(false);
     }
   };
+
+  const [state, formAction, isPending] = useActionState(handleSubmit, initialState);
+
+  if (state.error === "captchaFailed") {
+    return <CaptchaFail />;
+  }
 
   return (
     <div>
@@ -162,7 +155,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
               })}
             </Alert>
           )}
-          <form id="contact-us-form" onSubmit={handleSubmit} noValidate>
+          <form id="contact-us-form" action={formAction} noValidate>
             <div className="mb-6 flex flex-col gap-4">
               <div className="gcds-input-wrapper">
                 <Label htmlFor="fullName" required>
@@ -227,6 +220,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
                   </ErrorMessage>
                 )}
                 <select
+                  key={state.formData?.issueType}
                   id="issueType"
                   name="issueType"
                   required
@@ -271,9 +265,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
             </div>
 
             {captcha}
-            <SubmitButton loading={isSubmitting}>
-              {t("button.submit", { ns: "common" })}
-            </SubmitButton>
+            <SubmitButton loading={isPending}>{t("button.submit", { ns: "common" })}</SubmitButton>
           </form>
         </>
       )}

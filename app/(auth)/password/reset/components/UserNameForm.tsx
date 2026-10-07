@@ -137,7 +137,9 @@ export const UserNameForm = ({ requestId }: Props) => {
           </div>
         </div>
 
-        <SubmitButtonAction>{t("button.continue")}</SubmitButtonAction>
+        <SubmitButtonAction dataTestId="user-name-continue">
+          {t("button.continue")}
+        </SubmitButtonAction>
       </form>
     </div>
   );

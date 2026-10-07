@@ -9,9 +9,10 @@ import { isIP } from "node:net";
 
 import { createFreshdeskTicket } from "@lib/freshdesk";
 import { logMessage } from "@lib/logger";
-import { ContactUsIssueType } from "@lib/validation/contactUsIssueTypes";
+import { ContactUsIssueType, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { serverTranslation } from "@i18n/server";
+import { getCurrentLanguage, normalizeLocaleToSupportedLanguage } from "@i18n/utils";
 
 type ContactFormCommand = {
   fullName: string;
@@ -19,6 +20,7 @@ type ContactFormCommand = {
   issueType: string;
   message: string;
   captchaToken: string;
+  language: string;
 };
 
 const HCAPTCHA_MAX_ALLOWED_SCORE = 0.79;
@@ -43,7 +45,10 @@ async function getClientIp(): Promise<string | undefined> {
 export async function submitContactFormAction(
   command: ContactFormCommand
 ): Promise<{ success: true } | { error: string }> {
-  const { t } = await serverTranslation("contact-us");
+  const language = command.language
+    ? normalizeLocaleToSupportedLanguage(command.language)
+    : await getCurrentLanguage();
+  const { t } = await serverTranslation("contact-us", { lang: language });
   const genericErrorResponse = {
     error: t("errors.submitFailed"),
   };
@@ -54,6 +59,8 @@ export async function submitContactFormAction(
     logMessage.warn("Server side validation failed for contact form");
     return genericErrorResponse;
   }
+
+  const { fullName, email, issueType, message } = validationResult.output;
 
   const captchaResult = await verifyHCaptchaToken(command.captchaToken, {
     secret: process.env.HCAPTCHA_SECRET,
@@ -71,11 +78,14 @@ export async function submitContactFormAction(
     return genericErrorResponse;
   }
 
+  const issueTypeLabel = t(ISSUE_TYPE_I18N_KEYS[issueType as ContactUsIssueType]);
+  const description = `${t("issueTypeLabel")}: ${issueTypeLabel}\n\n${message}`;
+
   const result = await createFreshdeskTicket({
-    fullName: command.fullName,
-    email: command.email,
-    issueType: command.issueType as ContactUsIssueType,
-    message: command.message,
+    fullName,
+    email,
+    message: description,
+    language,
   });
 
   if ("error" in result) {

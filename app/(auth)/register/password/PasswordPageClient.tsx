@@ -32,12 +32,8 @@ export function PasswordPageClient({ passwordComplexitySettings }: Props) {
   }, [isHydrated, registrationData, router]);
 
   // Show nothing while hydrating from sessionStorage
-  if (!isHydrated) {
-    return null;
-  }
-
   // Show nothing while redirecting (no registration data and didn't submit)
-  if (!registrationData) {
+  if (!isHydrated || !registrationData) {
     return null;
   }
 
