@@ -9,7 +9,12 @@ import { addHumanUser, getLoginSettings } from "@lib/zitadel";
 
 import { setupServerActionContext } from "../../../test/helpers/serverAction";
 
+import { sendVerificationEmail } from "./verify/action";
 import { registerUser } from "./actions";
+
+vi.mock("./verify/action", () => ({
+  sendVerificationEmail: vi.fn(),
+}));
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
@@ -67,6 +72,7 @@ describe("registerUser", () => {
 
     vi.mocked(validateAccountWithPassword).mockResolvedValue({ success: true } as never);
     vi.mocked(addHumanUser).mockResolvedValue({ userId: "user-123" } as never);
+    vi.mocked(sendVerificationEmail).mockResolvedValue({ success: true });
     vi.mocked(getLoginSettings).mockResolvedValue({
       passwordCheckLifetime: BigInt(600),
       defaultRedirectUri: "https://forms.example",
@@ -91,6 +97,7 @@ describe("registerUser", () => {
 
     expect(response).toEqual({ error: "translated:errors.couldNotCreateUser" });
     expect(addHumanUser).not.toHaveBeenCalled();
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
   });
 
   it("returns generic error when user creation fails", async () => {
@@ -99,6 +106,7 @@ describe("registerUser", () => {
     const response = await registerUser(baseCommand);
 
     expect(response).toEqual({ error: "translated:errors.couldNotCreateUser" });
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
   });
 
   it("returns session error when session cannot be created", async () => {
@@ -107,6 +115,7 @@ describe("registerUser", () => {
     const response = await registerUser(baseCommand);
 
     expect(response).toEqual({ error: "translated:errors.couldNotCreateSession" });
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
   });
 
   it("returns email verification redirect when required", async () => {
@@ -115,6 +124,12 @@ describe("registerUser", () => {
     });
 
     await expect(registerUser(baseCommand)).rejects.toThrow("NEXT_REDIRECT");
+    expect(sendVerificationEmail).toHaveBeenCalledExactlyOnceWith();
+    const sendOrder = vi.mocked(sendVerificationEmail).mock.invocationCallOrder[0];
+    expect(vi.mocked(createSessionAndUpdateCookie).mock.invocationCallOrder[0]).toBeLessThan(
+      sendOrder
+    );
+    expect(sendOrder).toBeLessThan(mockRedirect.mock.invocationCallOrder[0]);
     expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
   });
 

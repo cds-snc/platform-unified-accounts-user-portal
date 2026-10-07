@@ -16,6 +16,9 @@ import { validateAccountWithPassword } from "@lib/validation/validationSchemas";
 import { checkEmailVerification } from "@lib/verify-helper";
 import { addHumanUser } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
+
+import { sendVerificationEmail } from "./verify/action";
+
 type RegisterUserCommand = {
   email: string;
   firstName: string;
@@ -83,6 +86,9 @@ export async function registerUser(command: RegisterUserCommand) {
         `[Registration Error] Could not complete registration flow for ${session.factors.user.loginName}`
       );
     }
+
+    // Send the verification email to the newly registered user
+    await sendVerificationEmail();
   } catch (e) {
     logMessage.error(
       `[Registration Error] Could not complete registration flow for ${command.email}`,
