@@ -213,7 +213,9 @@ export function PasswordValidationForm({
           </div>
         </div>
 
-        <SubmitButtonAction>{t("button.continue", { ns: "common" })}</SubmitButtonAction>
+        <SubmitButtonAction dataTestId="password-validation-continue">
+          {t("button.continue", { ns: "common" })}
+        </SubmitButtonAction>
       </form>
     </>
   );

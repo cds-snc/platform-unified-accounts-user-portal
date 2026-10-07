@@ -9,6 +9,7 @@ import { Image } from "@components/ui/image/Image";
 
 type Props = {
   method: string;
+  dataTestId?: string;
   title: string;
   icon: string;
   description: string;
@@ -21,6 +22,7 @@ type Props = {
 
 export function MethodOptionCard({
   method,
+  dataTestId,
   title,
   icon,
   description,
@@ -50,6 +52,7 @@ export function MethodOptionCard({
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      data-testid={dataTestId}
       data-type={method}
     >
       <div className="flex items-start justify-between gap-4">
