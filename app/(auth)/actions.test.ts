@@ -18,6 +18,7 @@ import {
   getUserByID,
   listAuthenticationMethodTypes,
 } from "@lib/zitadel";
+import { parseZitadelError } from "@lib/zitadel-errors";
 
 import { setupServerActionContext } from "../../test/helpers/serverAction";
 
@@ -91,6 +92,10 @@ vi.mock("@lib/server/auth-flow", () => ({
   completeFlowAndRedirect: vi.fn(),
 }));
 
+vi.mock("@lib/zitadel-errors", () => ({
+  parseZitadelError: vi.fn(),
+}));
+
 describe("submitLoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -125,6 +130,7 @@ describe("submitLoginForm", () => {
     } as never);
     vi.mocked(getLockoutSettings).mockResolvedValue({ maxPasswordAttempts: BigInt(5) } as never);
     vi.mocked(checkPasswordChangeRequired).mockResolvedValue(undefined);
+    vi.mocked(parseZitadelError).mockReturnValue({ code: 3, text: "" } as never);
   });
 
   it("returns generic error when validation fails", async () => {
@@ -149,6 +155,24 @@ describe("submitLoginForm", () => {
     });
 
     expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+  });
+
+  it("redirects to deactivated page when user account is not active", async () => {
+    const notActiveError = new Error("User is not active");
+    vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(notActiveError);
+    vi.mocked(parseZitadelError).mockReturnValue({
+      code: 3,
+      text: "errors.user.notactive",
+    });
+
+    await expect(
+      submitLoginForm({
+        username: "person@canada.ca",
+        password: "P@ssw0rd",
+      })
+    ).rejects.toThrow("NEXT_REDIRECT");
+
+    expect(mockRedirect).toHaveBeenCalledWith("/deactivated");
   });
 
   it("returns generic error when session has no user id", async () => {
