@@ -94,7 +94,6 @@
         "maxLengthLastname": "Last name must be less than 251 characters."
       }
     },
-
     "authentication": {
       "title": "Security verification",
       "password": "Password",
