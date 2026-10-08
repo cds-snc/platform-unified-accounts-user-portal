@@ -41,9 +41,9 @@ vi.mock("./lib/service", () => ({
 }));
 
 function makeRequest(pathname: string, headers: Record<string, string> = {}): NextRequest {
-  const url = `http://localhost:3000${pathname}`;
+  const url = `http://localhost:3002${pathname}`;
   return new NextRequest(url, {
-    headers: { host: "localhost:3000", ...headers },
+    headers: { host: "localhost:3002", ...headers },
   });
 }
 
