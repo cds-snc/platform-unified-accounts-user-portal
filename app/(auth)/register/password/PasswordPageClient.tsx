@@ -44,6 +44,7 @@ export function PasswordPageClient({ passwordComplexitySettings }: Props) {
       firstname={registrationData?.firstname ?? ""}
       lastname={registrationData?.lastname ?? ""}
       requestId={registrationData?.requestId}
+      inviteCode={registrationData?.inviteCode}
     />
   );
 }
