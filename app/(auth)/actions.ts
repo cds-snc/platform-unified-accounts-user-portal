@@ -65,7 +65,6 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
     const parsedError = parseZitadelError(error);
 
-    // Disabled (not active) and locked-out users get the same message
     if (/errors\.user\.(notactive|locked)/.test(parsedError.text)) {
       accountLocked = true;
     }
