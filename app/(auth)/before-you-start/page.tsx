@@ -21,6 +21,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     <div data-request-id={requestId}>
       <AuthPanel
         titleI18nKey="none"
+        pageTitleI18nKey="title"
         descriptionI18nKey=""
         namespace="beforeYouStart"
         variant="narrow"
