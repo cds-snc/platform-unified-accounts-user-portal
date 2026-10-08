@@ -346,6 +346,10 @@
     "methods": {
       "password": "Password"
     },
+    "closed": {
+      "title": "No registration at this time",
+      "description": "Unfortunately registration is currently closed."
+    },
     "title": "Create your account",
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
     "description": "We’re asking for this information as we’re transferring all GC Forms accounts to a new authentication provider.",
