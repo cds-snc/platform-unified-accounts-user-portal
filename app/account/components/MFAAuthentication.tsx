@@ -163,6 +163,7 @@ export const MFAAuthentication = ({
       <ToastContainer autoClose={false} containerId="account-authentication" />
       {mfaForDeletion && (
         <ConfirmDeleteMFADialog
+          authType={mfaForDeletion.id === "totp" ? "authenticator" : "securityKey"}
           mfaName={mfaForDeletion.name}
           handleClose={() => setMfaForDeletion(undefined)}
           handleConfirm={async () => {
