@@ -115,9 +115,9 @@
       "remove": "Retirer",
       "unknownDevice": "Appareil inconnu",
       "confirmRemove": {
-"title": "Confirmer la suppression de la méthode MFA",
-"confirm": "Supprimer",
-"cancel": "Annuler",
+        "title": "Confirmer la suppression de la méthode MFA",
+        "confirm": "Supprimer",
+        "cancel": "Annuler",
         "message": "Êtes-vous sûr de vouloir supprimer {{mfa}}",
         "securityKeyMessage": "Êtes-vous sûr de vouloir supprimer cette clé de sécurité: {{mfa}} ?"
       },
