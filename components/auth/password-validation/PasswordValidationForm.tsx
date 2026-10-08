@@ -128,6 +128,10 @@ export function PasswordValidationForm({
         className="w-full"
         action={formAction}
         noValidate
+        onSubmit={() => {
+          setWatchPassword("");
+          setDirty(false);
+        }}
         onChange={() => setDirty(true)}
       >
         <div className="mb-4 grid grid-cols-1 gap-4 pt-4">
