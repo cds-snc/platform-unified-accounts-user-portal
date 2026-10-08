@@ -133,11 +133,12 @@ export const UserNameForm = ({ requestId }: Props) => {
                   : "login-description"
               }
               invalid={hasError("username", state.validationErrors)}
+              data-testid="forgot-password-username"
             />
           </div>
         </div>
 
-        <SubmitButtonAction dataTestId="user-name-continue">
+        <SubmitButtonAction dataTestId="forgot-password-continue">
           {t("button.continue")}
         </SubmitButtonAction>
       </form>
