@@ -68,7 +68,7 @@ export function MethodOptionCard({
                 </>
               )}
             </div>
-            <div className="text-sm text-gray-600">{description}</div>
+            <div className="text-sm text-(--gcds-hint-text)">{description}</div>
           </div>
         </div>
         {isSelected && (
