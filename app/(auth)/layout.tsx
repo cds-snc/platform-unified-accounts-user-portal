@@ -32,7 +32,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <div
             className={`rounded-2xl border-1 border-gray-300 bg-white p-10 has-[#auth-panel-narrow]:w-118.75 tablet:w-164.5 has-[#auth-panel-narrow]:tablet:w-118.75 has-[#auth-panel-wide]:tablet:w-237.5 laptop:w-212.5 has-[#auth-panel-narrow]:laptop:w-118.75 has-[#auth-panel-wide]:laptop:w-[1200px]`}
           >
-            <main id="content" tabIndex={-1}>
+            <main id="content" tabIndex={-1} aria-labelledby="page-heading">
               <div className="mr-10 mb-6 inline-flex">
                 <SiteLink href="/" />
               </div>

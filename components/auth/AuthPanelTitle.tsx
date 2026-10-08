@@ -18,7 +18,7 @@ export const AuthPanelTitle = ({
   const { requestingAppName } = useRequestingApp();
   return (
     <div className={`mt-4 mb-6 ${className || ""}`}>
-      <h1 className="mb-0">
+      <h1 className="mb-0" id="page-heading">
         <I18n i18nKey={i18nKey} namespace={namespace} data={{ ...data, app: requestingAppName }} />
       </h1>
     </div>
