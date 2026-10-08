@@ -8,6 +8,3 @@ allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
-minimumReleaseAgeExclude:
-  # Renovate security update: next@16.3.8
-  - next@16.3.6 || 16.3.8
