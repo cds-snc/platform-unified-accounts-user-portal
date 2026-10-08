@@ -29,6 +29,7 @@
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "eslint",
+    "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:playwright": "playwright test",
     "test:playwright:ui": "playwright test --ui",
