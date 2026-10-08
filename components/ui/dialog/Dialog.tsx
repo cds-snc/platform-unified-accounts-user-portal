@@ -89,21 +89,21 @@ export const Dialog = ({
 
   return (
     <dialog
-      className="size-full bg-transparent bg-clip-padding p-0"
+      className="flex size-full items-center justify-center bg-transparent bg-clip-padding p-0 backdrop:bg-black/45"
       {...(title && { "aria-labelledby": `modal-title-${modalRandomId}` })}
       ref={dialogRef}
       data-testid="dialog"
     >
       <div
         className={cn(
-          `relative mt-6 max-h-[80%] max-w-[700px] overflow-y-auto rounded-xl border-1 border-slate-500 bg-white tablet:mx-auto tablet:mt-8 laptop:mt-24`,
+          `relative max-h-[80%] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-gray-300 bg-white shadow-xl`,
           className
         )}
       >
         {title && (
-          <div className="border-b-[0.5px] border-slate-500 bg-slate-50">
+          <div className="bg-white px-4 pt-4">
             <h2
-              className="mt-4! mb-4! ml-2! inline-block px-4 text-2xl!"
+              className="m-0! inline-block px-0 text-xl! font-bold"
               id={`modal-title-${modalRandomId}`}
               tabIndex={-1}
             >
@@ -113,11 +113,7 @@ export const Dialog = ({
         )}
 
         <>{children}</>
-        {actions && (
-          <div className="sticky bottom-0 flex border-t-[0.5px] border-slate-500 bg-white p-4">
-            {actions}
-          </div>
-        )}
+        {actions && <div className="sticky bottom-0 flex gap-2 bg-white p-4 pt-0">{actions}</div>}
         <Button
           theme="link"
           className="group absolute top-0 right-0 z-1000 mt-4 mr-4"

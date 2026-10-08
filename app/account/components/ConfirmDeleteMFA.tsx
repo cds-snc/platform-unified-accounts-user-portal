@@ -22,7 +22,6 @@ export const ConfirmDeleteMFADialog = ({
         {t("mfaAuthentication.confirmRemove.cancel")}
       </Button>
       <Button
-        className="ml-5"
         theme="destructive"
         onClick={() => {
           dialog.current?.close();
