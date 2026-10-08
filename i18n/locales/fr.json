@@ -336,6 +336,7 @@
       "emailDescription": "Entrez votre adresse courriel pour recevoir un code par courriel.",
       "totpRegisterDescription": "Scannez le code QR ou accédez au lien URL.",
       "copyLink": "Copier le lien de configuration",
+      "copied": "Copié",
       "submit": "Continuer",
       "genericError": "Nous n’avons pas pu configurer votre application d’authentification pour le moment. Veuillez réessayer.",
       "invalidCode": "Le code est invalide. Veuillez réessayer.",

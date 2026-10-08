@@ -32,13 +32,15 @@ export function CopyToClipboard({ value }: Props) {
         id="tooltip-ctc"
         type="button"
         aria-label={t("set.copyLink")}
-        onClick={() => {
-          copy(value);
-          setCopied(true);
+        onClick={async () => {
+          setCopied(await copy(value));
         }}
       >
         {!copied ? <CopyIcon className="size-5" /> : <CheckIcon className="size-5" />}
       </button>
+      <span role="status" className="sr-only">
+        {copied ? t("set.copied") : ""}
+      </span>
     </div>
   );
 }

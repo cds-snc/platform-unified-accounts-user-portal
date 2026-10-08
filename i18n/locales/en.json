@@ -331,6 +331,7 @@
       "emailDescription": "Enter your email address to receive a code via email.",
       "totpRegisterDescription": "Scan the QR Code or navigate to the URL link.",
       "copyLink": "Copy setup link",
+      "copied": "Copied",
       "submit": "Continue",
       "genericError": "We couldn’t set up your authenticator app right now. Please try again.",
       "invalidCode": "The code is invalid. Please try again.",
