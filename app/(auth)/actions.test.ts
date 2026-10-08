@@ -160,7 +160,7 @@ describe("submitLoginForm", () => {
   it.each([
     ["disabled", "errors.user.notactive"],
     ["locked out", "errors.user.locked"],
-  ])("returns the same account error when the user is %s", async (_label, zitadelError) => {
+  ])("returns account error when the user is %s", async (_label, zitadelError) => {
     vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(new Error(zitadelError));
     vi.mocked(parseZitadelError).mockReturnValue({
       code: 3,
