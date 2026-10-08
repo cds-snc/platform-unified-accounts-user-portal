@@ -19,7 +19,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
   return (
     <div className="">
       <div className="text-center">
-        <h1 className="mt-8 !mb-6">
+        <h1 id="page-heading" className="mt-8 !mb-6">
           <I18n i18nKey="title" namespace="error" />
         </h1>
         <Image

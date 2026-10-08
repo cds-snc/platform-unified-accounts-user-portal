@@ -14,7 +14,6 @@ import { AuthPanel } from "@components/auth/AuthPanel";
  * Local Relative
  *--------------------------------------------*/
 import { VerifyEmailForm } from "./components/VerifyEmailForm";
-import { sendVerificationEmail } from "./action";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -31,8 +30,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   if (!session.factors?.user?.id) {
     throw new Error("Used as a type guard to ensure user has id property");
   }
-  // Send the email while the page renders and loads
-  await sendVerificationEmail();
 
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="verify">

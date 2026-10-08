@@ -25,6 +25,7 @@ import { submitLoginForm } from "../actions";
 type Props = {
   requestId?: string;
   session?: Cookie;
+  isOtherSession?: boolean;
 };
 
 type FormState = {
@@ -36,7 +37,7 @@ type FormState = {
   validationErrors?: { fieldKey: string; fieldValue: string }[];
 };
 
-export function LoginForm({ requestId, session }: Props) {
+export function LoginForm({ requestId, session, isOtherSession = false }: Props) {
   const { t } = useTranslation(["start", "common"]);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -146,7 +147,7 @@ export function LoginForm({ requestId, session }: Props) {
               type={"email"}
               id={"username"}
               required
-              autoComplete={"email"}
+              autoComplete={isOtherSession ? "off" : "email"}
               defaultValue={state.formData?.username}
               ariaDescribedbyIds={
                 hasError("username", state.validationErrors)
@@ -174,7 +175,7 @@ export function LoginForm({ requestId, session }: Props) {
               type={"password"}
               id={"password"}
               required
-              autoComplete={"current-password"}
+              autoComplete={isOtherSession ? "off" : "current-password"}
               ariaDescribedbyIds={
                 hasError("password", state.validationErrors) ? ["errorMessagePassword"] : undefined
               }

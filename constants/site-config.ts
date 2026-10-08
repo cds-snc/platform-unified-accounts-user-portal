@@ -26,7 +26,7 @@ const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig 
 
 export const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
   dev: {
-    baseUrl: "http://localhost:3000",
+    baseUrl: "http://localhost:3002",
     links: createLinks(),
   },
   authStaging: {
