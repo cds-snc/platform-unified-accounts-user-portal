@@ -603,3 +603,14 @@ export async function getApplications(): Promise<
     );
   });
 }
+
+export async function verifyInviteCode(code: string, userId: string) {
+  const userService = await getServiceForHost("UserService");
+  return userService
+    .verifyInviteCode({
+      userId,
+      verificationCode: code,
+    })
+    .then(() => true)
+    .catch(() => false);
+}
