@@ -144,7 +144,7 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
                   ? ["login-description", "errorMessageUsername"]
                   : "login-description"
               }
-              invalid={hasError("password", state.validationErrors)}
+              invalid={hasError("username", state.validationErrors)}
               readonly={Boolean(session?.loginName)}
             />
           </div>
