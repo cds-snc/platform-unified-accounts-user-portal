@@ -85,9 +85,10 @@ jobs:
           PASSWORD: ${{ secrets.password }}
           TEST_CALLBACK_URL: ${{ secrets.test_callback_url }}
           TEST_CLIENT_ID: ${{ secrets.test_client_id }}
+          TEST_COMMAND: ${{ inputs.test_command }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
           ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
-        run: pnpm ${{ inputs.test_command }}
+        run: pnpm "$TEST_COMMAND"
 
       - name: Configure AWS credentials using OIDC
         if: failure() && steps.test.outcome == 'failure'
