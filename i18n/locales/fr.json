@@ -39,15 +39,12 @@
       "desc": "Conditions générales"
     },
     "terms-of-use": {
-      "link": "/fr/terms-of-use",
       "desc": "Conditions d'utilisation"
     },
     "sla": {
-      "link": "/fr/sla",
       "desc": "Accord sur les niveaux de service"
     },
     "support": {
-      "link": "/fr/support",
       "desc": "Soutien"
     },
     "contact-us": {
