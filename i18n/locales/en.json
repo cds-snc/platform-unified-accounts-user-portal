@@ -117,7 +117,8 @@
         "title": "Confirm the removal of this MFA method",
         "confirm": "Remove",
         "cancel": "Cancel",
-        "message": "Are you sure you want to remove {{mfa}}"
+        "message": "Are you sure you want to remove {{mfa}}",
+        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
       },
       "errors": {
         "cannotRemoveSecurityKey": "Cannot remove security key. At least one authentication method must be configured.",
