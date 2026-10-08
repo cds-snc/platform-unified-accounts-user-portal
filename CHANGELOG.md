@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.2.0...v1.3.0) (2026-10-08)
+
+
+### Features
+
+* add password reset flow tests ([#527](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/527)) ([2a49cd4](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/2a49cd47ae12bd7310b940c7bd348243f0db1289))
+
+
+### Bug Fixes
+
+* **deps:** update dependency next to v16.3.8 [security] ([#534](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/534)) ([7282056](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/7282056d64d41cbf9264fc24f3948dcf4bff24c3))
+* send email verification code as part of user create ([#532](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/532)) ([8751b0d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/8751b0d4b89b789e8fa7be3b690377613b5b9ba8))
+* target forgot password username field ([#536](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/536)) ([814e5ea](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/814e5eaed04bb8faa83ba6f97c0fca88f94247e5))
+
+
+### Miscellaneous Chores
+
+* add link to support page from reset email ([#535](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/535)) ([0177a42](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/0177a421c391b0654ff7257be244bdecc656025f))
+
 ## [1.2.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.1.0...v1.2.0) (2026-10-05)
 
 
