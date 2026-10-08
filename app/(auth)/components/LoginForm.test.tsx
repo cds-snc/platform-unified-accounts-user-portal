@@ -44,6 +44,23 @@ describe("LoginForm", () => {
     expect(forgotPasswordLink).toHaveAttribute("href", "/password/reset?requestId=abc123");
   });
 
+  it("disables autocomplete for the other-account session", () => {
+    render(<LoginForm requestId="abc123" isOtherSession />);
+
+    expect(screen.getByLabelText(/form\.label/i)).toHaveAttribute("autocomplete", "off");
+    expect(screen.getByLabelText(/form\.passwordLabel/i)).toHaveAttribute("autocomplete", "off");
+  });
+
+  it("uses autocomplete attributes for the default session", () => {
+    render(<LoginForm requestId="abc123" />);
+
+    expect(screen.getByLabelText(/form\.label/i)).toHaveAttribute("autocomplete", "email");
+    expect(screen.getByLabelText(/form\.passwordLabel/i)).toHaveAttribute(
+      "autocomplete",
+      "current-password"
+    );
+  });
+
   it("shows field validation errors and does not submit invalid form", async () => {
     render(<LoginForm requestId="abc123" />);
 

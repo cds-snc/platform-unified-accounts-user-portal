@@ -29,7 +29,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
           </NavMenu>
         </SiteHeader>
       </Suspense>
-      <main id="content" className="mx-auto max-w-285 px-6 py-2 laptop:px-0" tabIndex={-1}>
+      <main
+        id="content"
+        className="mx-auto max-w-285 px-6 py-2 laptop:px-0"
+        tabIndex={-1}
+        aria-labelledby="page-heading"
+      >
         <div className="mb-20 grid items-start gap-6 py-4 tablet:grid-cols-[22rem_1fr] tablet:gap-8">
           <aside className="w-full">
             <AccountNavigation />
