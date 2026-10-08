@@ -12,7 +12,7 @@
       "itemFallback": "Please check this field."
     },
     "gcForms": "GC Forms",
-    "externalLinkIconLabel": " (Opens destination in a new tab.)"
+    "externalLinkIconLabel": " (Opens in a new tab.)"
   },
   "error": {
     "title": "Something went wrong"
@@ -54,9 +54,9 @@
   },
   "versionUpdater": {
     "title": "New version available",
-    "description": "A new version of the app is available. It is recommended to refresh the page to get the latest updates and avoid any issues.",
+    "description": "A new version of the app is available. Refresh the page to get the latest updates.",
     "close": "Close",
-    "refreshNow": "Reload and Update"
+    "refreshNow": "Reload and update"
   },
   "account": {
     "title": "Account settings",
@@ -94,14 +94,13 @@
         "maxLengthLastname": "Last name must be less than 251 characters."
       }
     },
-
     "authentication": {
       "title": "Security verification",
       "password": "Password",
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "Other Verification",
+      "title": "Other verification method",
       "minimumNum": "(minimum one other)",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
@@ -121,7 +120,7 @@
         "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
       },
       "errors": {
-        "cannotRemoveSecurityKey": "Cannot remove security key. At least one additional authentication method must be configured.",
+        "cannotRemoveSecurityKey": "Cannot remove security key. At least one authentication method must be configured.",
         "failedToRemoveSecurityKey": "Failed to remove security key.",
         "failedToRemoveAuthApp": "Failed to remove authenticator app."
       }
@@ -209,7 +208,7 @@
       "errors": {
         "couldNotChangePassword": "Could not change password",
         "couldNotVerifyPassword": "Could not verify password",
-        "unknownError": "Unknown error"
+        "unknownError": "An error occurred."
       }
     },
     "create": {
@@ -242,7 +241,7 @@
       "mustMatch": "The passwords must match.",
       "equals": "Passwords must match.",
       "matches": "Matches",
-      "doesNotMatch": "The entries for password must match.",
+      "doesNotMatch": "The entries for password must match",
       "success": "Success",
       "requiredPasswordSuccess": "Valid password"
     },
@@ -267,7 +266,7 @@
       "couldNotResetPassword": "Could not reset password",
       "failedToAuthenticate": "Failed to authenticate. You had {failedAttempts} of {maxPasswordAttempts} password attempts. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Failed to authenticate.",
-      "accountLockedContactAdmin": " Contact your administrator to unlock your account",
+      "accountLockedContactAdmin": " Contact Support to unlock your account",
       "userNotFound": "User account not found in the system",
       "initialUserNotSupported": "Initial user not supported",
       "userInitialStateNotSupported": "User initial state is not supported",
