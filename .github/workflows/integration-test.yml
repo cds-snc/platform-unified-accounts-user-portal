@@ -15,6 +15,10 @@ on:
       portal_url:
         required: true
         type: string
+      test_command:
+        required: false
+        default: "test:playwright"
+        type: string
     secrets:
       log_analytics_workspace_id:
         required: true
@@ -83,7 +87,7 @@ jobs:
           TEST_CLIENT_ID: ${{ secrets.test_client_id }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
           ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
-        run: pnpm test:playwright
+        run: pnpm ${{ inputs.test_command }}
 
       - name: Configure AWS credentials using OIDC
         if: failure() && steps.test.outcome == 'failure'
