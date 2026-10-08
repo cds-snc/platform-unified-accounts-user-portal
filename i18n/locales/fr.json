@@ -153,8 +153,8 @@
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada.",
       "requiredPassword": "Le mot de passe est obligatoire.",
       "invalidCredentials": "Adresse courriel ou mot de passe invalide. Veuillez réessayer.",
-      "lockedOut": "Ce compte est désactivé ou n'existe pas, veuillez",
-      "lockedOutLink": "nous contacter"
+      "lockedOut": "Ce compte est verrouillé ou désactivé, veuillez",
+      "contactUsLink": "nous contacter"
     },
     "session": {
       "otherAccount": "Autre compte",

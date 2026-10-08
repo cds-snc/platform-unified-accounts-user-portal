@@ -111,9 +111,9 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
           <Alert type={ErrorStatus.ERROR} focussable={true} id="loginError">
             {state.error === accountLockedError ? (
               <>
-                {accountLockedError}{" "}
+                {state.error}{" "}
                 <Link href="/contact-us" data-testid="locked-contact-us">
-                  {t("validation.lockedOutLink", { ns: "start" })}
+                  {t("validation.contactUsLink", { ns: "start" })}
                 </Link>
                 .
               </>
