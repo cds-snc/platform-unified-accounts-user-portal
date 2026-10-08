@@ -1,7 +1,6 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { redirect } from "next/navigation";
 import { create } from "@zitadel/client";
 import {
   CreateCallbackRequestSchema,
@@ -91,15 +90,6 @@ export async function loginWithOIDCAndSession({
       // Final fallback keeps the user in a signed-in state within the portal.
       return { redirect: "/account" };
     } else {
-      if (
-        error &&
-        typeof error === "object" &&
-        "rawMessage" in error &&
-        typeof error.rawMessage === "string" &&
-        error.rawMessage.includes("NotActive")
-      ) {
-        redirect("/deactivated");
-      }
       return { error: "Unknown error occurred" };
     }
   }

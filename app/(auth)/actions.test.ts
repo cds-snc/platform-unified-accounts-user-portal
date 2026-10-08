@@ -157,12 +157,14 @@ describe("submitLoginForm", () => {
     expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
   });
 
-  it("returns locked out error when user account is not active", async () => {
-    const notActiveError = new Error("User is not active");
-    vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(notActiveError);
+  it.each([
+    ["disabled", "errors.user.notactive"],
+    ["locked out", "errors.user.locked"],
+  ])("returns the same account error when the user is %s", async (_label, zitadelError) => {
+    vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(new Error(zitadelError));
     vi.mocked(parseZitadelError).mockReturnValue({
       code: 3,
-      text: "errors.user.notactive",
+      text: zitadelError,
     });
 
     const response = await submitLoginForm({
