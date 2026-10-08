@@ -7,6 +7,7 @@ import { GCNotifyConnector } from "@gcforms/connectors";
  * Internal Aliases
  *--------------------------------------------*/
 import { getPasswordChangedTemplate } from "@lib/emailTemplates";
+import { SiteConfigService } from "@lib/site-config";
 import { getUserByID } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
@@ -49,7 +50,11 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
 
   try {
     const gcNotify = GCNotifyConnector.default(apiKey);
-    await gcNotify.sendEmail(email, templateId, getPasswordChangedTemplate());
+    const { baseUrl } = (await SiteConfigService.getInstance()).resolve();
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const contactUsUrl = `${baseUrl}${basePath}/contact-us`;
+
+    await gcNotify.sendEmail(email, templateId, getPasswordChangedTemplate(contactUsUrl));
 
     return { success: true };
   } catch (error) {
