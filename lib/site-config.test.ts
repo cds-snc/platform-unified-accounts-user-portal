@@ -63,6 +63,14 @@ describe("site-config", () => {
     });
   });
 
+  it("builds links with the configured base path", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("auth.cdssandbox.xyz");
+    process.env.NEXT_PUBLIC_BASE_PATH = "/auth";
+    const mocked = await SiteConfigService.getInstance();
+
+    expect(mocked.getSiteLink("/contact-us")).toBe("https://auth.cdssandbox.xyz/auth/contact-us");
+  });
+
   it("resolves forms-staging baseUrl from forms-staging host", async () => {
     vi.mocked(getOriginalHost).mockResolvedValue("https://forms-staging.cdssandbox.xyz/some/path");
     const mocked = await SiteConfigService.getInstance();

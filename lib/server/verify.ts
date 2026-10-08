@@ -50,9 +50,7 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
 
   try {
     const gcNotify = GCNotifyConnector.default(apiKey);
-    const { baseUrl } = (await SiteConfigService.getInstance()).resolve();
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    const contactUsUrl = `${baseUrl}${basePath}/contact-us`;
+    const contactUsUrl = (await SiteConfigService.getInstance()).getSiteLink("contact-us");
 
     await gcNotify.sendEmail(email, templateId, getPasswordChangedTemplate(contactUsUrl));
 
