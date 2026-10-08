@@ -6,7 +6,7 @@ import { validateAccount } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createTranslationStub } from "../../../../../test/helpers/client";
-import { registerUser } from "../../actions";
+import { completeInvite } from "../../actions";
 
 import { SetRegisterPasswordForm } from "./SetRegisterPasswordForm";
 
@@ -22,7 +22,7 @@ vi.mock("@lib/validation/validationSchemas", () => ({
 }));
 
 vi.mock("../../actions", () => ({
-  registerUser: vi.fn(() => Promise.resolve()),
+  completeInvite: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("../../context/RegistrationContext", () => ({
@@ -47,7 +47,7 @@ describe("SetRegisterPasswordForm", () => {
     email: "person@canada.ca",
     firstname: "Person",
     lastname: "Example",
-    requestId: "req-123",
+    inviteCode: "invite-code",
   };
 
   beforeEach(() => {
@@ -70,17 +70,17 @@ describe("SetRegisterPasswordForm", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "trigger-password-submit" }));
 
-    expect(registerUser).toHaveBeenCalledWith({
+    expect(completeInvite).toHaveBeenCalledWith({
       email: "person@canada.ca",
       firstName: "Person",
       lastName: "Example",
       password: "P@ssw0rd",
-      requestId: "req-123",
+      inviteCode: "invite-code",
     });
   });
 
   it("shows server returned error and does not redirect", async () => {
-    vi.mocked(registerUser).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
+    vi.mocked(completeInvite).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
 
     render(<SetRegisterPasswordForm {...baseProps} />);
 
@@ -93,7 +93,7 @@ describe("SetRegisterPasswordForm", () => {
 
   it("continues registration call even when account validation fails", async () => {
     vi.mocked(validateAccount).mockResolvedValue({ success: false } as never);
-    vi.mocked(registerUser).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
+    vi.mocked(completeInvite).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
 
     render(<SetRegisterPasswordForm {...baseProps} />);
 
@@ -102,6 +102,6 @@ describe("SetRegisterPasswordForm", () => {
     await waitFor(() => {
       expect(screen.getByText("errors.couldNotCreateUser")).toBeInTheDocument();
     });
-    expect(registerUser).toHaveBeenCalled();
+    expect(completeInvite).toHaveBeenCalled();
   });
 });
