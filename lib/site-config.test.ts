@@ -42,12 +42,12 @@ describe("site-config", () => {
   });
 
   it("resolves dev baseUrl from localhost host", async () => {
-    vi.mocked(getOriginalHost).mockResolvedValue("localhost:3000");
+    vi.mocked(getOriginalHost).mockResolvedValue("localhost:3002");
     const mocked = await SiteConfigService.getInstance();
     const config = mocked.resolve();
     expect(config).toEqual({
       id: "dev",
-      baseUrl: "http://localhost:3000",
+      baseUrl: "http://localhost:3002",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     });
   });
