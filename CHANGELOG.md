@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.4.0...v1.5.0) (2026-10-09)
+
+
+### Features
+
+* invite registration process ([#550](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/550)) ([41b0edd](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/41b0edd677f082b696f2e348e5812809dc0e4395))
+
 ## [1.4.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.3.0...v1.4.0) (2026-10-09)
 
 
