@@ -29,7 +29,7 @@ test.describe("register user flow", () => {
     );
   });
 
-  test("registration page is closed", async ({ page }) => {
+  test("registration page is closed", { tag: "@smoke" }, async ({ page }) => {
     await page.goto(portalUrl);
     await page.getByTestId("register-link").click();
     await expect(page.getByTestId("registration-closed")).toBeVisible();
