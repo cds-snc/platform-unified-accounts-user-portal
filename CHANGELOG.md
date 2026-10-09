@@ -1,5 +1,44 @@
 # Changelog
 
+## [1.4.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.3.0...v1.4.0) (2026-10-09)
+
+
+### Features
+
+* add prod integration tests ([#549](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/549)) ([cb67e4e](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/cb67e4ee30c7acaed3803ead1f540f4501cb33c8))
+
+
+### Bug Fixes
+
+* skip link references ([#540](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/540)) ([3c991fe](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/3c991fe8af924ce9c5fca79fd56edd54c87c7ae2))
+* skip link test timeouts ([#551](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/551)) ([c19befc](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c19befc622e9a7990fc7e6644509a703a8f4ecec))
+
+
+### Miscellaneous Chores
+
+* Translation strings check ([#538](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/538)) ([1697fe9](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/1697fe95b1f94403609f7daf5ea5ac3a33a204e3))
+* update security key text for remove dialog ([#539](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/539)) ([e4649e8](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/e4649e8396ebc32b9b4303b66eb73a43d14b7fb1))
+* updates style for dialog component ([#546](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/546)) ([672c30a](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/672c30a5cad437b03e410729b0cfbaa08f58f672))
+
+## [1.3.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.2.0...v1.3.0) (2026-10-08)
+
+
+### Features
+
+* add password reset flow tests ([#527](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/527)) ([2a49cd4](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/2a49cd47ae12bd7310b940c7bd348243f0db1289))
+
+
+### Bug Fixes
+
+* **deps:** update dependency next to v16.3.8 [security] ([#534](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/534)) ([7282056](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/7282056d64d41cbf9264fc24f3948dcf4bff24c3))
+* send email verification code as part of user create ([#532](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/532)) ([8751b0d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/8751b0d4b89b789e8fa7be3b690377613b5b9ba8))
+* target forgot password username field ([#536](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/536)) ([814e5ea](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/814e5eaed04bb8faa83ba6f97c0fca88f94247e5))
+
+
+### Miscellaneous Chores
+
+* add link to support page from reset email ([#535](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/535)) ([0177a42](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/0177a421c391b0654ff7257be244bdecc656025f))
+
 ## [1.2.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.1.0...v1.2.0) (2026-10-05)
 
 

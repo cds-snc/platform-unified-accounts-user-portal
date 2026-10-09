@@ -4,7 +4,7 @@ export const AllSet = () => {
   return (
     <>
       <div className="mb-8 flex items-center gap-3">
-        <h1 className="mb-0! text-4xl font-bold">
+        <h1 id="page-heading" className="mb-0! text-4xl font-bold">
           <I18n i18nKey="title" namespace="allSet" />
         </h1>
         <CircleCheckIcon className="size-10 fill-gcds-green-700" />

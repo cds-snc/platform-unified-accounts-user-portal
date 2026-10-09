@@ -16,6 +16,7 @@ export const TextInput = ({
   autoComplete,
   ariaDescribedbyIds,
   onChange,
+  dataTestId = "textInput",
   defaultValue = "",
   ref,
   invalid,
@@ -29,6 +30,7 @@ export const TextInput = ({
   autoComplete?: string;
   ariaDescribedbyIds?: string[] | string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  dataTestId?: string;
   defaultValue?: string;
   ref?: React.Ref<HTMLInputElement>;
   invalid?: boolean;
@@ -39,13 +41,13 @@ export const TextInput = ({
   return (
     <>
       <input
-        data-testid="textInput"
+        data-testid={dataTestId}
         className={classes}
         id={id}
         name={id}
         type={type}
         required={required}
-        autoComplete={autoComplete ? autoComplete : "off"}
+        autoComplete={autoComplete || "off"}
         placeholder={placeholder}
         defaultValue={defaultValue}
         onChange={onChange}

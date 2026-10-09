@@ -72,6 +72,7 @@ export const SignIn = ({ requestId, registerLink, allSessions }: SignInProps) =>
       {selectedSession || allSessions.size === 0 ? (
         <LoginForm
           requestId={requestId}
+          isOtherSession={selectedSession === "other"}
           session={
             selectedSession && selectedSession !== "other"
               ? allSessions.get(selectedSession)

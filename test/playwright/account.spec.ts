@@ -60,12 +60,11 @@ test.describe("account edit flow", () => {
     if (!registeredUser) {
       throw new Error("Registered user is required for this test");
     }
-    expect(registeredUser.email).toBeTruthy();
 
     await page.goto(portalUrl);
     await page.getByTestId("forgot-password").click();
-    await page.locator("#login #username").fill(registeredUser.email);
-    await page.getByTestId("user-name-continue").click();
+    await page.getByTestId("forgot-password-username").fill(registeredUser.email);
+    await page.getByTestId("forgot-password-continue").click();
 
     await expect(page).toHaveURL(/\/password\/reset\/verify/);
     await page.getByTestId("strong-factor-totp").click();
