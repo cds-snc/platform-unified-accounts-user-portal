@@ -20,7 +20,7 @@ test.describe("register user flow", () => {
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
     accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
     registerEmail = getRequiredEnv("REGISTER_EMAIL");
-    zitadelOrgId = getRequiredEnv("ZITADEL_ORGANIZATION");
+    zitadelOrgId = getRequiredEnv("ZITADEL_ORGANIZATION_ID");
   });
 
   test.afterAll(async () => {
