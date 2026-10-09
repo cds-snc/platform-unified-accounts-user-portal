@@ -306,3 +306,29 @@ export const validateContactForm = async (formEntries: { [k: string]: FormDataEn
 
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
 };
+
+export const validateInvite = async (rawInvite: string) => {
+  const inviteValidationSchema = v.pipe(
+    v.string(),
+    v.base64(),
+    v.transform((input) => {
+      try {
+        const decodedString = Buffer.from(input, "base64").toString("utf8");
+        return JSON.parse(decodedString);
+      } catch {
+        throw new Error("Failed to parse decoded string into JSON.");
+      }
+    }),
+    v.object({
+      inviteEmail: govEmailValidation(1),
+      inviteCode: v.pipe(
+        v.string(),
+        v.trim(),
+        v.minLength(3, "required"),
+        v.maxLength(7, "maxLength")
+      ),
+    })
+  );
+
+  return v.safeParse(inviteValidationSchema, rawInvite, { abortPipeEarly: true });
+};

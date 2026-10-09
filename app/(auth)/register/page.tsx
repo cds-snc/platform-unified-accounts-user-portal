@@ -6,6 +6,7 @@
  * Internal Aliases
  *--------------------------------------------*/
 import { SearchParams } from "@lib/utils";
+import { validateInvite } from "@lib/validation/validationSchemas";
 import { isValidGovEmail } from "@lib/validation/validators";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
@@ -28,7 +29,10 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     );
   }
 
-  if (!invite) {
+  // check if invite passes validation
+
+  const validationResult = await validateInvite(invite ?? "");
+  if (!validationResult.success) {
     return (
       <AuthPanel
         titleI18nKey="closed.title"
@@ -38,7 +42,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     );
   }
 
-  const { inviteEmail, inviteCode } = JSON.parse(Buffer.from(invite, "base64").toString("utf8"));
+  const { inviteEmail, inviteCode } = validationResult.output;
 
   if (!inviteEmail || !isValidGovEmail(inviteEmail) || !inviteCode) {
     return <ErrorComponent error={{ name: "Service Error", message: "No Invite Found" }} />;
