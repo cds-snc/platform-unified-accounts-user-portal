@@ -20,35 +20,33 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const searchParams = await props.searchParams;
   const { requestId, invite } = searchParams;
 
-  if (invite) {
-    const { inviteEmail, inviteCode } = JSON.parse(Buffer.from(invite, "base64").toString("utf8"));
-
-    if (!inviteEmail || !isValidGovEmail(inviteEmail) || !inviteCode) {
-      return <ErrorComponent error={{ name: "Service Error", message: "No Invite Found" }} />;
-    }
-
+  if (process.env.OPEN_REGISTRATION === "true") {
     return (
       <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="register">
-        <RegisterForm requestId={requestId} email={inviteEmail} inviteCode={inviteCode} />
+        <RegisterForm requestId={requestId} />
       </AuthPanel>
     );
   }
 
-  return (
-    <AuthPanel
-      titleI18nKey="closed.title"
-      descriptionI18nKey="closed.description"
-      namespace="register"
-    />
-  );
+  if (!invite) {
+    return (
+      <AuthPanel
+        titleI18nKey="closed.title"
+        descriptionI18nKey="closed.description"
+        namespace="register"
+      />
+    );
+  }
 
-  // Only uncomment the below once registration is open to all
-  // At that point this page can be refactored to better handle boths paths
-  /***********************************************************
+  const { inviteEmail, inviteCode } = JSON.parse(Buffer.from(invite, "base64").toString("utf8"));
+
+  if (!inviteEmail || !isValidGovEmail(inviteEmail) || !inviteCode) {
+    return <ErrorComponent error={{ name: "Service Error", message: "No Invite Found" }} />;
+  }
+
   return (
     <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="register">
-      <RegisterForm requestId={requestId} />
+      <RegisterForm requestId={requestId} email={inviteEmail} inviteCode={inviteCode} />
     </AuthPanel>
   );
-  *************************************************************/
 }

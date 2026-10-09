@@ -15,7 +15,7 @@ import { Alert, ErrorStatus } from "@components/ui/form";
 /*--------------------------------------------*
  * Parent Relative
  *--------------------------------------------*/
-import { completeInvite } from "../../actions";
+import { registerUser } from "../../actions";
 
 export function SetRegisterPasswordForm({
   passwordComplexitySettings,
@@ -23,6 +23,7 @@ export function SetRegisterPasswordForm({
   firstname,
   lastname,
   inviteCode,
+  requestId,
 }: {
   passwordComplexitySettings: PasswordComplexitySettings;
   email: string;
@@ -44,29 +45,12 @@ export function SetRegisterPasswordForm({
       setError(t("create.missingOrInvalidData.title"));
     }
 
-    /******************************
-     * Refactor below when full registration is available
-     */
-
-    // const response = await registerUser({
-    //   email,
-    //   firstName: firstname,
-    //   lastName: lastname,
-    //   password,
-    //   requestId,
-    //   inviteCode,
-    // });
-
-    if (!inviteCode) {
-      setError(t("create.missingOrInvalidData.title"));
-      return;
-    }
-
-    const response = await completeInvite({
+    const response = await registerUser({
       email,
       firstName: firstname,
       lastName: lastname,
       password,
+      requestId,
       inviteCode,
     });
 

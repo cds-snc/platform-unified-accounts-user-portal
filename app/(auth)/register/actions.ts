@@ -29,12 +29,22 @@ type RegisterUserCommand = {
   lastName: string;
   password: string;
   requestId?: string;
+  inviteCode?: string;
 };
 
 // When registration is open export the `registerUser` function
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function registerUser(command: RegisterUserCommand) {
+
+export async function registerUser(command: RegisterUserCommand) {
   const { t } = await serverTranslation("register");
+
+  if (process.env.OPEN_REGISTRATION !== "true") {
+    if (command.inviteCode) {
+      return completeInvite(command as CompleteInviteCommand);
+    }
+    return {
+      error: t("errors.couldNotCreateUser"),
+    };
+  }
 
   let redirectUrl = null;
 
@@ -106,15 +116,11 @@ async function registerUser(command: RegisterUserCommand) {
   redirect(redirectUrl.redirect, "push");
 }
 
-type CompleteInivteCommand = {
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
+interface CompleteInviteCommand extends RegisterUserCommand {
   inviteCode: string;
-};
+}
 
-export async function completeInvite(command: CompleteInivteCommand) {
+async function completeInvite(command: CompleteInviteCommand) {
   const { t } = await serverTranslation("register");
 
   let redirectUrl = null;

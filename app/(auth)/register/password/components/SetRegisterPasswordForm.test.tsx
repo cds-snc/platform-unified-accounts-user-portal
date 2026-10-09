@@ -6,7 +6,7 @@ import { validateAccount } from "@lib/validation/validationSchemas";
 import { useTranslation } from "@i18n";
 
 import { createTranslationStub } from "../../../../../test/helpers/client";
-import { completeInvite } from "../../actions";
+import { registerUser } from "../../actions";
 
 import { SetRegisterPasswordForm } from "./SetRegisterPasswordForm";
 
@@ -22,7 +22,7 @@ vi.mock("@lib/validation/validationSchemas", () => ({
 }));
 
 vi.mock("../../actions", () => ({
-  completeInvite: vi.fn(() => Promise.resolve()),
+  registerUser: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock("../../context/RegistrationContext", () => ({
@@ -70,7 +70,7 @@ describe("SetRegisterPasswordForm", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "trigger-password-submit" }));
 
-    expect(completeInvite).toHaveBeenCalledWith({
+    expect(registerUser).toHaveBeenCalledWith({
       email: "person@canada.ca",
       firstName: "Person",
       lastName: "Example",
@@ -80,7 +80,7 @@ describe("SetRegisterPasswordForm", () => {
   });
 
   it("shows server returned error and does not redirect", async () => {
-    vi.mocked(completeInvite).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
+    vi.mocked(registerUser).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
 
     render(<SetRegisterPasswordForm {...baseProps} />);
 
@@ -93,7 +93,7 @@ describe("SetRegisterPasswordForm", () => {
 
   it("continues registration call even when account validation fails", async () => {
     vi.mocked(validateAccount).mockResolvedValue({ success: false } as never);
-    vi.mocked(completeInvite).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
+    vi.mocked(registerUser).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
 
     render(<SetRegisterPasswordForm {...baseProps} />);
 
@@ -102,6 +102,6 @@ describe("SetRegisterPasswordForm", () => {
     await waitFor(() => {
       expect(screen.getByText("errors.couldNotCreateUser")).toBeInTheDocument();
     });
-    expect(completeInvite).toHaveBeenCalled();
+    expect(registerUser).toHaveBeenCalled();
   });
 });
