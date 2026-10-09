@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { confirm, intro, log, text } from "@clack/prompts";
+import { confirm, intro, log, select, text } from "@clack/prompts";
 import { GCNotifyConnector } from "@gcforms/connectors";
 
 import { getServiceForHost } from "@lib/service";
@@ -9,6 +9,9 @@ import { listUsers } from "@lib/zitadel";
 const apiKey = process.env.NOTIFY_API_KEY;
 const templateId = process.env.TEMPLATE_ID;
 const organizationId = process.env.ZITADEL_ORGANIZATION;
+const devHost = process.env.DEV_HOST_DOMAIN;
+const stagingHost = process.env.STAGING_HOST_DOMAIN;
+const productionHost = process.env.PRODUCTION_HOST_DOMAIN;
 
 function capitalizeFirstLetter(str: string) {
   if (!str) return ""; // Handle empty strings or null/undefined
@@ -18,8 +21,32 @@ function capitalizeFirstLetter(str: string) {
 const inviteMain = async () => {
   intro("Invite User: Checking all systems go...");
 
-  if (!apiKey || !templateId) {
-    log.error("Missing required Notify API or Template ID");
+  if (!apiKey || !templateId || !organizationId || !devHost || !stagingHost || !productionHost) {
+    log.error("Missing required Environment Variables");
+    return;
+  }
+
+  const envHost = await select({
+    message: "Please choose which environment we are inviting the user too:",
+    options: [
+      {
+        label: "Local Env",
+        value: devHost,
+      },
+      {
+        label: "Staging Env",
+        value: stagingHost,
+      },
+      {
+        label: "Production Env",
+        value: productionHost,
+      },
+    ],
+  });
+
+  if (typeof envHost === "symbol") {
+    log.warn("Exiting without selecting Environment");
+
     return;
   }
 
@@ -111,7 +138,7 @@ const inviteMain = async () => {
   **You're Invited | Vous êtes invités**
 
   You're invited to try out this new super cool GCPlatform single sign on service!
-  Click on this [registration link to continue](http://localhost:3002/register?invite=${registerParam})
+  Click on this [registration link to continue](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})
 
   ---
 
