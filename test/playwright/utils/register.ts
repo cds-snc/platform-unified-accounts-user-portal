@@ -47,6 +47,7 @@ export async function registerUser(
   const virtualAuthenticator =
     mfaType === MfaType.U2F ? await addVirtualAuthenticator(page) : undefined;
 
+  // Start registration flow
   if (registrationFlow === RegistrationType.INVITE) {
     const inviteCode = await createUserInvitation(email, accessToken, idpUrl, zitadelOrgId);
     const registerParam = Buffer.from(
@@ -56,12 +57,15 @@ export async function registerUser(
     const registrationUrl = new URL(`${portalUrl}/register`);
     registrationUrl.searchParams.set("invite", registerParam);
     await page.goto(registrationUrl.toString());
-  } else {
+  } else if (registrationFlow === RegistrationType.OPEN) {
     await page.goto(portalUrl);
     await expect(page.getByTestId("register-link")).toBeVisible();
     await page.getByTestId("register-link").click();
+  } else {
+    throw new Error(`Unsupported registration flow: ${registrationFlow}`);
   }
 
+  // Enter user details
   await expect(page.locator("#register-form #firstname")).toBeVisible();
   await page.locator("#register-form #firstname").fill("Integration");
   await page.locator("#register-form #lastname").fill("Test");
@@ -72,17 +76,20 @@ export async function registerUser(
   }
   await page.locator("#register-form button[type='submit']").click();
 
+  // Set password
   await expect(page.locator("#password-form #password")).toBeVisible();
   await page.locator("#password-form #password").fill(password);
   await page.locator("#password-form #confirmPassword").fill(password);
   await page.locator("#password-form button[type='submit']").click();
 
+  // Verify email
   await expect(page.locator("#verify-form #code")).toBeVisible();
   const userId = await getUserIdByEmail(email, accessToken, idpUrl);
   const emailVerificationCode = await getEmailVerificationCode(userId, accessToken, idpUrl);
   await page.locator("#verify-form #code").fill(emailVerificationCode);
   await page.locator("#verify-form button[type='submit']").click();
 
+  // Select MFA method
   await expect(page.locator("#mfa-select")).toBeVisible();
   const mfaOption = mfaType === "totp" ? "authenticator" : "securityKey";
   await page.locator(`#mfa-select div[data-type='${mfaOption}']`).click();
@@ -90,6 +97,7 @@ export async function registerUser(
 
   const registeredUser: RegisteredUser = { email, password, userId };
 
+  // Setup MFA
   if (mfaType === MfaType.TOTP) {
     const totpLink = page.getByTestId("totp-link");
     await expect(totpLink).toBeVisible();
@@ -105,6 +113,7 @@ export async function registerUser(
     throw new Error(`Unsupported MFA type: ${mfaType}`);
   }
 
+  // Complete registration
   await expect(page.getByTestId("all-set")).toBeVisible();
   await expect(page.getByTestId("continue-button")).toBeVisible();
   await page.getByTestId("continue-button").click();
@@ -113,6 +122,7 @@ export async function registerUser(
   await expect(page).toHaveURL(/\/account$/);
   await expect(page.getByTestId("account-email")).toHaveText(email);
 
+  // Store U2F credential
   if (mfaType === MfaType.U2F && virtualAuthenticator) {
     if (!virtualAuthenticator) {
       throw new Error("Expected a virtual authenticator for U2F registration");
