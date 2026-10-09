@@ -20,21 +20,13 @@ type YourAccountDropdownProps = {
   postLogoutRedirectUri?: string;
 };
 
-const DropdownMenuItem = ({
-  href,
-  text,
-  onClick,
-}: {
-  href: string;
-  text: string;
-  onClick?: () => void;
-}) => {
+const menuItemClass =
+  "block w-full rounded-md p-2 text-left text-sm text-black outline-none hover:bg-gcds-grayscale-600 hover:text-white focus:bg-gcds-grayscale-600 focus:text-white-default";
+
+const DropdownMenuItem = ({ href, text }: { href: string; text: string }) => {
   return (
-    <DropdownMenu.Item onClick={onClick} asChild>
-      <Link
-        className="block rounded-md p-2 text-sm text-black no-underline! outline-none visited:text-black hover:bg-gcds-grayscale-600 hover:text-white focus:bg-gcds-grayscale-600 focus:text-white-default"
-        href={href}
-      >
+    <DropdownMenu.Item asChild>
+      <Link className={`${menuItemClass} no-underline! visited:text-black`} href={href}>
         {text}
       </Link>
     </DropdownMenu.Item>
@@ -108,7 +100,11 @@ export const YourAccountDropdown = ({
               style={triggerWidth ? { width: triggerWidth } : undefined}
             >
               <DropdownMenuItem href={`/`} text={t("switchAccount")} />
-              <DropdownMenuItem href="#" onClick={handleLogout} text={t("logout")} />
+              <DropdownMenu.Item asChild onSelect={handleLogout}>
+                <button type="button" className={menuItemClass}>
+                  {t("logout")}
+                </button>
+              </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>

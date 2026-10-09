@@ -50,7 +50,7 @@ export function MethodOptionCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <Image src={getImageUrl(icon)} alt={title} width={32} height={32} className="mt-1" />
+          <Image src={getImageUrl(icon)} alt="" width={32} height={32} className="mt-1" />
           <div>
             <div className="font-bold">
               {title}
