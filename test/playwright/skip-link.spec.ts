@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { getRequiredEnv } from "./utils/utils";
 
-test("skip link moves keyboard focus to the main content", { tag: "@smoke" }, async ({ page }) => {
+test("skip link moves keyboard focus to the main content", async ({ page }) => {
   await page.goto(getRequiredEnv("PORTAL_URL"));
 
   const skipLink = page.locator("#skip-link");
