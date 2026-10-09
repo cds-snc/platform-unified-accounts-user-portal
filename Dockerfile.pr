@@ -31,8 +31,6 @@ ENV AWS_LWA_READINESS_CHECK_PATH=/healthy
 ENV HOSTNAME=localhost
 ENV PORT=3002
 ENV PR_REVIEW=true
-# Registration is invite-only by default; the integration tests register users without an invite
-ENV OPEN_REGISTRATION=true
 
 WORKDIR /src
 
