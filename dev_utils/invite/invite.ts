@@ -111,7 +111,7 @@ const inviteMain = async () => {
   **You're Invited | Vous êtes invités**
 
   You're invited to try out this new super cool GCPlatform single sign on service!
-  Click on this [registration link to continue](http://localhost:3002/invited?invite=${registerParam})
+  Click on this [registration link to continue](http://localhost:3002/register?invite=${registerParam})
 
   ---
 
