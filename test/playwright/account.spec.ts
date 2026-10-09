@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { type RegisteredUser, registerUser } from "./utils/register";
-import { MfaType } from "./utils/register";
+import { MfaType, RegistrationType } from "./utils/register";
 import { generateTOTP, getRequiredEnv } from "./utils/utils";
 import { deleteUserById, getPasswordResetCode, getZitadelAccessToken } from "./utils/zitadel";
 
@@ -12,6 +12,7 @@ test.describe("account edit flow", () => {
   let portalUrl: string;
   let serviceAccountKey: string;
   let registerEmail: string;
+  let zitadelOrgId: string;
   let accessToken: string;
   let registeredUser: RegisteredUser | null = null;
 
@@ -21,6 +22,7 @@ test.describe("account edit flow", () => {
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
     accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
     registerEmail = getRequiredEnv("REGISTER_EMAIL");
+    zitadelOrgId = getRequiredEnv("ZITADEL_ORGANIZATION");
   });
 
   test.afterAll(async () => {
@@ -36,7 +38,9 @@ test.describe("account edit flow", () => {
       idpUrl,
       accessToken,
       registerEmail,
+      zitadelOrgId,
       mfaType: MfaType.TOTP,
+      registrationFlow: RegistrationType.INVITE,
     });
 
     await page.getByTestId("account-name-change").click();

@@ -38,6 +38,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         titleI18nKey="closed.title"
         descriptionI18nKey="closed.description"
         namespace="register"
+        dataTestId="registration-closed"
       />
     );
   }

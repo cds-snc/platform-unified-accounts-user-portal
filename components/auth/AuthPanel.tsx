@@ -28,6 +28,7 @@ interface AuthPanelProps {
   wide?: boolean;
   variant?: "default" | "narrow" | "wide";
   requestId?: string;
+  dataTestId?: string;
 }
 
 export const AuthPanel = async ({
@@ -39,6 +40,7 @@ export const AuthPanel = async ({
   imageSrc,
   variant = "default",
   requestId,
+  dataTestId = "auth-panel",
 }: AuthPanelProps) => {
   const panelId =
     variant === "wide"
@@ -51,7 +53,7 @@ export const AuthPanel = async ({
 
   return (
     <RequestingAppProvider appName={callingApp}>
-      <div id={panelId}>
+      <div id={panelId} data-testid={dataTestId}>
         <PageTitle i18nKey={pageTitleI18nKey ?? titleI18nKey} namespace={namespace} />
         {imageSrc && (
           <div className="mb-6 flex justify-center">
