@@ -345,6 +345,10 @@
     "methods": {
       "password": "Mot de passe"
     },
+    "closed": {
+      "title": "FR - No registration at this time",
+      "description": "FR - Unfortunately registration is currently closed."
+    },
     "title": "Créer votre compte",
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
     "description": "Nous vous demandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",

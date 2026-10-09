@@ -11,6 +11,7 @@ type RegistrationData = {
   lastname: string;
   email: string;
   requestId?: string;
+  inviteCode?: string;
 };
 
 type RegistrationContextType = {
