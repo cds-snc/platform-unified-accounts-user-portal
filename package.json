@@ -32,6 +32,7 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:playwright": "playwright test",
+    "test:playwright:smoke": "playwright test --grep @smoke",
     "test:playwright:ui": "playwright test --ui",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
