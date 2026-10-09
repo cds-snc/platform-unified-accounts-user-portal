@@ -3,7 +3,7 @@ import * as oidc from "openid-client";
 
 import { generateTOTP, getRequiredEnv } from "./utils/utils";
 
-test.describe("login user flow", () => {
+test.describe("login user flow", { tag: "@smoke" }, () => {
   let portalUrl: URL;
   let testRedirectUri: URL;
   let testClientId: string;

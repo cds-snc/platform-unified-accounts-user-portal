@@ -1,6 +1,6 @@
 {
   "name": "platform-unified-accounts-user-portal",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "prettier": {
     "plugins": [
@@ -32,6 +32,7 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:playwright": "playwright test",
+    "test:playwright:smoke": "playwright test --grep @smoke",
     "test:playwright:ui": "playwright test --ui",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
