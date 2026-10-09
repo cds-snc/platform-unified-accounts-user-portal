@@ -2,6 +2,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { GCNotifyConnector } from "@gcforms/connectors";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -36,6 +37,11 @@ export async function sendAccountRestrictedEmail({ loginName }: { loginName: str
     }
 
     const user = users.result[0];
+
+    if (user.state !== UserState.INACTIVE && user.state !== UserState.LOCKED) {
+      return;
+    }
+
     const email = user.type.case === "human" ? user.type.value.email?.email : undefined;
     const emailVerified = user.type.case === "human" && user.type.value.email?.isVerified;
 
