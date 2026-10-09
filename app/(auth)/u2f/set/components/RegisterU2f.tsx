@@ -218,7 +218,7 @@ export function RegisterU2f({ sessionId, requestId }: Props) {
                 i18nKey="set.hint"
                 namespace="u2f"
                 tagName="div"
-                className="text-base font-normal text-gcds-grayscale-500"
+                className="text-base font-normal text-(--gcds-hint-text)"
               />
             }
           >

@@ -23,13 +23,10 @@ export const ExternalLink = ({
       <a target="_blank" rel="noopener noreferrer" href={href} aria-describedby={id}>
         {t(i18nKey, { ns: namespace, lng: currentLang })}{" "}
       </a>
-      <span
-        id={id}
-        className="gcds-icon gcds-icon-external ml-75"
-        role="img"
-        aria-label={t("externalLinkIconLabel", { ns: "common", lng: currentLang })}
-        aria-hidden="false"
-      ></span>
+      <span id={id} className="sr-only">
+        {t("externalLinkIconLabel", { ns: "common", lng: currentLang })}
+      </span>
+      <span className="gcds-icon gcds-icon-external ml-75" aria-hidden="true"></span>
     </div>
   );
 };

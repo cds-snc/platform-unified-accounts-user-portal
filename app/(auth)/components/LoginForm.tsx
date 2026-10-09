@@ -138,13 +138,14 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
               id={"username"}
               required
               autoComplete={isOtherSession ? "off" : "email"}
+              spellCheck={false}
               defaultValue={state.formData?.username}
               ariaDescribedbyIds={
                 hasError("username", state.validationErrors)
                   ? ["login-description", "errorMessageUsername"]
                   : "login-description"
               }
-              invalid={hasError("password", state.validationErrors)}
+              invalid={hasError("username", state.validationErrors)}
               readonly={Boolean(session?.loginName)}
             />
           </div>

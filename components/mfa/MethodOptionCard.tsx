@@ -36,28 +36,21 @@ export function MethodOptionCard({
     onSelect(method, url);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      handleClick();
-    }
-  };
-
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        "cursor-pointer rounded-md border-2 p-6 transition-all",
+        "w-full cursor-pointer rounded-md border-2 p-6 text-left transition-all",
         isSelected ? "border-gcds-blue-vivid bg-blue-50" : "border-gray-300 hover:border-gray-400"
       )}
       onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
+      aria-pressed={isSelected}
       data-testid={dataTestId}
       data-type={method}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <Image src={getImageUrl(icon)} alt={title} width={32} height={32} className="mt-1" />
+          <Image src={getImageUrl(icon)} alt="" width={32} height={32} className="mt-1" />
           <div>
             <div className="font-bold">
               {title}
@@ -68,19 +61,19 @@ export function MethodOptionCard({
                 </>
               )}
             </div>
-            <div className="text-sm text-gray-600">{description}</div>
+            <div className="text-sm text-(--gcds-hint-text)">{description}</div>
           </div>
         </div>
         {isSelected && (
           <Image
             src={getImageUrl("/img/check_24px.png")}
-            alt="Selected"
+            alt=""
             width={24}
             height={24}
             style={{ color: "" }}
           />
         )}
       </div>
-    </div>
+    </button>
   );
 }

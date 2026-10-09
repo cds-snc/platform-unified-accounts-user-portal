@@ -49,8 +49,8 @@ export const Button = ({
   const { t } = useTranslation("common");
 
   const disabledGreyClass = `
-    focus:bg-[#e2e8ef] focus:text-[#748094] focus:border-none focus:outline-offset-0 focus:outline-0
-    active:bg-[#e2e8ef] active:text-[#748094] active:border-none active:outline-offset-0 active:outline-0
+    focus:bg-gcds-grayscale-100 focus:text-gcds-grayscale-800 focus:border-none focus:outline-offset-0 focus:outline-0
+    active:bg-gcds-grayscale-100 active:text-gcds-grayscale-800 active:border-none active:outline-offset-0 active:outline-0
   `;
 
   return (
