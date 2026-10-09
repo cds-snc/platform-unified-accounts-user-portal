@@ -310,6 +310,8 @@ export const validateContactForm = async (formEntries: { [k: string]: FormDataEn
 export const validateInvite = async (rawInvite: string) => {
   const inviteValidationSchema = v.pipe(
     v.string(),
+    v.trim(),
+    v.minLength(1, "required"),
     v.base64(),
     v.transform((input) => {
       try {

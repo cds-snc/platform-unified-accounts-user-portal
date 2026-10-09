@@ -36,6 +36,8 @@ on:
         required: true
       totp_secret:
         required: true
+      zitadel_organization_id:
+        required: true
       zitadel_service_account_key:
         required: true
 
@@ -87,6 +89,7 @@ jobs:
           TEST_CLIENT_ID: ${{ secrets.test_client_id }}
           TEST_COMMAND: ${{ inputs.test_command }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
+          ZITADEL_ORGANIZATION_ID: ${{ secrets.zitadel_organization_id }}
           ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
         run: pnpm "$TEST_COMMAND"
 
