@@ -38,9 +38,11 @@ type FormState = {
 
 type Props = {
   requestId?: string;
+  email?: string;
+  inviteCode?: string;
 };
 
-export function RegisterForm({ requestId }: Props) {
+export function RegisterForm({ requestId, email, inviteCode }: Props) {
   const { t } = useTranslation(["register", "validation", "errorSummary", "common"]);
   const { getSiteLink } = useSiteConfig();
   const termsOfUseLink = getSiteLink("termsOfUse");
@@ -71,6 +73,7 @@ export function RegisterForm({ requestId }: Props) {
     setRegistrationData({
       ...validationResult.output,
       ...(requestId && { requestId }),
+      ...(inviteCode && { inviteCode }),
     });
     router.push(buildUrlWithRequestId("/register/password", requestId));
 
@@ -82,7 +85,7 @@ export function RegisterForm({ requestId }: Props) {
     formData: {
       firstname: "",
       lastname: "",
-      email: "",
+      email,
     },
   });
 
@@ -153,6 +156,7 @@ export function RegisterForm({ requestId }: Props) {
               autoComplete="email"
               required
               id="email"
+              readonly={Boolean(inviteCode)}
               defaultValue={state.formData?.email ?? ""}
               ariaDescribedbyIds={
                 hasError("email", state.validationErrors)

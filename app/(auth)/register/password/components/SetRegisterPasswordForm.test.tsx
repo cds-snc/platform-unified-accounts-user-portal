@@ -47,7 +47,7 @@ describe("SetRegisterPasswordForm", () => {
     email: "person@canada.ca",
     firstname: "Person",
     lastname: "Example",
-    requestId: "req-123",
+    inviteCode: "invite-code",
   };
 
   beforeEach(() => {
@@ -75,7 +75,7 @@ describe("SetRegisterPasswordForm", () => {
       firstName: "Person",
       lastName: "Example",
       password: "P@ssw0rd",
-      requestId: "req-123",
+      inviteCode: "invite-code",
     });
   });
 

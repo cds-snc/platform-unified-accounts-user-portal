@@ -22,6 +22,7 @@ export function SetRegisterPasswordForm({
   email,
   firstname,
   lastname,
+  inviteCode,
   requestId,
 }: {
   passwordComplexitySettings: PasswordComplexitySettings;
@@ -29,6 +30,7 @@ export function SetRegisterPasswordForm({
   firstname: string;
   lastname: string;
   requestId?: string;
+  inviteCode?: string;
 }) {
   const { t } = useTranslation(["password"]);
 
@@ -49,7 +51,12 @@ export function SetRegisterPasswordForm({
       lastName: lastname,
       password,
       requestId,
+      inviteCode,
     });
+
+    /*****
+     * End region
+     */
 
     if (response?.error) {
       setError(response.error);
