@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { getRequiredEnv } from "./utils/utils";
 
-test.describe("general user interface tests", () => {
+test.describe("user interface", { tag: "@smoke" }, () => {
   test("skip link moves keyboard focus to the main content", async ({ page }) => {
     await page.goto(getRequiredEnv("PORTAL_URL"));
 
