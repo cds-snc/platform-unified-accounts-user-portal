@@ -44,7 +44,8 @@
     "knip": "knip",
     "lint-staged": "lint-staged",
     "util:flow": "tsx ./dev_utils/oidc_flows/start.ts",
-    "util:account": "tsx ./dev_utils/account_management/manage.ts"
+    "util:account": "tsx ./dev_utils/account_management/manage.ts",
+    "util:invite": "tsx ./dev_utils/invite/invite.ts"
   },
   "dependencies": {
     "@cdssnc/sanitize-pii": "^2.2.0",
