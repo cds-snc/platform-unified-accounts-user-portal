@@ -2,7 +2,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
@@ -22,6 +21,7 @@ import { AuthPanel } from "@components/auth/AuthPanel";
 import { Alert } from "@components/ui/alert/Alert";
 import { BackButton } from "@components/ui/button/BackButton";
 import { Button } from "@components/ui/button/Button";
+import { LinkButton } from "@components/ui/button/LinkButton";
 
 /*--------------------------------------------*
  * Local Relative
@@ -136,11 +136,9 @@ export default async function Page(props: {
                 <I18n i18nKey="set.submit" namespace="otp" />
               </Button>
             ) : (
-              <Link href={urlToContinue}>
-                <Button>
-                  <I18n i18nKey="set.submit" namespace="otp" />
-                </Button>
-              </Link>
+              <LinkButton.Primary href={urlToContinue}>
+                <I18n i18nKey="set.submit" namespace="otp" />
+              </LinkButton.Primary>
             )}
           </div>
         )}
