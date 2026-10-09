@@ -146,9 +146,7 @@
       "maxLength": "Email address must be less than 255 characters.",
       "validGovEmail": "Enter a valid individual Government of Canada email address.",
       "requiredPassword": "Password is required.",
-      "invalidCredentials": "Invalid email address or password. Please try again.",
-      "lockedOut": "This account is locked out or disabled, please",
-      "contactUsLink": "contact us"
+      "invalidCredentials": "Invalid email address or password. Please try again."
     },
     "session": {
       "otherAccount": "Different account",

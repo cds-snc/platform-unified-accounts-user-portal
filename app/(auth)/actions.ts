@@ -5,6 +5,7 @@
  *--------------------------------------------*/
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
@@ -17,6 +18,7 @@ import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
 import { logMessage } from "@lib/logger";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { sendAccountRestrictedEmail } from "@lib/server/verify";
 import { loadActiveSession } from "@lib/session";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
@@ -72,7 +74,9 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   if (accountLocked) {
     logMessage.debug("Account is disabled or locked");
-    return { error: t("validation.lockedOut") };
+    // Same response as any other failure; the account owner is told by email instead
+    after(() => sendAccountRestrictedEmail({ loginName: username }));
+    return { error: t("validation.invalidCredentials") };
   }
 
   if (!session) {

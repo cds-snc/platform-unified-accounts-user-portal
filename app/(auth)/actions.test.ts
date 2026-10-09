@@ -9,6 +9,7 @@ import { loginWithOIDCAndSession } from "@lib/oidc";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { getSessionWithCookie } from "@lib/server/session";
+import { sendAccountRestrictedEmail } from "@lib/server/verify";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
 import { checkEmailVerification, checkPasswordChangeRequired } from "@lib/verify-helper";
 import {
@@ -26,6 +27,14 @@ import { continueOidcSessionSelection, submitLoginForm } from "./actions";
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
+}));
+
+vi.mock("next/server", () => ({
+  after: vi.fn((callback: () => unknown) => callback()),
+}));
+
+vi.mock("@lib/server/verify", () => ({
+  sendAccountRestrictedEmail: vi.fn(),
 }));
 
 vi.mock("@zitadel/client", () => ({
@@ -160,21 +169,25 @@ describe("submitLoginForm", () => {
   it.each([
     ["disabled", "errors.user.notactive"],
     ["locked out", "errors.user.locked"],
-  ])("returns account error when the user is %s", async (_label, zitadelError) => {
-    vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(new Error(zitadelError));
-    vi.mocked(parseZitadelError).mockReturnValue({
-      code: 3,
-      text: zitadelError,
-    });
+  ])(
+    "returns generic error and emails the owner when the user is %s",
+    async (_label, zitadelError) => {
+      vi.mocked(createSessionAndUpdateCookie).mockRejectedValue(new Error(zitadelError));
+      vi.mocked(parseZitadelError).mockReturnValue({
+        code: 3,
+        text: zitadelError,
+      });
 
-    const response = await submitLoginForm({
-      username: "person@canada.ca",
-      password: "P@ssw0rd",
-    });
+      const response = await submitLoginForm({
+        username: "person@canada.ca",
+        password: "P@ssw0rd",
+      });
 
-    expect(response).toEqual({ error: "translated:validation.lockedOut" });
-    expect(mockRedirect).not.toHaveBeenCalled();
-  });
+      expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+      expect(sendAccountRestrictedEmail).toHaveBeenCalledWith({ loginName: "person@canada.ca" });
+      expect(mockRedirect).not.toHaveBeenCalled();
+    }
+  );
 
   it("returns generic error when session has no user id", async () => {
     vi.mocked(createSessionAndUpdateCookie).mockResolvedValue({} as never);

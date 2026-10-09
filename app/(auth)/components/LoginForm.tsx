@@ -42,7 +42,6 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
 
   const [loading, setLoading] = useState<boolean>(false);
   const genericLoginError = t("validation.invalidCredentials", { ns: "start" });
-  const accountLockedError = t("validation.lockedOut", { ns: "start" });
 
   const localFormAction = async (previousState: FormState, formData?: FormData) => {
     setLoading(true);
@@ -109,21 +108,11 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
       {state.error && (
         <div className="py-4" data-testid="error">
           <Alert type={ErrorStatus.ERROR} focussable={true} id="loginError">
-            {state.error === accountLockedError ? (
-              <>
-                {state.error}{" "}
-                <Link href="/contact-us" data-testid="locked-contact-us">
-                  {t("validation.contactUsLink", { ns: "start" })}
-                </Link>
-                .
-              </>
-            ) : (
-              getSafeErrorMessage({
-                error: state.error,
-                fallback: genericLoginError,
-                allowedMessages: [genericLoginError],
-              })
-            )}
+            {getSafeErrorMessage({
+              error: state.error,
+              fallback: genericLoginError,
+              allowedMessages: [genericLoginError],
+            })}
           </Alert>
         </div>
       )}
