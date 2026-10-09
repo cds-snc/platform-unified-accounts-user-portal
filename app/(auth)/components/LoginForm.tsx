@@ -42,6 +42,7 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
 
   const [loading, setLoading] = useState<boolean>(false);
   const genericLoginError = t("validation.invalidCredentials", { ns: "start" });
+  const accountLockedError = t("validation.lockedOut", { ns: "start" });
 
   const localFormAction = async (previousState: FormState, formData?: FormData) => {
     setLoading(true);
@@ -111,7 +112,7 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
             {getSafeErrorMessage({
               error: state.error,
               fallback: genericLoginError,
-              allowedMessages: [genericLoginError],
+              allowedMessages: [genericLoginError, accountLockedError],
             })}
           </Alert>
         </div>
