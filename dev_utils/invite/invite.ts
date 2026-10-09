@@ -12,6 +12,7 @@ const organizationId = process.env.ZITADEL_ORGANIZATION;
 const devHost = process.env.DEV_HOST_DOMAIN;
 const stagingHost = process.env.STAGING_HOST_DOMAIN;
 const productionHost = process.env.PRODUCTION_HOST_DOMAIN;
+const zitadelApi = process.env.ZITADEL_API_URL;
 
 function capitalizeFirstLetter(str: string) {
   if (!str) return ""; // Handle empty strings or null/undefined
@@ -48,6 +49,32 @@ const inviteMain = async () => {
     log.warn("Exiting without selecting Environment");
 
     return;
+  }
+
+  // Guard Check to ensure that the Zitadel env is correctly set for the chosen environment.
+
+  switch (envHost) {
+    case devHost:
+    case stagingHost: {
+      if (!zitadelApi?.includes(stagingHost)) {
+        throw new Error(
+          "You are trying to use the wrong version of the Zitadel API for the Staging and Local Dev environment"
+        );
+      }
+      break;
+    }
+    case productionHost:
+      {
+        if (!zitadelApi?.includes(productionHost)) {
+          throw new Error(
+            "You are trying to use the wrong version of the Zitadel API for the Production environment"
+          );
+        }
+      }
+      break;
+    default: {
+      throw new Error("Environment does not match any of the known selections");
+    }
   }
 
   const userManagement = await getServiceForHost("UserService");
