@@ -19,10 +19,6 @@ type SendPasswordChangedEmailCommand = {
   userId: string;
 };
 
-/**
- * Emails the account owner that a sign-in was attempted on a locked or disabled account.
- * Never throws and never returns details, so the login response cannot reveal account state.
- */
 export async function sendAccountRestrictedEmail({ loginName }: { loginName: string }) {
   try {
     const apiKey = process.env.NOTIFY_API_KEY;
