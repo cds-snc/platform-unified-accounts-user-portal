@@ -20,7 +20,7 @@ import { AccountNavigation } from "./components/AccountNavigation";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-soft">
+    <div className="flex min-h-screen flex-col bg-gray-soft">
       <Suspense fallback={<SiteHeaderSkeleton />}>
         <SiteHeader>
           <NavMenu>
@@ -31,11 +31,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
       </Suspense>
       <main
         id="content"
-        className="mx-auto max-w-285 px-6 py-2 laptop:px-0"
+        className="mx-auto w-full max-w-285 flex-1 px-6 py-2 laptop:px-0"
         tabIndex={-1}
         aria-labelledby="page-heading"
       >
-        <div className="mb-20 grid items-start gap-6 py-4 tablet:grid-cols-[22rem_1fr] tablet:gap-8">
+        <div className="grid items-start gap-6 py-4 tablet:grid-cols-[22rem_1fr] tablet:gap-8">
           <aside className="w-full">
             <AccountNavigation />
           </aside>

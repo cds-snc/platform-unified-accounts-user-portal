@@ -66,6 +66,40 @@ export async function getZitadelAccessToken(
   return data.access_token;
 }
 
+export async function createUserInvitation(
+  email: string,
+  accessToken: string,
+  apiBaseUrl: string,
+  zitadelOrgId: string
+): Promise<string> {
+  const service = getUserService(accessToken, apiBaseUrl);
+  const { id: userId } = await service.createUser({
+    organizationId: zitadelOrgId,
+    username: email,
+    userType: {
+      case: "human",
+      value: {
+        email: {
+          email,
+          verification: { case: "isVerified", value: false },
+        },
+        profile: { givenName: "Integration", familyName: "Test" },
+      },
+    },
+  });
+
+  const { inviteCode } = await service.createInviteCode({
+    userId,
+    verification: { case: "returnCode", value: {} },
+  });
+
+  if (!inviteCode) {
+    throw new Error(`Unable to fetch invitation code for user ${userId}`);
+  }
+
+  return inviteCode;
+}
+
 export async function getUserIdByEmail(
   email: string,
   accessToken: string,
