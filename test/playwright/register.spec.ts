@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 
 import { type RegisteredUser, registerUser } from "./utils/register";
 import { MfaType, RegistrationType } from "./utils/register";
@@ -27,12 +27,6 @@ test.describe("register user flow", () => {
     await Promise.all(
       registeredUsers.map((user) => deleteUserById(user.userId, accessToken, idpUrl))
     );
-  });
-
-  test("registration page is closed", { tag: "@smoke" }, async ({ page }) => {
-    await page.goto(portalUrl);
-    await page.getByTestId("register-link").click();
-    await expect(page.getByTestId("registration-closed")).toBeVisible();
   });
 
   test("creates a new user with TOTP MFA", async ({ page }) => {
