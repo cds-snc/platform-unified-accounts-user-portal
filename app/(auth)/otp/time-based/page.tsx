@@ -5,7 +5,6 @@ import { SearchParams } from "@lib/utils";
  * Internal Aliases
  *--------------------------------------------*/
 import { AuthPanel } from "@components/auth/AuthPanel";
-import { MfaUnavailableCta } from "@components/mfa/MfaUnavailableCta";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
@@ -34,7 +33,6 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           displayName={sessionFactors.factors?.user?.displayName}
         />
       )}
-      <MfaUnavailableCta />
     </AuthPanel>
   );
 }
