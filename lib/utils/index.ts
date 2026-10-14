@@ -21,12 +21,12 @@ export function getSerializableObject<T>(obj: T): T {
   // Use JSON.stringify with a replacer function to filter properties
   const jsonString = JSON.stringify(obj, (_, value) => {
     // Exclude functions and symbols by returning undefined
-
     if (typeof value === "function" || typeof value === "symbol") {
       return undefined;
     }
-    // Handle other specific non-serializable types if necessary (e.g., DOM nodes)
-    // if (value instanceof jQuery) { return undefined; }
+
+    // Handle Buffer objects serialized by Node.js as { type: "Buffer", data: [...] }
+    // to make them accessible as plain arrays
     if (value?.type === "Buffer" && Array.isArray(value.data)) {
       return value.data;
     }
