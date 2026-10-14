@@ -27,6 +27,9 @@ export function getSerializableObject<T>(obj: T): T {
     }
     // Handle other specific non-serializable types if necessary (e.g., DOM nodes)
     // if (value instanceof jQuery) { return undefined; }
+    if (value?.type === "Buffer" && Array.isArray(value.data)) {
+      return value.data;
+    }
 
     // For all other serializable values, return them as is
     return value;

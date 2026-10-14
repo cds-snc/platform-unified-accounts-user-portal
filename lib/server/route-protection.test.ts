@@ -3,6 +3,7 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockRedirect } from "@root/test/mocks/next/navigation";
+import { EMAIL_VERIFIED_SESSION_METADATA_KEY } from "@lib/server/session";
 import { loadActiveSession } from "@lib/session";
 
 import {
@@ -19,6 +20,10 @@ vi.mock("@zitadel/client", () => ({
 vi.mock("@lib/session", () => ({
   loadMostRecentSession: vi.fn(),
   loadActiveSession: vi.fn(),
+}));
+
+vi.mock("@lib/server/session", () => ({
+  EMAIL_VERIFIED_SESSION_METADATA_KEY: "emailVerified",
 }));
 
 vi.mock("@lib/logger", () => ({
@@ -142,7 +147,7 @@ describe("route-protection", () => {
     expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
   });
 
-  it("allows initial MFA enrollment with a verified password", async () => {
+  it("allows initial MFA enrollment with session email verification", async () => {
     vi.mocked(loadActiveSession).mockResolvedValue({
       authMethods: [],
       factors: {
@@ -151,9 +156,67 @@ describe("route-protection", () => {
       },
       expirationDate: new Date(),
       emailVerified: true,
+      metadata: { [EMAIL_VERIFIED_SESSION_METADATA_KEY]: new Uint8Array([1]) },
     } as never);
 
     await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).resolves.toBeDefined();
+  });
+
+  it.each([
+    undefined,
+    {},
+    { other: new Uint8Array([1]) },
+    {
+      [EMAIL_VERIFIED_SESSION_METADATA_KEY]: new Uint8Array([0]),
+    },
+  ])("blocks initial enrollment without valid session email verification %j", async (metadata) => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [AuthenticationMethodType.PASSWORD],
+      factors: {
+        user: { id: "user-123" },
+        password: { verifiedAt: {} },
+      },
+      expirationDate: new Date(),
+      emailVerified: true,
+      requestId: "req-123",
+      metadata,
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
+  });
+
+  it("still requires a password when session email verification exists", async () => {
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [],
+      factors: { user: { id: "user-123" } },
+      expirationDate: new Date(),
+      emailVerified: true,
+      metadata: { [EMAIL_VERIFIED_SESSION_METADATA_KEY]: new Uint8Array([1]) },
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/");
+  });
+
+  it("rejects an expired session even with session email verification", async () => {
+    vi.mocked(timestampDate).mockReturnValue(new Date(Date.now() - 10_000));
+    vi.mocked(loadActiveSession).mockResolvedValue({
+      authMethods: [],
+      factors: { user: { id: "user-123" }, password: { verifiedAt: {} } },
+      expirationDate: new Date(),
+      emailVerified: true,
+      metadata: { [EMAIL_VERIFIED_SESSION_METADATA_KEY]: new Uint8Array([1]) },
+    } as never);
+
+    await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
+    expect(mockRedirect).toHaveBeenCalledWith("/");
   });
 
   it("requires strong MFA after a strong factor is registered", async () => {
