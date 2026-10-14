@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.5.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.4.0...v1.5.0) (2026-10-13)
+
+
+### Features
+
+* alert user if their account is locked or disabled ([#342](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/342)) ([8431cb3](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/8431cb33751fa76b4043498a0b83322552965cb7))
+* invite registration process ([#550](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/550)) ([41b0edd](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/41b0edd677f082b696f2e348e5812809dc0e4395))
+
+
+### Bug Fixes
+
+* stick account footer to screen bottom ([#556](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/556)) ([757c54c](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/757c54c2001306f7a74be584da68bb149dd2378e))
+* support open and invite only registration ([#553](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/553)) ([9eb6dc9](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/9eb6dc9c25dc88c18a574964f7531f85bb5900e1))
+
+
+### Miscellaneous Chores
+
+* **deps:** lock file maintenance ([#557](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/557)) ([8a25663](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/8a256633b86624fc736f82e46b84f5a0f5f6ba77))
+* **deps:** update all minor dependencies ([#555](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/555)) ([1a11dd6](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/1a11dd6a54eccb012cfe66740c016bedef0131e1))
+* **deps:** update all patch dependencies ([#554](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/554)) ([2a546d4](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/2a546d4de42abd69c0894a1dd2f5d69281842766))
+
 ## [1.4.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.3.0...v1.4.0) (2026-10-09)
 
 
