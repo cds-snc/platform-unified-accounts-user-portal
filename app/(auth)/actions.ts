@@ -104,7 +104,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   }
 
   // Check email verification status
-  const emailVerificationCheck = checkEmailVerification(session, humanUser, requestId);
+  const emailVerificationCheck = checkEmailVerification(humanUser, requestId);
 
   if (emailVerificationCheck?.redirect) {
     redirect(emailVerificationCheck?.redirect, "push");
