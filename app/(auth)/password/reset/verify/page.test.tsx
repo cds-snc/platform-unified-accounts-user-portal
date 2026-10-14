@@ -58,6 +58,7 @@ describe("password/reset/verify page", () => {
 
     await Page({ searchParams: Promise.resolve({ requestId: "request_12345" }) });
 
-    expect(redirect).toHaveBeenCalled();
+    expect(redirect).toHaveBeenCalledWith(expect.stringContaining("/contact-us"));
+    expect(redirect).not.toHaveBeenCalledWith(expect.stringContaining("/password/contact-us"));
   });
 });
