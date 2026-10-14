@@ -68,18 +68,6 @@ describe("ContactUsForm", () => {
     expect(select).toContainHTML("issueTypeOptions.other");
   });
 
-  it("leaves the issue type unselected by default", () => {
-    render(<ContactUsForm siteKey="site-key" />);
-
-    expect(screen.getByLabelText(/labels.issueType/i)).toHaveValue("");
-  });
-
-  it("preselects the issue type when defaultIssueType is provided", () => {
-    render(<ContactUsForm siteKey="site-key" defaultIssueType="mfa-issue" />);
-
-    expect(screen.getByLabelText(/labels.issueType/i)).toHaveValue("mfa-issue");
-  });
-
   it("shows validation errors when form is submitted empty", async () => {
     const user = userEvent.setup();
 

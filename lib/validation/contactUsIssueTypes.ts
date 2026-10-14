@@ -7,9 +7,6 @@ export const CONTACT_US_ISSUE_TYPES = [
 
 export type ContactUsIssueType = (typeof CONTACT_US_ISSUE_TYPES)[number];
 
-export const isContactUsIssueType = (value: unknown): value is ContactUsIssueType =>
-  typeof value === "string" && (CONTACT_US_ISSUE_TYPES as readonly string[]).includes(value);
-
 export const ISSUE_TYPE_I18N_KEYS: Record<ContactUsIssueType, string> = {
   "password-reset": "issueTypeOptions.passwordReset",
   "mfa-issue": "issueTypeOptions.mfaIssue",

@@ -13,6 +13,7 @@ import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protectio
 import type { SearchParams } from "@lib/utils";
 import { UserAvatar } from "@components/account/user-avatar";
 import { AuthPanel } from "@components/auth/AuthPanel";
+import { MfaUnavailableCta } from "@components/mfa/MfaUnavailableCta";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const { requestId } = await props.searchParams;
@@ -36,6 +37,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       />
       <div className="w-full">
         <LoginU2F requestId={requestId} />
+        <MfaUnavailableCta />
       </div>
     </AuthPanel>
   );

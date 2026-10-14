@@ -11,11 +11,7 @@ import { useHCaptcha } from "@gcforms/hcaptcha/client";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { cn } from "@lib/utils";
-import {
-  CONTACT_US_ISSUE_TYPES,
-  type ContactUsIssueType,
-  ISSUE_TYPE_I18N_KEYS,
-} from "@lib/validation/contactUsIssueTypes";
+import { CONTACT_US_ISSUE_TYPES, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
@@ -42,13 +38,7 @@ type FormState = {
   };
 };
 
-export function ContactUsForm({
-  siteKey,
-  defaultIssueType,
-}: {
-  siteKey: string;
-  defaultIssueType?: ContactUsIssueType;
-}) {
+export function ContactUsForm({ siteKey }: { siteKey: string }) {
   const {
     t,
     i18n: { language },
@@ -60,7 +50,7 @@ export function ContactUsForm({
     formData: {
       fullName: "",
       email: "",
-      issueType: defaultIssueType ?? "",
+      issueType: "",
       message: "",
     },
   };
