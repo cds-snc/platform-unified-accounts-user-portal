@@ -10,6 +10,7 @@ import {
   AuthLevel,
   checkAuthenticationLevel,
   checkSessionFactors,
+  requiresEmailVerificationInSession,
   requiresStrongMfaSetupVerification,
 } from "./route-protection";
 
@@ -84,6 +85,38 @@ describe("route-protection", () => {
         },
       } as never)
     ).toBe(false);
+  });
+
+  describe("requiresEmailVerificationInSession", () => {
+    it.each([undefined, [], [AuthenticationMethodType.PASSWORD]])(
+      "requires email verification without strong MFA or session metadata: %j",
+      (authMethods) => {
+        expect(requiresEmailVerificationInSession({ authMethods } as never)).toBe(true);
+      }
+    );
+
+    it.each([new Uint8Array([1]), [1]])(
+      "does not require email verification when verified in session: %j",
+      (value) => {
+        expect(
+          requiresEmailVerificationInSession({
+            authMethods: [],
+            metadata: { [EMAIL_VERIFIED_SESSION_METADATA_KEY]: value },
+          } as never)
+        ).toBe(false);
+      }
+    );
+
+    it.each([AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F])(
+      "does not require session email verification with configured strong MFA: %s",
+      (method) => {
+        expect(
+          requiresEmailVerificationInSession({
+            authMethods: [AuthenticationMethodType.PASSWORD, method],
+          } as never)
+        ).toBe(false);
+      }
+    );
   });
 
   it("fails basic session level when no session exists", async () => {

@@ -121,6 +121,20 @@ export function requiresStrongMfaSetupVerification(
 }
 
 /**
+ * Users without a configured strong MFA factor and without email verified in session require email verification.
+ */
+export function requiresEmailVerificationInSession(session: SessionWithAuthData): boolean {
+  const hasConfiguredStrongMFA =
+    session.authMethods?.some(
+      (method) =>
+        method === AuthenticationMethodType.TOTP || method === AuthenticationMethodType.U2F
+    ) ?? false;
+  const hasEmailVerifiedInSession =
+    session.metadata?.[EMAIL_VERIFIED_SESSION_METADATA_KEY]?.[0] === 1;
+  return !hasConfiguredStrongMFA && !hasEmailVerifiedInSession;
+}
+
+/**
  * Check if authentication level is satisfied
  */
 export async function checkAuthenticationLevel(
@@ -201,14 +215,7 @@ export async function checkAuthenticationLevel(
 
         redirect(buildUrlWithRequestId("/mfa", requestIdRef));
       }
-      const hasConfiguredStrongMFA = session.authMethods?.some(
-        (method) =>
-          method === AuthenticationMethodType.TOTP || method === AuthenticationMethodType.U2F
-      );
-      if (
-        !hasConfiguredStrongMFA &&
-        session.metadata?.[EMAIL_VERIFIED_SESSION_METADATA_KEY]?.[0] !== 1
-      ) {
+      if (requiresEmailVerificationInSession(session)) {
         logMessage.debug(
           `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified in session, Redirecting: "/register/verify"`
         );
