@@ -1,0 +1,26 @@
+"use client";
+/*--------------------------------------------*
+ * Internal Aliases
+ *--------------------------------------------*/
+import { I18n } from "@i18n";
+import { useRequestingApp } from "@components/contexts/RequestingAppContext";
+export const NextStepsTitle = ({
+  i18nKey,
+  namespace,
+  data,
+  className,
+}: {
+  i18nKey: string;
+  namespace: string;
+  data?: Record<string, unknown>;
+  className?: string;
+}) => {
+  const { requestingAppName } = useRequestingApp();
+  return (
+    <div className={`mt-4 mb-6 ${className || ""}`}>
+      <h1 className="mb-0 text-[24px] font-bold" id="page-heading">
+        <I18n i18nKey={i18nKey} namespace={namespace} data={{ ...data, app: requestingAppName }} />
+      </h1>
+    </div>
+  );
+};
