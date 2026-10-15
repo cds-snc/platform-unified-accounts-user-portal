@@ -13,6 +13,8 @@ import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_se
 import { logMessage } from "@lib/logger";
 import { loadActiveSession, SessionWithAuthData } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
+
+import { EMAIL_VERIFIED_SESSION_METADATA_KEY } from "./session";
 /**
  * Authentication levels for route protection
  */
@@ -119,6 +121,20 @@ export function requiresStrongMfaSetupVerification(
 }
 
 /**
+ * Users without a configured strong MFA factor and without email verified in session require email verification.
+ */
+export function requiresEmailVerificationInSession(session: SessionWithAuthData): boolean {
+  const hasConfiguredStrongMFA =
+    session.authMethods?.some(
+      (method) =>
+        method === AuthenticationMethodType.TOTP || method === AuthenticationMethodType.U2F
+    ) ?? false;
+  const hasEmailVerifiedInSession =
+    session.metadata?.[EMAIL_VERIFIED_SESSION_METADATA_KEY]?.[0] === 1;
+  return !hasConfiguredStrongMFA && !hasEmailVerifiedInSession;
+}
+
+/**
  * Check if authentication level is satisfied
  */
 export async function checkAuthenticationLevel(
@@ -183,7 +199,7 @@ export async function checkAuthenticationLevel(
       }
       return session;
     }
-    // Password is sufficient for initial enrollment. Once strong MFA is configured, it must be verified.
+    // Initial enrollment requires session email proof. Existing strong MFA must be verified if it exists.
     case AuthLevel.MFA_CHANGE_REQUIRED: {
       if (!factors.passwordVerified) {
         logMessage.debug(
@@ -198,6 +214,12 @@ export async function checkAuthenticationLevel(
         );
 
         redirect(buildUrlWithRequestId("/mfa", requestIdRef));
+      }
+      if (requiresEmailVerificationInSession(session)) {
+        logMessage.debug(
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified in session, Redirecting: "/register/verify"`
+        );
+        redirect(buildUrlWithRequestId("/register/verify", requestIdRef));
       }
       return session;
     }

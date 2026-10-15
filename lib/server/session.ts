@@ -3,7 +3,11 @@
  *--------------------------------------------*/
 import { Challenges, RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
-import { Checks, GetSessionResponse } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import {
+  Checks,
+  GetSessionResponse,
+  SetSessionRequest,
+} from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { logMessage } from "@lib/logger";
@@ -31,6 +35,8 @@ import {
 import { getOriginalHost } from "./host";
 
 import "server-only";
+
+export const EMAIL_VERIFIED_SESSION_METADATA_KEY = "emailVerified";
 
 /**
  * Load sessions with their corresponding cookies
@@ -117,6 +123,7 @@ type UpdateSessionCommand = {
   checks?: Checks;
   requestId?: string;
   challenges?: RequestChallenges;
+  metadata?: SetSessionRequest["metadata"];
 };
 
 export async function updateSession(options: UpdateSessionCommand): Promise<{
@@ -125,7 +132,7 @@ export async function updateSession(options: UpdateSessionCommand): Promise<{
   challenges?: Challenges;
   authMethods?: AuthenticationMethodType[];
 }> {
-  const { checks, requestId, challenges } = options;
+  const { checks, requestId, challenges, metadata } = options;
 
   const activeSession = await getActiveSessionCookie();
 
@@ -142,6 +149,7 @@ export async function updateSession(options: UpdateSessionCommand): Promise<{
     checks,
     challenges,
     requestId,
+    metadata,
   }).catch((error) => {
     const serializedError = serializeActionError(error, "Could not update session");
     logMessage.error("Failed to update session with checks/challenges", serializedError);

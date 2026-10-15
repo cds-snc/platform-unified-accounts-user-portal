@@ -12,6 +12,8 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
  *--------------------------------------------*/
 import { getSecurityCodeTemplate } from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
+import { EMAIL_VERIFIED_SESSION_METADATA_KEY } from "@lib/server/session";
+import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateCode } from "@lib/validation/validationSchemas";
 import { getUserByID, sendEmailCodeWithReturn, verifyEmail } from "@lib/zitadel";
@@ -121,6 +123,16 @@ export const checkVerificationCode = AuthenticatedAction(
 
     if (!verifyResponse) {
       return { error: t("errors.couldNotVerify") };
+    }
+
+    try {
+      await updateSession({
+        metadata: { [EMAIL_VERIFIED_SESSION_METADATA_KEY]: new Uint8Array([1]) },
+        requestId: command.requestId,
+      });
+    } catch (error) {
+      logMessage.error("Failed to record email verification on session", error);
+      return { error: t("errors.couldNotVerifyEmail") };
     }
 
     return { redirect: buildUrlWithRequestId("/mfa/set", command.requestId) };

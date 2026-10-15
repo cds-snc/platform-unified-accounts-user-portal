@@ -286,6 +286,10 @@
       "description": "Choisissez l'un des facteurs d'authentification suivants.",
       "noResults": "Aucun facteur secondaire disponible pour configuration."
     },
+    "unavailable": {
+      "text": "Si votre méthode d'authentification multifacteur n'est pas disponible, pour quelque raison que ce soit, veuillez",
+      "link": "nous contacter"
+    },
     "set": {
       "title": "Ajouter une méthode de vérification",
       "description": "Lors de la connexion, on vous demandera de confirmer votre identité d'une autre façon, comme couche de sécurité supplémentaire. Vous pourrez ajouter d'autres méthodes plus tard dans les paramètres de votre compte.",
@@ -329,6 +333,8 @@
       "totpDescription": "Scannez le code QR avec votre application d'authentification.",
       "emailDescription": "Entrez votre adresse courriel pour recevoir un code par courriel.",
       "totpRegisterDescription": "Scannez le code QR ou accédez au lien URL.",
+      "copyLink": "Copier le lien de configuration",
+      "copied": "Copié",
       "submit": "Continuer",
       "genericError": "Nous n’avons pas pu configurer votre application d’authentification pour le moment. Veuillez réessayer.",
       "invalidCode": "Le code est invalide. Veuillez réessayer.",

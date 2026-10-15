@@ -12,6 +12,7 @@ import { logMessage } from "@lib/logger";
 import { AuthLevel, checkAuthenticationLevel } from "@lib/server/route-protection";
 import { buildUrlWithRequestId, type SearchParams } from "@lib/utils";
 import { AuthPanel } from "@components/auth/AuthPanel";
+import { MfaUnavailableCta } from "@components/mfa/MfaUnavailableCta";
 import { StrongFactorSelection } from "@components/mfa/StrongFactorSelection";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
@@ -23,7 +24,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   if (!canUseTotp && !canUseU2F) {
     logMessage.info("Password reset recovery requires at least one strong MFA method");
-    redirect(buildUrlWithRequestId("/password/contact-us", requestId));
+    redirect(buildUrlWithRequestId("/contact-us", requestId));
   }
 
   return (
@@ -35,6 +36,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         u2fUrl="/password/reset/verify/u2f"
         requestId={requestId}
       />
+      <MfaUnavailableCta />
     </AuthPanel>
   );
 }

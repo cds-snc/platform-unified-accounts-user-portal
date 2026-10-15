@@ -2,9 +2,11 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
+import {
+  AuthenticationMethodType,
+  type RegisterTOTPResponse,
+} from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -22,6 +24,7 @@ import { AuthPanel } from "@components/auth/AuthPanel";
 import { Alert } from "@components/ui/alert/Alert";
 import { BackButton } from "@components/ui/button/BackButton";
 import { Button } from "@components/ui/button/Button";
+import { LinkButton } from "@components/ui/button/LinkButton";
 
 /*--------------------------------------------*
  * Local Relative
@@ -37,6 +40,10 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const { requestId } = searchParams;
   const session = await checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED, requestId);
+
+  if (session.authMethods.includes(AuthenticationMethodType.TOTP)) {
+    redirect(buildUrlWithRequestId("/mfa/set", requestId));
+  }
 
   const loginName = session.factors?.user?.loginName;
   const displayName = session.factors?.user?.displayName;
@@ -67,6 +74,10 @@ export default async function Page(props: {
       });
 
       mappedUiError = getZitadelUiError("otp.set", err);
+
+      if (mappedUiError?.i18nKey === "set.alreadySetUp") {
+        redirect(buildUrlWithRequestId("/mfa/set", requestId));
+      }
 
       error = err instanceof Error ? err : undefined;
     }
@@ -132,15 +143,13 @@ export default async function Page(props: {
             <span className="grow"></span>
 
             {shouldBlockContinue ? (
-              <Button disabled>
+              <Button disabled dataTestId="totp-setup-continue">
                 <I18n i18nKey="set.submit" namespace="otp" />
               </Button>
             ) : (
-              <Link href={urlToContinue}>
-                <Button>
-                  <I18n i18nKey="set.submit" namespace="otp" />
-                </Button>
-              </Link>
+              <LinkButton.Primary href={urlToContinue} data-testid="totp-setup-continue">
+                <I18n i18nKey="set.submit" namespace="otp" />
+              </LinkButton.Primary>
             )}
           </div>
         )}

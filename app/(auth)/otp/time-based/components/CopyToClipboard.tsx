@@ -9,6 +9,7 @@ import copy from "copy-to-clipboard";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { useTranslation } from "@i18n/client";
 import { CheckIcon } from "@components/icons/CheckIcon";
 import { CopyIcon } from "@components/icons/CopyIcon";
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function CopyToClipboard({ value }: Props) {
+  const { t } = useTranslation("otp");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -29,13 +31,16 @@ export function CopyToClipboard({ value }: Props) {
       <button
         id="tooltip-ctc"
         type="button"
-        onClick={() => {
-          copy(value);
-          setCopied(true);
+        aria-label={t("set.copyLink")}
+        onClick={async () => {
+          setCopied(await copy(value));
         }}
       >
         {!copied ? <CopyIcon className="size-5" /> : <CheckIcon className="size-5" />}
       </button>
+      <span role="status" className="sr-only">
+        {copied ? t("set.copied") : ""}
+      </span>
     </div>
   );
 }
