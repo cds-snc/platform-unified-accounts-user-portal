@@ -286,6 +286,10 @@
       "description": "Choisissez l'un des facteurs d'authentification suivants.",
       "noResults": "Aucun facteur secondaire disponible pour configuration."
     },
+    "unavailable": {
+      "text": "Si votre méthode d'authentification multifacteur n'est pas disponible, pour quelque raison que ce soit, veuillez",
+      "link": "nous contacter"
+    },
     "set": {
       "title": "Ajouter une méthode de vérification",
       "description": "Lors de la connexion, on vous demandera de confirmer votre identité d'une autre façon, comme couche de sécurité supplémentaire. Vous pourrez ajouter d'autres méthodes plus tard dans les paramètres de votre compte.",
