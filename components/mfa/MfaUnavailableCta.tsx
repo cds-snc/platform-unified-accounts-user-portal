@@ -1,3 +1,5 @@
+"use client";
+
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -6,10 +8,10 @@ import Link from "next/link";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { serverTranslation } from "@i18n/server";
+import { useTranslation } from "@i18n";
 
-export async function MfaUnavailableCta() {
-  const { t } = await serverTranslation("mfa");
+export function MfaUnavailableCta() {
+  const { t } = useTranslation("mfa");
 
   return (
     <p className="mt-8" data-testid="mfa-unavailable-cta">
