@@ -73,7 +73,6 @@ export const handleOTPFormSubmit = AuthenticatedAction(
         error: response.error,
       });
 
-      // Only return locale text; never forward raw upstream error strings to the client.
       return {
         validationErrors: undefined,
         error: mappedUiError ? t(mappedUiError.i18nKey) : t("set.genericError"),

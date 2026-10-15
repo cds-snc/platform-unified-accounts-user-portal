@@ -154,8 +154,6 @@ export async function updateSession(options: UpdateSessionCommand): Promise<{
     const serializedError = serializeActionError(error, "Could not update session");
     logMessage.error("Failed to update session with checks/challenges", serializedError);
 
-    // Rethrow the original error so callers can map Zitadel error details
-    // (e.g. invalid TOTP code) to user-facing messages.
     throw error;
   });
 
