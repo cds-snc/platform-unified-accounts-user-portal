@@ -12,7 +12,6 @@ import { QRCodeSVG } from "qrcode.react";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getZitadelUiError } from "@lib/zitadel-errors";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -39,7 +38,10 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
   const invalidCodeMessage = t("set.invalidCode");
   const invalidCodeLengthMessage = t("set.invalidCodeLength");
 
-  const localFormAction = async (previousState: FormState, formData?: FormData) => {
+  const localFormAction = async (
+    _previousState: FormState,
+    formData?: FormData
+  ): Promise<FormState> => {
     const code = formData?.get("code");
 
     if (typeof code !== "string") {
@@ -57,22 +59,11 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
       };
     }
 
-    return verifyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter })
-      .then(() => {
-        return previousState;
-      })
-      .catch((e) => {
-        const mappedUiError = getZitadelUiError("otp.verify", e);
-        if (mappedUiError) {
-          return {
-            error: t(mappedUiError.i18nKey),
-          };
-        }
+    const result = await verifyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter });
 
-        return {
-          error: genericErrorMessage,
-        };
-      });
+    return {
+      error: t(result.errorKey),
+    };
   };
   const [state, formAction, isPending] = useActionState(localFormAction, {});
 
