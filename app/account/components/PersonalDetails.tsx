@@ -161,58 +161,60 @@ export const PersonalDetails = ({
               onKeyDown={handleEscape}
               noValidate
             >
-              <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
-              <div className="mb-4 flex flex-col gap-4">
-                <div className="gcds-input-wrapper">
-                  <Label className="required" htmlFor="firstname" required>
-                    {t("personalDetails.firstName")}
-                  </Label>
-                  {hasError("firstname", state.validationErrors) && (
-                    <ErrorMessage id={"errorMessageFirstname"}>
-                      {getError("firstname", state.validationErrors)}
-                    </ErrorMessage>
-                  )}
-                  <TextInput
-                    className="w-full"
-                    type="text"
-                    id="firstname"
-                    autoComplete="given-name"
-                    ref={firstNameRef}
-                    required
-                    defaultValue={state.formData?.firstname ?? ""}
-                    ariaDescribedbyIds={
-                      hasError("firstname", state.validationErrors)
-                        ? ["errorMessageFirstname"]
-                        : undefined
-                    }
-                    invalid={hasError("firstname", state.validationErrors)}
-                  />
+              <fieldset>
+                <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
+                <div className="mb-4 flex flex-col gap-4">
+                  <div className="gcds-input-wrapper">
+                    <Label className="required" htmlFor="firstname" required>
+                      {t("personalDetails.firstName")}
+                    </Label>
+                    {hasError("firstname", state.validationErrors) && (
+                      <ErrorMessage id={"errorMessageFirstname"}>
+                        {getError("firstname", state.validationErrors)}
+                      </ErrorMessage>
+                    )}
+                    <TextInput
+                      className="w-full"
+                      type="text"
+                      id="firstname"
+                      autoComplete="given-name"
+                      ref={firstNameRef}
+                      required
+                      defaultValue={state.formData?.firstname ?? ""}
+                      ariaDescribedbyIds={
+                        hasError("firstname", state.validationErrors)
+                          ? ["errorMessageFirstname"]
+                          : undefined
+                      }
+                      invalid={hasError("firstname", state.validationErrors)}
+                    />
+                  </div>
+                  <div className="gcds-input-wrapper">
+                    <Label htmlFor="lastname" required>
+                      {t("personalDetails.lastName")}
+                    </Label>
+                    {hasError("lastname", state.validationErrors) && (
+                      <ErrorMessage id={"errorMessageLastname"}>
+                        {getError("lastname", state.validationErrors)}
+                      </ErrorMessage>
+                    )}
+                    <TextInput
+                      className="w-full"
+                      type="text"
+                      autoComplete="family-name"
+                      required
+                      id="lastname"
+                      defaultValue={state.formData?.lastname ?? ""}
+                      ariaDescribedbyIds={
+                        hasError("lastname", state.validationErrors)
+                          ? ["errorMessageLastname"]
+                          : undefined
+                      }
+                      invalid={hasError("lastname", state.validationErrors)}
+                    />
+                  </div>
                 </div>
-                <div className="gcds-input-wrapper">
-                  <Label htmlFor="lastname" required>
-                    {t("personalDetails.lastName")}
-                  </Label>
-                  {hasError("lastname", state.validationErrors) && (
-                    <ErrorMessage id={"errorMessageLastname"}>
-                      {getError("lastname", state.validationErrors)}
-                    </ErrorMessage>
-                  )}
-                  <TextInput
-                    className="w-full"
-                    type="text"
-                    autoComplete="family-name"
-                    required
-                    id="lastname"
-                    defaultValue={state.formData?.lastname ?? ""}
-                    ariaDescribedbyIds={
-                      hasError("lastname", state.validationErrors)
-                        ? ["errorMessageLastname"]
-                        : undefined
-                    }
-                    invalid={hasError("lastname", state.validationErrors)}
-                  />
-                </div>
-              </div>
+              </fieldset>
               <div className="flex gap-4">
                 {/* Could also specify the first and or last name being updated but this is probably clear enough */}
                 <SubmitButtonAction ariaDescribedBy="personal-details-title">

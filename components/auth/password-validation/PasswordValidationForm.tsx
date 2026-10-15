@@ -92,6 +92,7 @@ export function PasswordValidationForm({
     );
 
     if (!validationResult.success) {
+      setWatchPassword("");
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
@@ -129,7 +130,6 @@ export function PasswordValidationForm({
         action={formAction}
         noValidate
         onSubmit={() => {
-          setWatchPassword("");
           setDirty(false);
         }}
         onChange={() => setDirty(true)}
@@ -151,6 +151,9 @@ export function PasswordValidationForm({
                 type="text"
                 required
                 autoComplete="one-time-code"
+                ariaDescribedbyIds={
+                  hasError("code", state.validationErrors) ? "errorMessageCode" : undefined
+                }
                 invalid={hasError("code", state.validationErrors)}
               />
             </div>

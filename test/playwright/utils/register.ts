@@ -92,7 +92,7 @@ export async function registerUser(
   // Select MFA method
   await expect(page.locator("#mfa-select")).toBeVisible();
   const mfaOption = mfaType === "totp" ? "authenticator" : "securityKey";
-  await page.locator(`#mfa-select div[data-type='${mfaOption}']`).click();
+  await page.locator(`#mfa-select button[data-type='${mfaOption}']`).click();
   await page.locator("button#mfa-continue").click();
 
   const registeredUser: RegisteredUser = { email, password, userId };
