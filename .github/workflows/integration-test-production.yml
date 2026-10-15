@@ -32,6 +32,7 @@ jobs:
       test_callback_url: ${{ secrets.PROD_INTEGRATION_TEST_CALLBACK_URL }}
       test_client_id: ${{ secrets.PROD_INTEGRATION_TEST_CLIENT_ID }}
       totp_secret: ${{ secrets.PROD_INTEGRATION_TEST_TOTP_SECRET }}
+      zitadel_organization_id: ${{ secrets.PROD_INTEGRATION_TEST_ZITADEL_ORGANIZATION_ID }}
       zitadel_service_account_key: ${{ secrets.PROD_INTEGRATION_TEST_ZITADEL_SERVICE_ACCOUNT_KEY }}
 
   workflow-failure:
