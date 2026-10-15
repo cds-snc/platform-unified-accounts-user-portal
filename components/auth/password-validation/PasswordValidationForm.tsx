@@ -151,6 +151,9 @@ export function PasswordValidationForm({
                 type="text"
                 required
                 autoComplete="one-time-code"
+                ariaDescribedbyIds={
+                  hasError("code", state.validationErrors) ? "errorMessageCode" : undefined
+                }
                 invalid={hasError("code", state.validationErrors)}
               />
             </div>
