@@ -6,7 +6,7 @@ import { Duration, timestampMs } from "@zitadel/client";
 import { CredentialsCheckErrorSchema } from "@zitadel/proto/zitadel/message_pb";
 import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_pb";
 import { Session } from "@zitadel/proto/zitadel/session/v2/session_pb";
-import { Checks } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { Checks, SetSessionRequest } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 
 import { Cookie } from "@lib/cookies";
 import { addSessionToCookie, updateSessionCookie } from "@lib/cookies";
@@ -83,6 +83,7 @@ export async function setSessionAndUpdateCookie(command: {
   checks?: Checks;
   challenges?: RequestChallenges;
   requestId?: string;
+  metadata?: SetSessionRequest["metadata"];
 }) {
   const sessionLifetime = await getLoginSettings().then((settings) => {
     if (settings?.passwordCheckLifetime) {
@@ -100,6 +101,7 @@ export async function setSessionAndUpdateCookie(command: {
     challenges: command.challenges,
     checks: command.checks,
     lifetime: sessionLifetime,
+    metadata: command.metadata,
   }).catch(passwordAttemptsHandler);
 
   const { session } = await getSession(command.activeCookie.id, updatedSession.sessionToken);

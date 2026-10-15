@@ -5,7 +5,16 @@ import { UserAgentSchema } from "@zitadel/proto/zitadel/session/v2/session_pb";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createSessionFromChecks } from "./zitadel";
+import { createSessionFromChecks, getSession, setSession } from "./zitadel";
+
+vi.mock("@lib/cookies", () => ({
+  getActiveSessionCookie: vi.fn(),
+  updateSessionCookie: vi.fn(),
+}));
+
+vi.mock("@lib/server/host", () => ({
+  getOriginalHost: vi.fn().mockResolvedValue("idp.example"),
+}));
 
 vi.mock("@lib/service", () => ({
   getServiceForHost: vi.fn(),
@@ -96,5 +105,59 @@ describe("createSessionFromChecks", () => {
     });
 
     expect(mockCreateSession).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("session metadata", () => {
+  const mockSetSession = vi.fn();
+  const mockGetSession = vi.fn();
+  const lifetime: Duration = {
+    $typeName: "google.protobuf.Duration",
+    seconds: BigInt(60),
+    nanos: 0,
+  };
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const { getServiceForHost } = await import("@lib/service");
+    vi.mocked(getServiceForHost).mockResolvedValue({
+      setSession: mockSetSession,
+      getSession: mockGetSession,
+    });
+  });
+
+  it("forwards metadata when updating a session", async () => {
+    const metadata = { emailVerifiedInSession: new Uint8Array([1]) };
+    await setSession({
+      sessionId: "session-123",
+      sessionToken: "token-123",
+      challenges: undefined,
+      lifetime,
+      metadata,
+    });
+
+    expect(mockSetSession).toHaveBeenCalledWith(expect.objectContaining({ metadata }), {});
+  });
+
+  it("defaults to empty metadata for existing callers", async () => {
+    await setSession({
+      sessionId: "session-123",
+      sessionToken: "token-123",
+      challenges: undefined,
+      lifetime,
+    });
+
+    expect(mockSetSession).toHaveBeenCalledWith(expect.objectContaining({ metadata: {} }), {});
+  });
+
+  it("preserves the Buffer metadata marker through session serialization", async () => {
+    mockGetSession.mockResolvedValue({
+      session: { metadata: { emailVerifiedInSession: Buffer.from([1]) } },
+    });
+
+    const response = await getSession("session-123", "token-123");
+
+    expect(response.session?.metadata.emailVerifiedInSession[0]).toBe(1);
+    expect(response.session?.metadata.emailVerifiedInSession).toEqual([1]);
   });
 });

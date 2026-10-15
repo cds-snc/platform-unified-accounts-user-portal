@@ -18,6 +18,7 @@ import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_p
 import {
   Checks,
   CreateSessionResponse,
+  SetSessionRequest,
 } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb";
 import { ReturnPasswordResetCodeSchema } from "@zitadel/proto/zitadel/user/v2/password_pb";
@@ -142,12 +143,14 @@ export async function setSession({
   challenges,
   checks,
   lifetime,
+  metadata = {},
 }: {
   sessionId: string;
   sessionToken: string;
   challenges: RequestChallenges | undefined;
   checks?: Checks;
   lifetime: Duration;
+  metadata?: SetSessionRequest["metadata"];
 }) {
   const sessionService = await getServiceForHost("SessionService");
 
@@ -157,7 +160,7 @@ export async function setSession({
       sessionToken,
       challenges,
       checks: checks ? checks : {},
-      metadata: {},
+      metadata,
       lifetime,
     },
     {}
