@@ -77,4 +77,31 @@ describe("getZitadelUiError", () => {
 
     expect(result).toBeUndefined();
   });
+
+  it("maps otp.verify errors identified only by the error detail payload to invalidCode", () => {
+    const error = new ConnectError("Errors.Session.Totp.InvalidCode", Code.Unknown, undefined, [
+      {
+        desc: ErrorDetailSchema,
+        value: { id: "OTPInvalidCode", message: "invalid code" },
+      },
+    ]);
+
+    const result = getZitadelUiError("otp.verify", error);
+
+    expect(result).toEqual({ i18nKey: "set.invalidCode", blockContinue: undefined });
+  });
+
+  it("maps otp.verify length errors to invalidCodeLength before invalidCode", () => {
+    const error = new ConnectError("invalid value: value length must be 6", Code.InvalidArgument);
+
+    const result = getZitadelUiError("otp.verify", error);
+
+    expect(result).toEqual({ i18nKey: "set.invalidCodeLength", blockContinue: undefined });
+  });
+
+  it("returns undefined for string errors, which cannot be parsed", () => {
+    const result = getZitadelUiError("otp.verify", "Could not update Session");
+
+    expect(result).toBeUndefined();
+  });
 });
