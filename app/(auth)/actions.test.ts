@@ -6,12 +6,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { getSessionCookieById } from "@lib/cookies";
 import { loginWithOIDCAndSession } from "@lib/oidc";
-import { completeFlowAndRedirect } from "@lib/server/auth-flow";
+import { completeFlowAndRedirect, handleAbandonedRegistrationFlow } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { getSessionWithCookie } from "@lib/server/session";
 import { sendAccountRestrictedEmail } from "@lib/server/verify";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
-import { checkEmailVerification, checkPasswordChangeRequired } from "@lib/verify-helper";
+import { checkPasswordChangeRequired } from "@lib/verify-helper";
 import {
   getLockoutSettings,
   getLoginSettings,
@@ -72,7 +72,6 @@ vi.mock("@lib/validation/validationSchemas", () => ({
 }));
 
 vi.mock("@lib/verify-helper", () => ({
-  checkEmailVerification: vi.fn(),
   checkPasswordChangeRequired: vi.fn(),
 }));
 
@@ -99,10 +98,15 @@ vi.mock("@lib/logger", () => ({
 
 vi.mock("@lib/server/auth-flow", () => ({
   completeFlowAndRedirect: vi.fn(),
+  handleAbandonedRegistrationFlow: vi.fn(),
 }));
 
 vi.mock("@lib/zitadel-errors", () => ({
   parseZitadelError: vi.fn(),
+}));
+
+vi.mock("@lib/server/route-protection", () => ({
+  checkSessionFactors: vi.fn(),
 }));
 
 describe("submitLoginForm", () => {
@@ -132,8 +136,7 @@ describe("submitLoginForm", () => {
         },
       },
     } as never);
-
-    vi.mocked(checkEmailVerification).mockReturnValue(undefined);
+    vi.mocked(handleAbandonedRegistrationFlow).mockResolvedValue(undefined);
     vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({
       authMethodTypes: [{ type: "password" }],
     } as never);
@@ -231,8 +234,8 @@ describe("submitLoginForm", () => {
   });
 
   it("returns email verification redirect when required", async () => {
-    vi.mocked(checkEmailVerification).mockReturnValue({
-      redirect: "/register/verify?requestId=req-123",
+    vi.mocked(handleAbandonedRegistrationFlow).mockResolvedValue({
+      redirect: "/register/incomplete?requestId=req-123",
     });
 
     await expect(
@@ -243,7 +246,7 @@ describe("submitLoginForm", () => {
       })
     ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
+    expect(mockRedirect).toHaveBeenCalledWith("/register/incomplete?requestId=req-123");
   });
 
   it("returns generic error when no auth methods are available", async () => {

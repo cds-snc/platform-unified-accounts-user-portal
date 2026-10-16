@@ -206,7 +206,7 @@ describe("handleAbandonedRegistrationFlow", () => {
     expect(mockRedirect).not.toHaveBeenCalled();
   });
 
-  it("redirects to incomplete registration when email is unverified", async () => {
+  it("returns the incomplete registration redirect when email is unverified", async () => {
     vi.mocked(checkSessionFactors).mockReturnValue({
       hasUser: true,
       notExpired: true,
@@ -217,13 +217,17 @@ describe("handleAbandonedRegistrationFlow", () => {
     });
     setupActiveSessionMock([AuthenticationMethodType.TOTP]);
 
-    await expect(handleAbandonedRegistrationFlow(OIDC_REQUEST_ID)).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith(`/register/incomplete?requestId=${OIDC_REQUEST_ID}`);
+    await expect(handleAbandonedRegistrationFlow(OIDC_REQUEST_ID)).resolves.toEqual({
+      redirect: `/register/incomplete?requestId=${OIDC_REQUEST_ID}`,
+    });
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
-  it("redirects to incomplete registration when no strong MFA is configured", async () => {
-    await expect(handleAbandonedRegistrationFlow()).rejects.toThrow("NEXT_REDIRECT");
-    expect(mockRedirect).toHaveBeenCalledWith("/register/incomplete");
+  it("returns the incomplete registration redirect when no strong MFA is configured", async () => {
+    await expect(handleAbandonedRegistrationFlow()).resolves.toEqual({
+      redirect: "/register/incomplete",
+    });
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it.each([AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F])(

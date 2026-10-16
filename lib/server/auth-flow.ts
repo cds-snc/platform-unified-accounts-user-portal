@@ -121,6 +121,6 @@ export async function handleAbandonedRegistrationFlow(requestId?: string) {
     ) ?? false;
 
   if (!factors.emailVerified || !hasConfiguredStrongMFA) {
-    redirect(buildUrlWithRequestId("/register/incomplete", requestId), "push");
+    return { redirect: buildUrlWithRequestId("/register/incomplete", requestId) };
   }
 }

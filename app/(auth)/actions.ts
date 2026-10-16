@@ -107,7 +107,10 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
     return { error: t("validation.invalidCredentials") };
   }
 
-  await handleAbandonedRegistrationFlow(requestId);
+  const abandoned = await handleAbandonedRegistrationFlow(requestId);
+  if (abandoned?.redirect) {
+    redirect(abandoned.redirect, "push");
+  }
 
   // Check if password is expired and user has to change password first
   const passwordChangedCheck = await checkPasswordChangeRequired(
