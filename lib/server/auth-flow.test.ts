@@ -1,9 +1,11 @@
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockRedirect } from "@root/test/mocks/next/navigation";
 import { loginWithOIDCAndSession } from "@lib/oidc";
+import { loadActiveSession } from "@lib/session";
 
-import { completeFlowAndRedirect } from "./auth-flow";
+import { completeFlowAndRedirect, handleAbandonedRegistrationFlow } from "./auth-flow";
 import { checkSessionFactors } from "./route-protection";
 import { getSessionWithCookie } from "./session";
 
@@ -59,6 +61,10 @@ function setupSessionMock() {
     session: undefined,
     cookie: undefined,
   } as never);
+}
+
+function setupActiveSessionMock(authMethods: AuthenticationMethodType[]) {
+  vi.mocked(loadActiveSession).mockResolvedValue({ authMethods } as never);
 }
 
 /*--------------------------------------------*
@@ -177,4 +183,60 @@ describe("completeFlowAndRedirect", () => {
       expect(mockRedirect).toHaveBeenCalledWith("/callback");
     });
   });
+});
+
+describe("handleAbandonedRegistrationFlow", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupFactorsMock();
+    setupActiveSessionMock([]);
+  });
+
+  it("throws when the session has no user", async () => {
+    vi.mocked(checkSessionFactors).mockReturnValue({
+      hasUser: false,
+      notExpired: true,
+      passwordVerified: false,
+      totpVerified: false,
+      u2fVerified: false,
+      emailVerified: false,
+    });
+
+    await expect(handleAbandonedRegistrationFlow()).rejects.toThrow("No user on the session");
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it("returns the incomplete registration redirect when email is unverified", async () => {
+    vi.mocked(checkSessionFactors).mockReturnValue({
+      hasUser: true,
+      notExpired: true,
+      passwordVerified: false,
+      totpVerified: false,
+      u2fVerified: false,
+      emailVerified: false,
+    });
+    setupActiveSessionMock([AuthenticationMethodType.TOTP]);
+
+    await expect(handleAbandonedRegistrationFlow(OIDC_REQUEST_ID)).resolves.toEqual({
+      redirect: `/register/incomplete?requestId=${OIDC_REQUEST_ID}`,
+    });
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it("returns the incomplete registration redirect when no strong MFA is configured", async () => {
+    await expect(handleAbandonedRegistrationFlow()).resolves.toEqual({
+      redirect: "/register/incomplete",
+    });
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it.each([AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F])(
+    "does not redirect when email is verified and %s is configured",
+    async (authMethod) => {
+      setupActiveSessionMock([authMethod]);
+
+      await expect(handleAbandonedRegistrationFlow()).resolves.toBeUndefined();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    }
+  );
 });

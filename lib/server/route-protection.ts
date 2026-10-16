@@ -217,9 +217,9 @@ export async function checkAuthenticationLevel(
       }
       if (requiresEmailVerificationInSession(session)) {
         logMessage.debug(
-          `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified in session, Redirecting: "/register/verify"`
+          `[Authentication Level] Required: ${requiredLevel}, Reason: Email not verified in session, Redirecting: "/register/incomplete"`
         );
-        redirect(buildUrlWithRequestId("/register/verify", requestIdRef));
+        redirect(buildUrlWithRequestId("/register/incomplete", requestIdRef));
       }
       return session;
     }

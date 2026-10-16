@@ -218,7 +218,7 @@ describe("route-protection", () => {
     await expect(checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED)).rejects.toThrow(
       "NEXT_REDIRECT"
     );
-    expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
+    expect(mockRedirect).toHaveBeenCalledWith("/register/incomplete?requestId=req-123");
   });
 
   it("still requires a password when session email verification exists", async () => {
