@@ -61,7 +61,8 @@ describe("handleOTPFormSubmit", () => {
 
     const result = await handleOTPFormSubmit({ code: "123456", requestId: "request-123" });
 
-    expect(result.error).toBe("translated:set.invalidCode");
+    expect(result.errorKey).toBe("set.invalidCode");
+    expect(result.error).toBeUndefined();
     expect(result.validationErrors).toBeUndefined();
     expect(result.formData).toEqual({ code: "123456" });
     expect(completeFlowAndRedirect).not.toHaveBeenCalled();
@@ -79,7 +80,7 @@ describe("handleOTPFormSubmit", () => {
 
     const result = await handleOTPFormSubmit({ code: "654321" });
 
-    expect(result.error).toBe("translated:set.invalidCode");
+    expect(result.errorKey).toBe("set.invalidCode");
   });
 
   it("returns the generic error for unmapped errors", async () => {
@@ -89,7 +90,7 @@ describe("handleOTPFormSubmit", () => {
 
     const result = await handleOTPFormSubmit({ code: "123456" });
 
-    expect(result.error).toBe("translated:set.genericError");
+    expect(result.errorKey).toBe("set.genericError");
   });
 
   it.each([
@@ -103,7 +104,8 @@ describe("handleOTPFormSubmit", () => {
 
       const result = await handleOTPFormSubmit({ code: "123456" });
 
-      expect(result.error).toBe("translated:set.genericError");
+      expect(result.errorKey).toBe("set.genericError");
+      expect(result.error).toBeUndefined();
     }
   );
 

@@ -35,8 +35,6 @@ export function LoginTOTP({
   const supportLink = getSiteLink("support");
 
   const genericErrorMessage = t("set.genericError");
-  const invalidCodeMessage = t("set.invalidCode");
-  const invalidCodeLengthMessage = t("set.invalidCodeLength");
 
   const localFormAction = async (_: FormState, formData?: FormData) => {
     const enteredCode = (formData?.get("code") as string) ?? "";
@@ -55,14 +53,16 @@ export function LoginTOTP({
 
   return (
     <>
-      {!isPending && state.error && (
+      {!isPending && (state.errorKey || state.error) && (
         <div className="py-4" data-testid="error">
           <Alert type={ErrorStatus.ERROR} focussable>
-            {getSafeErrorMessage({
-              error: state.error,
-              fallback: genericErrorMessage,
-              allowedMessages: [genericErrorMessage, invalidCodeMessage, invalidCodeLengthMessage],
-            })}
+            {state.errorKey
+              ? t(state.errorKey)
+              : getSafeErrorMessage({
+                  error: state.error,
+                  fallback: genericErrorMessage,
+                  allowedMessages: [genericErrorMessage],
+                })}
           </Alert>
         </div>
       )}
