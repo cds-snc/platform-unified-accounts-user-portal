@@ -260,6 +260,7 @@
       "title": "Reset your password",
       "description": "Reset your password to continue using GC Forms.",
       "submit": "Continue",
+      "emailSent": "If an account exists for this email address, we sent a link to reset your password. Open it in this browser within 15 minutes.",
       "labels": {
         "confirmationCode": "Confirmation code"
       },
