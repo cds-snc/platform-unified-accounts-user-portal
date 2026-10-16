@@ -16,6 +16,9 @@ import "server-only";
 // TODO: improve this to handle overflow
 const MAX_COOKIE_SIZE = 2048;
 
+export const PASSWORD_RESET_COOKIE = "passwordReset";
+export const PASSWORD_RESET_TTL_SECONDS = 15 * 60;
+
 export type Cookie = {
   id: string;
   token: string;
@@ -31,6 +34,27 @@ export type Cookie = {
 };
 
 type SessionCookie<T> = Cookie & T;
+
+export async function setPasswordResetCookie(key: string): Promise<void> {
+  (await cookies()).set({
+    name: PASSWORD_RESET_COOKIE,
+    value: key,
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: PASSWORD_RESET_TTL_SECONDS,
+  });
+}
+
+export async function getPasswordResetCookie(): Promise<string | undefined> {
+  const cookie = (await cookies()).get(PASSWORD_RESET_COOKIE);
+  return cookie?.value;
+}
+
+export async function deletePasswordResetCookie(): Promise<void> {
+  (await cookies()).delete(PASSWORD_RESET_COOKIE);
+}
 
 async function setSessionHttpOnlyCookie<T>(sessions: SessionCookie<T>[]): Promise<void> {
   const cookiesList = await cookies();

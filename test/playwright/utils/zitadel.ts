@@ -1,6 +1,7 @@
 import { type Client, create, createClientFor } from "@zitadel/client";
 import { createServerTransport } from "@zitadel/client/node";
 import { TextQueryMethod } from "@zitadel/proto/zitadel/object/v2/object_pb.js";
+import { SessionService } from "@zitadel/proto/zitadel/session/v2/session_service_pb.js";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb.js";
 import { ReturnPasswordResetCodeSchema } from "@zitadel/proto/zitadel/user/v2/password_pb.js";
 import { SearchQuerySchema } from "@zitadel/proto/zitadel/user/v2/query_pb.js";
@@ -169,6 +170,17 @@ export async function getPasswordResetCode(
   }
 
   return passwordResetCode;
+}
+
+export async function createUserSession(userId: string, accessToken: string, apiBaseUrl: string) {
+  const transport = createServerTransport(accessToken, { baseUrl: apiBaseUrl });
+  const { sessionId, sessionToken } = await createClientFor(SessionService)(
+    transport
+  ).createSession({
+    checks: { user: { search: { case: "userId", value: userId } } },
+  });
+
+  return { sessionId, sessionToken };
 }
 
 export async function deleteUserById(userId: string, accessToken: string, apiBaseUrl: string) {
