@@ -4,9 +4,10 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { after } from "next/server";
 import { GCNotifyConnector } from "@gcforms/connectors";
-import { create } from "@zitadel/client";
+import { create, Duration } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
@@ -14,17 +15,30 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getPasswordResetTemplate } from "@lib/emailTemplates";
+import {
+  getPasswordResetContactSupportTemplate,
+  getPasswordResetTemplate,
+} from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
-import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
-import { buildUrlWithRequestId } from "@lib/utils";
+import {
+  createResetKey,
+  PASSWORD_RESET_COOKIE,
+  PASSWORD_RESET_TTL_SECONDS,
+  sealResetSession,
+} from "@lib/server/password-reset";
+import { SiteConfigService } from "@lib/site-config";
 import {
   validateCode,
   validatePassword,
   validateUsername,
 } from "@lib/validation/validationSchemas";
-import { listAuthenticationMethodTypes, listUsers, passwordResetWithReturn } from "@lib/zitadel";
+import {
+  createSessionFromChecks,
+  listAuthenticationMethodTypes,
+  listUsers,
+  passwordResetWithReturn,
+} from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 type SendResetCodeCommand = {
@@ -34,114 +48,96 @@ type SendResetCodeCommand = {
 
 export const submitUserNameForm = async (
   command: SendResetCodeCommand
-): Promise<{ error: string } | { redirect: string }> => {
-  const { t } = await serverTranslation("password");
-
-  const genericErrorResponse = {
-    error: t("errors.couldNotSendResetLink"),
-  };
-
+): Promise<{ error: string } | { success: true }> => {
   const validationResult = await validateUsername({ username: command.loginName });
   if (!validationResult.success) {
     logMessage.warn("Server side validation failed for password reset username");
-    return genericErrorResponse;
+    const { t } = await serverTranslation("password");
+    return { error: t("errors.couldNotSendResetLink") };
   }
 
-  const users = await listUsers({
-    loginName: command.loginName,
-  }).catch((_error) => {
-    logMessage.warn("Failed to look up password reset user");
-    return undefined;
+  const key = createResetKey();
+  (await cookies()).set({
+    name: PASSWORD_RESET_COOKIE,
+    value: key,
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: PASSWORD_RESET_TTL_SECONDS,
   });
 
-  if (!users) {
-    return genericErrorResponse;
-  }
+  // Send the password reset email after the response is sent to the client
+  // so that timing attacks cannot be used to infer valid usernames
+  after(() => sendPasswordResetEmail(command, key));
 
-  if (!users.details || users.details.totalResult !== BigInt(1) || !users.result[0].userId) {
-    return genericErrorResponse;
-  }
+  return { success: true };
+};
 
-  const user = users.result[0];
-  const userId = user.userId;
-
-  let email: string | undefined;
-  let emailVerified = false;
-
-  if (user.type.case === "human") {
-    email = user.type.value.email?.email;
-    emailVerified = user.type.value.email?.isVerified ?? false;
-  }
-
-  if (!email) {
-    logMessage.info("Password reset requested for user without email address");
-    return genericErrorResponse;
-  }
-
-  if (!emailVerified) {
-    logMessage.info("Password reset requested for user with unverified email address");
-    return genericErrorResponse;
-  }
-
-  const response = await listAuthenticationMethodTypes(userId);
-
-  const authMethods = response.authMethodTypes ?? [];
-  const canUseTotp = authMethods.includes(AuthenticationMethodType.TOTP);
-  const canUseU2F = authMethods.includes(AuthenticationMethodType.U2F);
-
-  if (!canUseTotp && !canUseU2F) {
-    logMessage.info("Password reset recovery requires at least one strong MFA method");
-    return genericErrorResponse;
-  }
-
-  const codeResponse = await passwordResetWithReturn({
-    userId,
-  }).catch((_error) => {
-    logMessage.error("Failed to get password reset code");
-    return undefined;
-  });
-
-  if (!codeResponse || !("verificationCode" in codeResponse) || !codeResponse.verificationCode) {
-    logMessage.error("Password reset code missing from response");
-    return genericErrorResponse;
-  }
-
+async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCommand, key: string) {
   const apiKey = process.env.NOTIFY_API_KEY;
   const templateId = process.env.TEMPLATE_ID;
-  const resetCode = codeResponse.verificationCode;
 
   if (!apiKey || !templateId) {
     logMessage.error("Missing NOTIFY_API_KEY or TEMPLATE_ID environment variables");
-    return genericErrorResponse;
+    return;
   }
 
   try {
+    const users = await listUsers({ loginName });
+    const user = users.details?.totalResult === BigInt(1) ? users.result[0] : undefined;
+    const email = user?.type.case === "human" ? user.type.value.email : undefined;
+
+    if (!user?.userId || !email?.email || !email.isVerified) {
+      logMessage.info("Password reset requested for unknown or unverified account");
+      return;
+    }
+
     const gcNotify = GCNotifyConnector.default(apiKey);
-    await gcNotify.sendEmail(email, templateId, getPasswordResetTemplate(resetCode));
-  } catch (_error) {
-    logMessage.error("Failed to send password reset email via GC Notify");
-    return genericErrorResponse;
+    const siteConfig = await SiteConfigService.getInstance();
+    const { authMethodTypes = [] } = await listAuthenticationMethodTypes(user.userId);
+    const hasStrongMFA =
+      authMethodTypes.includes(AuthenticationMethodType.TOTP) ||
+      authMethodTypes.includes(AuthenticationMethodType.U2F);
+
+    if (!hasStrongMFA) {
+      await gcNotify.sendEmail(
+        email.email,
+        templateId,
+        getPasswordResetContactSupportTemplate(siteConfig.getSiteLink("contact-us"))
+      );
+      return;
+    }
+
+    const { verificationCode } = await passwordResetWithReturn({ userId: user.userId });
+    if (!verificationCode) {
+      throw new Error("Password reset code missing from response");
+    }
+
+    const resetSession = await createSessionFromChecks({
+      checks: create(ChecksSchema, {
+        user: { search: { case: "userId", value: user.userId } },
+      }),
+      lifetime: { seconds: BigInt(PASSWORD_RESET_TTL_SECONDS), nanos: 0 } as Duration,
+    });
+
+    const params = new URLSearchParams({ token: sealResetSession(resetSession, key) });
+    if (requestId) {
+      params.set("requestId", requestId);
+    }
+
+    await gcNotify.sendEmail(
+      email.email,
+      templateId,
+      getPasswordResetTemplate(
+        verificationCode,
+        siteConfig.getSiteLink(`password/reset/continue?${params}`)
+      )
+    );
+  } catch {
+    logMessage.error("Failed to send password reset email");
   }
-
-  const session = await createSessionAndUpdateCookie({
-    checks: create(ChecksSchema, {
-      user: {
-        search: {
-          case: "userId",
-          value: userId,
-        },
-      },
-    }),
-    requestId: command.requestId,
-  }).catch((_error) => undefined);
-
-  if (!session?.factors?.user?.id) {
-    logMessage.error("Failed to create password reset recovery session");
-    return genericErrorResponse;
-  }
-
-  redirect(buildUrlWithRequestId("/password/reset/verify", command.requestId));
-};
+}
 
 export const resetPassword = AuthenticatedAction(
   { authLevel: "mfa_no_password" },
@@ -172,6 +168,8 @@ export const resetPassword = AuthenticatedAction(
     if ("error" in changeResponse) {
       throw new Error(changeResponse.error);
     }
+
+    (await cookies()).delete(PASSWORD_RESET_COOKIE);
 
     await verifyPassword({
       loginName: session.factors.user.loginName ?? "",
