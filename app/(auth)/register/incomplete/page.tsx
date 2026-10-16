@@ -37,6 +37,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       variant="narrow"
       listI18nKeys={[{ key: "incomplete.item1", checked: true }, { key: "incomplete.item2" }]}
       action="sendCode"
+      requestId={requestId}
     ></NextSteps>
   );
 }
