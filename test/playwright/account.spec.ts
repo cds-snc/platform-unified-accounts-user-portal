@@ -2,8 +2,13 @@ import { expect, test } from "@playwright/test";
 
 import { type RegisteredUser, registerUser } from "./utils/register";
 import { MfaType, RegistrationType } from "./utils/register";
-import { generateTOTP, getRequiredEnv } from "./utils/utils";
-import { deleteUserById, getPasswordResetCode, getZitadelAccessToken } from "./utils/zitadel";
+import { generateTOTP, getRequiredEnv, sealResetSession } from "./utils/utils";
+import {
+  createUserSession,
+  deleteUserById,
+  getPasswordResetCode,
+  getZitadelAccessToken,
+} from "./utils/zitadel";
 
 test.describe("account edit flow", () => {
   test.describe.configure({ mode: "serial" });
@@ -69,6 +74,20 @@ test.describe("account edit flow", () => {
     await page.getByTestId("forgot-password").click();
     await page.getByTestId("forgot-password-username").fill(registeredUser.email);
     await page.getByTestId("forgot-password-continue").click();
+    await expect(page.locator("#resetEmailSent")).toBeVisible();
+
+    // Rebuild the emailed link since the real session token is only in the email
+    const resetKey = (await page.context().cookies()).find(
+      (cookie) => cookie.name === "passwordReset"
+    )?.value;
+    if (!resetKey) {
+      throw new Error("Expected passwordReset cookie to be set");
+    }
+    const session = await createUserSession(registeredUser.userId, accessToken, idpUrl);
+    const token = sealResetSession(session, resetKey);
+    await page.goto(
+      `${portalUrl.replace(/\/$/, "")}/password/reset/continue?token=${encodeURIComponent(token)}`
+    );
 
     await expect(page).toHaveURL(/\/password\/reset\/verify/);
     await page.getByTestId("strong-factor-totp").click();

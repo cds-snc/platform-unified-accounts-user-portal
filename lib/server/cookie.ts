@@ -48,12 +48,20 @@ export async function createSessionAndUpdateCookie(command: {
     retry: command.retry ?? false,
   });
 
-  const { session } = await getSession(createdSession.sessionId, createdSession.sessionToken);
+  return addExistingSessionToCookie({ ...createdSession, requestId: command.requestId });
+}
+
+export async function addExistingSessionToCookie(command: {
+  sessionId: string;
+  sessionToken: string;
+  requestId: string | undefined;
+}): Promise<Session> {
+  const { session } = await getSession(command.sessionId, command.sessionToken);
 
   if (session?.factors?.user?.loginName) {
     const sessionCookie: Cookie = {
-      id: createdSession.sessionId,
-      token: createdSession.sessionToken,
+      id: command.sessionId,
+      token: command.sessionToken,
       creationTs: session.creationDate ? `${timestampMs(session.creationDate)}` : "",
       expirationTs: session.expirationDate ? `${timestampMs(session.expirationDate)}` : "",
       changeTs: session.changeDate ? `${timestampMs(session.changeDate)}` : "",
