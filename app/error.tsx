@@ -17,7 +17,7 @@ import { Image } from "@components/ui/image/Image";
 export default function Error({ error }: { error: Error & { digest?: string } }) {
   const { t } = useTranslation("error");
   const { getSiteLink } = useSiteConfig();
-  const aboutLink = getSiteLink("about") || getSiteLink("gcForms");
+  const aboutLink = getSiteLink("about");
 
   useEffect(() => {
     console.error(error);
