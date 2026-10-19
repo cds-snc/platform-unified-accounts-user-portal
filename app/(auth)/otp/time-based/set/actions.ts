@@ -23,8 +23,6 @@ import { getTotpVerifyErrorKey, type TotpVerifyErrorKey } from "@lib/zitadel-err
  * Local Relative
  *--------------------------------------------*/
 
-// Errors are returned rather than thrown: a thrown error is masked by AuthenticatedAction
-// and surfaces as a failed action instead of an inline message.
 export const verifyAndRegisterTOTP = AuthenticatedAction(
   { authLevel: AuthLevel.MFA_CHANGE_REQUIRED },
   async function verifyAndRegisterTOTP(
@@ -76,7 +74,6 @@ export const verifyAndRegisterTOTP = AuthenticatedAction(
       return { errorKey: getTotpVerifyErrorKey(error) };
     }
 
-    // redirect() throws, so it must stay outside the try/catch above.
     const url = buildUrlWithRequestId("/all-set", requestId);
     redirect(url);
   }
