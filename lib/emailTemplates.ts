@@ -17,7 +17,7 @@ export const getPasswordResetTemplate = (
 
 ---
 
-[Poursuivez la réinitialisation de votre mot de passe](${resetLink}) dans le même navigateur d'ici 15 minutes, puis utilisez le code suivant.
+FR - [Continue resetting your password](${resetLink}) in the same browser within 15 minutes, then use the following code. 
 
 **${resetCode}**
 `,
@@ -32,7 +32,7 @@ Someone asked to reset your password, but your account is not fully set up yet. 
 
 ---
 
-Quelqu'un a demandé à réinitialiser votre mot de passe, mais votre compte n'est pas encore entièrement configuré. Veuillez [nous contacter](${contactUsUrl}) pour obtenir de l'aide.`,
+FR - Someone asked to reset your password, but your account is not fully set up yet. Please [contact us](${contactUsUrl}) for help.`,
 });
 
 export const getSecurityCodeTemplate = (code: string): GCNotifyTemplate => ({
