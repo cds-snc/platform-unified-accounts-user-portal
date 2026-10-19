@@ -350,11 +350,11 @@
   },
   "register": {
     "incomplete": {
-      "pageTitle": "A few more steps",
-      "title": "A few more steps to verify your account",
-      "item1": "You entered your GC email and chose a password",
-      "item2": "Next step: Send a code to your GC email to validate your account",
-      "action": "Send Code"
+      "pageTitle": "FR - A few more steps",
+      "title": "FR - A few more steps to verify your account",
+      "item1": "FR - You entered your GC email and chose a password",
+      "item2": "FR - Next step: Send a code to your GC email to validate your account",
+      "action": "FR - Send Code"
     },
     "methods": {
       "password": "Mot de passe"
