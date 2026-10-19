@@ -10,9 +10,8 @@ import { QRCodeSVG } from "qrcode.react";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getZitadelUiError } from "@lib/zitadel-errors";
+import type { TotpVerifyErrorKey } from "@lib/zitadel-errors";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -24,7 +23,7 @@ import { verifyAndRegisterTOTP } from "../set/actions";
  *--------------------------------------------*/
 import { CopyToClipboard } from "./CopyToClipboard";
 type FormState = {
-  error?: string;
+  errorKey?: TotpVerifyErrorKey;
 };
 
 type Props = {
@@ -35,44 +34,29 @@ type Props = {
 };
 export function TotpRegister({ uri, requestId, checkAfter }: Props) {
   const { t } = useTranslation(["otp", "error"]);
-  const genericErrorMessage = t("set.genericError");
-  const invalidCodeMessage = t("set.invalidCode");
-  const invalidCodeLengthMessage = t("set.invalidCodeLength");
 
-  const localFormAction = async (previousState: FormState, formData?: FormData) => {
+  const localFormAction = async (
+    previousState: FormState,
+    formData?: FormData
+  ): Promise<FormState> => {
     const code = formData?.get("code");
 
     if (typeof code !== "string") {
-      return {
-        error: genericErrorMessage,
-      };
+      return { errorKey: "set.genericError" };
     }
 
     const normalizedCode = code.trim();
 
     const totpValidationResult = await validateTotpCode({ code: normalizedCode });
     if (!totpValidationResult.success) {
-      return {
-        error: invalidCodeLengthMessage,
-      };
+      return { errorKey: "set.invalidCodeLength" };
     }
 
     return verifyAndRegisterTOTP({ code: normalizedCode, requestId, checkAfter })
-      .then(() => {
-        return previousState;
-      })
-      .catch((e) => {
-        const mappedUiError = getZitadelUiError("otp.verify", e);
-        if (mappedUiError) {
-          return {
-            error: t(mappedUiError.i18nKey),
-          };
-        }
-
-        return {
-          error: genericErrorMessage,
-        };
-      });
+      .then((result): FormState =>
+        result?.errorKey ? { errorKey: result.errorKey } : previousState
+      )
+      .catch((): FormState => ({ errorKey: "set.genericError" }));
   };
   const [state, formAction, isPending] = useActionState(localFormAction, {});
 
@@ -93,18 +77,10 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
             <CopyToClipboard value={uri}></CopyToClipboard>
           </div>
           <form id="totp-form" className="w-full" action={formAction}>
-            {!isPending && state.error && (
+            {!isPending && state.errorKey && (
               <div className="py-4">
                 <Alert type={ErrorStatus.ERROR} focussable>
-                  {getSafeErrorMessage({
-                    error: state.error,
-                    fallback: genericErrorMessage,
-                    allowedMessages: [
-                      genericErrorMessage,
-                      invalidCodeMessage,
-                      invalidCodeLengthMessage,
-                    ],
-                  })}
+                  {t(state.errorKey)}
                 </Alert>
               </div>
             )}
@@ -119,7 +95,7 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
                 required
                 defaultValue={""}
                 autoComplete="one-time-code"
-                invalid={!!state.error}
+                invalid={!!state.errorKey}
               />
             </div>
 

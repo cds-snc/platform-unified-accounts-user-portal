@@ -15,17 +15,12 @@ import { logMessage } from "@lib/logger";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getZitadelUiError } from "@lib/zitadel-errors";
+import { getTotpVerifyErrorKey, type TotpVerifyErrorKey } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
-export type TotpErrorKey = "set.invalidCode" | "set.invalidCodeLength" | "set.genericError";
-
-// Translated on the client so the message always matches the language the user is viewing.
-const isTotpErrorKey = (key: string): key is TotpErrorKey =>
-  key === "set.invalidCode" || key === "set.invalidCodeLength";
-
 export type FormState = {
   error?: string;
-  errorKey?: TotpErrorKey;
+  // Translated on the client so the message always matches the language the user is viewing.
+  errorKey?: TotpVerifyErrorKey;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: {
     code?: string;
@@ -73,8 +68,6 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     }
 
     if ("error" in response) {
-      const mappedUiError = getZitadelUiError("otp.verify", response.error);
-
       logMessage.debug({
         message: "TOTP code submission returned error",
         error: response.error,
@@ -83,10 +76,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
       return {
         validationErrors: undefined,
         error: undefined,
-        errorKey:
-          mappedUiError && isTotpErrorKey(mappedUiError.i18nKey)
-            ? mappedUiError.i18nKey
-            : "set.genericError",
+        errorKey: getTotpVerifyErrorKey(response.error),
         formData: { code: normalizedCode },
       };
     }

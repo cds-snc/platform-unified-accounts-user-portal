@@ -146,6 +146,17 @@ export function parseZitadelError(err: {
   };
 }
 
+export type TotpVerifyErrorKey = "set.invalidCode" | "set.invalidCodeLength" | "set.genericError";
+
+/**
+ * Maps an error from verifying a TOTP code to a translation key the client can render.
+ * Anything unrecognised becomes the generic error so raw upstream messages never reach the UI.
+ */
+export function getTotpVerifyErrorKey(err: unknown): TotpVerifyErrorKey {
+  const key = getZitadelUiError("otp.verify", err)?.i18nKey;
+  return key === "set.invalidCode" || key === "set.invalidCodeLength" ? key : "set.genericError";
+}
+
 export function getZitadelUiError(
   context: ZitadelErrorContext,
   err: unknown,
