@@ -34,7 +34,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
       <p>
         <I18n i18nKey="instructions" namespace="error" />
       </p>
-      <div className="m-3 flex flex-wrap justify-center gap-4">
+      <div className="mt-3 mb-6 flex flex-wrap justify-center gap-4">
         {aboutLink && (
           <a href={aboutLink}>
             <I18n i18nKey="about" namespace="error" />
@@ -47,10 +47,10 @@ export default function Error({ error }: { error: Error & { digest?: string } })
       <Image
         src={getImageUrl("/img/birds-puzzle-pieces.png")}
         alt=""
-        width={786}
-        height={641}
+        width={586}
+        height={441}
         preload={true}
-        className="translate-x-12"
+        className="h-auto w-full max-w-222 translate-x-12"
       />
     </main>
   );
