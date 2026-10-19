@@ -209,7 +209,7 @@ describe("registration", () => {
       expect(createSessionAndUpdateCookie).toHaveBeenCalledWith(
         expect.objectContaining({ requestId: "req-123", retry: true })
       );
-      expect(checkEmailVerification).toHaveBeenCalledWith(expect.any(Object), undefined, "req-123");
+      expect(checkEmailVerification).toHaveBeenCalledWith(undefined, "req-123");
       expect(sendVerificationEmail).toHaveBeenCalledExactlyOnceWith();
       expect(mockRedirect).toHaveBeenCalledWith("/register/verify?requestId=req-123");
       expect(vi.mocked(createSessionAndUpdateCookie).mock.invocationCallOrder[0]).toBeLessThan(

@@ -81,7 +81,7 @@ export const sendVerificationEmail = AuthenticatedAction(
 
       return { success: true };
     } catch (error) {
-      logMessage.debug({ error, message: "Failed to send verification email" });
+      logMessage.error(JSON.stringify({ error, message: "Failed to send verification email" }));
       return { error: t("errors.emailSendFailed") };
     }
   }

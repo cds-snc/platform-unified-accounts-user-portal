@@ -94,7 +94,7 @@ export async function registerUser(command: RegisterUserCommand) {
     // An undefined humanUser is passed as the newly created user will not have their
     // email verified yet so the behaviour we want is to trigger the email verification flow.
 
-    redirectUrl = checkEmailVerification(session, undefined, command.requestId);
+    redirectUrl = checkEmailVerification(undefined, command.requestId);
 
     // type check as there should always be a redirect in this use case
     if (!redirectUrl) {
@@ -221,7 +221,7 @@ async function completeInvite(command: CompleteInviteCommand) {
     // An undefined humanUser is passed as the newly created user will not have their
     // email verified yet so the behaviour we want is to trigger the email verification flow.
 
-    redirectUrl = checkEmailVerification(session, undefined);
+    redirectUrl = checkEmailVerification(undefined);
 
     // type check as there should always be a redirect in this use case
     if (!redirectUrl) {
