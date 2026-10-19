@@ -4,33 +4,54 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useEffect } from "react";
+import Link from "next/link";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/utils/imageUrl";
-import { I18n } from "@i18n";
+import { I18n, useTranslation } from "@i18n";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Image } from "@components/ui/image/Image";
+
 export default function Error({ error }: { error: Error & { digest?: string } }) {
+  const { t } = useTranslation("error");
+  const { getSiteLink } = useSiteConfig();
+  const aboutLink = getSiteLink("about") || getSiteLink("gcForms");
+
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <div className="">
-      <div className="text-center">
-        <h1 className="mt-8 mb-6!">
-          <I18n i18nKey="title" namespace="error" />
-        </h1>
-        <Image
-          src={getImageUrl("/img/goose.png")}
-          alt="Goose"
-          width={200}
-          height={200}
-          className="mx-auto mb-6 h-auto"
-          preload={true}
-        />
+    <main className="mx-auto flex flex-col items-center px-4 pt-24">
+      <title>{t("title")}</title>
+      <h1 className="flex items-start justify-center gap-3">
+        <Image src={getImageUrl("/img/lines-circle-left.svg")} alt="" width={31} height={39} />
+        <I18n i18nKey="title" namespace="error" />
+        <Image src={getImageUrl("/img/lines-circle-right.svg")} alt="" width={31} height={39} />
+      </h1>
+      <p>
+        <I18n i18nKey="instructions" namespace="error" />
+      </p>
+      <div className="m-3 flex flex-wrap justify-center gap-4">
+        {aboutLink && (
+          <a href={aboutLink}>
+            <I18n i18nKey="about" namespace="error" />
+          </a>
+        )}
+        <Link href="/contact-us">
+          <I18n i18nKey="contact" namespace="error" />
+        </Link>
       </div>
-    </div>
+      <Image
+        src={getImageUrl("/img/birds-puzzle-pieces.png")}
+        alt=""
+        width={786}
+        height={641}
+        preload={true}
+        className="translate-x-12"
+      />
+    </main>
   );
 }

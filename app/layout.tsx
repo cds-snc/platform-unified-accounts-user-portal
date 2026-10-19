@@ -2,13 +2,14 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { Viewport } from "next";
+import { Metadata, Viewport } from "next";
 import { Lato, Noto_Sans } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { dir } from "i18next";
 
 import { AppStatusProvider } from "@lib/client/useAppStatus";
 import { SiteConfigService } from "@lib/site-config";
+import { serverTranslation } from "@i18n/server";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -38,6 +39,11 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await serverTranslation("common");
+  return { title: t("title") };
+}
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const [requestCookies, requestHeaders] = await Promise.all([cookies(), headers()]);
