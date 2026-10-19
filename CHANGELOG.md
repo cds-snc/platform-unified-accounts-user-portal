@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.6.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.5.0...v1.6.0) (2026-10-19)
+
+
+### Features
+
+* add contact us cta when MFA is unavailable ([#560](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/560)) ([5dc0936](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/5dc09364b38fcbfa0d7e6ef829b8ae0f65ba713e))
+* registration abandonment flow pages ([#568](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/568)) ([caffb81](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/caffb8100b1847889d41682cc96cb85a73103ae3))
+
+
+### Bug Fixes
+
+* a11y fixes ([#548](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/548)) ([e4af789](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/e4af789dc67c98280302ed23012b9bb003085f7f))
+* **deps:** update all minor dependencies ([#573](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/573)) ([727400d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/727400d5b0c26429df41187a222a850dd6567a82))
+* **deps:** update all patch dependencies ([#571](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/571)) ([1d733f0](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/1d733f0416827d4e6270dbc6b26bc6c462614702))
+* mark strings as untranslated ([#576](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/576)) ([f698b01](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/f698b013b3b11c20c7f12af4830ef39948149940))
+* move closed registration smoke test ([#558](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/558)) ([308a3e8](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/308a3e80c410f2dd6a68aa565919c94c2dc2ffd7))
+* password complexity icons on submit ([#563](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/563)) ([2b39ec4](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/2b39ec4e423a0dd179ef51c41b639ee841816bdd))
+* require email verification before initial MFA set ([#561](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/561)) ([37d29fe](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/37d29fec3589b5d8e341d7f4ad6d38748f427c20))
+
+
+### Miscellaneous Chores
+
+* **deps:** lock file maintenance ([#575](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/575)) ([b0cd0ad](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/b0cd0adf3a17cdf57fd735f184d21a57d165e415))
+* **deps:** update all non-major github action dependencies ([#572](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/572)) ([7c718f1](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/7c718f1d56966999bbd787bd1d1ea134d60f434e))
+* **deps:** update dependency prettier to v3.9.10 ([#574](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/574)) ([3f6b7b8](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/3f6b7b81e1a35aba488db09a0cebfc785d154ceb))
+* **deps:** update node.js to 44fce69 ([#570](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/570)) ([68d68af](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/68d68af6ed8ef52241d7ac785a67f619c444c612))
+
 ## [1.5.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.4.0...v1.5.0) (2026-10-13)
 
 
