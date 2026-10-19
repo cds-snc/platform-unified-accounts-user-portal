@@ -51,7 +51,7 @@
     "@cdssnc/sanitize-pii": "^2.2.0",
     "@gcforms/connectors": "^2.2.20",
     "@gcforms/core": "2.2.28",
-    "@gcforms/hcaptcha": "1.1.4",
+    "@gcforms/hcaptcha": "1.1.5",
     "@hcaptcha/react-hcaptcha": "^2.2.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-tooltip": "^1.2.8",
