@@ -18,7 +18,7 @@
     "title": "Nous éprouvons des difficultés avec notre site.",
     "instructions": "Veuillez réessayer plus tard.",
     "about": "À propos de Formulaires GC",
-    "contact": "Contacter le soutien"
+    "contact": "Contacter l'équipe de soutien"
   },
   "header": {
     "lang-toggle": "Sélection de la langue",
@@ -357,7 +357,8 @@
       "title": "FR - A few more steps to verify your account",
       "item1": "FR - You entered your GC email and chose a password",
       "item2": "FR - Next step: Send a code to your GC email to validate your account",
-      "action": "FR - Send Code"
+      "action": "FR - Send Code",
+      "hint": "FR - We'll prompt you to enter the code and add a verification method"
     },
     "methods": {
       "password": "Mot de passe"

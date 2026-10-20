@@ -41,7 +41,7 @@ export const NextStepAction = ({
           setWorking(false);
           return;
         }
-        router.push(buildUrlWithRequestId("/password/verify", requestId));
+        router.push(buildUrlWithRequestId("/register/verify", requestId));
         break;
       case NextAction.REDIRECT:
         if (!redirect) {
