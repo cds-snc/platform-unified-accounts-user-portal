@@ -57,7 +57,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
         </Link>
       </div>
       <Image
-        src={getImageUrl("/img/birds-puzzle-pieces.png")}
+        src={getImageUrl("/img/birds-puzzle-pieces.webp")}
         alt=""
         width={586}
         height={441}
