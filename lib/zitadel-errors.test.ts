@@ -100,7 +100,7 @@ describe("getZitadelUiError", () => {
   });
 
   it("returns undefined for string errors, which cannot be parsed", () => {
-    const result = getZitadelUiError("otp.verify", "Could not update Session");
+    const result = getZitadelUiError("otp.verify", "invalid code");
 
     expect(result).toBeUndefined();
   });
