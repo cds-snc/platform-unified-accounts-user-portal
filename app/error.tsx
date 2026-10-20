@@ -62,7 +62,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
         width={586}
         height={441}
         preload={true}
-        className="h-auto w-full max-w-196 translate-x-12 sm:hidden"
+        className="h-auto w-full max-w-172 translate-x-12 sm:hidden"
       />
     </main>
   );
