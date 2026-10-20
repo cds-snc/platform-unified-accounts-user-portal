@@ -36,6 +36,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       imageSrc="/img/cardinal.png"
       variant="narrow"
       listI18nKeys={[{ key: "incomplete.item1", checked: true }, { key: "incomplete.item2" }]}
+      hintI18nKey="incomplete.hint"
       action="sendCode"
       requestId={requestId}
     ></NextSteps>
