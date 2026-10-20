@@ -25,6 +25,7 @@ interface NextStepsProps {
   titleI18nKey: string;
   pageTitleI18nKey?: string;
   listI18nKeys: { key: string; checked?: boolean }[];
+  hintI18nKey?: string;
   imageSrc?: string;
   namespace: string;
   variant?: "default" | "narrow" | "wide";
@@ -36,6 +37,7 @@ export const NextSteps = async ({
   titleI18nKey,
   pageTitleI18nKey,
   listI18nKeys,
+  hintI18nKey,
   imageSrc,
   namespace,
   variant,
@@ -87,6 +89,11 @@ export const NextSteps = async ({
           ))}
         </div>
         <NextStepAction action={action} text="incomplete.action" namespace={namespace} />
+        {hintI18nKey && (
+          <div className="mt-4">
+            <I18n i18nKey={hintI18nKey} namespace={namespace} />
+          </div>
+        )}
       </div>
     </RequestingAppProvider>
   );
