@@ -11,17 +11,15 @@ import { logMessage } from "@lib/logger";
 import { addExistingSessionToCookie } from "@lib/server/cookie";
 import { openResetSession } from "@lib/server/password-reset";
 import { constructUrl } from "@lib/service-url";
-import { buildUrlWithRequestId } from "@lib/utils";
 
 export async function GET(request: NextRequest) {
-  const requestId = request.nextUrl.searchParams.get("requestId") ?? undefined;
   const token = request.nextUrl.searchParams.get("token") ?? "";
   const key = (await getPasswordResetCookie()) ?? "";
   const resetSession = openResetSession(token, key);
   let path = "/password/reset";
 
   if (resetSession) {
-    path = await addExistingSessionToCookie({ ...resetSession, requestId })
+    path = await addExistingSessionToCookie({ ...resetSession, requestId: undefined })
       .then(() => "/password/reset/verify")
       .catch((error) => {
         logMessage.warn("Password reset link session could not be loaded", { error });
@@ -29,5 +27,5 @@ export async function GET(request: NextRequest) {
       });
   }
 
-  return NextResponse.redirect(constructUrl(request, buildUrlWithRequestId(path, requestId)));
+  return NextResponse.redirect(constructUrl(request, path));
 }

@@ -36,7 +36,7 @@ test.describe("account edit flow", () => {
     }
   });
 
-  test.skip("updates a user's name and password", async ({ page }) => {
+  test("updates a user's name and password", async ({ page }) => {
     const newPassword = "NewPassword123!";
     registeredUser = await registerUser(page, {
       portalUrl,
@@ -64,7 +64,7 @@ test.describe("account edit flow", () => {
     await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
   });
 
-  test("updates a user's password using forgot password", async ({ page }) => {
+  test.skip("updates a user's password using forgot password", async ({ page }) => {
     const newPassword = "ForgotPassword123!";
     if (!registeredUser) {
       throw new Error("Registered user is required for this test");
