@@ -15,19 +15,19 @@ import { buildUrlWithRequestId } from "@lib/utils";
 
 export async function GET(request: NextRequest) {
   const requestId = request.nextUrl.searchParams.get("requestId") ?? undefined;
-  const resetSession = openResetSession(
-    request.nextUrl.searchParams.get("token") ?? "",
-    (await getPasswordResetCookie()) ?? ""
-  );
+  const token = request.nextUrl.searchParams.get("token") ?? "";
+  const key = (await getPasswordResetCookie()) ?? "";
+  const resetSession = openResetSession(token, key);
+  let path = "/password/reset";
 
-  const path = resetSession
-    ? await addExistingSessionToCookie({ ...resetSession, requestId })
-        .then(() => "/password/reset/verify")
-        .catch(() => {
-          logMessage.info("Password reset link session could not be loaded");
-          return "/password/reset";
-        })
-    : "/password/reset";
+  if (resetSession) {
+    path = await addExistingSessionToCookie({ ...resetSession, requestId })
+      .then(() => "/password/reset/verify")
+      .catch((error) => {
+        logMessage.warn("Password reset link session could not be loaded", { error });
+        return "/password/reset";
+      });
+  }
 
   return NextResponse.redirect(constructUrl(request, buildUrlWithRequestId(path, requestId)));
 }
