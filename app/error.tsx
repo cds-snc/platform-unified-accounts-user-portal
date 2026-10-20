@@ -26,10 +26,22 @@ export default function Error({ error }: { error: Error & { digest?: string } })
   return (
     <main className="mx-auto flex flex-col items-center px-4 pt-24">
       <title>{t("title")}</title>
-      <h1 className="flex items-start justify-center gap-3">
-        <Image src={getImageUrl("/img/lines-circle-left.svg")} alt="" width={31} height={39} />
+      <h1 className="flex items-start justify-center gap-3 text-center">
+        <Image
+          src={getImageUrl("/img/lines-circle-left.svg")}
+          alt=""
+          width={31}
+          height={39}
+          className="sm:hidden"
+        />
         <I18n i18nKey="title" namespace="error" />
-        <Image src={getImageUrl("/img/lines-circle-right.svg")} alt="" width={31} height={39} />
+        <Image
+          src={getImageUrl("/img/lines-circle-right.svg")}
+          alt=""
+          width={31}
+          height={39}
+          className="sm:hidden"
+        />
       </h1>
       <p>
         <I18n i18nKey="instructions" namespace="error" />
@@ -50,7 +62,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
         width={586}
         height={441}
         preload={true}
-        className="h-auto w-full max-w-222 translate-x-12"
+        className="h-auto w-full max-w-196 translate-x-12 sm:hidden"
       />
     </main>
   );
