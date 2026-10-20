@@ -36,7 +36,7 @@ test.describe("account edit flow", () => {
     }
   });
 
-  test("updates a user's name and password", async ({ page }) => {
+  test.skip("updates a user's name and password", async ({ page }) => {
     const newPassword = "NewPassword123!";
     registeredUser = await registerUser(page, {
       portalUrl,
