@@ -30,14 +30,18 @@ type FormState = {
     username: string;
   };
   error?: string;
+  sent?: boolean;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
 };
 
 export const UserNameForm = ({ requestId }: Props) => {
-  const { t } = useTranslation(["start", "common", "error"]);
+  const { t } = useTranslation(["start", "common", "error", "password"]);
   const genericErrorMessage = t("title", { ns: "error" });
 
-  const localFormAction = async (previousState: FormState, formData?: FormData) => {
+  const localFormAction = async (
+    previousState: FormState,
+    formData?: FormData
+  ): Promise<FormState> => {
     const username = (formData?.get("username") as string) || "";
 
     // Validate form entries and map any errors to form state with translated messages
@@ -75,7 +79,7 @@ export const UserNameForm = ({ requestId }: Props) => {
       };
     }
 
-    return previousState;
+    return { formData: { username }, sent: true };
   };
 
   const [state, formAction] = useActionState(localFormAction, {
@@ -88,6 +92,12 @@ export const UserNameForm = ({ requestId }: Props) => {
   return (
     <div>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
+
+      {state.sent && (
+        <Alert type={ErrorStatus.SUCCESS} focussable={true} id="resetEmailSent">
+          {t("reset.emailSent", { ns: "password" })}
+        </Alert>
+      )}
 
       {state.error && (
         <Alert

@@ -3,14 +3,36 @@ type GCNotifyTemplate = {
   formResponse: string;
 };
 
-export const getPasswordResetTemplate = (resetCode: string): GCNotifyTemplate => ({
+export const getPasswordResetTemplate = (
+  resetCode: string,
+  resetLink: string
+): GCNotifyTemplate => ({
   subject: "Reset your password | Réinitialiser votre mot de passe",
   formResponse: `
 **Reset your password | Réinitialiser votre mot de passe**
 
-Use the following code to reset your password. | Utilisez le code suivant pour réinitialiser votre mot de passe.
+[Continue resetting your password](${resetLink}) in the same browser within 15 minutes, then use the following code. 
 
-${resetCode}`,
+**${resetCode}**
+
+---
+
+FR - [Continue resetting your password](${resetLink}) in the same browser within 15 minutes, then use the following code. 
+
+**${resetCode}**
+`,
+});
+
+export const getPasswordResetContactSupportTemplate = (contactUsUrl: string): GCNotifyTemplate => ({
+  subject: "Reset your password | Réinitialiser votre mot de passe",
+  formResponse: `
+**Reset your password | Réinitialiser votre mot de passe**
+
+Someone asked to reset your password, but your account is not fully set up yet. Please [contact us](${contactUsUrl}) for help.
+
+---
+
+FR - Someone asked to reset your password, but your account is not fully set up yet. Please [contact us](${contactUsUrl}) for help.`,
 });
 
 export const getSecurityCodeTemplate = (code: string): GCNotifyTemplate => ({
