@@ -1,5 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
+import { logMessage } from "@lib/logger";
+
 import "server-only";
 
 type ResetSession = { sessionId: string; sessionToken: string };
@@ -15,6 +17,8 @@ export function sealResetSession(session: ResetSession, key: string): string {
 }
 
 export function openResetSession(sealed: string, key: string): ResetSession | undefined {
+  let session = undefined;
+
   try {
     const buffer = Buffer.from(sealed, "base64url");
     const decipher = createDecipheriv(
@@ -24,8 +28,10 @@ export function openResetSession(sealed: string, key: string): ResetSession | un
     );
     decipher.setAuthTag(buffer.subarray(12, 28));
     const data = Buffer.concat([decipher.update(buffer.subarray(28)), decipher.final()]);
-    return JSON.parse(data.toString());
-  } catch {
-    return undefined;
+    session = JSON.parse(data.toString());
+  } catch (error) {
+    logMessage.warn("Failed to open password reset session", { error });
   }
+
+  return session;
 }
