@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.0...v1.6.1) (2026-10-21)
+
+
+### Miscellaneous Chores
+
+* upgrade to latest Node 24 ([#587](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/587)) ([a1fbe3d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/a1fbe3de0f6914f1b1640bae33074d9703588a5c))
+
 ## [1.6.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.5.0...v1.6.0) (2026-10-19)
 
 
