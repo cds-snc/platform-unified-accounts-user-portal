@@ -15,7 +15,10 @@
     "externalLinkIconLabel": "  (Ouvre dans un nouvel onglet.)"
   },
   "error": {
-    "title": "Quelque chose a mal tourné"
+    "title": "Nous éprouvons des difficultés avec notre site.",
+    "instructions": "Veuillez réessayer plus tard.",
+    "about": "À propos de Formulaires GC",
+    "contact": "Contacter l'équipe de soutien"
   },
   "header": {
     "lang-toggle": "Sélection de la langue",
