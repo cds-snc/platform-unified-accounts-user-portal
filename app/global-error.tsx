@@ -1,9 +1,6 @@
 "use client";
 
 /*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { DocumentShell } from "@components/layout/DocumentShell";

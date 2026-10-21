@@ -3,8 +3,6 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import Link from "next/link";
-
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -62,9 +60,10 @@ export function GenericError({
             <I18n i18nKey="about" namespace="error" />
           </a>
         )}
-        <Link href="/contact-us">
+        {/* Use a full-page navigation to leave the current error boundary state. */}
+        <a href={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/contact-us`}>
           <I18n i18nKey="contact" namespace="error" />
-        </Link>
+        </a>
       </div>
       <Image
         src={getImageUrl("/img/birds-puzzle-pieces.webp")}
