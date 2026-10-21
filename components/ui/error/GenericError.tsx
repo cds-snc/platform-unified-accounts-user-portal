@@ -14,18 +14,25 @@ import { Image } from "@components/ui/image/Image";
 
 export function GenericError({
   title = "title",
-  // Set as a falsy value to hide
+  // Translation key or to hide set falsy
   instructions = "instructions",
   aboutLink,
+  errorCode,
 }: {
   aboutLink?: string | false;
   title?: string;
   instructions?: string;
+  errorCode?: string;
 }) {
   const { t } = useTranslation("error");
 
   return (
     <div className="mx-auto flex flex-col items-center px-4">
+      {errorCode && (
+        <div data-id="error-code" className="hidden">
+          {errorCode}
+        </div>
+      )}
       <title>{t(title)}</title>
       <h1 id="page-heading" className="mb-0 flex items-start justify-center gap-3 text-center">
         <Image

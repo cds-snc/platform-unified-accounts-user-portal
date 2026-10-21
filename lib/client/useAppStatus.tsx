@@ -63,7 +63,10 @@ export const AppStatusProvider = ({ children }: { children: React.ReactNode }) =
     >
       {updateRequired && <VersionUpdater />}
       {serviceError ? (
-        <ErrorComponent error={{ name: "Service Error", message: "Service Error" }} />
+        <ErrorComponent
+          error={{ name: "Service Error", message: "Service Error" }}
+          errorCode="SSO_SERVICE_ERROR"
+        />
       ) : (
         children
       )}

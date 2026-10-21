@@ -20,7 +20,7 @@ export default function Error({ error }: { error: Error & { digest?: string } })
 
   return (
     <div className="mt-3">
-      <GenericError aboutLink={getSiteLink("about")} />
+      <GenericError aboutLink={getSiteLink("about")} errorCode="AUTH_BOUNDARY_ERROR" />
     </div>
   );
 }
