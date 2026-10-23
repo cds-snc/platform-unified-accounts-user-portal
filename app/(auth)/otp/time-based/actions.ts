@@ -15,10 +15,11 @@ import { logMessage } from "@lib/logger";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getZitadelUiError } from "@lib/zitadel-errors";
+import { getZitadelUiError, type ZitadelErrorKey } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 export type FormState = {
-  error?: string;
+  // Translated on the client so the message always matches the language the user is viewing.
+  errorKey?: ZitadelErrorKey;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: {
     code?: string;
@@ -50,7 +51,6 @@ export const handleOTPFormSubmit = AuthenticatedAction(
           fieldKey: (issue.path?.[0]?.key as string) || "code",
           fieldValue: t(`verify.validation.${issue.message}`),
         })),
-        error: undefined,
         formData: { code: normalizedCode },
       };
     }
@@ -60,15 +60,11 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     if (!response) {
       return {
         validationErrors: undefined,
-        error: undefined,
         formData: { code: normalizedCode },
       };
     }
 
     if ("error" in response) {
-      const mappedUiError = getZitadelUiError("otp.verify", response.error);
-      const mappedErrorMessage = mappedUiError ? t(mappedUiError.i18nKey) : undefined;
-
       logMessage.debug({
         message: "TOTP code submission returned error",
         error: response.error,
@@ -76,9 +72,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
 
       return {
         validationErrors: undefined,
-        error:
-          mappedErrorMessage ||
-          (typeof response.error === "string" ? response.error : t("set.genericError")),
+        errorKey: getZitadelUiError("otp.verify", response.error).errorKey,
         formData: { code: normalizedCode },
       };
     }
@@ -98,7 +92,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     return {
       validationErrors: undefined,
       formData: { code: normalizedCode },
-      error: callbackResponse.error,
+      errorKey: "set.genericError",
     };
   }
 );
@@ -116,6 +110,7 @@ async function _submitOTPCode(values: Inputs, requestId?: string) {
       message: "TOTP code verification failed during session update",
       error: e,
     });
-    return { error: e.message };
+    // Keep the original error object so getZitadelUiError can parse its details.
+    return { error: e as unknown };
   });
 }

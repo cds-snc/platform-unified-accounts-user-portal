@@ -56,7 +56,7 @@ describe("getZitadelUiError", () => {
 
     const result = getZitadelUiError("otp.verify", error);
 
-    expect(result).toEqual({ i18nKey: "set.invalidCode", blockContinue: undefined });
+    expect(result).toEqual({ errorKey: "set.invalidCode", blockContinue: undefined });
   });
 
   it("maps AlreadyExists connect errors for otp.set to alreadySetUp", () => {
@@ -67,14 +67,43 @@ describe("getZitadelUiError", () => {
 
     const result = getZitadelUiError("otp.set", error);
 
-    expect(result).toEqual({ i18nKey: "set.alreadySetUp", blockContinue: undefined });
+    expect(result).toEqual({ errorKey: "set.alreadySetUp", blockContinue: undefined });
   });
 
-  it("returns undefined when no rule matches", () => {
+  it("returns the context fallback when no rule matches", () => {
     const error = new ConnectError("not matched", Code.Internal);
+
+    expect(getZitadelUiError("otp.verify", error)).toEqual({ errorKey: "set.genericError" });
+    expect(getZitadelUiError("otp.set", error)).toEqual({
+      errorKey: "set.genericError",
+      blockContinue: true,
+    });
+  });
+
+  it("maps otp.verify errors identified only by the error detail payload to invalidCode", () => {
+    const error = new ConnectError("Errors.Session.Totp.InvalidCode", Code.Unknown, undefined, [
+      {
+        desc: ErrorDetailSchema,
+        value: { id: "OTPInvalidCode", message: "invalid code" },
+      },
+    ]);
 
     const result = getZitadelUiError("otp.verify", error);
 
-    expect(result).toBeUndefined();
+    expect(result).toEqual({ errorKey: "set.invalidCode", blockContinue: undefined });
+  });
+
+  it("maps otp.verify length errors to invalidCodeLength before invalidCode", () => {
+    const error = new ConnectError("invalid value: value length must be 6", Code.InvalidArgument);
+
+    const result = getZitadelUiError("otp.verify", error);
+
+    expect(result).toEqual({ errorKey: "set.invalidCodeLength", blockContinue: undefined });
+  });
+
+  it("returns the fallback for string errors, which cannot be parsed", () => {
+    const result = getZitadelUiError("otp.verify", "invalid code");
+
+    expect(result).toEqual({ errorKey: "set.genericError" });
   });
 });

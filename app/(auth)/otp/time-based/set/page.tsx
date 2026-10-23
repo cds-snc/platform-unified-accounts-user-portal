@@ -55,7 +55,7 @@ export default async function Page(props: {
 
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,
-    mappedUiError: ReturnType<typeof getZitadelUiError>;
+    mappedUiError: ReturnType<typeof getZitadelUiError> | undefined;
   if (session.factors?.user?.id) {
     const userId = session.factors.user.id;
 
@@ -75,7 +75,7 @@ export default async function Page(props: {
 
       mappedUiError = getZitadelUiError("otp.set", err);
 
-      if (mappedUiError?.i18nKey === "set.alreadySetUp") {
+      if (mappedUiError.errorKey === "set.alreadySetUp") {
         redirect(buildUrlWithRequestId("/mfa/set", requestId));
       }
 
@@ -98,7 +98,7 @@ export default async function Page(props: {
     urlToContinue = buildUrlWithRequestId(LOGGED_IN_HOME_PAGE, requestId);
   }
 
-  const shouldBlockContinue = Boolean(error) && (!mappedUiError || mappedUiError.blockContinue);
+  const shouldBlockContinue = Boolean(error) && Boolean(mappedUiError?.blockContinue);
 
   return (
     <>
@@ -114,9 +114,7 @@ export default async function Page(props: {
 
         {error && (
           <div className="py-4">
-            <Alert.Warning
-              body={mappedUiError ? t(mappedUiError.i18nKey) : t("set.genericError")}
-            />
+            <Alert.Warning body={t(mappedUiError?.errorKey ?? "set.genericError")} />
           </div>
         )}
 
