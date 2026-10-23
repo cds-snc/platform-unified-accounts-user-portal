@@ -15,12 +15,11 @@ import { logMessage } from "@lib/logger";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { getTotpVerifyErrorKey, type TotpVerifyErrorKey } from "@lib/zitadel-errors";
+import { getZitadelUiError, type ZitadelErrorKey } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
 export type FormState = {
-  error?: string;
   // Translated on the client so the message always matches the language the user is viewing.
-  errorKey?: TotpVerifyErrorKey;
+  errorKey?: ZitadelErrorKey;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: {
     code?: string;
@@ -52,7 +51,6 @@ export const handleOTPFormSubmit = AuthenticatedAction(
           fieldKey: (issue.path?.[0]?.key as string) || "code",
           fieldValue: t(`verify.validation.${issue.message}`),
         })),
-        error: undefined,
         formData: { code: normalizedCode },
       };
     }
@@ -62,7 +60,6 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     if (!response) {
       return {
         validationErrors: undefined,
-        error: undefined,
         formData: { code: normalizedCode },
       };
     }
@@ -75,8 +72,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
 
       return {
         validationErrors: undefined,
-        error: undefined,
-        errorKey: getTotpVerifyErrorKey(response.error),
+        errorKey: getZitadelUiError("otp.verify", response.error).errorKey,
         formData: { code: normalizedCode },
       };
     }
@@ -96,7 +92,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     return {
       validationErrors: undefined,
       formData: { code: normalizedCode },
-      error: callbackResponse.error,
+      errorKey: "set.genericError",
     };
   }
 );

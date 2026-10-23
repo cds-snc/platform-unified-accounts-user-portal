@@ -10,8 +10,9 @@ import { QRCodeSVG } from "qrcode.react";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import type { TotpVerifyErrorKey } from "@lib/zitadel-errors";
+import type { ZitadelErrorKey } from "@lib/zitadel-errors";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -23,7 +24,7 @@ import { verifyAndRegisterTOTP } from "../set/actions";
  *--------------------------------------------*/
 import { CopyToClipboard } from "./CopyToClipboard";
 type FormState = {
-  errorKey?: TotpVerifyErrorKey;
+  errorKey?: ZitadelErrorKey;
 };
 
 type Props = {
@@ -80,7 +81,16 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
             {!isPending && state.errorKey && (
               <div className="py-4">
                 <Alert type={ErrorStatus.ERROR} focussable>
-                  {t(state.errorKey)}
+                  {getSafeErrorMessageFromKey({
+                    errorKey: state.errorKey,
+                    fallbackKey: "set.genericError",
+                    allowedErrorKeys: [
+                      "set.invalidCode",
+                      "set.invalidCodeLength",
+                      "set.genericError",
+                    ],
+                    t,
+                  })}
                 </Alert>
               </div>
             )}

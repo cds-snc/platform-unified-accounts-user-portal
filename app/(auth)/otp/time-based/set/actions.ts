@@ -17,7 +17,7 @@ import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { verifyTOTPRegistration } from "@lib/zitadel";
-import { getTotpVerifyErrorKey, type TotpVerifyErrorKey } from "@lib/zitadel-errors";
+import { getZitadelUiError, type ZitadelErrorKey } from "@lib/zitadel-errors";
 
 /*--------------------------------------------*
  * Local Relative
@@ -36,7 +36,7 @@ export const verifyAndRegisterTOTP = AuthenticatedAction(
       requestId?: string;
       checkAfter?: boolean;
     }
-  ): Promise<{ errorKey: TotpVerifyErrorKey }> {
+  ): Promise<{ errorKey: ZitadelErrorKey }> {
     const normalizedCode = code.trim();
 
     const validationResult = await validateTotpCode({ code: normalizedCode });
@@ -71,7 +71,7 @@ export const verifyAndRegisterTOTP = AuthenticatedAction(
         message: "TOTP registration verification failed",
         error,
       });
-      return { errorKey: getTotpVerifyErrorKey(error) };
+      return { errorKey: getZitadelUiError("otp.verify", error).errorKey };
     }
 
     const url = buildUrlWithRequestId("/all-set", requestId);

@@ -62,7 +62,6 @@ describe("handleOTPFormSubmit", () => {
     const result = await handleOTPFormSubmit({ code: "123456", requestId: "request-123" });
 
     expect(result.errorKey).toBe("set.invalidCode");
-    expect(result.error).toBeUndefined();
     expect(result.validationErrors).toBeUndefined();
     expect(result.formData).toEqual({ code: "123456" });
     expect(completeFlowAndRedirect).not.toHaveBeenCalled();
@@ -105,7 +104,6 @@ describe("handleOTPFormSubmit", () => {
       const result = await handleOTPFormSubmit({ code: "123456" });
 
       expect(result.errorKey).toBe("set.genericError");
-      expect(result.error).toBeUndefined();
     }
   );
 
@@ -120,7 +118,7 @@ describe("handleOTPFormSubmit", () => {
     expect(result.validationErrors).toEqual([
       { fieldKey: "code", fieldValue: "translated:verify.validation.invalidCodeLength" },
     ]);
-    expect(result.error).toBeUndefined();
+    expect(result.errorKey).toBeUndefined();
     expect(updateSession).not.toHaveBeenCalled();
   });
 
@@ -135,6 +133,6 @@ describe("handleOTPFormSubmit", () => {
       sessionId: "session-123",
       requestId: "request-123",
     });
-    expect(result.error).toBe("flow failed");
+    expect(result.errorKey).toBe("set.genericError");
   });
 });
