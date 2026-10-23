@@ -75,3 +75,30 @@ export function generateTOTP(base32Secret: string, timeStep = 30, digits = 6): s
 
   return String(truncated % 10 ** digits).padStart(digits, "0");
 }
+
+const lastUsedTotpCounter = new Map<string, number>();
+
+/**
+ * Returns a TOTP code that has not already been generated for this secret in the current
+ * time window. Zitadel rejects a code that was already used, so when the current window was
+ * already consumed this waits for the next one.
+ */
+export async function generateFreshTOTP(
+  base32Secret: string,
+  timeStep = 30,
+  digits = 6
+): Promise<string> {
+  const timeStepMs = timeStep * 1000;
+  let counter = Math.floor(Date.now() / timeStepMs);
+  const lastUsed = lastUsedTotpCounter.get(base32Secret);
+
+  if (lastUsed !== undefined && counter <= lastUsed) {
+    // Wait (plus a small buffer) until the next window starts.
+    const waitMs = (lastUsed + 1) * timeStepMs - Date.now() + 500;
+    await new Promise((resolve) => setTimeout(resolve, Math.max(waitMs, 0)));
+    counter = Math.floor(Date.now() / timeStepMs);
+  }
+
+  lastUsedTotpCounter.set(base32Secret, counter);
+  return generateTOTP(base32Secret, timeStep, digits);
+}
