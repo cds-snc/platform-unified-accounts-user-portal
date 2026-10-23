@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { type RegisteredUser, registerUser } from "./utils/register";
 import { MfaType, RegistrationType } from "./utils/register";
-import { generateFreshTOTP, getRequiredEnv } from "./utils/utils";
+import { generateTOTP, getRequiredEnv } from "./utils/utils";
 import { deleteUserById, getPasswordResetCode, getZitadelAccessToken } from "./utils/zitadel";
 
 test.describe("account edit flow", () => {
@@ -75,7 +75,7 @@ test.describe("account edit flow", () => {
     await page.getByTestId("strong-factor-continue").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(await generateFreshTOTP(registeredUser.totpSecret!));
+    await page.locator("#totp #code").fill(generateTOTP(registeredUser.totpSecret!));
     await page.getByTestId("totp-submit").click();
 
     await expect(page).toHaveURL(/\/password\/reset\/set/);

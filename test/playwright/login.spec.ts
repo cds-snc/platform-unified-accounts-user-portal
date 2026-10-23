@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import * as oidc from "openid-client";
 
-import { generateFreshTOTP, getRequiredEnv } from "./utils/utils";
+import { generateTOTP, getRequiredEnv } from "./utils/utils";
 
 test.describe("login user flow", { tag: "@smoke" }, () => {
   let portalUrl: URL;
@@ -29,7 +29,7 @@ test.describe("login user flow", { tag: "@smoke" }, () => {
     await page.locator("#login button[type=submit]").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(await generateFreshTOTP(totpSecret));
+    await page.locator("#totp #code").fill(generateTOTP(totpSecret));
     await page.locator("#totp button[type=submit]").click();
 
     await expect(page.locator("#personal-details-title")).toBeVisible();
@@ -89,7 +89,7 @@ test.describe("login user flow", { tag: "@smoke" }, () => {
     await page.locator("#login button[type=submit]").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(await generateFreshTOTP(totpSecret));
+    await page.locator("#totp #code").fill(generateTOTP(totpSecret));
     await page.locator("#totp button[type=submit]").click();
 
     await expect(page).toHaveURL(

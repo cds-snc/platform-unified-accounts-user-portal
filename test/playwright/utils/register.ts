@@ -1,7 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 
 import { addVirtualAuthenticator, type VirtualAuthenticatorCredential } from "./browser";
-import { generateFreshTOTP, getRandomEmail, getRandomPassword } from "./utils";
+import { generateTOTP, getRandomEmail, getRandomPassword } from "./utils";
 import { createUserInvitation, getEmailVerificationCode, getUserIdByEmail } from "./zitadel";
 
 export const MfaType = {
@@ -103,7 +103,7 @@ export async function registerUser(
     await expect(totpLink).toBeVisible();
     const totpUrl = await totpLink.getAttribute("href");
     registeredUser.totpSecret = new URL(totpUrl!).searchParams.get("secret")!;
-    await page.locator("#totp-form #code").fill(await generateFreshTOTP(registeredUser.totpSecret));
+    await page.locator("#totp-form #code").fill(generateTOTP(registeredUser.totpSecret));
     await page.locator("#totp-form button[type='submit']").click();
   } else if (mfaType === MfaType.U2F) {
     await expect(page.locator("#keyName")).toBeVisible();
