@@ -2,42 +2,31 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { Viewport } from "next";
-import { Lato, Noto_Sans } from "next/font/google";
+import { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import { dir } from "i18next";
 
 import { AppStatusProvider } from "@lib/client/useAppStatus";
 import { SiteConfigService } from "@lib/site-config";
+import { serverTranslation } from "@i18n/server";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { languages } from "@i18n/settings";
 import { SiteConfigProvider } from "@components/contexts/SiteConfigContext";
 import RouterDebugger from "@components/debugging/RouterDebugger";
+import { DocumentShell } from "@components/layout/DocumentShell";
 import ServiceWorker from "@components/layout/ServiceWorker";
-
-/*--------------------------------------------*
- * Styles
- *--------------------------------------------*/
-import "@root/styles/app.css";
-
-const notoSans = Noto_Sans({
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-noto-sans",
-  subsets: ["latin"],
-});
-
-const lato = Lato({
-  weight: ["400", "700"],
-  variable: "--font-lato",
-  subsets: ["latin"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await serverTranslation("common");
+  return { title: t("title") };
+}
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const [requestCookies, requestHeaders] = await Promise.all([cookies(), headers()]);
@@ -47,38 +36,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const siteConfig = await SiteConfigService.getInstance();
 
   return (
-    <html lang={locale} dir={dir(locale)} className={`${notoSans.variable} ${lato.variable}`}>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta charSet="utf-8" />
-        <link
-          rel="shortcut icon"
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH}/favicon.ico`}
-          type="image/x-icon"
-          sizes="32x32"
-        />
-        <style nonce={nonce}>
-          {`@font-face {
-  font-family: "gcds-icons";
-  src: url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.eot");
-  src:
-  url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.eot#iefix") format("embedded-opentype"),
-  url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.ttf") format("truetype"),
-  url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.woff") format("woff"),
-  url("${process.env.NEXT_PUBLIC_BASE_PATH}/fonts/icons/gcds-icons.svg") format("svg");
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
-  }`}
-        </style>
-      </head>
-      <body>
-        {!isDev && <ServiceWorker />}
-        {process.env.DEBUG && <RouterDebugger />}
-        <SiteConfigProvider siteConfig={siteConfig.resolve()}>
-          <AppStatusProvider>{children}</AppStatusProvider>
-        </SiteConfigProvider>
-      </body>
-    </html>
+    <DocumentShell locale={locale} direction={dir(locale)} iconFontNonce={nonce} includeIconFont>
+      {!isDev && <ServiceWorker />}
+      {process.env.DEBUG && <RouterDebugger />}
+      <SiteConfigProvider siteConfig={siteConfig.resolve()}>
+        <AppStatusProvider>{children}</AppStatusProvider>
+      </SiteConfigProvider>
+    </DocumentShell>
   );
 }

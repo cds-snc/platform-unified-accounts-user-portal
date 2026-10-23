@@ -15,7 +15,10 @@
     "externalLinkIconLabel": " (Opens in a new tab.)"
   },
   "error": {
-    "title": "Something went wrong"
+    "title": "There's a problem with our site.",
+    "instructions": "Try again in a while.",
+    "about": "About GC Forms",
+    "contact": "Contact Support"
   },
   "header": {
     "lang-toggle": "Language selection",

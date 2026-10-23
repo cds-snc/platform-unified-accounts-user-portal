@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.6.2](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.1...v1.6.2) (2026-10-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency next to v16.4.1 [security] ([#590](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/590)) ([cdc29ef](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/cdc29ef15b92a3e8866aa1e0910802329247eba0))
+
+
+### Miscellaneous Chores
+
+* update error page design ([#581](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/581)) ([b1f76f9](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/b1f76f9dd4b532ba3bfb42f9e1f6eddb95642db5))
+
+## [1.6.1](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.0...v1.6.1) (2026-10-21)
+
+
+### Miscellaneous Chores
+
+* upgrade to latest Node 24 ([#587](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/587)) ([a1fbe3d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/a1fbe3de0f6914f1b1640bae33074d9703588a5c))
+
 ## [1.6.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.5.0...v1.6.0) (2026-10-19)
 
 
