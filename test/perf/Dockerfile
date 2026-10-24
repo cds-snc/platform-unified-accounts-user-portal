@@ -1,4 +1,4 @@
-FROM grafana/k6:2.3.0-with-browser@sha256:fd3bc5d244f87e7d05152ede97b99813a381a83b639a4e43e1939b56460544ee
+FROM grafana/k6:2.3.0-with-browser@sha256:8663335c8c1c5a40dd51823ef980c584761a4a084a2297fca29a29ee495c6bc1
 
 ARG GIT_SHA
 
