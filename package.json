@@ -1,6 +1,6 @@
 {
   "name": "platform-unified-accounts-user-portal",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "private": true,
   "prettier": {
     "plugins": [

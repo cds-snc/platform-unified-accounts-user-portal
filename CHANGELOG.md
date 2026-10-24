@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.3](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.2...v1.6.3) (2026-10-24)
+
+
+### Bug Fixes
+
+* switch to ARM64 runner ([#591](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/591)) ([a7feb13](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/a7feb13a9024b3f8414ff8ae0814203ff6c3f14a))
+
+
+### Miscellaneous Chores
+
+* **deps:** update node.js to 06d7adf ([#593](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/593)) ([93586bb](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/93586bb820f638441928bf2f53aeb049e0ba9f16))
+
 ## [1.6.2](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.1...v1.6.2) (2026-10-22)
 
 
