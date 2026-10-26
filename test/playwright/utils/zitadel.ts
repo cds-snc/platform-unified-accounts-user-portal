@@ -12,8 +12,6 @@ import {
 import { createSign } from "crypto";
 import { createHmac } from "node:crypto";
 
-import { getRequiredEnv } from "./utils";
-
 let userService: Client<typeof UserService>;
 
 function getUserService(accessToken: string, apiBaseUrl: string): Client<typeof UserService> {
@@ -177,7 +175,8 @@ export async function getPasswordResetCode(
 export async function getPasswordResetLink(
   userId: string,
   accessToken: string,
-  apiBaseUrl: string
+  apiBaseUrl: string,
+  passwordResetSecret: string
 ) {
   const { user } = await getUserService(accessToken, apiBaseUrl).getUserByID({ userId });
   if (!user || user.type.case !== "human") {
@@ -185,7 +184,7 @@ export async function getPasswordResetLink(
   }
   const passwordChanged = user.type.value.passwordChanged;
   const payload = { userId, expiry: Math.floor(Date.now() / 1000) + 15 * 60 };
-  const signature = createHmac("sha256", getRequiredEnv("PASSWORD_RESET_SECRET"))
+  const signature = createHmac("sha256", passwordResetSecret)
     .update(
       JSON.stringify({
         ...payload,
