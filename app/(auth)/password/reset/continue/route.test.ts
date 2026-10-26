@@ -150,6 +150,29 @@ describe("GET /password/reset/continue", () => {
     });
   });
 
+  it("keeps a signed OIDC requestId on the session and the MFA redirect", async () => {
+    const requestId = "oidc_V2_123456789";
+    const response = await GET(request(signResetLink({ userId, passwordChanged, requestId })));
+
+    expect(response.headers.get("location")).toBe(
+      `https://portal.test/password/reset/verify?requestId=${requestId}`
+    );
+    expect(addSessionToCookie).toHaveBeenCalledExactlyOnceWith({
+      session: expect.objectContaining({ id: "session-1", requestId }),
+    });
+  });
+
+  it("keeps a signed OIDC requestId when session creation fails", async () => {
+    const requestId = "oidc_V2_123456789";
+    vi.mocked(createSessionFromChecks).mockRejectedValue(new Error("boom"));
+
+    const response = await GET(request(signResetLink({ userId, passwordChanged, requestId })));
+
+    expect(response.headers.get("location")).toBe(
+      `https://portal.test/password/reset?requestId=${requestId}`
+    );
+  });
+
   it.each([undefined, "", "invalid", "invalid.signature"])(
     "uses the same reset redirect for missing or malformed token %s",
     async (token) => {

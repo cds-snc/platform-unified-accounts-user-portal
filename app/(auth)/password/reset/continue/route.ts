@@ -12,6 +12,7 @@ import { logMessage } from "@lib/logger";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
 import { verifyResetLink } from "@lib/server/password-reset";
 import { constructUrl } from "@lib/service-url";
+import { buildUrlWithRequestId } from "@lib/utils";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token") ?? "";
@@ -19,16 +20,17 @@ export async function GET(request: NextRequest) {
   let path = "/password/reset";
 
   if (resetLink) {
+    const { requestId } = resetLink;
     path = await createSessionAndUpdateCookie({
       checks: create(ChecksSchema, {
         user: { search: { case: "userId", value: resetLink.userId } },
       }),
-      requestId: undefined,
+      requestId,
     })
-      .then(() => "/password/reset/verify")
+      .then(() => buildUrlWithRequestId("/password/reset/verify", requestId))
       .catch((error) => {
         logMessage.warn("Password reset link session could not be created", { error });
-        return "/password/reset";
+        return buildUrlWithRequestId("/password/reset", requestId);
       });
   }
 
