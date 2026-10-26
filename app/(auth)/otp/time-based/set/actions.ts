@@ -11,11 +11,13 @@ import { AuthenticatedAction } from "@lib/actions/authenticated";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { logMessage } from "@lib/logger";
 import { AuthLevel } from "@lib/server/route-protection";
 import { updateSession } from "@lib/server/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { verifyTOTPRegistration } from "@lib/zitadel";
+import { getZitadelUiError, type ZitadelErrorKey } from "@lib/zitadel-errors";
 
 /*--------------------------------------------*
  * Local Relative
@@ -34,38 +36,44 @@ export const verifyAndRegisterTOTP = AuthenticatedAction(
       requestId?: string;
       checkAfter?: boolean;
     }
-  ) {
+  ): Promise<{ errorKey: ZitadelErrorKey }> {
     const normalizedCode = code.trim();
 
-    await validateTotpCode({ code: normalizedCode }).then((result) => {
-      if (!result.success) {
-        // Not returning a pretty error as this validation would be caught on the client
-        // during normal processing
-        throw new Error("Invalid TOTP Code Format");
-      }
-    });
-
-    await verifyTOTPRegistration({
-      code: normalizedCode,
-      userId: session.factors.user.id,
-    });
-
-    if (checkAfter) {
-      // Reuse the just-entered TOTP code to verify the active session inline.
-      const checks = create(ChecksSchema, {
-        totp: { code: normalizedCode },
-      });
-
-      // Mark second-factor checks complete for this session during setup.
-      const sessionResponse = await updateSession({
-        checks,
-        requestId,
-      });
-
-      if (sessionResponse && "error" in sessionResponse && sessionResponse.error) {
-        throw sessionResponse.error;
-      }
+    const validationResult = await validateTotpCode({ code: normalizedCode });
+    if (!validationResult.success) {
+      return { errorKey: "set.invalidCodeLength" };
     }
+
+    try {
+      await verifyTOTPRegistration({
+        code: normalizedCode,
+        userId: session.factors.user.id,
+      });
+
+      if (checkAfter) {
+        // Reuse the just-entered TOTP code to verify the active session inline.
+        const checks = create(ChecksSchema, {
+          totp: { code: normalizedCode },
+        });
+
+        // Mark second-factor checks complete for this session during setup.
+        const sessionResponse = await updateSession({
+          checks,
+          requestId,
+        });
+
+        if (sessionResponse && "error" in sessionResponse && sessionResponse.error) {
+          throw sessionResponse.error;
+        }
+      }
+    } catch (error) {
+      logMessage.debug({
+        message: "TOTP registration verification failed",
+        error,
+      });
+      return { errorKey: getZitadelUiError("otp.verify", error).errorKey };
+    }
+
     const url = buildUrlWithRequestId("/all-set", requestId);
     redirect(url);
   }
