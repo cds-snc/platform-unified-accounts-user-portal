@@ -13,6 +13,7 @@ export async function GET() {
     "ZITADEL_ORGANIZATION",
     "HCAPTCHA_SITE_KEY",
     "HCAPTCHA_SECRET",
+    "PASSWORD_RESET_SECRET",
   ];
   const missing = requiredEnvVars.filter((key) => !process.env[key]);
   const hasServiceUserToken = Boolean(

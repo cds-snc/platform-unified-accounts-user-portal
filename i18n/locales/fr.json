@@ -260,7 +260,7 @@
       "title": "Réinitialiser votre mot de passe",
       "description": "Réinitialisez votre mot de passe pour continuer à utiliser Formulaires GC.",
       "submit": "Continuer",
-      "emailSent": "FR - If an account exists for this email address, we sent a link to reset your password. Open it in this browser within 15 minutes.",
+      "emailSent": "FR - If an account exists for this email address, we sent a link to reset your password. The link will expire in 15 minutes.",
       "labels": {
         "confirmationCode": "Code de confirmation"
       },

@@ -8,6 +8,7 @@ describe("GET /healthy", () => {
     "ZITADEL_ORGANIZATION",
     "HCAPTCHA_SITE_KEY",
     "HCAPTCHA_SECRET",
+    "PASSWORD_RESET_SECRET",
   ];
   const serviceUserTokenEnvVars = ["ZITADEL_SERVICE_USER_TOKEN", "ZITADEL_SERVICE_USER_TOKEN_FILE"];
   const sessionCookieSecret = "test-session-cookie-secret-at-least-32-chars";
