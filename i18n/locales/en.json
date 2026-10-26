@@ -355,9 +355,9 @@
     "incomplete": {
       "pageTitle": "A few more steps",
       "title": "A few more steps to verify your account",
-      "item1": "You entered your GC email and chose a password",
-      "item2": "Next step: Send a code to your GC email to validate your account",
-      "action": "Send Code",
+      "item1": "You entered your government email and chose a password",
+      "item2": "Next step: Send a code to your email to validate your account",
+      "action": "Send code",
       "hint": "We'll prompt you to enter the code and add a verification method"
     },
     "methods": {
