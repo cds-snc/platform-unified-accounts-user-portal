@@ -6,16 +6,12 @@
 
 import { after } from "next/server";
 import { GCNotifyConnector } from "@gcforms/connectors";
-import { create, Duration } from "@zitadel/client";
+import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { AuthenticatedAction } from "@lib/actions/authenticated";
-import {
-  deletePasswordResetCookie,
-  PASSWORD_RESET_TTL_SECONDS,
-  setPasswordResetCookie,
-} from "@lib/cookies";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -25,19 +21,14 @@ import {
 } from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
-import { createResetKey, sealResetSession } from "@lib/server/password-reset";
+import { signResetLink } from "@lib/server/password-reset";
 import { SiteConfigService } from "@lib/site-config";
 import {
   validateCode,
   validatePassword,
   validateUsername,
 } from "@lib/validation/validationSchemas";
-import {
-  createSessionFromChecks,
-  listAuthenticationMethodTypes,
-  listUsers,
-  passwordResetWithReturn,
-} from "@lib/zitadel";
+import { listAuthenticationMethodTypes, listUsers, passwordResetWithReturn } from "@lib/zitadel";
 import { serverTranslation } from "@i18n/server";
 
 type SendResetCodeCommand = {
@@ -55,17 +46,14 @@ export const submitUserNameForm = async (
     return { error: t("errors.couldNotSendResetLink") };
   }
 
-  const key = createResetKey();
-  await setPasswordResetCookie(key);
-
   // Send the password reset email after the response is sent to the client
   // so that timing attacks cannot be used to infer valid usernames
-  after(() => sendPasswordResetEmail(command, key));
+  after(() => sendPasswordResetEmail(command));
 
   return { success: true };
 };
 
-async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCommand, key: string) {
+async function sendPasswordResetEmail({ loginName }: SendResetCodeCommand) {
   const apiKey = process.env.NOTIFY_API_KEY;
   const templateId = process.env.TEMPLATE_ID;
 
@@ -78,9 +66,14 @@ async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCom
     const users = await listUsers({ loginName });
     const user = users.details?.totalResult === BigInt(1) ? users.result[0] : undefined;
     const email = user?.type.case === "human" ? user.type.value.email : undefined;
-
-    if (!user?.userId || !email?.email || !email.isVerified) {
-      logMessage.info("Password reset requested for unknown or unverified account");
+    if (
+      !user?.userId ||
+      !email?.email ||
+      !email.isVerified ||
+      user.type.case !== "human" ||
+      user.state !== UserState.ACTIVE
+    ) {
+      logMessage.info("Password reset requested for unknown or ineligible account");
       return;
     }
 
@@ -105,17 +98,12 @@ async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCom
       throw new Error("Password reset code missing from response");
     }
 
-    const resetSession = await createSessionFromChecks({
-      checks: create(ChecksSchema, {
-        user: { search: { case: "userId", value: user.userId } },
+    const params = new URLSearchParams({
+      token: signResetLink({
+        userId: user.userId,
+        passwordChanged: user.type.value.passwordChanged,
       }),
-      lifetime: { seconds: BigInt(PASSWORD_RESET_TTL_SECONDS), nanos: 0 } as Duration,
     });
-
-    const params = new URLSearchParams({ token: sealResetSession(resetSession, key) });
-    if (requestId) {
-      params.set("requestId", requestId);
-    }
 
     await gcNotify.sendEmail(
       email.email,
@@ -125,8 +113,8 @@ async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCom
         siteConfig.getSiteLink(`password/reset/continue?${params}`)
       )
     );
-  } catch {
-    logMessage.error("Failed to send password reset email");
+  } catch (error) {
+    logMessage.error("Failed to send password reset email", { error });
   }
 }
 
@@ -159,8 +147,6 @@ export const resetPassword = AuthenticatedAction(
     if ("error" in changeResponse) {
       throw new Error(changeResponse.error);
     }
-
-    await deletePasswordResetCookie();
 
     await verifyPassword({
       loginName: session.factors.user.loginName ?? "",

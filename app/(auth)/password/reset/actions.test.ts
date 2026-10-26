@@ -1,15 +1,18 @@
+import { cookies } from "next/headers";
 import { after } from "next/server";
 import { GCNotifyConnector } from "@gcforms/connectors";
 import { create } from "@zitadel/client";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import {
   AuthenticationMethodType,
   SetPasswordResponseSchema,
 } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
+import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { deletePasswordResetCookie, setPasswordResetCookie } from "@lib/cookies";
+import { logMessage } from "@lib/logger";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
-import { createResetKey, openResetSession } from "@lib/server/password-reset";
+import { PASSWORD_RESET_TTL_SECONDS } from "@lib/server/password-reset";
 import { checkAuthenticationLevel } from "@lib/server/route-protection";
 import {
   createSessionFromChecks,
@@ -21,12 +24,6 @@ import {
 import { setupServerActionContext } from "../../../../test/helpers/serverAction";
 
 import { resetPassword, submitUserNameForm } from "./actions";
-
-vi.mock("@lib/cookies", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@lib/cookies")>()),
-  setPasswordResetCookie: vi.fn(),
-  deletePasswordResetCookie: vi.fn(),
-}));
 
 vi.mock("@lib/server/password", () => ({
   passwordResetWithCode: vi.fn(),
@@ -64,6 +61,7 @@ vi.mock("@lib/site-config", () => ({
 
 vi.mock("@lib/zitadel", () => ({
   createSessionFromChecks: vi.fn(),
+  getUserByID: vi.fn(),
   listAuthenticationMethodTypes: vi.fn(),
   listUsers: vi.fn(),
   passwordResetWithReturn: vi.fn(),
@@ -84,8 +82,7 @@ vi.mock("@lib/logger", () => ({
 
 describe("submitUserNameForm", () => {
   const sendEmail = vi.fn();
-  const originalNotifyApiKey = process.env.NOTIFY_API_KEY;
-  const originalTemplateId = process.env.TEMPLATE_ID;
+  const passwordChanged = { seconds: 1700000000, nanos: 123456789 };
 
   const submit = async () => {
     const response = await submitUserNameForm({
@@ -98,6 +95,8 @@ describe("submitUserNameForm", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-20T12:00:00Z"));
     setupServerActionContext();
 
     vi.mocked(listUsers).mockResolvedValue({
@@ -105,9 +104,11 @@ describe("submitUserNameForm", () => {
       result: [
         {
           userId: "user-123",
+          state: UserState.ACTIVE,
           type: {
             case: "human",
             value: {
+              passwordChanged,
               email: {
                 email: "person@canada.ca",
                 isVerified: true,
@@ -133,8 +134,9 @@ describe("submitUserNameForm", () => {
     sendEmail.mockResolvedValue(undefined);
     vi.mocked(GCNotifyConnector.default).mockReturnValue({ sendEmail } as never);
 
-    process.env.NOTIFY_API_KEY = "notify-key";
-    process.env.TEMPLATE_ID = "template-123";
+    vi.stubEnv("NOTIFY_API_KEY", "notify-key");
+    vi.stubEnv("TEMPLATE_ID", "template-123");
+    vi.stubEnv("PASSWORD_RESET_SECRET", "reset-signing-secret");
   });
 
   it("responds the same and sends no email when no account exists", async () => {
@@ -146,28 +148,56 @@ describe("submitUserNameForm", () => {
     const response = await submit();
 
     expect(response).toEqual({ success: true });
-    expect(setPasswordResetCookie).toHaveBeenCalledWith(expect.any(String));
+    expect(cookies).not.toHaveBeenCalled();
     expect(sendEmail).not.toHaveBeenCalled();
+    expect(passwordResetWithReturn).not.toHaveBeenCalled();
   });
 
-  it("emails a reset link that only opens with the requesting browser's cookie", async () => {
+  it("defers all user lookups and reset code requests until after the response", async () => {
+    await expect(submitUserNameForm({ loginName: "person@canada.ca" })).resolves.toEqual({
+      success: true,
+    });
+    expect(after).toHaveBeenCalledExactlyOnceWith(expect.any(Function));
+    expect(listUsers).not.toHaveBeenCalled();
+    expect(passwordResetWithReturn).not.toHaveBeenCalled();
+    expect(cookies).not.toHaveBeenCalled();
+    expect(createSessionFromChecks).not.toHaveBeenCalled();
+  });
+
+  it("emails the Zitadel code and a signed link containing only a token, without a session or cookie", async () => {
     const response = await submit();
 
     expect(response).toEqual({ success: true });
     const [email, , template] = sendEmail.mock.calls[0];
     expect(email).toBe("person@canada.ca");
     expect(template.formResponse).toContain("reset-456");
-    expect(template.formResponse).toContain("requestId=req-123");
-
-    const token = new URL(
-      template.formResponse.match(/\((https:\/\/auth\.example\/[^)]+)\)/)[1]
-    ).searchParams.get("token") as string;
-    const key = vi.mocked(setPasswordResetCookie).mock.calls[0][0];
-    expect(openResetSession(token, key)).toEqual({
-      sessionId: "session-1",
-      sessionToken: "token-1",
+    const url = new URL(template.formResponse.match(/\((https:\/\/auth\.example\/[^)]+)\)/)[1]);
+    expect(url.pathname).toBe("/password/reset/continue");
+    expect([...url.searchParams.keys()]).toEqual(["token"]);
+    const token = url.searchParams.get("token")!;
+    const [payload, signature] = token.split(".");
+    const expiry = Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS;
+    expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
+      userId: "user-123",
+      expiry,
     });
-    expect(openResetSession(token, createResetKey())).toBeUndefined();
+    expect(signature).toBe(
+      createHmac("sha256", "reset-signing-secret")
+        .update(
+          JSON.stringify({
+            userId: "user-123",
+            expiry,
+            passwordChanged: {
+              seconds: String(passwordChanged.seconds),
+              nanos: passwordChanged.nanos,
+            },
+          })
+        )
+        .digest("base64url")
+    );
+    expect(passwordResetWithReturn).toHaveBeenCalledExactlyOnceWith({ userId: "user-123" });
+    expect(cookies).not.toHaveBeenCalled();
+    expect(createSessionFromChecks).not.toHaveBeenCalled();
   });
 
   it("emails users without strong MFA to contact support", async () => {
@@ -181,17 +211,41 @@ describe("submitUserNameForm", () => {
     expect(createSessionFromChecks).not.toHaveBeenCalled();
   });
 
-  it("does not create a cookie when username validation fails", async () => {
+  it("does not schedule email or access cookies when username validation fails", async () => {
     await expect(submitUserNameForm({ loginName: "" })).resolves.toEqual({
       error: "translated:errors.couldNotSendResetLink",
     });
-    expect(setPasswordResetCookie).not.toHaveBeenCalled();
+    expect(cookies).not.toHaveBeenCalled();
     expect(after).not.toHaveBeenCalled();
   });
 
+  it("does not send email when Zitadel does not return a reset code", async () => {
+    vi.mocked(passwordResetWithReturn).mockResolvedValue({});
+    await expect(submit()).resolves.toEqual({ success: true });
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(logMessage.error).toHaveBeenCalledWith("Failed to send password reset email", {
+      error: expect.any(Error),
+    });
+  });
+
+  it("does not send email when the reset signing secret is missing", async () => {
+    vi.stubEnv("PASSWORD_RESET_SECRET", undefined);
+    await expect(submit()).resolves.toEqual({ success: true });
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(logMessage.error).toHaveBeenCalledWith("Failed to send password reset email", {
+      error: expect.any(Error),
+    });
+  });
+
+  it("preserves the non-enumerating response when email delivery fails", async () => {
+    sendEmail.mockRejectedValue(new Error("Notify unavailable"));
+    await expect(submit()).resolves.toEqual({ success: true });
+    expect(logMessage.error).toHaveBeenCalled();
+  });
+
   afterEach(() => {
-    process.env.NOTIFY_API_KEY = originalNotifyApiKey;
-    process.env.TEMPLATE_ID = originalTemplateId;
+    vi.unstubAllEnvs();
+    vi.useRealTimers();
   });
 });
 
@@ -206,13 +260,13 @@ describe("resetPassword", () => {
     vi.mocked(passwordResetWithCode).mockResolvedValue(create(SetPasswordResponseSchema));
   });
 
-  it("deletes the reset cookie after resetting the password and before verification", async () => {
-    vi.mocked(passwordResetWithCode).mockImplementationOnce(async () => {
-      expect(deletePasswordResetCookie).not.toHaveBeenCalled();
-      return create(SetPasswordResponseSchema);
-    });
+  it("resets the password with the code after MFA, then verifies the new password", async () => {
     vi.mocked(verifyPassword).mockImplementationOnce(async () => {
-      expect(deletePasswordResetCookie).toHaveBeenCalledExactlyOnceWith();
+      expect(passwordResetWithCode).toHaveBeenCalledExactlyOnceWith({
+        code: command.code,
+        password: command.password,
+        userId: "user-123",
+      });
     });
 
     await resetPassword(command);
@@ -222,16 +276,23 @@ describe("resetPassword", () => {
       password: command.password,
       userId: "user-123",
     });
-    expect(deletePasswordResetCookie).toHaveBeenCalledExactlyOnceWith();
-    expect(verifyPassword).toHaveBeenCalled();
+    expect(checkAuthenticationLevel).toHaveBeenCalledWith("mfa_no_password", undefined, {
+      requireEmailVerified: true,
+    });
+    expect(verifyPassword).toHaveBeenCalledWith({
+      loginName: "person@canada.ca",
+      checks: expect.objectContaining({
+        password: expect.objectContaining({ password: command.password }),
+      }),
+      requestId: command.requestId,
+    });
   });
 
-  it("preserves the reset cookie when resetting the password fails", async () => {
+  it("does not verify the password when resetting it fails", async () => {
     vi.mocked(passwordResetWithCode).mockResolvedValue({ error: "Reset failed" });
 
     await expect(resetPassword(command)).rejects.toThrow("Error in server action");
 
-    expect(deletePasswordResetCookie).not.toHaveBeenCalled();
     expect(verifyPassword).not.toHaveBeenCalled();
   });
 });

@@ -11,13 +11,13 @@ export const getPasswordResetTemplate = (
   formResponse: `
 **Reset your password | Réinitialiser votre mot de passe**
 
-[Continue resetting your password](${resetLink}) in the same browser within 15 minutes, then use the following code. 
+[Continue resetting your password](${resetLink}). When asked for a security code, use the following: 
 
 **${resetCode}**
 
 ---
 
-FR - [Continue resetting your password](${resetLink}) in the same browser within 15 minutes, then use the following code. 
+FR - [Continue resetting your password](${resetLink}). When asked for a security code, use the following: 
 
 **${resetCode}**
 `,

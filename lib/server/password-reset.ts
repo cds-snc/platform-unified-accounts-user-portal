@@ -1,37 +1,115 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { logMessage } from "@lib/logger";
+import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
 
-type ResetSession = { sessionId: string; sessionToken: string };
+export const PASSWORD_RESET_TTL_SECONDS = 15 * 60;
 
-export const createResetKey = () => randomBytes(32).toString("base64url");
+type ResetLink = { userId: string; expiry: number };
+type PasswordChanged = { seconds: bigint | string | number; nanos: number } | undefined;
 
-// The session token is encrypted with a key that only exists in the requesting browser's cookie.
-export function sealResetSession(session: ResetSession, key: string): string {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", Buffer.from(key, "base64url"), iv);
-  const data = Buffer.concat([cipher.update(JSON.stringify(session)), cipher.final()]);
-  return Buffer.concat([iv, cipher.getAuthTag(), data]).toString("base64url");
+function getResetSecret(): string {
+  const secret = process.env.PASSWORD_RESET_SECRET;
+  if (!secret) {
+    throw new Error("Missing PASSWORD_RESET_SECRET environment variable");
+  }
+  return secret;
 }
 
-export function openResetSession(sealed: string, key: string): ResetSession | undefined {
-  let session = undefined;
+function signatureInput({ userId, expiry }: ResetLink, passwordChanged: PasswordChanged): string {
+  return JSON.stringify({
+    userId,
+    expiry,
+    // Zitadel timestamps may have bigint, number or serialized string seconds.
+    passwordChanged: passwordChanged
+      ? { seconds: String(passwordChanged.seconds), nanos: passwordChanged.nanos }
+      : null,
+  });
+}
 
+export function signResetLink({
+  userId,
+  passwordChanged,
+}: {
+  userId: string;
+  passwordChanged: PasswordChanged;
+}): string {
+  const payload: ResetLink = {
+    userId,
+    expiry: Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS,
+  };
+  const signature = createHmac("sha256", getResetSecret())
+    .update(signatureInput(payload, passwordChanged))
+    .digest("base64url");
+  return `${Buffer.from(JSON.stringify(payload)).toString("base64url")}.${signature}`;
+}
+
+export async function verifyResetLink(token: string): Promise<ResetLink | undefined> {
   try {
-    const buffer = Buffer.from(sealed, "base64url");
-    const decipher = createDecipheriv(
-      "aes-256-gcm",
-      Buffer.from(key, "base64url"),
-      buffer.subarray(0, 12)
-    );
-    decipher.setAuthTag(buffer.subarray(12, 28));
-    const data = Buffer.concat([decipher.update(buffer.subarray(28)), decipher.final()]);
-    session = JSON.parse(data.toString());
-  } catch (error) {
-    logMessage.warn("Failed to open password reset session", { error });
-  }
+    const [encodedPayload, encodedSignature, extra] = token.split(".");
+    if (
+      !encodedPayload ||
+      !encodedSignature ||
+      extra !== undefined ||
+      !/^[A-Za-z0-9_-]+$/.test(encodedPayload)
+    ) {
+      throw new Error("Invalid password reset link format");
+    }
 
-  return session;
+    const payload: unknown = JSON.parse(Buffer.from(encodedPayload, "base64url").toString());
+    if (
+      !payload ||
+      typeof payload !== "object" ||
+      !("expiry" in payload) ||
+      typeof payload.expiry !== "number" ||
+      !Number.isSafeInteger(payload.expiry) ||
+      payload.expiry <= Math.floor(Date.now() / 1000)
+    ) {
+      throw new Error("Invalid or expired password reset link expiry");
+    }
+    if (!("userId" in payload) || typeof payload.userId !== "string" || !payload.userId) {
+      throw new Error("Invalid password reset link user ID");
+    }
+    const resetLink = { userId: payload.userId, expiry: payload.expiry };
+
+    const { user } = await getUserByID(resetLink.userId);
+    if (
+      !user ||
+      user.userId !== resetLink.userId ||
+      user.type.case !== "human" ||
+      user.state !== UserState.ACTIVE
+    ) {
+      throw new Error("Password reset link user is not an active human");
+    }
+
+    const { authMethodTypes = [] } = await listAuthenticationMethodTypes(user.userId);
+    if (
+      !authMethodTypes.includes(AuthenticationMethodType.TOTP) &&
+      !authMethodTypes.includes(AuthenticationMethodType.U2F)
+    ) {
+      throw new Error("Password reset link user has no strong MFA method");
+    }
+
+    if (!/^[A-Za-z0-9_-]{43}$/.test(encodedSignature)) {
+      throw new Error("Invalid password reset link signature format");
+    }
+    const signature = Buffer.from(encodedSignature, "base64url");
+    if (signature.toString("base64url") !== encodedSignature) {
+      throw new Error("Invalid password reset link signature encoding");
+    }
+    const input = signatureInput(resetLink, user.type.value.passwordChanged);
+    const expectedSignature = createHmac("sha256", getResetSecret()).update(input).digest();
+    if (!timingSafeEqual(signature, expectedSignature)) {
+      throw new Error("Password reset link signature did not match");
+    }
+
+    return resetLink;
+  } catch (error) {
+    logMessage.warn("Failed to verify password reset link", { error });
+    return undefined;
+  }
 }

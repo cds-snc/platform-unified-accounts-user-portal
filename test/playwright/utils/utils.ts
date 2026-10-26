@@ -1,4 +1,4 @@
-import { createCipheriv, createHmac, randomBytes } from "node:crypto";
+import { createHmac, randomBytes } from "node:crypto";
 
 export function getRequiredEnv(name: string): string {
   const value = process.env[name];
@@ -24,16 +24,6 @@ export function getRandomEmail(email: string, aliasLength = 8): string {
 export function getRandomPassword(length = 16): string {
   const randomPassword = randomBytes(length).toString("hex").slice(0, length);
   return `${randomPassword}aA1!`;
-}
-
-export function sealResetSession(
-  session: { sessionId: string; sessionToken: string },
-  key: string
-): string {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", Buffer.from(key, "base64url"), iv);
-  const data = Buffer.concat([cipher.update(JSON.stringify(session)), cipher.final()]);
-  return Buffer.concat([iv, cipher.getAuthTag(), data]).toString("base64url");
 }
 
 function base32Decode(encoded: string): Buffer {
