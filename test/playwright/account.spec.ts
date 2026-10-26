@@ -64,7 +64,7 @@ test.describe("account edit flow", () => {
     await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
   });
 
-  test.skip("updates a user's password using forgot password", async ({ page }) => {
+  test("updates a user's password using forgot password", async ({ page }) => {
     const newPassword = "ForgotPassword123!";
     if (!registeredUser) {
       throw new Error("Registered user is required for this test");
