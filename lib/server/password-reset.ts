@@ -22,10 +22,14 @@ function getResetSecret(): string {
   return secret;
 }
 
-function signatureInput({ userId, expiry }: ResetLink, passwordChanged: PasswordChanged): string {
+function signatureInput(
+  { userId, expiry, requestId }: ResetLink,
+  passwordChanged: PasswordChanged
+): string {
   return JSON.stringify({
     userId,
     expiry,
+    ...(requestId ? { requestId } : {}),
     // Zitadel timestamps may have bigint, number or serialized string seconds.
     passwordChanged: passwordChanged
       ? { seconds: String(passwordChanged.seconds), nanos: passwordChanged.nanos }
@@ -36,13 +40,18 @@ function signatureInput({ userId, expiry }: ResetLink, passwordChanged: Password
 export function signResetLink({
   userId,
   passwordChanged,
+  requestId,
 }: {
   userId: string;
   passwordChanged: PasswordChanged;
+  requestId?: string;
 }): string {
   const payload: ResetLink = {
     userId,
     expiry: Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS,
+    ...(requestId
+      ? { requestId: v.parse(resetPasswordLinkSchema.entries.requestId, requestId) }
+      : {}),
   };
   const signature = createHmac("sha256", getResetSecret())
     .update(signatureInput(payload, passwordChanged))

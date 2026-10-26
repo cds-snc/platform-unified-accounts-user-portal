@@ -26,6 +26,7 @@ import { SiteConfigService } from "@lib/site-config";
 import {
   validateCode,
   validatePassword,
+  validateRequestId,
   validateUsername,
 } from "@lib/validation/validationSchemas";
 import { listAuthenticationMethodTypes, listUsers, passwordResetWithReturn } from "@lib/zitadel";
@@ -48,12 +49,17 @@ export const submitUserNameForm = async (
 
   // Send the password reset email after the response is sent to the client
   // so that timing attacks cannot be used to infer valid usernames
-  after(() => sendPasswordResetEmail(command));
+  if (process.env.PR_REVIEW !== "true") {
+    after(() => sendPasswordResetEmail(command));
+  } else {
+    // In Lambda PR review environments, `after()` does not work reliably
+    await sendPasswordResetEmail(command);
+  }
 
   return { success: true };
 };
 
-async function sendPasswordResetEmail({ loginName }: SendResetCodeCommand) {
+async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCommand) {
   const apiKey = process.env.NOTIFY_API_KEY;
   const templateId = process.env.TEMPLATE_ID;
 
@@ -98,10 +104,12 @@ async function sendPasswordResetEmail({ loginName }: SendResetCodeCommand) {
       throw new Error("Password reset code missing from response");
     }
 
+    const validRequestId = validateRequestId(requestId);
     const params = new URLSearchParams({
       token: signResetLink({
         userId: user.userId,
         passwordChanged: user.type.value.passwordChanged,
+        requestId: validRequestId.success ? validRequestId.output : undefined,
       }),
     });
 

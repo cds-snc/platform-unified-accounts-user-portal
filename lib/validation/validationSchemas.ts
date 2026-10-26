@@ -93,17 +93,18 @@ export const confirmPasswordSchema = () => ({
   ),
 });
 
-export const resetPasswordLinkSchema = v.object({
-  userId: v.pipe(v.string(), v.minLength(1)),
-  expiry: v.pipe(v.number(), v.safeInteger()),
-});
-
 export const codeSchema = (min = 1, max = 10) => ({
   code: v.pipe(v.string(), v.trim(), v.minLength(min, "required"), v.maxLength(max, "maxLength")),
 });
 
 const requestIdSchema = () => ({
   requestId: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(200, "maxLength"))),
+});
+
+export const resetPasswordLinkSchema = v.object({
+  userId: v.pipe(v.string(), v.minLength(1)),
+  expiry: v.pipe(v.number(), v.safeInteger()),
+  ...requestIdSchema(),
 });
 
 const sessionIdSchema = () => ({

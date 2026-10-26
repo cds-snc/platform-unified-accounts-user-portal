@@ -142,6 +142,46 @@ describe("password reset links", () => {
     }
   );
 
+  it("signs and returns an OIDC requestId, rejecting tampering with it", async () => {
+    const requestId = "oidc_V2_123456789";
+    const token = signResetLink({ userId, passwordChanged, requestId });
+    const [payload, signature] = token.split(".");
+
+    expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
+      userId,
+      expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      requestId,
+    });
+    await expect(verifyResetLink(token)).resolves.toEqual({
+      userId,
+      expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      requestId,
+    });
+
+    const tampered = `${Buffer.from(
+      JSON.stringify({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS, requestId: "oidc_other" })
+    ).toString("base64url")}.${signature}`;
+    const stripped = `${sign().split(".")[0]}.${signature}`;
+    await expect(verifyResetLink(tampered)).resolves.toBeUndefined();
+    await expect(verifyResetLink(stripped)).resolves.toBeUndefined();
+  });
+
+  it("refuses to sign or accept a requestId over 200 characters", async () => {
+    const requestId = "a".repeat(201);
+    expect(() => signResetLink({ userId, passwordChanged, requestId })).toThrow();
+    await expect(
+      verifyResetLink(
+        tokenWithPayload({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS, requestId })
+      )
+    ).resolves.toBeUndefined();
+    expect(getUserByID).not.toHaveBeenCalled();
+  });
+
+  it("signs the trimmed requestId so it verifies after parsing", async () => {
+    const token = signResetLink({ userId, passwordChanged, requestId: " oidc_V2_1 " });
+    await expect(verifyResetLink(token)).resolves.toMatchObject({ requestId: "oidc_V2_1" });
+  });
+
   it("accepts additional payload fields without including them in the verified link", async () => {
     await expect(
       verifyResetLink(

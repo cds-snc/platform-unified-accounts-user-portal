@@ -180,6 +180,7 @@ describe("submitUserNameForm", () => {
     expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
       userId: "user-123",
       expiry,
+      requestId: "req-123",
     });
     expect(signature).toBe(
       createHmac("sha256", "reset-signing-secret")
@@ -187,6 +188,7 @@ describe("submitUserNameForm", () => {
           JSON.stringify({
             userId: "user-123",
             expiry,
+            requestId: "req-123",
             passwordChanged: {
               seconds: String(passwordChanged.seconds),
               nanos: passwordChanged.nanos,
@@ -198,6 +200,32 @@ describe("submitUserNameForm", () => {
     expect(passwordResetWithReturn).toHaveBeenCalledExactlyOnceWith({ userId: "user-123" });
     expect(cookies).not.toHaveBeenCalled();
     expect(createSessionFromChecks).not.toHaveBeenCalled();
+  });
+
+  it("signs a valid requestId into the emailed link and drops invalid ones", async () => {
+    const tokenPayload = () => {
+      const formResponse = sendEmail.mock.lastCall![2].formResponse as string;
+      const url = new URL(formResponse.match(/\((https:\/\/auth\.example\/[^)]+)\)/)![1]);
+      const [payload] = url.searchParams.get("token")!.split(".");
+      return JSON.parse(Buffer.from(payload, "base64url").toString());
+    };
+
+    await submitUserNameForm({ loginName: "person@canada.ca", requestId: "oidc_V2_123" });
+    await (vi.mocked(after).mock.lastCall![0] as () => Promise<void>)();
+    expect(tokenPayload()).toMatchObject({ userId: "user-123", requestId: "oidc_V2_123" });
+
+    await submitUserNameForm({ loginName: "person@canada.ca", requestId: "a".repeat(201) });
+    await (vi.mocked(after).mock.lastCall![0] as () => Promise<void>)();
+    expect(tokenPayload()).not.toHaveProperty("requestId");
+  });
+
+  it("sends the email before responding in PR review environments", async () => {
+    vi.stubEnv("PR_REVIEW", "true");
+    await expect(submitUserNameForm({ loginName: "person@canada.ca" })).resolves.toEqual({
+      success: true,
+    });
+    expect(after).not.toHaveBeenCalled();
+    expect(sendEmail).toHaveBeenCalledOnce();
   });
 
   it("emails users without strong MFA to contact support", async () => {
