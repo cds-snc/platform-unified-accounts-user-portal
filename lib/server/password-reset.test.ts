@@ -120,7 +120,7 @@ describe("password reset links", () => {
     });
   });
 
-  it.each([now - 1, now, now + 0.5, "1792498500", null, undefined, Number.MAX_SAFE_INTEGER + 1])(
+  it.each([now - 1, now, "1792498500", null, undefined, {}, Number.MAX_SAFE_INTEGER + 1])(
     "rejects invalid or expired expiry %s before looking up any user",
     async (expiry) => {
       await expect(verifyResetLink(tokenWithPayload({ userId, expiry }))).resolves.toBeUndefined();
@@ -129,6 +129,26 @@ describe("password reset links", () => {
       expect(logMessage.warn).toHaveBeenCalled();
     }
   );
+
+  it.each([null, false, 123, "payload", [], {}])(
+    "rejects invalid payload %j before looking up any user",
+    async (payload) => {
+      await expect(verifyResetLink(tokenWithPayload(payload))).resolves.toBeUndefined();
+      expect(getUserByID).not.toHaveBeenCalled();
+      expect(listAuthenticationMethodTypes).not.toHaveBeenCalled();
+      expect(logMessage.warn).toHaveBeenCalledWith("Failed to verify password reset link", {
+        error: expect.any(Error),
+      });
+    }
+  );
+
+  it("accepts additional payload fields without including them in the verified link", async () => {
+    await expect(
+      verifyResetLink(
+        tokenWithPayload({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS, extra: true })
+      )
+    ).resolves.toEqual({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS });
+  });
 
   it("rejects a link at the expiry boundary, but accepts it one millisecond earlier", async () => {
     const token = sign();
@@ -147,12 +167,15 @@ describe("password reset links", () => {
     }
   );
 
-  it.each(["", null, 123, undefined])("rejects invalid user ID %s", async (invalidId) => {
-    await expect(
-      verifyResetLink(tokenWithPayload({ userId: invalidId, expiry: now + 60 }))
-    ).resolves.toBeUndefined();
-    expect(getUserByID).not.toHaveBeenCalled();
-  });
+  it.each(["", null, 123, undefined, true, [], {}])(
+    "rejects invalid user ID %s",
+    async (invalidId) => {
+      await expect(
+        verifyResetLink(tokenWithPayload({ userId: invalidId, expiry: now + 60 }))
+      ).resolves.toBeUndefined();
+      expect(getUserByID).not.toHaveBeenCalled();
+    }
+  );
 
   it("rejects missing users before fetching MFA methods", async () => {
     vi.mocked(getUserByID).mockResolvedValue(create(GetUserByIDResponseSchema));

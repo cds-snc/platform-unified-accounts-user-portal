@@ -1,15 +1,17 @@
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import * as v from "valibot";
 
 import { logMessage } from "@lib/logger";
+import { resetPasswordLinkSchema } from "@lib/validation/validationSchemas";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
 
 export const PASSWORD_RESET_TTL_SECONDS = 15 * 60;
 
-type ResetLink = { userId: string; expiry: number };
+type ResetLink = v.InferOutput<typeof resetPasswordLinkSchema>;
 type PasswordChanged = { seconds: bigint | string | number; nanos: number } | undefined;
 
 function getResetSecret(): string {
@@ -60,21 +62,13 @@ export async function verifyResetLink(token: string): Promise<ResetLink | undefi
       throw new Error("Invalid password reset link format");
     }
 
-    const payload: unknown = JSON.parse(Buffer.from(encodedPayload, "base64url").toString());
-    if (
-      !payload ||
-      typeof payload !== "object" ||
-      !("expiry" in payload) ||
-      typeof payload.expiry !== "number" ||
-      !Number.isSafeInteger(payload.expiry) ||
-      payload.expiry <= Math.floor(Date.now() / 1000)
-    ) {
+    const resetLink = v.parse(
+      resetPasswordLinkSchema,
+      JSON.parse(Buffer.from(encodedPayload, "base64url").toString())
+    );
+    if (resetLink.expiry <= Math.floor(Date.now() / 1000)) {
       throw new Error("Invalid or expired password reset link expiry");
     }
-    if (!("userId" in payload) || typeof payload.userId !== "string" || !payload.userId) {
-      throw new Error("Invalid password reset link user ID");
-    }
-    const resetLink = { userId: payload.userId, expiry: payload.expiry };
 
     const { user } = await getUserByID(resetLink.userId);
     if (
