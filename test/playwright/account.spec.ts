@@ -14,6 +14,7 @@ test.describe("account edit flow", () => {
   test.describe.configure({ mode: "serial" });
 
   let idpUrl: string;
+  let passwordResetSecret: string;
   let portalUrl: string;
   let serviceAccountKey: string;
   let registerEmail: string;
@@ -23,6 +24,7 @@ test.describe("account edit flow", () => {
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
+    passwordResetSecret = getRequiredEnv("PASSWORD_RESET_SECRET");
     portalUrl = getRequiredEnv("PORTAL_URL");
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
     accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
@@ -77,7 +79,12 @@ test.describe("account edit flow", () => {
     await expect(page.locator("#resetEmailSent")).toBeVisible();
 
     // Rebuild the emailed link using the test environment's signing secret.
-    const token = await getPasswordResetLink(registeredUser.userId, accessToken, idpUrl);
+    const token = await getPasswordResetLink(
+      registeredUser.userId,
+      accessToken,
+      idpUrl,
+      passwordResetSecret
+    );
     await page.goto(
       `${portalUrl.replace(/\/$/, "")}/password/reset/continue?token=${encodeURIComponent(token)}`
     );
