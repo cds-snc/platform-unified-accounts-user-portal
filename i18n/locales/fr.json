@@ -358,7 +358,7 @@
       "item1": "Vous avez saisi votre adresse courriel gouvernementale et choisi un mot de passe",
       "item2": "Étape suivante : Envoyer un code à votre courriel pour valider votre compte",
       "action": "Envoyer le code",
-      "hint": "Nous vous demanderons ensuite de saisir le code et d'ajouter un moyen de vérification""
+      "hint": "Nous vous demanderons ensuite de saisir le code et d'ajouter un moyen de vérification"
     },
     "methods": {
       "password": "Mot de passe"
