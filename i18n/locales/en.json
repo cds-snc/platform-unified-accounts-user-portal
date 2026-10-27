@@ -8,14 +8,14 @@
     "title": "GC Platform",
     "required": "required",
     "errorSummary": {
-      "title": "Please correct the errors on the page.",
+      "title": "Please correct the errors on the page",
       "itemFallback": "Please check this field."
     },
     "gcForms": "GC Forms",
     "externalLinkIconLabel": " (Opens in a new tab.)"
   },
   "error": {
-    "title": "There's a problem with our site.",
+    "title": "There's a problem with our site",
     "instructions": "Try again in a while.",
     "about": "About GC Forms",
     "contact": "Contact Support"
