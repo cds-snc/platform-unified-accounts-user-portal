@@ -182,14 +182,14 @@ export async function getPasswordResetLink(
   if (!user || user.type.case !== "human") {
     throw new Error("Expected a human user for password reset");
   }
-  const passwordChanged = user.type.value.passwordChanged;
+  const changedAt = user.type.value.passwordChanged;
   const hmac = (value: string) =>
     createHmac("sha256", passwordResetSecret).update(value).digest("base64url");
   const payload = {
     userId,
     expiry: Math.floor(Date.now() / 1000) + 15 * 60,
     passwordChanged: hmac(
-      passwordChanged ? `${String(passwordChanged.seconds)}.${passwordChanged.nanos}` : "none"
+      changedAt ? `${Number(changedAt.seconds)}.${Number(changedAt.nanos)}` : "none"
     ),
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
