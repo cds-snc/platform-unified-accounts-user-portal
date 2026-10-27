@@ -12,7 +12,7 @@
       "itemFallback": "Please check this field."
     },
     "gcForms": "GC Forms",
-    "externalLinkIconLabel": " (Opens in a new tab.)"
+    "externalLinkIconLabel": " (Opens in a new tab)"
   },
   "error": {
     "title": "There's a problem with our site",
