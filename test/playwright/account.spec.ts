@@ -78,7 +78,7 @@ test.describe("account edit flow", () => {
     await page.getByTestId("forgot-password-continue").click();
     await expect(page.locator("#resetEmailSent")).toBeVisible();
 
-    // Rebuild the emailed link using the test environment's signing secret.
+    // Rebuild the emailed link
     const token = await getPasswordResetLink(
       registeredUser.userId,
       accessToken,
