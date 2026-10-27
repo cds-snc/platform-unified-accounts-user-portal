@@ -12,10 +12,13 @@
       "itemFallback": "Please check this field."
     },
     "gcForms": "GC Forms",
-    "externalLinkIconLabel": " (Opens destination in a new tab.)"
+    "externalLinkIconLabel": " (Opens in a new tab.)"
   },
   "error": {
-    "title": "Something went wrong"
+    "title": "There's a problem with our site.",
+    "instructions": "Try again in a while.",
+    "about": "About GC Forms",
+    "contact": "Contact Support"
   },
   "header": {
     "lang-toggle": "Language selection",
@@ -57,9 +60,9 @@
   },
   "versionUpdater": {
     "title": "New version available",
-    "description": "A new version of the app is available. It is recommended to refresh the page to get the latest updates and avoid any issues.",
+    "description": "A new version of the app is available. Refresh the page to get the latest updates.",
     "close": "Close",
-    "refreshNow": "Reload and Update"
+    "refreshNow": "Reload and update"
   },
   "account": {
     "title": "Account settings",
@@ -72,13 +75,17 @@
       "noSession": "Your account information could not be retrieved from the session."
     },
     "personalDetails": {
-      "title": "Personal details",
+      "title": "Profile",
+      "fullName": "Full name",
       "firstName": "First name",
       "lastName": "Last name",
       "change": "Change",
       "cancel": "Cancel",
       "updateAccount": "Update",
       "updateDetails": "Update your personal details",
+      "email": "Email address",
+      "cannotBeChanged": "Cannot change",
+      "createNewAccount": "Create new account",
       "success": {
         "updateSuccess": "Your personal details were updated"
       },
@@ -93,19 +100,14 @@
         "maxLengthLastname": "Last name must be less than 251 characters."
       }
     },
-    "verifiedAccount": {
-      "title": "Verified account",
-      "email": "Email address",
-      "cannotBeChanged": "Cannot be changed",
-      "createNewAccount": "Create new account"
-    },
     "authentication": {
-      "title": "Authentication",
+      "title": "Security verification",
       "password": "Password",
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "Two-factor authentication",
+      "title": "Other verification method",
+      "minimumNum": "(minimum one other)",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
       "authenticatorApp": "Authentication app",
@@ -116,15 +118,22 @@
         "keyRemoved": "Security key was removed.",
         "authAppRemoved": "Authenticator app was removed."
       },
+      "confirmRemove": {
+        "title": "Confirm the removal of this MFA method",
+        "confirm": "Remove",
+        "cancel": "Cancel",
+        "message": "Are you sure you want to remove {{mfa}}",
+        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
+      },
       "errors": {
-        "cannotRemoveSecurityKey": "Cannot remove security key. At least one additional authentication method must be configured.",
+        "cannotRemoveSecurityKey": "Cannot remove security key. At least one authentication method must be configured.",
         "failedToRemoveSecurityKey": "Failed to remove security key.",
         "failedToRemoveAuthApp": "Failed to remove authenticator app."
       }
     }
   },
   "start": {
-    "title": "Sign in",
+    "title": "Sign in{{app}}",
     "signUpText": "If you do not have an account, you can",
     "signUpLink": "create one now.",
     "userName": "Name",
@@ -205,7 +214,7 @@
       "errors": {
         "couldNotChangePassword": "Could not change password",
         "couldNotVerifyPassword": "Could not verify password",
-        "unknownError": "Unknown error"
+        "unknownError": "An error occurred."
       }
     },
     "create": {
@@ -238,7 +247,7 @@
       "mustMatch": "The passwords must match.",
       "equals": "Passwords must match.",
       "matches": "Matches",
-      "doesNotMatch": "The entries for password must match.",
+      "doesNotMatch": "The entries for password must match",
       "success": "Success",
       "requiredPasswordSuccess": "Valid password"
     },
@@ -261,10 +270,9 @@
       "couldNotCreateSessionForUser": "Could not create session for this user",
       "couldNotVerifyPassword": "Could not verify password",
       "couldNotResetPassword": "Could not reset password",
-      "couldNotRegisterUser": "Could not register user account",
       "failedToAuthenticate": "Failed to authenticate. You had {failedAttempts} of {maxPasswordAttempts} password attempts. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Failed to authenticate.",
-      "accountLockedContactAdmin": " Contact your administrator to unlock your account",
+      "accountLockedContactAdmin": " Contact Support to unlock your account",
       "userNotFound": "User account not found in the system",
       "initialUserNotSupported": "Initial user not supported",
       "userInitialStateNotSupported": "User initial state is not supported",
@@ -283,6 +291,10 @@
       "title": "Verify your identity",
       "description": "Choose one of the following authentication factors.",
       "noResults": "No second factors available to set up."
+    },
+    "unavailable": {
+      "text": "If your multifactor method is unavailable for any reason, please",
+      "link": "contact us"
     },
     "set": {
       "title": "Add a verification method",
@@ -327,6 +339,8 @@
       "totpDescription": "Scan the QR code with your authenticator app.",
       "emailDescription": "Enter your email address to receive a code via email.",
       "totpRegisterDescription": "Scan the QR Code or navigate to the URL link.",
+      "copyLink": "Copy set-up link",
+      "copied": "Copied",
       "submit": "Continue",
       "genericError": "We couldn’t set up your authenticator app right now. Please try again.",
       "invalidCode": "The code is invalid. Please try again.",
@@ -341,8 +355,20 @@
     }
   },
   "register": {
+    "incomplete": {
+      "pageTitle": "A few more steps",
+      "title": "A few more steps to verify your account",
+      "item1": "You entered your GC email and chose a password",
+      "item2": "Next step: Send a code to your GC email to validate your account",
+      "action": "Send Code",
+      "hint": "We'll prompt you to enter the code and add a verification method"
+    },
     "methods": {
       "password": "Password"
+    },
+    "closed": {
+      "title": "No registration at this time",
+      "description": "Unfortunately registration is currently closed."
     },
     "title": "Create your account",
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
@@ -386,10 +412,7 @@
     },
     "password": {
       "title": "Password creation",
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider.",
-      "errors": {
-        "couldNotRegisterUser": "Could not register user account"
-      }
+      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider."
     }
   },
   "u2f": {
@@ -452,7 +475,12 @@
   "allSet": {
     "title": "You're all set!",
     "description": "Your account is now secured with two-factor authentication.",
-    "continueButton": "Continue"
+    "continueButton": "Continue{{app}}"
+  },
+  "welcome": {
+    "title": "Welcome to GC Platform!",
+    "description": "You've created your account and verification method",
+    "continueButton": "Continue{{app}}"
   },
   "contact-us": {
     "title": "Contact us",
@@ -460,8 +488,17 @@
     "labels": {
       "fullName": "Full name",
       "email": "Email address",
+      "issueType": "What is your issue related to?",
       "message": "Message"
     },
+    "issueTypeOptions": {
+      "placeholder": "Select an option",
+      "passwordReset": "Unable to reset password",
+      "mfaIssue": "Second factor authentication is missing or not working",
+      "signUpIssue": "Unable to sign up",
+      "other": "Other"
+    },
+    "issueTypeLabel": "Issue type",
     "success": {
       "title": "Message sent",
       "description": "Thank you for reaching out. We will respond to you within 2 business days."
@@ -476,6 +513,8 @@
       "requiredEmail": "Email address is required.",
       "invalidEmail": "Enter a valid email address.",
       "maxLengthEmail": "Email address must be less than 255 characters.",
+      "requiredIssueType": "Please select an issue type.",
+      "invalidIssueType": "Please select a valid issue type.",
       "requiredMessage": "Message is required.",
       "maxLengthMessage": "Message must be less than 2000 characters."
     }
@@ -506,5 +545,22 @@
   "404": {
     "title": "Page not found ",
     "body": "Sorry, the page you’re looking for was not found."
+  },
+  "rpApps": {
+    "GC Forms": " to GC Forms",
+    "GC Notify": " to GC Notify",
+    "defaultAppName": ""
+  },
+  "hCaptcha": {
+    "failPage": {
+      "title": "We did not receive your submission",
+      "helpOptions": {
+        "title": "Try:",
+        "item1": "Turning off any virtual private network (VPN), firewall or proxy server.",
+        "item2": "Using a different browser, device or network.",
+        "item3": "Checking browser plugins as some may block submissions.",
+        "tryAgain": "You can also try submitting again."
+      }
+    }
   }
 }

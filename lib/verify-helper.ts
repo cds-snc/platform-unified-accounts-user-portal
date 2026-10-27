@@ -44,21 +44,9 @@ export async function checkPasswordChangeRequired(
   }
 }
 
-export function checkEmailVerification(
-  session: Session,
-  humanUser?: HumanUser,
-  requestId?: string
-) {
+export function checkEmailVerification(humanUser?: HumanUser, requestId?: string) {
   if (!humanUser?.email?.isVerified) {
-    const params = new URLSearchParams({
-      userId: session.factors?.user?.id as string,
-      send: "true", // set this to true as we dont expect old email codes to be valid anymore
-    });
-    const verifyUrl = buildUrlWithRequestId("/verify", requestId);
-    const [basePath, existingQuery = ""] = verifyUrl.split("?");
-    const mergedParams = new URLSearchParams(existingQuery);
-    params.forEach((value, key) => mergedParams.set(key, value));
-
-    return { redirect: `${basePath}?${mergedParams.toString()}` };
+    const verifyUrl = buildUrlWithRequestId("/register/verify", requestId);
+    return { redirect: verifyUrl };
   }
 }

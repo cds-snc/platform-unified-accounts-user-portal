@@ -3,11 +3,12 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { setRegistrationFlag } from "@lib/client/registration";
 import { validateCode } from "@lib/validation/validationSchemas";
 import { I18n, useTranslation } from "@i18n";
 import { useSiteConfig } from "@components/contexts/SiteConfigContext";
@@ -40,6 +41,11 @@ export function VerifyEmailForm({
   requestId?: string;
   children?: React.ReactNode;
 }) {
+  useEffect(() => {
+    // Set global flag for ongoing registration flow
+    setRegistrationFlag();
+  });
+
   const router = useRouter();
 
   const { getSiteLink } = useSiteConfig();

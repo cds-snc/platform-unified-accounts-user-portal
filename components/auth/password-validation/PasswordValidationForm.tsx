@@ -28,11 +28,6 @@ import { PasswordComplexity } from "./PasswordComplexity";
 type FormState = {
   error?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
-  formData?: {
-    password?: string;
-    confirmPassword?: string;
-    code?: string;
-  };
 };
 
 const validateCreatePassword = async (
@@ -97,6 +92,7 @@ export function PasswordValidationForm({
     );
 
     if (!validationResult.success) {
+      setWatchPassword("");
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
@@ -121,11 +117,6 @@ export function PasswordValidationForm({
   const [state, formAction] = useActionState(validateAndSubmit, {
     error: undefined,
     validationErrors: undefined,
-    formData: {
-      password: "",
-      confirmPassword: "",
-      ...(requireConfirmationCode ? { code: "" } : {}),
-    },
   });
 
   const [dirty, setDirty] = useState(false);
@@ -138,6 +129,9 @@ export function PasswordValidationForm({
         className="w-full"
         action={formAction}
         noValidate
+        onSubmit={() => {
+          setDirty(false);
+        }}
         onChange={() => setDirty(true)}
       >
         <div className="mb-4 grid grid-cols-1 gap-4 pt-4">
@@ -157,6 +151,9 @@ export function PasswordValidationForm({
                 type="text"
                 required
                 autoComplete="one-time-code"
+                ariaDescribedbyIds={
+                  hasError("code", state.validationErrors) ? "errorMessageCode" : undefined
+                }
                 invalid={hasError("code", state.validationErrors)}
               />
             </div>
@@ -193,7 +190,7 @@ export function PasswordValidationForm({
                   ? ["errorMessagePassword", "password-complexity-requirements"]
                   : "password-complexity-requirements"
               }
-              defaultValue={state.formData?.password ?? ""}
+              defaultValue={""}
               onChange={(e) => setWatchPassword(e.target.value)}
               invalid={hasError("password", state.validationErrors)}
             />
@@ -217,13 +214,15 @@ export function PasswordValidationForm({
                   ? "errorMessageConfirmPassword"
                   : undefined
               }
-              defaultValue={state.formData?.confirmPassword ?? ""}
+              defaultValue={""}
               invalid={hasError("confirmPassword", state.validationErrors)}
             />
           </div>
         </div>
 
-        <SubmitButtonAction>{t("button.continue", { ns: "common" })}</SubmitButtonAction>
+        <SubmitButtonAction dataTestId="password-validation-continue">
+          {t("button.continue", { ns: "common" })}
+        </SubmitButtonAction>
       </form>
     </>
   );

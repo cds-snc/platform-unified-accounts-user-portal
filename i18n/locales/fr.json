@@ -12,10 +12,13 @@
       "itemFallback": "Veuillez vérifier ce champ."
     },
     "gcForms": "Formulaires GC",
-    "externalLinkIconLabel": "  (Ouvre l'emplacement dans un nouvel onglet.)"
+    "externalLinkIconLabel": "  (Ouvre dans un nouvel onglet.)"
   },
   "error": {
-    "title": "Quelque chose a mal tourné"
+    "title": "Nous éprouvons des difficultés avec notre site.",
+    "instructions": "Veuillez réessayer plus tard.",
+    "about": "À propos de Formulaires GC",
+    "contact": "Contacter l'équipe de soutien"
   },
   "header": {
     "lang-toggle": "Sélection de la langue",
@@ -33,23 +36,18 @@
   "footer": {
     "version": "Version",
     "about": {
-      "link": "https://articles.alpha.canada.ca/forms-formulaires/fr/?utm_source=FR_FormsFooter&utm_medium=Product&utm_campaign=forms_product",
-      "desc": "À propos de Formulaires GC"
+      "desc": "À propos"
     },
     "terms-and-conditions": {
-      "link": "/fr/terms-and-conditions",
       "desc": "Conditions générales"
     },
     "terms-of-use": {
-      "link": "/fr/terms-of-use",
       "desc": "Conditions d'utilisation"
     },
     "sla": {
-      "link": "/fr/sla",
       "desc": "Accord sur les niveaux de service"
     },
     "support": {
-      "link": "/fr/support",
       "desc": "Soutien"
     },
     "privacy-policy": {
@@ -62,7 +60,7 @@
   },
   "versionUpdater": {
     "title": "Nouvelle version disponible",
-    "description": "Une nouvelle version de l'application est disponible. Il est recommandé d'actualiser la page pour obtenir les plus récentes mises à jour et éviter tout problème.",
+    "description": "Une nouvelle version de l'application est disponible. Actualisez la page pour obtenir les plus récentes mises à jour.",
     "close": "Fermer",
     "refreshNow": "Recharger et mettre à jour"
   },
@@ -77,13 +75,17 @@
       "noSession": "Vos renseignements de compte n'ont pas pu être récupérés à partir de la session."
     },
     "personalDetails": {
-      "title": "Renseignements personnels",
+      "title": "Profil",
+      "fullName": "Nom complet",
       "firstName": "Prénom",
       "lastName": "Nom de famille",
       "change": "Modifier",
       "cancel": "Annuler",
       "updateAccount": "Mettre à jour",
-      "updateDetails": "[FR]Update your personal details",
+      "updateDetails": "Mettez a jour vos renseignements personnels",
+      "email": "Adresse courriel",
+      "cannotBeChanged": "Ne peut être modifié",
+      "createNewAccount": "créer un nouveau compte",
       "success": {
         "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
@@ -98,38 +100,40 @@
         "maxLengthLastname": "Le nom de famille doit comporter moins de 251 caractères."
       }
     },
-    "verifiedAccount": {
-      "title": "Compte vérifié",
-      "email": "Adresse courriel",
-      "cannotBeChanged": "Ne peut être modifié",
-      "createNewAccount": "créer un nouveau compte"
-    },
     "authentication": {
-      "title": "Authentification",
+      "title": "Vérification de sécurité",
       "password": "Mot de passe",
       "change": "Modifier"
     },
     "mfaAuthentication": {
-      "title": "Authentification à deux facteurs",
+      "title": "Ajouter une méthode de vérification",
+      "minimumNum": "(au moins une autre)",
       "securityKey": "Clé de sécurité",
       "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
       "authenticatorApp": "Application d'authentification",
       "addlMethods": "Ajouter une autre méthode",
-      "remove": "Retirer",
+      "remove": "Supprimer",
       "unknownDevice": "Appareil inconnu",
       "success": {
         "keyRemoved": "La clé de sécurité a été supprimée.",
         "authAppRemoved": "L'application d'authentification a été supprimée."
       },
+      "confirmRemove": {
+        "title": "Confirmer la suppression de la méthode MFA",
+        "confirm": "Supprimer",
+        "cancel": "Annuler",
+        "message": "Êtes-vous sûr de vouloir supprimer {{mfa}}",
+        "securityKeyMessage": "Êtes-vous sûr de vouloir supprimer cette clé de sécurité: {{mfa}} ?"
+      },
       "errors": {
-        "cannotRemoveSecurityKey": "Impossible de supprimer la clé de sécurité. Au moins une méthode d'authentification supplémentaire doit être configurée.",
+        "cannotRemoveSecurityKey": "Impossible de supprimer la clé de sécurité. Au moins une méthode d'authentification doit être configurée.",
         "failedToRemoveSecurityKey": "La clé de sécurité n'a pas pu être supprimée.",
         "failedToRemoveAuthApp": "L'application d'authentification n'a pas pu être supprimée."
       }
     }
   },
   "start": {
-    "title": "Se connecter",
+    "title": "Se connecter{{app}}",
     "signUpText": "Si vous n'avez pas de compte, vous pouvez",
     "signUpLink": "en créer un maintenant.",
     "userName": "Nom",
@@ -144,12 +148,12 @@
       "submit": "Se connecter"
     },
     "validation": {
-      "requiredEmail": "L'adresse courriel est obligatoire.",
+      "requiredEmail": "L'adresse courriel est obligatoire",
       "maxLength": "L'adresse courriel doit comporter moins de 255 caractères.",
       "validGovEmail": "Veuillez entrer une adresse courriel individuelle valide du gouvernement du Canada.",
       "requiredPassword": "Le mot de passe est obligatoire.",
       "invalidCredentials": "Adresse courriel ou mot de passe invalide. Veuillez réessayer.",
-      "lockedOut": "Contacter l'assistance - Il y a un problème avec votre compte"
+      "lockedOut": "Contacter l'équipe de soutien - Il y a un problème avec votre compte"
     },
     "session": {
       "otherAccount": "Autre compte",
@@ -192,7 +196,7 @@
         "couldNotLoadUser": "Le compte utilisateur n'a pas pu être chargé.",
         "couldNotLoadUserEmail": "L'adresse courriel de l'utilisateur n'a pas pu être chargée.",
         "emailConfigurationError": "Erreur de configuration du courriel.",
-        "emailSendFailed": "Échec de l'envoi du courriel."
+        "emailSendFailed": "Le courriel n'a pas pu être envoyé."
       }
     },
     "change": {
@@ -210,7 +214,7 @@
       "errors": {
         "couldNotChangePassword": "Le mot de passe n'a pas pu être modifié.",
         "couldNotVerifyPassword": "Le mot de passe n'a pas pu être vérifié.",
-        "unknownError": "Une erreur inconnue s'est produite."
+        "unknownError": "Une erreur s'est produite."
       }
     },
     "create": {
@@ -232,7 +236,7 @@
     },
     "complexity": {
       "required": "Ce champ est obligatoire.",
-      "requiredPassword": "Le mot de passe est obligatoire.",
+      "requiredPassword": "Le mot de passe est obligatoire",
       "requiredConfirmPassword": "La confirmation du mot de passe est obligatoire.",
       "minLength": "Au moins {{minLength}} caractères",
       "hasNumber": "Un chiffre",
@@ -240,7 +244,7 @@
       "hasLowercase": "Une lettre minuscule",
       "hasSymbol": "Un symbole",
       "maxLength": "Moins de 51 caractères",
-      "mustMatch": "Les mots de passe doivent correspondre.",
+      "mustMatch": "Les mots de passe doivent correspondre",
       "equals": "Confirmation du mot de passe correcte.",
       "matches": "Correspondance",
       "doesNotMatch": "Les entrées pour le mot de passe doivent correspondre.",
@@ -266,10 +270,9 @@
       "couldNotCreateSessionForUser": "Problème de création de session pour cet utilisateur",
       "couldNotVerifyPassword": "Problème de vérification du mot de passe",
       "couldNotResetPassword": "Problème de réinitialisation du mot de passe",
-      "couldNotRegisterUser": "Problème d'enregistrement du compte utilisateur",
       "failedToAuthenticate": "Échec de l'authentification. Vous avez essayé {failedAttempts} des {maxPasswordAttempts} tentatives de mot de passe. {lockoutMessage}",
       "failedToAuthenticateNoLimit": "Échec d'authentification.",
-      "accountLockedContactAdmin": " Contactez votre administrateur pour déverrouiller votre compte",
+      "accountLockedContactAdmin": " Contactez l'équipe de soutien pour déverrouiller votre compte",
       "userNotFound": "Compte utilisateur introuvable dans le système",
       "initialUserNotSupported": "Utilisateur initial non pris en charge",
       "userInitialStateNotSupported": "L'état initial de l'utilisateur n'est pas pris en charge",
@@ -288,6 +291,10 @@
       "title": "Vérifiez votre identité",
       "description": "Choisissez l'un des facteurs d'authentification suivants.",
       "noResults": "Aucun facteur secondaire disponible pour configuration."
+    },
+    "unavailable": {
+      "text": "Si votre méthode d'authentification multifacteur n'est pas disponible, pour quelque raison que ce soit, veuillez",
+      "link": "nous contacter"
     },
     "set": {
       "title": "Ajouter une méthode de vérification",
@@ -332,6 +339,8 @@
       "totpDescription": "Scannez le code QR avec votre application d'authentification.",
       "emailDescription": "Entrez votre adresse courriel pour recevoir un code par courriel.",
       "totpRegisterDescription": "Scannez le code QR ou accédez au lien URL.",
+      "copyLink": "Copier le lien de configuration",
+      "copied": "Copié",
       "submit": "Continuer",
       "genericError": "Nous n’avons pas pu configurer votre application d’authentification pour le moment. Veuillez réessayer.",
       "invalidCode": "Le code est invalide. Veuillez réessayer.",
@@ -346,8 +355,20 @@
     }
   },
   "register": {
+    "incomplete": {
+      "pageTitle": "FR - A few more steps",
+      "title": "FR - A few more steps to verify your account",
+      "item1": "FR - You entered your GC email and chose a password",
+      "item2": "FR - Next step: Send a code to your GC email to validate your account",
+      "action": "FR - Send Code",
+      "hint": "FR - We'll prompt you to enter the code and add a verification method"
+    },
     "methods": {
       "password": "Mot de passe"
+    },
+    "closed": {
+      "title": "Aucune inscription pour le moment",
+      "description": "Malheureusement, l'inscription est actuellement fermée."
     },
     "title": "Créer votre compte",
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
@@ -355,7 +376,7 @@
     "noMethodAvailableWarning": "Aucune méthode d'authentification disponible. Veuillez contacter votre administrateur.",
     "selectMethod": "Sélectionnez la méthode que vous souhaitez utiliser pour vous authentifier",
     "agreeTo": "Pour vous inscrire, vous devez accepter les conditions d'utilisation",
-    "termsOfService": "Conditions d'utilisation",
+    "termsOfService": "Conditions du service",
     "privacyPolicy": "Politique de confidentialité",
     "submit": "Continuer",
     "labels": {
@@ -391,10 +412,7 @@
     },
     "password": {
       "title": "Création du mot de passe",
-      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
-      "errors": {
-        "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur"
-      }
+      "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification."
     }
   },
   "u2f": {
@@ -413,7 +431,7 @@
         "verificationFailed": "Une erreur s'est produite lors de la vérification de la clé de sécurité"
       },
       "confirmation": {
-        "title": "FR - To continue, Tap your security Key"
+        "title": "Pour continuer, appuyez sur votre clé de sécurité"
       }
     },
     "set": {
@@ -438,7 +456,7 @@
     "title": "Vérifiez votre courriel pour le code de sécurité de votre compte",
     "description": "Veuillez entrer le code reçu par courriel. ",
     "label": "Code de sécurité",
-    "hint": "Entrez le code dans les 15 minutes.",
+    "hint": "Entrez le code d'ici 15 minutes.",
     "submit": "Continuer",
     "newCode": "Envoyer un nouveau code",
     "sendingNewCode": "Envoi d'un nouveau code...",
@@ -451,13 +469,18 @@
     "errors": {
       "couldNotVerifyEmail": "Problème de vérification du courriel",
       "failedToAddOTPEmail": "Impossible de configurer la vérification par courriel. Veuillez réessayer.",
-      "couldNotResentEmail": "[FR]Could not resend verification email. Please try again."
+      "couldNotResentEmail": "Le courriel de vérification n'a pas pu être renvoyé. Veuillez réessayer."
     }
   },
   "allSet": {
-    "title": "Vous êtes prêt !",
+    "title": "Vous êtes prêt!",
     "description": "Votre compte est maintenant sécurisé avec l'authentification à deux facteurs.",
-    "continueButton": "Continuer"
+    "continueButton": "Continuer{{app}}"
+  },
+  "welcome": {
+    "title": "Bienvenue sur Plateforme GC!",
+    "description": "Vous avez créé votre compte et votre méthode de vérification",
+    "continueButton": "Continuer{{app}}"
   },
   "contact-us": {
     "title": "Nous contacter",
@@ -465,8 +488,17 @@
     "labels": {
       "fullName": "Nom complet",
       "email": "Adresse courriel",
+      "issueType": "À quoi votre problème est-il lié?",
       "message": "Message"
     },
+    "issueTypeOptions": {
+      "placeholder": "Sélectionnez une option",
+      "passwordReset": "Impossible de réinitialiser le mot de passe",
+      "mfaIssue": "L'authentification à deux facteurs est manquante ou ne fonctionne pas",
+      "signUpIssue": "Impossible de s'inscrire",
+      "other": "Autre"
+    },
+    "issueTypeLabel": "Type de problème",
     "success": {
       "title": "Message envoyé",
       "description": "Merci de nous avoir contactés. Nous vous répondrons dans un délai de 2 jours ouvrables."
@@ -481,6 +513,8 @@
       "requiredEmail": "L'adresse courriel est obligatoire.",
       "invalidEmail": "Entrez une adresse courriel valide.",
       "maxLengthEmail": "L'adresse courriel doit comporter moins de 255 caractères.",
+      "requiredIssueType": "Veuillez sélectionner un type de problème.",
+      "invalidIssueType": "Veuillez sélectionner un type de problème valide.",
       "requiredMessage": "Le message est obligatoire.",
       "maxLengthMessage": "Le message doit comporter moins de 2000 caractères."
     }
@@ -511,5 +545,22 @@
   "404": {
     "title": "Page non trouvée",
     "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
+  },
+  "rpApps": {
+    "GC Forms": " à GC Formulaires",
+    "GC Notify": " à GC Notify",
+    "defaultAppName": ""
+  },
+  "hCaptcha": {
+    "failPage": {
+      "title": "Nous n’avons pas reçu votre soumission",
+      "helpOptions": {
+        "title": "Essayez les choses suivantes :",
+        "item1": "Désactivez tout réseau privé virtuel (VPN), pare-feu ou serveur proxy.",
+        "item2": "Utilisez un autre navigateur, un autre appareil ou un autre réseau.",
+        "item3": "Vérifiez si un plugiciel de navigateur bloque les soumissions.",
+        "tryAgain": "Vous pouvez également essayer de soumettre à nouveau."
+      }
+    }
   }
 }

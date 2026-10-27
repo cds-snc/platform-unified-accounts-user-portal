@@ -15,6 +15,10 @@ on:
       portal_url:
         required: true
         type: string
+      test_command:
+        required: false
+        default: "test:playwright"
+        type: string
     secrets:
       log_analytics_workspace_id:
         required: true
@@ -26,7 +30,13 @@ on:
         required: true
       password:
         required: true
+      test_callback_url:
+        required: true
+      test_client_id:
+        required: true
       totp_secret:
+        required: true
+      zitadel_organization_id:
         required: true
       zitadel_service_account_key:
         required: true
@@ -42,7 +52,7 @@ jobs:
       contents: read
     container:
       # Playwright Docker image tag must match the pnpm-lock.yaml pinned version
-      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      image: mcr.microsoft.com/playwright:v1.64.0-noble@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
@@ -62,7 +72,7 @@ jobs:
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: pnpm
@@ -75,13 +85,17 @@ jobs:
           REGISTER_EMAIL: ${{ secrets.register_email }}
           USERNAME: ${{ secrets.username }}
           PASSWORD: ${{ secrets.password }}
+          TEST_CALLBACK_URL: ${{ secrets.test_callback_url }}
+          TEST_CLIENT_ID: ${{ secrets.test_client_id }}
+          TEST_COMMAND: ${{ inputs.test_command }}
           TOTP_SECRET: ${{ secrets.totp_secret }}
+          ZITADEL_ORGANIZATION_ID: ${{ secrets.zitadel_organization_id }}
           ZITADEL_SERVICE_ACCOUNT_KEY: ${{ secrets.zitadel_service_account_key }}
-        run: pnpm test:playwright
+        run: pnpm "$TEST_COMMAND"
 
       - name: Configure AWS credentials using OIDC
         if: failure() && steps.test.outcome == 'failure'
-        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: arn:aws:iam::${{ inputs.account_id }}:role/platform-unified-accounts-integration-tests
           role-session-name: IntegrationTests

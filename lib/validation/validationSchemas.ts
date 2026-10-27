@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 import * as v from "valibot";
 
+import { CONTACT_US_ISSUE_TYPES } from "@lib/validation/contactUsIssueTypes";
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
@@ -117,6 +118,26 @@ const u2fIdSchema = () => ({
   u2fId: v.pipe(v.string(), v.trim(), v.minLength(1, "required"), v.maxLength(200, "maxLength")),
 });
 
+const publicKeyCredentialAssertionDataSchema = v.object({
+  id: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
+  rawId: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
+  type: v.literal("public-key"),
+  response: v.object({
+    authenticatorData: v.pipe(
+      v.string(),
+      v.minLength(1, "required"),
+      v.maxLength(11000, "maxLength")
+    ),
+    clientDataJSON: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(2000, "maxLength")),
+    signature: v.pipe(v.string(), v.minLength(1, "required"), v.maxLength(1400, "maxLength")),
+    userHandle: v.pipe(v.string(), v.maxLength(200, "maxLength")),
+  }),
+});
+
+export type PublicKeyCredentialAssertionData = v.InferOutput<
+  typeof publicKeyCredentialAssertionDataSchema
+>;
+
 // Shared "composed" validation functions using the above schemas
 
 export const validateAccount = async (formEntries: { [k: string]: FormDataEntryValue }) => {
@@ -222,6 +243,8 @@ export const validateU2fId = (u2fId: unknown) => {
 export const validateU2FLoginCommand = (command: unknown) => {
   const schema = v.object({
     ...requestIdSchema(),
+    publicKeyCredential: publicKeyCredentialAssertionDataSchema,
+    completeFlow: v.optional(v.boolean()),
   });
   return v.safeParse(schema, command, { abortPipeEarly: true });
 };
@@ -267,6 +290,12 @@ export const validateContactForm = async (formEntries: { [k: string]: FormDataEn
       v.maxLength(254, "maxLengthEmail"),
       v.email("invalidEmail")
     ),
+    issueType: v.pipe(
+      v.string(),
+      v.trim(),
+      v.minLength(1, "requiredIssueType"),
+      v.picklist(CONTACT_US_ISSUE_TYPES, "invalidIssueType")
+    ),
     message: v.pipe(
       v.string(),
       v.trim(),
@@ -276,4 +305,32 @@ export const validateContactForm = async (formEntries: { [k: string]: FormDataEn
   });
 
   return v.safeParse(formValidationSchema, formEntries, { abortPipeEarly: true });
+};
+
+export const validateInvite = async (rawInvite: string) => {
+  const inviteValidationSchema = v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "required"),
+    v.base64(),
+    v.transform((input) => {
+      try {
+        const decodedString = Buffer.from(input, "base64").toString("utf8");
+        return JSON.parse(decodedString);
+      } catch {
+        throw new Error("Failed to parse decoded string into JSON.");
+      }
+    }),
+    v.object({
+      inviteEmail: govEmailValidation(1),
+      inviteCode: v.pipe(
+        v.string(),
+        v.trim(),
+        v.minLength(3, "required"),
+        v.maxLength(7, "maxLength")
+      ),
+    })
+  );
+
+  return v.safeParse(inviteValidationSchema, rawInvite, { abortPipeEarly: true });
 };

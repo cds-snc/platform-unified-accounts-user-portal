@@ -5,6 +5,7 @@
  *--------------------------------------------*/
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { create } from "@zitadel/client";
 import { ChecksSchema } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
@@ -15,13 +16,14 @@ import { getSessionCookieById, setSelectedSession } from "@lib/cookies";
  * Internal Aliases
  *--------------------------------------------*/
 import { logMessage } from "@lib/logger";
-import { completeFlowAndRedirect } from "@lib/server/auth-flow";
+import { completeFlowAndRedirect, handleAbandonedRegistrationFlow } from "@lib/server/auth-flow";
 import { createSessionAndUpdateCookie } from "@lib/server/cookie";
+import { sendAccountRestrictedEmail } from "@lib/server/verify";
 import { loadActiveSession } from "@lib/session";
 import { isSessionValid } from "@lib/session";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateSessionId, validateUsernameAndPassword } from "@lib/validation/validationSchemas";
-import { checkEmailVerification, checkPasswordChangeRequired } from "@lib/verify-helper";
+import { checkPasswordChangeRequired } from "@lib/verify-helper";
 import { getSession, getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 import { parseZitadelError } from "@lib/zitadel-errors";
 import { serverTranslation } from "@i18n/server";
@@ -65,14 +67,16 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
     const parsedError = parseZitadelError(error);
 
-    if (parsedError.text.match("errors.user.notactive")) {
+    if (/errors\.user\.(notactive|locked)/.test(parsedError.text)) {
       accountLocked = true;
     }
   });
 
   if (accountLocked) {
-    logMessage.debug("Account is locked");
-    return { error: t("validation.lockedOut") };
+    logMessage.debug("Account is disabled or locked");
+    // Same response as any other failure; the account owner is told by email instead
+    after(() => sendAccountRestrictedEmail({ loginName: username }));
+    return { error: t("validation.invalidCredentials") };
   }
 
   if (!session) {
@@ -103,11 +107,9 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
     return { error: t("validation.invalidCredentials") };
   }
 
-  // Check email verification status
-  const emailVerificationCheck = checkEmailVerification(session, humanUser, requestId);
-
-  if (emailVerificationCheck?.redirect) {
-    redirect(emailVerificationCheck?.redirect, "push");
+  const abandoned = await handleAbandonedRegistrationFlow(requestId);
+  if (abandoned?.redirect) {
+    redirect(abandoned.redirect, "push");
   }
 
   // Check if password is expired and user has to change password first

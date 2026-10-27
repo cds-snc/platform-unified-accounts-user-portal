@@ -52,6 +52,7 @@ export function StrongFactorSelection({
             title={t("set.authenticator.title")}
             icon="/img/verified_user_24px.png"
             description={t("set.authenticator.description")}
+            dataTestId="strong-factor-totp"
             url={totpUrl}
             isSelected={selectedMethod === "authenticator"}
             onSelect={handleMethodSelect}
@@ -63,6 +64,7 @@ export function StrongFactorSelection({
             title={t("set.securityKey.title")}
             icon="/img/fingerprint_24px.png"
             description={t("set.securityKey.description")}
+            dataTestId="strong-factor-u2f"
             url={u2fUrl}
             isSelected={selectedMethod === "securityKey"}
             onSelect={handleMethodSelect}
@@ -74,6 +76,7 @@ export function StrongFactorSelection({
         <Button
           theme="primary"
           disabled={!selectedMethod}
+          dataTestId="strong-factor-continue"
           onClick={() => router.push(buildUrlWithRequestId(nextUrl, requestId))}
         >
           {t("set.continue")}

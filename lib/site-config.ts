@@ -48,4 +48,12 @@ export class SiteConfigService {
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     };
   }
+
+  getSiteLink(pageName: string): string {
+    const { baseUrl } = this.resolve();
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const pagePath = pageName.replace(/^\/+/, "");
+
+    return `${baseUrl}${basePath}/${pagePath}`;
+  }
 }

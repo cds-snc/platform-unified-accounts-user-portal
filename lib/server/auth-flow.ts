@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 
 import { redirect } from "next/navigation";
+import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 import { logMessage } from "@lib/logger";
 import { loginWithOIDCAndSession } from "@lib/oidc";
@@ -97,4 +98,29 @@ async function shouldDeferOIDCCompletion(requestId?: string) {
   }
 
   return;
+}
+
+/**
+ * Checks if a registration was abandoned and redirects the user to continue in the
+ * proper flow
+ * @param redirect
+ */
+
+export async function handleAbandonedRegistrationFlow(requestId?: string) {
+  const session = await loadActiveSession();
+  const factors = checkSessionFactors(session);
+  if (!factors.hasUser) {
+    // This should never throw but adding as a safety net
+    throw new Error("No user on the session");
+  }
+
+  const hasConfiguredStrongMFA =
+    session.authMethods?.some(
+      (method) =>
+        method === AuthenticationMethodType.TOTP || method === AuthenticationMethodType.U2F
+    ) ?? false;
+
+  if (!factors.emailVerified || !hasConfiguredStrongMFA) {
+    return { redirect: buildUrlWithRequestId("/register/incomplete", requestId) };
+  }
 }

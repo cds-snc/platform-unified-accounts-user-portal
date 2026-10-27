@@ -18,6 +18,7 @@ import { RequestChallenges } from "@zitadel/proto/zitadel/session/v2/challenge_p
 import {
   Checks,
   CreateSessionResponse,
+  SetSessionRequest,
 } from "@zitadel/proto/zitadel/session/v2/session_service_pb";
 import { ReturnEmailVerificationCodeSchema } from "@zitadel/proto/zitadel/user/v2/email_pb";
 import { ReturnPasswordResetCodeSchema } from "@zitadel/proto/zitadel/user/v2/password_pb";
@@ -142,12 +143,14 @@ export async function setSession({
   challenges,
   checks,
   lifetime,
+  metadata = {},
 }: {
   sessionId: string;
   sessionToken: string;
   challenges: RequestChallenges | undefined;
   checks?: Checks;
   lifetime: Duration;
+  metadata?: SetSessionRequest["metadata"];
 }) {
   const sessionService = await getServiceForHost("SessionService");
 
@@ -157,7 +160,7 @@ export async function setSession({
       sessionToken,
       challenges,
       checks: checks ? checks : {},
-      metadata: {},
+      metadata,
       lifetime,
     },
     {}
@@ -560,4 +563,57 @@ export async function removeTOTP({ userId }: { userId: string }) {
   return userService.removeTOTP({
     userId,
   });
+}
+
+export async function getApplications(): Promise<
+  { name: string; clientId: string; projectId: string; projectName: string }[]
+> {
+  const projectService = await getServiceForHost("ProjectService");
+  const appService = await getServiceForHost("AppService");
+
+  const { projects } = await projectService.listProjects({ filters: [] });
+
+  return Promise.all(
+    projects.map(async (project) => {
+      const { applications } = await appService.listApplications({
+        projectId: project.id,
+        filters: [{ filter: { case: "oidcAppOnly", value: true } }],
+      });
+      return applications.flatMap((app) => {
+        if (app.config.case === "oidcConfig") {
+          return [
+            {
+              name: app.name,
+              clientId: app.config.value.clientId,
+              projectId: project.id,
+              projectName: project.name,
+            },
+          ];
+        }
+        return [];
+      });
+    })
+  ).then((result) => {
+    return result.reduce(
+      (
+        prev: { name: string; clientId: string; projectId: string; projectName: string }[],
+        curr
+      ) => {
+        prev.push(...curr);
+        return prev;
+      },
+      []
+    );
+  });
+}
+
+export async function verifyInviteCode(code: string, userId: string) {
+  const userService = await getServiceForHost("UserService");
+  return userService
+    .verifyInviteCode({
+      userId,
+      verificationCode: code,
+    })
+    .then(() => true)
+    .catch(() => false);
 }

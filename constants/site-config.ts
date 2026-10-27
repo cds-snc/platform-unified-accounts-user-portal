@@ -16,7 +16,8 @@ export type TrustedDomainConfig = Pick<SiteConfig, "baseUrl"> & {
 };
 
 const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig => ({
-  about: false,
+  // TODO: update to the SSO about page when it becomes available
+  about: "https://articles.alpha.canada.ca/forms-formulaires/",
   termsOfUse: false,
   sla: false,
   support: false,
@@ -26,7 +27,7 @@ const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig 
 
 export const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
   dev: {
-    baseUrl: "http://localhost:3000",
+    baseUrl: "http://localhost:3002",
     links: createLinks(),
   },
   authStaging: {

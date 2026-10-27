@@ -116,8 +116,8 @@ describe("host helpers", () => {
   });
   describe("isTrustedSiteHost", () => {
     it("trusts exact matches for localhost", () => {
-      expect(isTrustedSiteHost("localhost:3000")).toBe(true);
-      expect(isTrustedSiteHost("http://localhost:3000")).toBe(true);
+      expect(isTrustedSiteHost("localhost:3002")).toBe(true);
+      expect(isTrustedSiteHost("http://localhost:3002")).toBe(true);
     });
 
     it("trusts exact matches for auth-staging", () => {

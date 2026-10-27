@@ -14,8 +14,10 @@ export const TextInput = ({
   required,
   placeholder,
   autoComplete,
+  spellCheck,
   ariaDescribedbyIds,
   onChange,
+  dataTestId = "textInput",
   defaultValue = "",
   ref,
   invalid,
@@ -27,8 +29,10 @@ export const TextInput = ({
   required?: boolean;
   placeholder?: string;
   autoComplete?: string;
+  spellCheck?: boolean;
   ariaDescribedbyIds?: string[] | string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  dataTestId?: string;
   defaultValue?: string;
   ref?: React.Ref<HTMLInputElement>;
   invalid?: boolean;
@@ -39,13 +43,14 @@ export const TextInput = ({
   return (
     <>
       <input
-        data-testid="textInput"
+        data-testid={dataTestId}
         className={classes}
         id={id}
         name={id}
         type={type}
         required={required}
-        autoComplete={autoComplete ? autoComplete : "off"}
+        autoComplete={autoComplete || "off"}
+        spellCheck={spellCheck}
         placeholder={placeholder}
         defaultValue={defaultValue}
         onChange={onChange}

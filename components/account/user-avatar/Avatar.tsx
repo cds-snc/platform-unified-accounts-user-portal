@@ -46,7 +46,7 @@ export function Avatar({ size = "base", name, loginName, imageUrl, shadow }: Ava
   return (
     <div
       className={cn(
-        "pointer-events-none flex size-full flex-shrink-0 cursor-default items-center justify-center rounded-full bg-gcds-blue-500 text-white transition-colors duration-200",
+        "pointer-events-none flex size-full flex-shrink-0 cursor-default items-center justify-center rounded-full bg-gcds-blue-550 text-white transition-colors duration-200",
         shadow && "shadow",
         {
           "h-20 w-20 font-normal": size === "large",

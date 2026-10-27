@@ -3,8 +3,11 @@
  *--------------------------------------------*/
 import { cn } from "@lib/utils";
 import { getImageUrl } from "@lib/utils/imageUrl";
+import { serverTranslation } from "@i18n/server";
 import { Version } from "@components/layout/footer/Version";
 export const Footer = async ({ children }: { children?: React.ReactNode }) => {
+  const { t } = await serverTranslation("fip");
+
   return (
     <footer
       className={cn(
@@ -23,7 +26,7 @@ export const Footer = async ({ children }: { children?: React.ReactNode }) => {
 
         <div className="min-w-42">
           <picture>
-            <img className="h-10 lg:h-8" alt="fip.text" src={getImageUrl("/img/wmms-blk.svg")} />
+            <img className="h-10 lg:h-8" alt={t("text")} src={getImageUrl("/img/wmms-blk.svg")} />
           </picture>
         </div>
       </div>
@@ -44,7 +47,8 @@ export const FooterSkeleton = () => (
 
       <div className="min-w-42">
         <picture>
-          <img className="h-10 lg:h-8" alt="fip.text" src={getImageUrl("/img/wmms-blk.svg")} />
+          {/* Decorative placeholder; the above loaded footer announces the image. */}
+          <img className="h-10 lg:h-8" alt="" src={getImageUrl("/img/wmms-blk.svg")} />
         </picture>
       </div>
     </div>

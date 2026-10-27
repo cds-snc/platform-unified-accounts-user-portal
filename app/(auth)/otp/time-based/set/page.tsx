@@ -2,9 +2,11 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { type RegisterTOTPResponse } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
+import {
+  AuthenticationMethodType,
+  type RegisterTOTPResponse,
+} from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -22,6 +24,7 @@ import { AuthPanel } from "@components/auth/AuthPanel";
 import { Alert } from "@components/ui/alert/Alert";
 import { BackButton } from "@components/ui/button/BackButton";
 import { Button } from "@components/ui/button/Button";
+import { LinkButton } from "@components/ui/button/LinkButton";
 
 /*--------------------------------------------*
  * Local Relative
@@ -38,6 +41,10 @@ export default async function Page(props: {
   const { requestId } = searchParams;
   const session = await checkAuthenticationLevel(AuthLevel.MFA_CHANGE_REQUIRED, requestId);
 
+  if (session.authMethods.includes(AuthenticationMethodType.TOTP)) {
+    redirect(buildUrlWithRequestId("/mfa/set", requestId));
+  }
+
   const loginName = session.factors?.user?.loginName;
   const displayName = session.factors?.user?.displayName;
 
@@ -48,7 +55,7 @@ export default async function Page(props: {
 
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,
-    mappedUiError: ReturnType<typeof getZitadelUiError>;
+    mappedUiError: ReturnType<typeof getZitadelUiError> | undefined;
   if (session.factors?.user?.id) {
     const userId = session.factors.user.id;
 
@@ -67,6 +74,10 @@ export default async function Page(props: {
       });
 
       mappedUiError = getZitadelUiError("otp.set", err);
+
+      if (mappedUiError.errorKey === "set.alreadySetUp") {
+        redirect(buildUrlWithRequestId("/mfa/set", requestId));
+      }
 
       error = err instanceof Error ? err : undefined;
     }
@@ -87,7 +98,7 @@ export default async function Page(props: {
     urlToContinue = buildUrlWithRequestId(LOGGED_IN_HOME_PAGE, requestId);
   }
 
-  const shouldBlockContinue = Boolean(error) && (!mappedUiError || mappedUiError.blockContinue);
+  const shouldBlockContinue = Boolean(error) && Boolean(mappedUiError?.blockContinue);
 
   return (
     <>
@@ -103,9 +114,7 @@ export default async function Page(props: {
 
         {error && (
           <div className="py-4">
-            <Alert.Warning
-              body={mappedUiError ? t(mappedUiError.i18nKey) : t("set.genericError")}
-            />
+            <Alert.Warning body={t(mappedUiError?.errorKey ?? "set.genericError")} />
           </div>
         )}
 
@@ -132,15 +141,13 @@ export default async function Page(props: {
             <span className="grow"></span>
 
             {shouldBlockContinue ? (
-              <Button disabled>
+              <Button disabled dataTestId="totp-setup-continue">
                 <I18n i18nKey="set.submit" namespace="otp" />
               </Button>
             ) : (
-              <Link href={urlToContinue}>
-                <Button>
-                  <I18n i18nKey="set.submit" namespace="otp" />
-                </Button>
-              </Link>
+              <LinkButton.Primary href={urlToContinue} data-testid="totp-setup-continue">
+                <I18n i18nKey="set.submit" namespace="otp" />
+              </LinkButton.Primary>
             )}
           </div>
         )}

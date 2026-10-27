@@ -44,6 +44,23 @@ describe("LoginForm", () => {
     expect(forgotPasswordLink).toHaveAttribute("href", "/password/reset?requestId=abc123");
   });
 
+  it("disables autocomplete for the other-account session", () => {
+    render(<LoginForm requestId="abc123" isOtherSession />);
+
+    expect(screen.getByLabelText(/form\.label/i)).toHaveAttribute("autocomplete", "off");
+    expect(screen.getByLabelText(/form\.passwordLabel/i)).toHaveAttribute("autocomplete", "off");
+  });
+
+  it("uses autocomplete attributes for the default session", () => {
+    render(<LoginForm requestId="abc123" />);
+
+    expect(screen.getByLabelText(/form\.label/i)).toHaveAttribute("autocomplete", "email");
+    expect(screen.getByLabelText(/form\.passwordLabel/i)).toHaveAttribute(
+      "autocomplete",
+      "current-password"
+    );
+  });
+
   it("shows field validation errors and does not submit invalid form", async () => {
     render(<LoginForm requestId="abc123" />);
 
@@ -55,6 +72,32 @@ describe("LoginForm", () => {
     });
 
     expect(submitLoginForm).not.toHaveBeenCalled();
+  });
+
+  it("marks only the username invalid when the email is missing", async () => {
+    const user = userEvent.setup();
+    render(<LoginForm requestId="abc123" />);
+
+    await user.type(screen.getByLabelText(/form\.passwordLabel/i), "P@ssw0rd");
+    await user.click(screen.getByRole("button", { name: "form.submit" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/form\.label/i)).toHaveAttribute("aria-invalid", "true");
+    });
+    expect(screen.getByLabelText(/form\.passwordLabel/i)).toHaveAttribute("aria-invalid", "false");
+  });
+
+  it("marks only the password invalid when the password is missing", async () => {
+    const user = userEvent.setup();
+    render(<LoginForm requestId="abc123" />);
+
+    await user.type(screen.getByLabelText(/form\.label/i), "person@canada.ca");
+    await user.click(screen.getByRole("button", { name: "form.submit" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/form\.passwordLabel/i)).toHaveAttribute("aria-invalid", "true");
+    });
+    expect(screen.getByLabelText(/form\.label/i)).toHaveAttribute("aria-invalid", "false");
   });
 
   it("shows generic error when login fails", async () => {

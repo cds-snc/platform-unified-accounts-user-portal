@@ -1,10 +1,13 @@
 import type { ConnectError } from "@connectrpc/connect";
 import { ErrorDetailSchema } from "@zitadel/proto/zitadel/message_pb";
 
-type ZitadelErrorContext = string;
+type ZitadelErrorContext = "otp.verify" | "otp.set";
+
+export type ZitadelErrorKey =
+  "set.invalidCode" | "set.invalidCodeLength" | "set.alreadySetUp" | "set.genericError";
 
 type ZitadelUiError = {
-  i18nKey: string;
+  errorKey: ZitadelErrorKey;
   blockContinue?: boolean;
 };
 
@@ -15,7 +18,7 @@ type ZitadelParsedError = {
 
 type ZitadelUiErrorRule = {
   match: (error: ZitadelParsedError) => boolean;
-  i18nKey: string;
+  errorKey: ZitadelErrorKey;
   blockContinue?: boolean;
 };
 
@@ -26,21 +29,21 @@ const defaultRulesByContext: ZitadelErrorRulesByContext = {
     {
       match: (error) =>
         error.text.includes("value length must be 6") || error.text.includes("6 runes"),
-      i18nKey: "set.invalidCodeLength",
+      errorKey: "set.invalidCodeLength",
     },
     {
       match: (error) =>
         error.code === 3 ||
         error.text.includes("invalid code") ||
         error.text.includes("invalid argument"),
-      i18nKey: "set.invalidCode",
+      errorKey: "set.invalidCode",
     },
   ],
   "otp.set": [
     {
       match: (error) =>
         error.text.includes("value length must be 6") || error.text.includes("6 runes"),
-      i18nKey: "set.invalidCodeLength",
+      errorKey: "set.invalidCodeLength",
       blockContinue: true,
     },
     {
@@ -49,7 +52,7 @@ const defaultRulesByContext: ZitadelErrorRulesByContext = {
         error.text.includes("invalid code") ||
         error.text.includes("invalid argument") ||
         error.text.includes("otpinvalidcode"),
-      i18nKey: "set.invalidCode",
+      errorKey: "set.invalidCode",
       blockContinue: true,
     },
     {
@@ -60,9 +63,15 @@ const defaultRulesByContext: ZitadelErrorRulesByContext = {
         error.text.includes("already ready") ||
         error.text.includes("otpalreadyready") ||
         error.text.includes("multifactor otp"),
-      i18nKey: "set.alreadySetUp",
+      errorKey: "set.alreadySetUp",
     },
   ],
+};
+
+// Unrecognised errors resolve to these so raw upstream messages never reach the UI.
+const fallbackErrors: Record<ZitadelErrorContext, ZitadelUiError> = {
+  "otp.verify": { errorKey: "set.genericError" },
+  "otp.set": { errorKey: "set.genericError", blockContinue: true },
 };
 
 type ConnectErrorLike = Pick<
@@ -146,40 +155,23 @@ export function parseZitadelError(err: {
   };
 }
 
+/**
+ * Maps an error to a translation key the client can render. Always returns a result;
+ * errors that are not objects or match no rule resolve to the context's fallback.
+ */
 export function getZitadelUiError(
   context: ZitadelErrorContext,
   err: unknown,
   rulesByContext: ZitadelErrorRulesByContext = defaultRulesByContext
-): ZitadelUiError | undefined {
+): ZitadelUiError {
+  const fallback = fallbackErrors[context];
+
   if (!err || typeof err !== "object") {
-    return undefined;
+    return fallback;
   }
 
-  try {
-    const rules = rulesByContext[context] ?? [];
-    const parsedError = parseZitadelError(
-      err as {
-        code?: unknown;
-        message?: unknown;
-        rawMessage?: unknown;
-      }
-    );
+  const parsedError = parseZitadelError(err);
+  const rule = rulesByContext[context].find((candidate) => candidate.match(parsedError));
 
-    for (const rule of rules) {
-      try {
-        if (rule.match(parsedError)) {
-          return {
-            i18nKey: rule.i18nKey,
-            blockContinue: rule.blockContinue,
-          };
-        }
-      } catch {
-        continue;
-      }
-    }
-  } catch {
-    return undefined;
-  }
-
-  return undefined;
+  return rule ? { errorKey: rule.errorKey, blockContinue: rule.blockContinue } : fallback;
 }

@@ -42,12 +42,12 @@ describe("site-config", () => {
   });
 
   it("resolves dev baseUrl from localhost host", async () => {
-    vi.mocked(getOriginalHost).mockResolvedValue("localhost:3000");
+    vi.mocked(getOriginalHost).mockResolvedValue("localhost:3002");
     const mocked = await SiteConfigService.getInstance();
     const config = mocked.resolve();
     expect(config).toEqual({
       id: "dev",
-      baseUrl: "http://localhost:3000",
+      baseUrl: "http://localhost:3002",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     });
   });
@@ -61,6 +61,14 @@ describe("site-config", () => {
       baseUrl: "https://auth.cdssandbox.xyz",
       zitadelOrganizationId: ZITADEL_ORGANIZATION,
     });
+  });
+
+  it("builds links with the configured base path", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("auth.cdssandbox.xyz");
+    process.env.NEXT_PUBLIC_BASE_PATH = "/auth";
+    const mocked = await SiteConfigService.getInstance();
+
+    expect(mocked.getSiteLink("/contact-us")).toBe("https://auth.cdssandbox.xyz/auth/contact-us");
   });
 
   it("resolves forms-staging baseUrl from forms-staging host", async () => {

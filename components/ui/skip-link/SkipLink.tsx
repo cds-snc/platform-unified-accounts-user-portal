@@ -1,11 +1,6 @@
 "use client";
 
 /*--------------------------------------------*
- * Framework and Third-Party
- *--------------------------------------------*/
-import Link from "next/link";
-
-/*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { useTranslation } from "@i18n/client";
@@ -14,9 +9,9 @@ export const SkipLink = () => {
 
   return (
     <div id="skip-link-container">
-      <Link href="#content" id="skip-link" prefetch={false}>
+      <a href="#content" id="skip-link">
         {t("skip-link")}
-      </Link>
+      </a>
     </div>
   );
 };

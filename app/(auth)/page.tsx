@@ -25,7 +25,12 @@ export default async function LoginPage(props: { searchParams: Promise<SearchPar
   const registerLink = buildUrlWithRequestId("/register", requestId);
 
   return (
-    <AuthPanel titleI18nKey="title" descriptionI18nKey="none" namespace="start">
+    <AuthPanel
+      titleI18nKey="title"
+      descriptionI18nKey="none"
+      namespace="start"
+      requestId={requestId}
+    >
       <SignIn requestId={requestId} registerLink={registerLink} allSessions={allPreviousSessions} />
     </AuthPanel>
   );

@@ -46,7 +46,9 @@ export const CodeEntry = ({
           defaultValue={state.formData?.code ?? code ?? ""}
           autoComplete="one-time-code"
           ariaDescribedbyIds={
-            hasError("code", state.validationErrors) ? ["errorMessageCode", "codeHint"] : "codeHint"
+            hasError("code", state.validationErrors)
+              ? ["errorMessageCode", "hint-codeHint"]
+              : "hint-codeHint"
           }
           className="!w-36"
           required

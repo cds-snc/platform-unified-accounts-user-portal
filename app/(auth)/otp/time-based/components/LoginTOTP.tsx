@@ -9,7 +9,7 @@ import Link from "next/link";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { getSafeErrorMessage } from "@lib/safeErrorMessage";
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 import { I18n, useTranslation } from "@i18n";
 import { UserAvatar } from "@components/account/user-avatar";
 import { useSiteConfig } from "@components/contexts/SiteConfigContext";
@@ -34,10 +34,6 @@ export function LoginTOTP({
   const { getSiteLink } = useSiteConfig();
   const supportLink = getSiteLink("support");
 
-  const genericErrorMessage = t("set.genericError");
-  const invalidCodeMessage = t("set.invalidCode");
-  const invalidCodeLengthMessage = t("set.invalidCodeLength");
-
   const localFormAction = async (_: FormState, formData?: FormData) => {
     const enteredCode = (formData?.get("code") as string) ?? "";
     const result = await handleOTPFormSubmit({ code: enteredCode, requestId });
@@ -47,7 +43,7 @@ export function LoginTOTP({
 
   const [state, formAction, isPending] = useActionState(localFormAction, {
     validationErrors: undefined,
-    error: undefined,
+    errorKey: undefined,
     formData: {
       code: "",
     },
@@ -55,13 +51,14 @@ export function LoginTOTP({
 
   return (
     <>
-      {!isPending && state.error && (
+      {!isPending && state.errorKey && (
         <div className="py-4" data-testid="error">
           <Alert type={ErrorStatus.ERROR} focussable>
-            {getSafeErrorMessage({
-              error: state.error,
-              fallback: genericErrorMessage,
-              allowedMessages: [genericErrorMessage, invalidCodeMessage, invalidCodeLengthMessage],
+            {getSafeErrorMessageFromKey({
+              errorKey: state.errorKey,
+              fallbackKey: "set.genericError",
+              allowedErrorKeys: ["set.invalidCode", "set.invalidCodeLength", "set.genericError"],
+              t,
             })}
           </Alert>
         </div>
@@ -76,7 +73,7 @@ export function LoginTOTP({
           <CodeEntry state={state} code={""} className="mt-8" />
           <div className="mt-6 flex items-center gap-4">
             <BackButton />
-            <SubmitButtonAction>
+            <SubmitButtonAction dataTestId="totp-submit">
               <I18n i18nKey="submit" namespace="verify" />
             </SubmitButtonAction>
           </div>

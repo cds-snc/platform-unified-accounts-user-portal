@@ -53,8 +53,19 @@ describe("ContactUsForm", () => {
 
     expect(screen.getByLabelText(/labels.fullName/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels.email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels.issueType/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels.message/i)).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeInTheDocument();
+  });
+
+  it("renders the issue type options", () => {
+    render(<ContactUsForm siteKey="site-key" />);
+
+    const select = screen.getByLabelText(/labels.issueType/i);
+    expect(select).toContainHTML("issueTypeOptions.passwordReset");
+    expect(select).toContainHTML("issueTypeOptions.mfaIssue");
+    expect(select).toContainHTML("issueTypeOptions.signUpIssue");
+    expect(select).toContainHTML("issueTypeOptions.other");
   });
 
   it("shows validation errors when form is submitted empty", async () => {
@@ -67,6 +78,7 @@ describe("ContactUsForm", () => {
     await waitFor(() => {
       expect(screen.getByText("validation.requiredFullName")).toBeInTheDocument();
       expect(screen.getByText("validation.requiredEmail")).toBeInTheDocument();
+      expect(screen.getByText("validation.requiredIssueType")).toBeInTheDocument();
       expect(screen.getByText("validation.requiredMessage")).toBeInTheDocument();
     });
   });
@@ -78,12 +90,14 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "not-an-email");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(screen.getByText("validation.invalidEmail")).toBeInTheDocument();
     });
+    expect(screen.getByLabelText(/labels.issueType/i)).toHaveValue("other");
   });
 
   it("shows success panel after valid form submission", async () => {
@@ -93,6 +107,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -113,6 +128,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -130,6 +146,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -145,6 +162,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
@@ -152,31 +170,42 @@ describe("ContactUsForm", () => {
     expect(submitContactFormAction).toHaveBeenCalledWith({
       fullName: "Test User",
       email: "test@canada.ca",
+      issueType: "other",
       message: "Hello there",
       captchaToken: "captcha-token",
+      language: "en",
     });
   });
 
-  it("shows a generic error when hCaptcha does not verify", async () => {
+  it("shows the hCaptcha failure page when hCaptcha does not verify", async () => {
     const user = userEvent.setup();
     const execute = vi.fn().mockResolvedValue({
       verified: false,
       reason: "captcha-error",
     });
+    const reset = vi.fn();
     vi.mocked(useHCaptcha).mockReturnValue({
       captcha: <div data-testid="hcaptcha" />,
       execute,
-      reset: vi.fn(),
+      reset,
     });
 
     render(<ContactUsForm siteKey="site-key" />);
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     await user.click(screen.getByRole("button"));
 
-    await waitFor(() => expect(screen.getByText("errors.submitFailed")).toBeInTheDocument());
+    await waitFor(() => {
+      const heading = screen.getByRole("heading", { name: "failPage.title" });
+
+      expect(heading).toHaveFocus();
+      expect(document.title).toBe("failPage.title - contact-us:title");
+    });
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(document.getElementById("contact-us-form")).not.toBeInTheDocument();
     expect(submitContactFormAction).not.toHaveBeenCalled();
   });
 
@@ -196,6 +225,7 @@ describe("ContactUsForm", () => {
 
     await user.type(screen.getByLabelText(/labels.fullName/i), "Test User");
     await user.type(screen.getByLabelText(/labels.email/i), "test@canada.ca");
+    await user.selectOptions(screen.getByLabelText(/labels.issueType/i), "other");
     await user.type(screen.getByLabelText(/labels.message/i), "Hello there");
     const submitButton = screen.getByRole("button");
     await user.click(submitButton);
