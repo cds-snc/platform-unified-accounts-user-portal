@@ -62,19 +62,24 @@ function counterToBytes(counter: number): Buffer {
   return bytes;
 }
 
+// Zitadel rejects a TOTP code that was already used so we must wait for a
+// new code to be generated in this case.
+const lastUsedTotpCounter = new Map<string, number>();
 export async function generateTOTP(
   base32Secret: string,
   timeStep = 30,
   digits = 6
 ): Promise<string> {
-  const stepDuration = timeStep * 1000;
-  const remainingTime = stepDuration - (Date.now() % stepDuration);
+  let counter = Math.floor(Date.now() / 1000 / timeStep);
 
-  if (remainingTime < 10_000) {
-    await new Promise((resolve) => setTimeout(resolve, remainingTime + 100));
+  const lastUsed = lastUsedTotpCounter.get(base32Secret);
+  if (lastUsed !== undefined && counter <= lastUsed) {
+    const nextStepMs = (lastUsed + 1) * timeStep * 1000;
+    await new Promise((resolve) => setTimeout(resolve, nextStepMs - Date.now() + 250));
+    counter = Math.floor(Date.now() / 1000 / timeStep);
   }
+  lastUsedTotpCounter.set(base32Secret, counter);
 
-  const counter = Math.floor(Date.now() / 1000 / timeStep);
   const keyBytes = base32Decode(base32Secret);
   const hmac = createHmac("sha1", keyBytes).update(counterToBytes(counter)).digest();
   const offset = hmac[hmac.length - 1] & 0x0f;
