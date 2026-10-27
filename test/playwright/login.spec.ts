@@ -29,7 +29,7 @@ test.describe("login user flow", { tag: "@smoke" }, () => {
     await page.locator("#login button[type=submit]").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(generateTOTP(totpSecret));
+    await page.locator("#totp #code").fill(await generateTOTP(totpSecret));
     await page.locator("#totp button[type=submit]").click();
 
     await expect(page.locator("#personal-details-title")).toBeVisible();
@@ -89,7 +89,7 @@ test.describe("login user flow", { tag: "@smoke" }, () => {
     await page.locator("#login button[type=submit]").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(generateTOTP(totpSecret));
+    await page.locator("#totp #code").fill(await generateTOTP(totpSecret));
     await page.locator("#totp button[type=submit]").click();
 
     await expect(page).toHaveURL(

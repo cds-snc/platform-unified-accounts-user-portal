@@ -8,14 +8,14 @@
     "title": "GC Platform",
     "required": "required",
     "errorSummary": {
-      "title": "Please correct the errors on the page.",
+      "title": "Please correct the errors on the page",
       "itemFallback": "Please check this field."
     },
     "gcForms": "GC Forms",
-    "externalLinkIconLabel": " (Opens in a new tab.)"
+    "externalLinkIconLabel": " (Opens in a new tab)"
   },
   "error": {
-    "title": "There's a problem with our site.",
+    "title": "There's a problem with our site",
     "instructions": "Try again in a while.",
     "about": "About GC Forms",
     "contact": "Contact Support"
@@ -358,9 +358,9 @@
     "incomplete": {
       "pageTitle": "A few more steps",
       "title": "A few more steps to verify your account",
-      "item1": "You entered your GC email and chose a password",
-      "item2": "Next step: Send a code to your GC email to validate your account",
-      "action": "Send Code",
+      "item1": "You entered your government email and chose a password",
+      "item2": "Next step: Send a code to your email to validate your account",
+      "action": "Send code",
       "hint": "We'll prompt you to enter the code and add a verification method"
     },
     "methods": {
@@ -478,7 +478,7 @@
     "continueButton": "Continue{{app}}"
   },
   "welcome": {
-    "title": "Welcome to GC Platform!",
+    "title": "Welcome to GC Platform",
     "description": "You've created your account and verification method",
     "continueButton": "Continue{{app}}"
   },
@@ -543,7 +543,7 @@
     }
   },
   "404": {
-    "title": "Page not found ",
+    "title": "Page not found",
     "body": "Sorry, the page you’re looking for was not found."
   },
   "rpApps": {
