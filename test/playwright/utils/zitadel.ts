@@ -183,19 +183,18 @@ export async function getPasswordResetLink(
     throw new Error("Expected a human user for password reset");
   }
   const passwordChanged = user.type.value.passwordChanged;
-  const payload = { userId, expiry: Math.floor(Date.now() / 1000) + 15 * 60 };
-  const signature = createHmac("sha256", passwordResetSecret)
-    .update(
-      JSON.stringify({
-        ...payload,
-        passwordChanged: passwordChanged
-          ? { seconds: String(passwordChanged.seconds), nanos: passwordChanged.nanos }
-          : null,
-      })
-    )
-    .digest("base64url");
+  const hmac = (value: string) =>
+    createHmac("sha256", passwordResetSecret).update(value).digest("base64url");
+  const payload = {
+    userId,
+    expiry: Math.floor(Date.now() / 1000) + 15 * 60,
+    passwordChanged: hmac(
+      passwordChanged ? `${String(passwordChanged.seconds)}.${passwordChanged.nanos}` : "none"
+    ),
+  };
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
 
-  return `${Buffer.from(JSON.stringify(payload)).toString("base64url")}.${signature}`;
+  return `${encodedPayload}.${hmac(encodedPayload)}`;
 }
 
 export async function deleteUserById(userId: string, accessToken: string, apiBaseUrl: string) {
