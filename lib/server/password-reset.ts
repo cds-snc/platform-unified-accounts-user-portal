@@ -9,7 +9,7 @@ import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
 
-export const PASSWORD_RESET_TTL_SECONDS = 15 * 60;
+export const RESET_LINK_TTL_SECONDS = 15 * 60;
 
 type ResetLinkPayload = v.InferOutput<typeof resetPasswordLinkSchema>;
 type PasswordChanged = { seconds: bigint | string | number; nanos: number } | undefined;
@@ -26,11 +26,9 @@ function hmac(value: string): Buffer {
   return createHmac("sha256", getResetSecret()).update(value).digest();
 }
 
-function passwordChangedFingerprint(passwordChanged: PasswordChanged): string {
+function timestampFingerprint(changedAt: PasswordChanged): string {
   // Zitadel timestamps may have bigint, number or serialized string seconds.
-  const normalized = passwordChanged
-    ? `${String(passwordChanged.seconds)}.${passwordChanged.nanos}`
-    : "none";
+  const normalized = changedAt ? `${Number(changedAt.seconds)}.${Number(changedAt.nanos)}` : "none";
   return hmac(normalized).toString("base64url");
 }
 
@@ -45,8 +43,8 @@ export function signResetLink({
 }): string {
   const payload: ResetLinkPayload = {
     userId,
-    expiry: Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS,
-    passwordChanged: passwordChangedFingerprint(passwordChanged),
+    expiry: Math.floor(Date.now() / 1000) + RESET_LINK_TTL_SECONDS,
+    passwordChanged: timestampFingerprint(passwordChanged),
     ...(requestId
       ? { requestId: v.parse(resetPasswordLinkSchema.entries.requestId, requestId) }
       : {}),
@@ -97,7 +95,7 @@ export async function verifyResetLink(token: string): Promise<ResetLinkPayload |
       throw new Error("Password reset link user is not an active human");
     }
 
-    if (passwordChangedFingerprint(user.type.value.passwordChanged) !== resetLink.passwordChanged) {
+    if (timestampFingerprint(user.type.value.passwordChanged) !== resetLink.passwordChanged) {
       throw new Error("Password reset link was issued before the latest password change");
     }
 

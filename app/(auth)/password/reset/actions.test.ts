@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { logMessage } from "@lib/logger";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
-import { PASSWORD_RESET_TTL_SECONDS } from "@lib/server/password-reset";
+import { RESET_LINK_TTL_SECONDS } from "@lib/server/password-reset";
 import { checkAuthenticationLevel } from "@lib/server/route-protection";
 import {
   createSessionFromChecks,
@@ -176,13 +176,13 @@ describe("submitUserNameForm", () => {
     expect([...url.searchParams.keys()]).toEqual(["token"]);
     const token = url.searchParams.get("token")!;
     const [payload, signature] = token.split(".");
-    const expiry = Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS;
+    const expiry = Math.floor(Date.now() / 1000) + RESET_LINK_TTL_SECONDS;
     const hmac = (value: string) =>
       createHmac("sha256", "reset-signing-secret").update(value).digest("base64url");
     expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
       userId: "user-123",
       expiry,
-      passwordChanged: hmac(`${passwordChanged.seconds}.${passwordChanged.nanos}`),
+      passwordChanged: hmac(`${Number(passwordChanged.seconds)}.${Number(passwordChanged.nanos)}`),
       requestId: "req-123",
     });
     expect(signature).toBe(hmac(payload));
