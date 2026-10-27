@@ -11,7 +11,7 @@ import "server-only";
 
 export const PASSWORD_RESET_TTL_SECONDS = 15 * 60;
 
-type ResetLink = v.InferOutput<typeof resetPasswordLinkSchema>;
+type ResetLinkPayload = v.InferOutput<typeof resetPasswordLinkSchema>;
 type PasswordChanged = { seconds: bigint | string | number; nanos: number } | undefined;
 
 function getResetSecret(): string {
@@ -22,19 +22,16 @@ function getResetSecret(): string {
   return secret;
 }
 
-function signatureInput(
-  { userId, expiry, requestId }: ResetLink,
-  passwordChanged: PasswordChanged
-): string {
-  return JSON.stringify({
-    userId,
-    expiry,
-    ...(requestId ? { requestId } : {}),
-    // Zitadel timestamps may have bigint, number or serialized string seconds.
-    passwordChanged: passwordChanged
-      ? { seconds: String(passwordChanged.seconds), nanos: passwordChanged.nanos }
-      : null,
-  });
+function hmac(value: string): Buffer {
+  return createHmac("sha256", getResetSecret()).update(value).digest();
+}
+
+function passwordChangedFingerprint(passwordChanged: PasswordChanged): string {
+  // Zitadel timestamps may have bigint, number or serialized string seconds.
+  const normalized = passwordChanged
+    ? `${String(passwordChanged.seconds)}.${passwordChanged.nanos}`
+    : "none";
+  return hmac(normalized).toString("base64url");
 }
 
 export function signResetLink({
@@ -46,20 +43,20 @@ export function signResetLink({
   passwordChanged: PasswordChanged;
   requestId?: string;
 }): string {
-  const payload: ResetLink = {
+  const payload: ResetLinkPayload = {
     userId,
     expiry: Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS,
+    passwordChanged: passwordChangedFingerprint(passwordChanged),
     ...(requestId
       ? { requestId: v.parse(resetPasswordLinkSchema.entries.requestId, requestId) }
       : {}),
   };
-  const signature = createHmac("sha256", getResetSecret())
-    .update(signatureInput(payload, passwordChanged))
-    .digest("base64url");
-  return `${Buffer.from(JSON.stringify(payload)).toString("base64url")}.${signature}`;
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = hmac(encodedPayload).toString("base64url");
+  return `${encodedPayload}.${signature}`;
 }
 
-export async function verifyResetLink(token: string): Promise<ResetLink | undefined> {
+export async function verifyResetLink(token: string): Promise<ResetLinkPayload | undefined> {
   try {
     const [encodedPayload, encodedSignature, extra] = token.split(".");
     if (
@@ -69,6 +66,17 @@ export async function verifyResetLink(token: string): Promise<ResetLink | undefi
       !/^[A-Za-z0-9_-]+$/.test(encodedPayload)
     ) {
       throw new Error("Invalid password reset link format");
+    }
+
+    if (!/^[A-Za-z0-9_-]{43}$/.test(encodedSignature)) {
+      throw new Error("Invalid password reset link signature format");
+    }
+    const signature = Buffer.from(encodedSignature, "base64url");
+    if (signature.toString("base64url") !== encodedSignature) {
+      throw new Error("Invalid password reset link signature encoding");
+    }
+    if (!timingSafeEqual(signature, hmac(encodedPayload))) {
+      throw new Error("Password reset link signature did not match");
     }
 
     const resetLink = v.parse(
@@ -89,25 +97,16 @@ export async function verifyResetLink(token: string): Promise<ResetLink | undefi
       throw new Error("Password reset link user is not an active human");
     }
 
+    if (passwordChangedFingerprint(user.type.value.passwordChanged) !== resetLink.passwordChanged) {
+      throw new Error("Password reset link was issued before the latest password change");
+    }
+
     const { authMethodTypes = [] } = await listAuthenticationMethodTypes(user.userId);
     if (
       !authMethodTypes.includes(AuthenticationMethodType.TOTP) &&
       !authMethodTypes.includes(AuthenticationMethodType.U2F)
     ) {
       throw new Error("Password reset link user has no strong MFA method");
-    }
-
-    if (!/^[A-Za-z0-9_-]{43}$/.test(encodedSignature)) {
-      throw new Error("Invalid password reset link signature format");
-    }
-    const signature = Buffer.from(encodedSignature, "base64url");
-    if (signature.toString("base64url") !== encodedSignature) {
-      throw new Error("Invalid password reset link signature encoding");
-    }
-    const input = signatureInput(resetLink, user.type.value.passwordChanged);
-    const expectedSignature = createHmac("sha256", getResetSecret()).update(input).digest();
-    if (!timingSafeEqual(signature, expectedSignature)) {
-      throw new Error("Password reset link signature did not match");
     }
 
     return resetLink;

@@ -177,26 +177,15 @@ describe("submitUserNameForm", () => {
     const token = url.searchParams.get("token")!;
     const [payload, signature] = token.split(".");
     const expiry = Math.floor(Date.now() / 1000) + PASSWORD_RESET_TTL_SECONDS;
+    const hmac = (value: string) =>
+      createHmac("sha256", "reset-signing-secret").update(value).digest("base64url");
     expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
       userId: "user-123",
       expiry,
+      passwordChanged: hmac(`${passwordChanged.seconds}.${passwordChanged.nanos}`),
       requestId: "req-123",
     });
-    expect(signature).toBe(
-      createHmac("sha256", "reset-signing-secret")
-        .update(
-          JSON.stringify({
-            userId: "user-123",
-            expiry,
-            requestId: "req-123",
-            passwordChanged: {
-              seconds: String(passwordChanged.seconds),
-              nanos: passwordChanged.nanos,
-            },
-          })
-        )
-        .digest("base64url")
-    );
+    expect(signature).toBe(hmac(payload));
     expect(passwordResetWithReturn).toHaveBeenCalledExactlyOnceWith({ userId: "user-123" });
     expect(cookies).not.toHaveBeenCalled();
     expect(createSessionFromChecks).not.toHaveBeenCalled();

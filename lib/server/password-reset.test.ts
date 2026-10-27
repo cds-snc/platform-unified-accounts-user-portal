@@ -35,7 +35,17 @@ describe("password reset links", () => {
       type: { case: "human", value: { passwordChanged } },
     });
   const sign = () => signResetLink({ userId, passwordChanged });
-  const tokenWithPayload = (payload: unknown) =>
+  const decode = (token: string) =>
+    JSON.parse(Buffer.from(token.split(".")[0], "base64url").toString());
+  const fingerprint = () => decode(sign()).passwordChanged as string;
+  const hmac = (value: string) => createHmac("sha256", secret).update(value).digest("base64url");
+  // Correctly signed token for an arbitrary payload, to exercise payload validation.
+  const signPayload = (payload: unknown) => {
+    const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url");
+    return `${encoded}.${hmac(encoded)}`;
+  };
+  // Arbitrary payload with a signature lifted from a genuine token, to exercise tampering.
+  const forge = (payload: unknown) =>
     `${Buffer.from(JSON.stringify(payload)).toString("base64url")}.${sign().split(".")[1]}`;
 
   beforeEach(() => {
@@ -58,22 +68,36 @@ describe("password reset links", () => {
     vi.unstubAllEnvs();
   });
 
-  it("signs exactly the public user ID and integer expiry, binding the HMAC to the password timestamp", () => {
-    const expiry = now + PASSWORD_RESET_TTL_SECONDS;
-    const payload = { userId, expiry };
-    const signature = createHmac("sha256", secret)
-      .update(
-        JSON.stringify({
-          ...payload,
-          passwordChanged: { seconds: "1700000000", nanos: 123000000 },
-        })
-      )
-      .digest("base64url");
+  it("signs the exact encoded payload containing a keyed password timestamp fingerprint", () => {
+    const payload = {
+      userId,
+      expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      passwordChanged: hmac("1700000000.123000000"),
+    };
+    const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url");
 
-    expect(sign()).toBe(
-      `${Buffer.from(JSON.stringify(payload)).toString("base64url")}.${signature}`
-    );
+    expect(sign()).toBe(`${encoded}.${hmac(encoded)}`);
     expect(PASSWORD_RESET_TTL_SECONDS).toBeLessThanOrEqual(60 * 60);
+  });
+
+  it("does not expose the password timestamp in the link", () => {
+    const token = sign();
+    expect(token).not.toContain("1700000000");
+    expect(JSON.stringify(decode(token))).not.toContain("1700000000");
+    expect(fingerprint()).toMatch(/^[A-Za-z0-9_-]{43}$/);
+  });
+
+  it("rejects forged links before looking up any user", async () => {
+    await expect(
+      verifyResetLink(
+        forge({ userId: "other-user", expiry: now + 60, passwordChanged: fingerprint() })
+      )
+    ).resolves.toBeUndefined();
+    expect(getUserByID).not.toHaveBeenCalled();
+    expect(listAuthenticationMethodTypes).not.toHaveBeenCalled();
+    expect(logMessage.warn).toHaveBeenCalledWith("Failed to verify password reset link", {
+      error: new Error("Password reset link signature did not match"),
+    });
   });
 
   it.each([AuthenticationMethodType.TOTP, AuthenticationMethodType.U2F])(
@@ -85,6 +109,7 @@ describe("password reset links", () => {
       await expect(verifyResetLink(sign())).resolves.toEqual({
         userId,
         expiry: now + PASSWORD_RESET_TTL_SECONDS,
+        passwordChanged: fingerprint(),
       });
       expect(getUserByID).toHaveBeenCalledExactlyOnceWith(userId);
       expect(listAuthenticationMethodTypes).toHaveBeenCalledExactlyOnceWith(userId);
@@ -103,6 +128,7 @@ describe("password reset links", () => {
       await expect(verifyResetLink(token)).resolves.toEqual({
         userId,
         expiry: now + PASSWORD_RESET_TTL_SECONDS,
+        passwordChanged: fingerprint(),
       });
     }
   );
@@ -117,13 +143,16 @@ describe("password reset links", () => {
     await expect(verifyResetLink(sign())).resolves.toEqual({
       userId,
       expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      passwordChanged: fingerprint(),
     });
   });
 
   it.each([now - 1, now, "1792498500", null, undefined, {}, Number.MAX_SAFE_INTEGER + 1])(
     "rejects invalid or expired expiry %s before looking up any user",
     async (expiry) => {
-      await expect(verifyResetLink(tokenWithPayload({ userId, expiry }))).resolves.toBeUndefined();
+      await expect(
+        verifyResetLink(signPayload({ userId, expiry, passwordChanged: fingerprint() }))
+      ).resolves.toBeUndefined();
       expect(getUserByID).not.toHaveBeenCalled();
       expect(listAuthenticationMethodTypes).not.toHaveBeenCalled();
       expect(logMessage.warn).toHaveBeenCalled();
@@ -133,7 +162,7 @@ describe("password reset links", () => {
   it.each([null, false, 123, "payload", [], {}])(
     "rejects invalid payload %j before looking up any user",
     async (payload) => {
-      await expect(verifyResetLink(tokenWithPayload(payload))).resolves.toBeUndefined();
+      await expect(verifyResetLink(signPayload(payload))).resolves.toBeUndefined();
       expect(getUserByID).not.toHaveBeenCalled();
       expect(listAuthenticationMethodTypes).not.toHaveBeenCalled();
       expect(logMessage.warn).toHaveBeenCalledWith("Failed to verify password reset link", {
@@ -150,20 +179,28 @@ describe("password reset links", () => {
     expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
       userId,
       expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      passwordChanged: fingerprint(),
       requestId,
     });
     await expect(verifyResetLink(token)).resolves.toEqual({
       userId,
       expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      passwordChanged: fingerprint(),
       requestId,
     });
 
     const tampered = `${Buffer.from(
-      JSON.stringify({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS, requestId: "oidc_other" })
+      JSON.stringify({
+        userId,
+        expiry: now + PASSWORD_RESET_TTL_SECONDS,
+        passwordChanged: fingerprint(),
+        requestId: "oidc_other",
+      })
     ).toString("base64url")}.${signature}`;
     const stripped = `${sign().split(".")[0]}.${signature}`;
     await expect(verifyResetLink(tampered)).resolves.toBeUndefined();
     await expect(verifyResetLink(stripped)).resolves.toBeUndefined();
+    expect(getUserByID).toHaveBeenCalledOnce();
   });
 
   it("refuses to sign or accept a requestId over 200 characters", async () => {
@@ -171,7 +208,12 @@ describe("password reset links", () => {
     expect(() => signResetLink({ userId, passwordChanged, requestId })).toThrow();
     await expect(
       verifyResetLink(
-        tokenWithPayload({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS, requestId })
+        signPayload({
+          userId,
+          expiry: now + PASSWORD_RESET_TTL_SECONDS,
+          passwordChanged: fingerprint(),
+          requestId,
+        })
       )
     ).resolves.toBeUndefined();
     expect(getUserByID).not.toHaveBeenCalled();
@@ -182,13 +224,38 @@ describe("password reset links", () => {
     await expect(verifyResetLink(token)).resolves.toMatchObject({ requestId: "oidc_V2_1" });
   });
 
-  it("accepts additional payload fields without including them in the verified link", async () => {
+  it("accepts additional signed payload fields without including them in the verified link", async () => {
     await expect(
       verifyResetLink(
-        tokenWithPayload({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS, extra: true })
+        signPayload({
+          userId,
+          expiry: now + PASSWORD_RESET_TTL_SECONDS,
+          passwordChanged: fingerprint(),
+          extra: true,
+        })
       )
-    ).resolves.toEqual({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS });
+    ).resolves.toEqual({
+      userId,
+      expiry: now + PASSWORD_RESET_TTL_SECONDS,
+      passwordChanged: fingerprint(),
+    });
   });
+
+  it.each([undefined, "", "short", "A".repeat(42) + "!", { seconds: "1700000000", nanos: 0 }])(
+    "rejects a signed payload with invalid password fingerprint %j before looking up any user",
+    async (invalid) => {
+      await expect(
+        verifyResetLink(
+          signPayload({
+            userId,
+            expiry: now + PASSWORD_RESET_TTL_SECONDS,
+            passwordChanged: invalid,
+          })
+        )
+      ).resolves.toBeUndefined();
+      expect(getUserByID).not.toHaveBeenCalled();
+    }
+  );
 
   it("rejects a link at the expiry boundary, but accepts it one millisecond earlier", async () => {
     const token = sign();
@@ -211,7 +278,9 @@ describe("password reset links", () => {
     "rejects invalid user ID %s",
     async (invalidId) => {
       await expect(
-        verifyResetLink(tokenWithPayload({ userId: invalidId, expiry: now + 60 }))
+        verifyResetLink(
+          signPayload({ userId: invalidId, expiry: now + 60, passwordChanged: fingerprint() })
+        )
       ).resolves.toBeUndefined();
       expect(getUserByID).not.toHaveBeenCalled();
     }
@@ -274,6 +343,7 @@ describe("password reset links", () => {
       };
       vi.mocked(getUserByID).mockResolvedValue(create(GetUserByIDResponseSchema, { user }));
       await expect(verifyResetLink(sign())).resolves.toBeUndefined();
+      expect(listAuthenticationMethodTypes).not.toHaveBeenCalled();
     }
   );
 
@@ -301,8 +371,15 @@ describe("password reset links", () => {
 
   it("rejects tampering with an otherwise valid expiry", async () => {
     await expect(
-      verifyResetLink(tokenWithPayload({ userId, expiry: now + PASSWORD_RESET_TTL_SECONDS + 1 }))
+      verifyResetLink(
+        forge({
+          userId,
+          expiry: now + PASSWORD_RESET_TTL_SECONDS + 1,
+          passwordChanged: fingerprint(),
+        })
+      )
     ).resolves.toBeUndefined();
+    expect(getUserByID).not.toHaveBeenCalled();
   });
 
   it("rejects tampering with the user ID even when the new user is eligible", async () => {
@@ -313,9 +390,14 @@ describe("password reset links", () => {
     );
     await expect(
       verifyResetLink(
-        tokenWithPayload({ userId: otherUser.userId, expiry: now + PASSWORD_RESET_TTL_SECONDS })
+        forge({
+          userId: otherUser.userId,
+          expiry: now + PASSWORD_RESET_TTL_SECONDS,
+          passwordChanged: fingerprint(),
+        })
       )
     ).resolves.toBeUndefined();
+    expect(getUserByID).not.toHaveBeenCalled();
   });
 
   it("invalidates existing links when the signing secret changes", async () => {
@@ -323,6 +405,7 @@ describe("password reset links", () => {
     vi.stubEnv("PASSWORD_RESET_SECRET", "replacement-password-reset-signing-secret");
     const newToken = sign();
     await expect(verifyResetLink(oldToken)).resolves.toBeUndefined();
+    expect(getUserByID).not.toHaveBeenCalled();
     await expect(verifyResetLink(newToken)).resolves.toBeDefined();
   });
 
@@ -331,6 +414,7 @@ describe("password reset links", () => {
     vi.stubEnv("PASSWORD_RESET_SECRET", undefined);
     expect(sign).toThrow("Missing PASSWORD_RESET_SECRET");
     await expect(verifyResetLink(token)).resolves.toBeUndefined();
+    expect(getUserByID).not.toHaveBeenCalled();
   });
 
   it.each([getUserByID, listAuthenticationMethodTypes])(
