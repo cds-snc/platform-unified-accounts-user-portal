@@ -62,7 +62,18 @@ function counterToBytes(counter: number): Buffer {
   return bytes;
 }
 
-export function generateTOTP(base32Secret: string, timeStep = 30, digits = 6): string {
+export async function generateTOTP(
+  base32Secret: string,
+  timeStep = 30,
+  digits = 6
+): Promise<string> {
+  const stepDuration = timeStep * 1000;
+  const remainingTime = stepDuration - (Date.now() % stepDuration);
+
+  if (remainingTime < 10_000) {
+    await new Promise((resolve) => setTimeout(resolve, remainingTime + 100));
+  }
+
   const counter = Math.floor(Date.now() / 1000 / timeStep);
   const keyBytes = base32Decode(base32Secret);
   const hmac = createHmac("sha1", keyBytes).update(counterToBytes(counter)).digest();

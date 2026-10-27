@@ -75,7 +75,7 @@ test.describe("account edit flow", () => {
     await page.getByTestId("strong-factor-continue").click();
 
     await expect(page.locator("#totp #code")).toBeVisible();
-    await page.locator("#totp #code").fill(generateTOTP(registeredUser.totpSecret!));
+    await page.locator("#totp #code").fill(await generateTOTP(registeredUser.totpSecret!));
     await page.getByTestId("totp-submit").click();
 
     await expect(page).toHaveURL(/\/password\/reset\/set/);
