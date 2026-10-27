@@ -8,14 +8,14 @@
     "title": "Plateforme GC",
     "required": "obligatoire",
     "errorSummary": {
-      "title": "Veuillez corriger les erreurs sur la page.",
+      "title": "Veuillez corriger les erreurs sur la page",
       "itemFallback": "Veuillez vérifier ce champ."
     },
     "gcForms": "Formulaires GC",
-    "externalLinkIconLabel": "  (Ouvre dans un nouvel onglet.)"
+    "externalLinkIconLabel": "  (Ouvre dans un nouvel onglet)"
   },
   "error": {
-    "title": "Nous éprouvons des difficultés avec notre site.",
+    "title": "Nous éprouvons des difficultés avec notre site",
     "instructions": "Veuillez réessayer plus tard.",
     "about": "À propos de Formulaires GC",
     "contact": "Contacter l'équipe de soutien"
