@@ -475,7 +475,7 @@
     "continueButton": "Continuer{{app}}"
   },
   "welcome": {
-    "title": "Bienvenue sur Plateforme GC!",
+    "title": "Bienvenue sur Plateforme GC",
     "description": "Vous avez créé votre compte et votre méthode de vérification",
     "continueButton": "Continuer{{app}}"
   },
@@ -541,8 +541,8 @@
     "body": "Désolé, la page que vous cherchez n'a pas été trouvée."
   },
   "rpApps": {
-    "GC Forms": " à GC Formulaires",
-    "GC Notify": " à GC Notify",
+    "GC Forms": " à Formulaires GC",
+    "GC Notify": " à Formulaires GC",
     "defaultAppName": ""
   },
   "hCaptcha": {
