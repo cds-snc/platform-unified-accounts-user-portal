@@ -475,7 +475,7 @@
     "continueButton": "Continue{{app}}"
   },
   "welcome": {
-    "title": "Welcome to GC Platform!",
+    "title": "Welcome to GC Platform",
     "description": "You've created your account and verification method",
     "continueButton": "Continue{{app}}"
   },
