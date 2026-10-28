@@ -20,9 +20,7 @@ on:
         default: "test:playwright"
         type: string
     secrets:
-      log_analytics_workspace_id:
-        required: true
-      log_analytics_workspace_key:
+      sentinel_dce_endpoint:
         required: true
       register_email:
         required: true
@@ -55,11 +53,15 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:d65108d1a8095d8b0c4a5e32bf1807a40a5ce90ff0c78473e1116b1c243235e8
     steps:
       - name: Audit DNS requests
-        uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
+        uses: cds-snc/dns-proxy-action@58d95c286bfa233aec52055237b26a20c6ae13a5 # v1.2.1
         env:
           DNS_PROXY_FORWARDTOSENTINEL: "true"
-          DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.log_analytics_workspace_id }}"
-          DNS_PROXY_LOGANALYTICSSHAREDKEY: "${{ secrets.log_analytics_workspace_key }}"
+          DNS_PROXY_SENTINELFORWARDINGMODE: "oidc"
+          DNS_PROXY_SENTINELTENANTID: "${{ vars.SENTINEL_FORWARDER_V2_GITHUB_ACTIONS_TENANT_ID }}"
+          DNS_PROXY_SENTINELCLIENTID: "${{ vars.SENTINEL_FORWARDER_V2_GITHUB_ACTIONS_CLIENT_ID }}"
+          DNS_PROXY_SENTINELDCEURI: "${{ secrets.sentinel_dce_endpoint }}"
+          DNS_PROXY_SENTINELDCRIMMUTABLEID: "${{ vars.SENTINEL_DCR_RULE_ID_DNS_PROXY }}"
+          DNS_PROXY_SENTINELSTREAMNAME: Custom-GitHubMetadata_CI_DNS_Queries_V2_CL
           DNS_PROXY_SAFELIST: "${{ vars.DNS_PROXY_SAFELIST }}"
           DNS_PROXY_WILDCARDGREEDY: "true"
 
