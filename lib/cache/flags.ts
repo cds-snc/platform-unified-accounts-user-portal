@@ -52,6 +52,12 @@ const checkMulti = async <T extends FeatureFlagKeys[]>(keys: T): Promise<PickFla
 };
 
 export async function getSomeFlags<T extends FeatureFlagKeys[]>(flags: T): Promise<PickFlags<T>> {
+  if (!process.env.CACHE_URL) {
+    return flags.reduce<Partial<Record<FeatureFlagKeys, boolean>>>((def, curr) => {
+      def[curr] = flagInitialSettings[curr];
+      return def;
+    }, {}) as PickFlags<T>;
+  }
   if (!Array.isArray(flags) || flags.length === 0) return {} as PickFlags<T>;
   return (await checkMulti(flags)) as PickFlags<T>;
 }
