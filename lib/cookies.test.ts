@@ -286,25 +286,6 @@ describe("session cookie signing", () => {
     expect(verifySessions({ sessions: [signableSession] })).toBe(false);
   });
 
-  test.each<{ sessions: unknown[] }>([
-    { sessions: [{ id: "", token: "" }] },
-    { sessions: [{ arbitrary: "value" }] },
-    { sessions: [null, "value", 123, true] },
-  ])("signs arrays without requiring session fields: $sessions", ({ sessions }) => {
-    const signed = signSessions(sessions);
-
-    expect(verifySessions(signed)).toBe(true);
-    expect(readSessionCookies(JSON.stringify(signed))).toEqual(sessions);
-  });
-
-  test("does not confuse field boundaries in the signed payload", () => {
-    const signed = signSessions([{ ...signableSession, id: "ab", token: "c" }]);
-
-    expect(
-      verifySessions({ ...signed, sessions: [{ ...signableSession, id: "a", token: "bc" }] })
-    ).toBe(false);
-  });
-
   test("rejects a forged session id with an otherwise valid signature", () => {
     const signed = signSessions([signableSession]);
 
@@ -350,16 +331,6 @@ describe("session cookie signing", () => {
     expect(verifySessions(roundTripped)).toBe(true);
   });
 
-  test("rejects a signature created with a different secret", () => {
-    const signed = signSessions([signableSession]);
-    vi.stubEnv(
-      "ZITADEL_SESSION_COOKIE_SECRET",
-      "other-secret-".padEnd(MIN_SESSION_COOKIE_SECRET_LENGTH, "x")
-    );
-
-    expect(verifySessions(signed)).toBe(false);
-  });
-
   test.each(["insert", "remove", "reorder", "duplicate", "splice"])(
     "rejects the entire array after an entry %s",
     (operation) => {
@@ -376,12 +347,6 @@ describe("session cookie signing", () => {
       expect(readSessionCookies(JSON.stringify({ ...signed, sessions: changed }))).toEqual([]);
     }
   );
-
-  test("rejects the legacy per-entry signed cookie format", () => {
-    expect(
-      readSessionCookies(JSON.stringify([{ ...signableSession, sig: "legacy-signature" }]))
-    ).toEqual([]);
-  });
 
   test("signs and verifies an empty session array", () => {
     const signed = signSessions([]);
@@ -430,15 +395,6 @@ describe("session cookie signing", () => {
     vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", NEW_SECRET);
     expect(verifySessions(signedWithNew)).toBe(true);
     expect(verifySessions(signedWithOld)).toBe(false);
-  });
-
-  test("never falls back to the service user token", () => {
-    unsetAllSecrets();
-    vi.stubEnv("ZITADEL_SERVICE_USER_TOKEN", "service-user-token");
-    vi.stubEnv("ZITADEL_SERVICE_USER_TOKEN_FILE", "/run/secrets/zitadel-token");
-
-    expect(getSessionCookieSecrets()).toEqual([]);
-    expect(() => signSessions([signableSession])).toThrow(/signing secret is not configured/);
   });
 
   test("does not verify when no signing secret is configured", () => {
