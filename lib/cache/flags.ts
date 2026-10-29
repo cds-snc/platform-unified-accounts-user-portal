@@ -31,6 +31,7 @@ export const checkOne = async (key: FeatureFlagKeys): Promise<boolean> => {
  * @returns An object of {flag: value ...}
  */
 export const checkAll = async (): Promise<Flags> => {
+  if (!process.env.CACHE_URL) return flagInitialSettings as Flags;
   const keys = await getKeys();
   return checkMulti(keys);
 };
