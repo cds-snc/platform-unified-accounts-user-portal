@@ -54,7 +54,7 @@ export const initiateFlags = async () => {
     return;
   }
 
-  if (process.env.APP_ENV === "test") {
+  if (process.env.NODE_ENV === "test") {
     logMessage.info("Application is in TEST mode, skipping flag initialization");
     return;
   }

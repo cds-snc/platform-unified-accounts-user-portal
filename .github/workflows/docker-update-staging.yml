@@ -22,8 +22,7 @@ jobs:
       GITHUB_SHA: ${{ github.sha }}
       IMAGE_TAG: sha-${{ github.sha }}
     secrets:
-      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
-      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      SENTINEL_DCE_ENDPOINT: ${{ secrets.SENTINEL_DCE_ENDPOINT }}
 
   docker-deploy:
     needs: docker-build
@@ -35,19 +34,18 @@ jobs:
       ACCOUNT_ID: ${{ vars.STAGING_AWS_ACCOUNT_ID }}
       IMAGE_TAG: sha-${{ github.sha }}
     secrets:
-      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
-      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      SENTINEL_DCE_ENDPOINT: ${{ secrets.SENTINEL_DCE_ENDPOINT }}
 
   docker-sbom:
     needs: docker-build
     permissions:
       contents: write
+      id-token: write
     uses: ./.github/workflows/docker-sbom.yml
     with:
       GITHUB_SHA: ${{ github.sha }}
     secrets:
-      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
-      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      SENTINEL_DCE_ENDPOINT: ${{ secrets.SENTINEL_DCE_ENDPOINT }}
 
   integration-test:
     needs: docker-deploy
@@ -61,8 +59,7 @@ jobs:
       idp_url: ${{ vars.STAGING_INTEGRATION_TEST_IDP_URL }}
       portal_url: ${{ vars.STAGING_INTEGRATION_TEST_PORTAL_URL }}
     secrets:
-      log_analytics_workspace_id: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
-      log_analytics_workspace_key: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      sentinel_dce_endpoint: ${{ secrets.SENTINEL_DCE_ENDPOINT }}
       register_email: ${{ secrets.STAGING_INTEGRATION_TEST_REGISTER_EMAIL }}
       username: ${{ secrets.STAGING_INTEGRATION_TEST_USERNAME }}
       password: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD }}
@@ -84,9 +81,9 @@ jobs:
         needs.docker-deploy.result == 'failure' ||
         needs.integration-test.result == 'failure'
       )
-    permissions: {}
+    permissions:
+      id-token: write
     uses: ./.github/workflows/workflow-failure.yml
     secrets:
-      LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}
-      LOG_ANALYTICS_WORKSPACE_KEY: ${{ secrets.LOG_ANALYTICS_WORKSPACE_KEY }}
+      SENTINEL_DCE_ENDPOINT: ${{ secrets.SENTINEL_DCE_ENDPOINT }}
       SLACK_WEBHOOK_URL: ${{ secrets.STAGING_CLOUDWATCH_ALERT_SLACK_WEBHOOK }}

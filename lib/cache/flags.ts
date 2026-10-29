@@ -15,7 +15,7 @@ const getKeys = async (): Promise<FeatureFlagKeys[]> => {
  * @param key Application setting flag key
  * @returns Boolean value of Flag key
  */
-export const checkOne = async (key: string): Promise<boolean> => {
+export const checkOne = async (key: FeatureFlagKeys): Promise<boolean> => {
   // If REDIS is not configured return the default values for the flags
   if (!process.env.CACHE_URL) {
     return (flagInitialSettings as Record<string, boolean>)[key];
@@ -31,6 +31,7 @@ export const checkOne = async (key: string): Promise<boolean> => {
  * @returns An object of {flag: value ...}
  */
 export const checkAll = async (): Promise<Flags> => {
+  if (!process.env.CACHE_URL) return flagInitialSettings as Flags;
   const keys = await getKeys();
   return checkMulti(keys);
 };
