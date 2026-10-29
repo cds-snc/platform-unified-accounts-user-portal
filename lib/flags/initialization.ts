@@ -27,7 +27,7 @@ const checkMulti = async (keys: string[]) => {
 const removeFlag = async (key: string) => {
   const redis = await getRedisInstance();
   const result = await redis.multi().srem("flags", key).del(`flag:${key}`).exec();
-  if (!result || result.some((r) => r instanceof Error)) {
+  if (!result || result.some(([error]) => error instanceof Error)) {
     throw new Error(`Failed to remove flag: ${key}`);
   }
 };
@@ -40,7 +40,7 @@ const createFlag = async (key: string, value: boolean) => {
     .set(`flag:${key}`, value ? "1" : "0")
     .exec();
 
-  if (!result || result.some((r) => r instanceof Error)) {
+  if (!result || result.some(([error]) => error instanceof Error)) {
     throw new Error(`Failed to create flag: ${key}`);
   }
 };
