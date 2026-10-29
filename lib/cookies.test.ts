@@ -10,13 +10,12 @@ import {
   getSessionCookieById,
   getSessionCookieSecrets,
   MIN_SESSION_COOKIE_SECRET_LENGTH,
-  parseAndVerifySessions,
+  readSessionCookies,
   removeSessionFromCookie,
   setSelectedSession,
-  signSession,
-  stripSessionSignature,
+  signSessions,
   updateSessionCookie,
-  verifySession,
+  verifySessions,
 } from "./cookies";
 
 const mockLogger = vi.hoisted(() => ({
@@ -62,11 +61,14 @@ describe("cookies", () => {
   let mockCookies: { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
 
   function stored(...sessions: Cookie[]) {
-    return { value: JSON.stringify(sessions.map((s) => signSession(s))) };
+    return { value: JSON.stringify(signSessions(sessions)) };
   }
 
-  function writtenSessions(): Array<Cookie & { sig: string }> {
-    return JSON.parse(mockCookies.set.mock.calls[0][0].value);
+  function writtenSessions(): Cookie[] {
+    const written = JSON.parse(mockCookies.set.mock.calls[0][0].value);
+    expect(verifySessions(written)).toBe(true);
+    expect(written.sessions.every((s: Cookie) => !("sig" in s))).toBe(true);
+    return written.sessions;
   }
 
   beforeEach(() => {
@@ -80,16 +82,15 @@ describe("cookies", () => {
     vi.unstubAllEnvs();
   });
 
-  test("addSessionToCookie writes signed entries", async () => {
+  test("addSessionToCookie writes a signed session array", async () => {
     await addSessionToCookie({ session: { ...session } });
 
     const sessions = writtenSessions();
     expect(sessions).toHaveLength(1);
     expect(sessions[0]).toMatchObject(session);
-    expect(verifySession(sessions[0])).toBe(true);
   });
 
-  test("addSessionToCookie keeps existing signed entries and re-signs them", async () => {
+  test("addSessionToCookie keeps existing entries and re-signs the array", async () => {
     mockCookies.get.mockReturnValue(stored({ ...otherSession, selectedSession: true }));
 
     await addSessionToCookie({ session: { ...session } });
@@ -97,18 +98,18 @@ describe("cookies", () => {
     const sessions = writtenSessions();
     expect(sessions.map((s) => s.id)).toEqual([session.id, otherSession.id]);
     expect(sessions[1].selectedSession).toBe(false);
-    expect(sessions.every(verifySession)).toBe(true);
   });
 
-  test("addSessionToCookie drops unsigned and tampered entries", async () => {
-    const forged = { ...signSession(otherSession), userId: "victim-user" };
-    mockCookies.get.mockReturnValue({ value: JSON.stringify([forged, { ...otherSession }]) });
+  test("addSessionToCookie drops the entire tampered array", async () => {
+    const forged = signSessions([otherSession, { ...otherSession, id: "session-3" }]);
+    forged.sessions[0] = { ...otherSession, userId: "victim-user" };
+    mockCookies.get.mockReturnValue({ value: JSON.stringify(forged) });
 
     await addSessionToCookie({ session: { ...session } });
 
     expect(writtenSessions().map((s) => s.id)).toEqual([session.id]);
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      expect.stringContaining("ignoring 2 session cookie entries")
+      "readSessionCookies: ignoring sessions cookie with a missing or invalid signature"
     );
   });
 
@@ -129,6 +130,28 @@ describe("cookies", () => {
     expect(sessions.some((s) => s.id === manySessions[0].id)).toBe(false);
   });
 
+  test.each([3499, 3500])(
+    "addSessionToCookie checks the signed array size at %i characters",
+    async (size) => {
+      const newSession = { ...session };
+      const baseSize = JSON.stringify(signSessions([otherSession, newSession])).length;
+      newSession.displayName += "x".repeat(size - baseSize);
+      expect(JSON.stringify(signSessions([otherSession, newSession]))).toHaveLength(size);
+      mockCookies.get.mockReturnValue(stored(otherSession));
+
+      await addSessionToCookie({ session: newSession });
+
+      expect(writtenSessions().map((entry) => entry.id)).toEqual(
+        size < 3500 ? [session.id, otherSession.id] : [session.id]
+      );
+      if (size < 3500) {
+        expect(mockLogger.warn).not.toHaveBeenCalled();
+      } else {
+        expect(mockLogger.warn).toHaveBeenCalledWith("WARNING COOKIE OVERFLOW");
+      }
+    }
+  );
+
   test("updateSessionCookie rejects an id that only exists in an unsigned entry", async () => {
     mockCookies.get.mockReturnValue({ value: JSON.stringify([session]) });
 
@@ -138,24 +161,30 @@ describe("cookies", () => {
     expect(mockCookies.set).not.toHaveBeenCalled();
   });
 
-  test("updateSessionCookie writes signed entries", async () => {
+  test("updateSessionCookie re-signs the session array", async () => {
     mockCookies.get.mockReturnValue(stored(session, otherSession));
 
     await updateSessionCookie({ id: session.id, session: { ...session, token: "new-token" } });
 
     const sessions = writtenSessions();
     expect(sessions.find((s) => s.id === session.id)?.token).toBe("new-token");
-    expect(sessions.every(verifySession)).toBe(true);
   });
 
-  test("removeSessionFromCookie keeps only the remaining signed entries", async () => {
+  test("removeSessionFromCookie signs the remaining session array", async () => {
     mockCookies.get.mockReturnValue(stored(session, otherSession));
 
     await removeSessionFromCookie({ sessionId: session.id });
 
     const sessions = writtenSessions();
     expect(sessions.map((s) => s.id)).toEqual([otherSession.id]);
-    expect(sessions.every(verifySession)).toBe(true);
+  });
+
+  test("removeSessionFromCookie signs an empty array after removing the last session", async () => {
+    mockCookies.get.mockReturnValue(stored(session));
+
+    await removeSessionFromCookie({ sessionId: session.id });
+
+    expect(writtenSessions()).toEqual([]);
   });
 
   test("getActiveSessionCookie ignores an unsigned selected entry", async () => {
@@ -164,7 +193,7 @@ describe("cookies", () => {
     await expect(getActiveSessionCookie()).rejects.toThrow("No active Session cookie found");
   });
 
-  test("getActiveSessionCookie returns the signed selected entry without its signature", async () => {
+  test("getActiveSessionCookie returns the selected entry without the array signature", async () => {
     mockCookies.get.mockReturnValue(stored(otherSession, session));
 
     await expect(getActiveSessionCookie()).resolves.toEqual(session);
@@ -178,12 +207,22 @@ describe("cookies", () => {
     await expect(getSessionCookieById({ sessionId: session.id })).rejects.toBeUndefined();
   });
 
-  test("getAllSessions returns only signed entries", async () => {
+  test("getAllSessions returns all entries from a signed array", async () => {
+    mockCookies.get.mockReturnValue(stored(session, otherSession));
+
+    await expect(getAllSessions()).resolves.toEqual([session, otherSession]);
+  });
+
+  test("getAllSessions rejects all entries when one entry is tampered with", async () => {
+    const signed = signSessions([session, otherSession]);
     mockCookies.get.mockReturnValue({
-      value: JSON.stringify([signSession(session), { ...otherSession }]),
+      value: JSON.stringify({
+        ...signed,
+        sessions: [session, { ...otherSession, userId: "victim-user" }],
+      }),
     });
 
-    await expect(getAllSessions()).resolves.toEqual([session]);
+    await expect(getAllSessions()).resolves.toEqual([]);
   });
 
   test("getAllSessions returns an empty list for a malformed cookie", async () => {
@@ -192,7 +231,7 @@ describe("cookies", () => {
     await expect(getAllSessions()).resolves.toEqual([]);
   });
 
-  test("setSelectedSession re-signs entries with the new selection", async () => {
+  test("setSelectedSession re-signs the array with the new selection", async () => {
     mockCookies.get.mockReturnValue(stored(session, otherSession));
 
     await setSelectedSession(otherSession.id);
@@ -200,7 +239,6 @@ describe("cookies", () => {
     const sessions = writtenSessions();
     expect(sessions.find((s) => s.id === otherSession.id)?.selectedSession).toBe(true);
     expect(sessions.find((s) => s.id === session.id)?.selectedSession).toBe(false);
-    expect(sessions.every(verifySession)).toBe(true);
   });
 });
 
@@ -234,103 +272,164 @@ describe("session cookie signing", () => {
     vi.unstubAllEnvs();
   });
 
-  test("signs and verifies a session", () => {
-    const signed = signSession(signableSession);
+  test("signs and verifies the entire session array", () => {
+    const signed = signSessions([signableSession, otherSession]);
 
     expect(signed.sig).toEqual(expect.any(String));
-    expect(verifySession(signed)).toBe(true);
-    expect(stripSessionSignature(signed)).toEqual(signableSession);
+    expect(verifySessions(signed)).toBe(true);
+    expect(signed.sessions).toEqual([signableSession, otherSession]);
+    expect(signed.sessions.every((entry) => !("sig" in entry))).toBe(true);
+    expect(readSessionCookies(JSON.stringify(signed))).toEqual([signableSession, otherSession]);
   });
 
   test("rejects a missing signature", () => {
-    expect(verifySession(signableSession)).toBe(false);
+    expect(verifySessions({ sessions: [signableSession] })).toBe(false);
   });
 
-  test("rejects entries with an empty id or token even if correctly signed", () => {
-    expect(() => signSession({ ...signableSession, token: "" })).toThrow(/non-empty id and token/);
-    expect(() => signSession({ ...signableSession, id: "" })).toThrow(/non-empty id and token/);
+  test.each<{ sessions: unknown[] }>([
+    { sessions: [{ id: "", token: "" }] },
+    { sessions: [{ arbitrary: "value" }] },
+    { sessions: [null, "value", 123, true] },
+  ])("signs arrays without requiring session fields: $sessions", ({ sessions }) => {
+    const signed = signSessions(sessions);
 
-    const signed = signSession(signableSession);
-    expect(verifySession({ ...signed, token: "" })).toBe(false);
+    expect(verifySessions(signed)).toBe(true);
+    expect(readSessionCookies(JSON.stringify(signed))).toEqual(sessions);
   });
 
   test("does not confuse field boundaries in the signed payload", () => {
-    const signed = signSession({ ...signableSession, id: "ab", token: "c" });
+    const signed = signSessions([{ ...signableSession, id: "ab", token: "c" }]);
 
-    expect(verifySession({ ...signed, id: "a", token: "bc" })).toBe(false);
+    expect(
+      verifySessions({ ...signed, sessions: [{ ...signableSession, id: "a", token: "bc" }] })
+    ).toBe(false);
   });
 
   test("rejects a forged session id with an otherwise valid signature", () => {
-    const signed = signSession(signableSession);
+    const signed = signSessions([signableSession]);
 
-    expect(verifySession({ ...signed, id: "guessed-victim-session" })).toBe(false);
+    expect(
+      verifySessions({
+        ...signed,
+        sessions: [{ ...signableSession, id: "guessed-victim-session" }],
+      })
+    ).toBe(false);
   });
 
-  test("covers all fields of the entry, not only id and token", () => {
-    const signed = signSession(signableSession);
+  test.each([
+    ["token", "forged-token"],
+    ["loginName", "other@example.com"],
+    ["displayName", "Other User"],
+    ["userId", "other-user"],
+    ["organization", "other-org"],
+    ["creationTs", "9999999999999"],
+    ["changeTs", "9999999999999"],
+    ["expirationTs", "9999999999999"],
+    ["selectedSession", false],
+    ["requestId", "injected-request"],
+  ])("rejects the entire array when %s is tampered with", (field, value) => {
+    const signed = signSessions([signableSession, otherSession]);
+    signed.sessions[0] = { ...signableSession, [field]: value };
 
-    expect(verifySession({ ...signed, loginName: "other@example.com" })).toBe(false);
-    expect(verifySession({ ...signed, userId: "other-user" })).toBe(false);
-    expect(verifySession({ ...signed, organization: "other-org" })).toBe(false);
-    expect(verifySession({ ...signed, changeTs: "9999999999999" })).toBe(false);
-    expect(verifySession({ ...signed, expirationTs: "9999999999999" })).toBe(false);
-    expect(verifySession({ ...signed, selectedSession: false })).toBe(false);
-    expect(verifySession({ ...signed, requestId: "injected-request" })).toBe(false);
+    expect(verifySessions(signed)).toBe(false);
+    expect(readSessionCookies(JSON.stringify(signed))).toEqual([]);
   });
 
-  test("is independent of key order and of undefined optional fields", () => {
-    const signed = signSession({
-      ...signableSession,
-      organization: undefined,
-      requestId: undefined,
-    });
+  test("preserves signatures across JSON round-trips with undefined optional fields", () => {
+    const signed = signSessions([
+      {
+        ...signableSession,
+        organization: undefined,
+        requestId: undefined,
+      },
+    ]);
 
-    // simulate the JSON round-trip through the cookie: undefined keys disappear, key order may change
     const roundTripped = JSON.parse(JSON.stringify(signed));
-    const reordered = Object.fromEntries(Object.entries(roundTripped).reverse());
 
-    expect(roundTripped).not.toHaveProperty("organization");
-    expect(verifySession(roundTripped)).toBe(true);
-    expect(verifySession(reordered)).toBe(true);
+    expect(roundTripped.sessions[0]).not.toHaveProperty("organization");
+    expect(verifySessions(roundTripped)).toBe(true);
   });
 
   test("rejects a signature created with a different secret", () => {
-    const signed = signSession(signableSession);
+    const signed = signSessions([signableSession]);
     vi.stubEnv(
       "ZITADEL_SESSION_COOKIE_SECRET",
       "other-secret-".padEnd(MIN_SESSION_COOKIE_SECRET_LENGTH, "x")
     );
 
-    expect(verifySession(signed)).toBe(false);
+    expect(verifySessions(signed)).toBe(false);
   });
 
-  test("drops unsigned and tampered entries when parsing a cookie", () => {
-    const valid = signSession(signableSession);
-    const forged = { ...signableSession, id: "stolen-or-guessed-id", token: "", sig: valid.sig };
+  test.each(["insert", "remove", "reorder", "duplicate", "splice"])(
+    "rejects the entire array after an entry %s",
+    (operation) => {
+      const signed = signSessions([signableSession, otherSession]);
+      const anotherSigned = signSessions([{ ...otherSession, id: "session-3" }]);
+      const changed = {
+        insert: [...signed.sessions, anotherSigned.sessions[0]],
+        remove: signed.sessions.slice(1),
+        reorder: [...signed.sessions].reverse(),
+        duplicate: [...signed.sessions, signed.sessions[0]],
+        splice: [signed.sessions[0], anotherSigned.sessions[0]],
+      }[operation];
 
-    expect(parseAndVerifySessions(JSON.stringify([forged, valid, signableSession]))).toEqual([
-      signableSession,
-    ]);
+      expect(readSessionCookies(JSON.stringify({ ...signed, sessions: changed }))).toEqual([]);
+    }
+  );
+
+  test("rejects the legacy per-entry signed cookie format", () => {
+    expect(
+      readSessionCookies(JSON.stringify([{ ...signableSession, sig: "legacy-signature" }]))
+    ).toEqual([]);
+  });
+
+  test("signs and verifies an empty session array", () => {
+    const signed = signSessions([]);
+    expect(verifySessions(signed)).toBe(true);
+    expect(readSessionCookies(JSON.stringify(signed))).toEqual([]);
+  });
+
+  test.each([
+    null,
+    [],
+    {},
+    "invalid",
+    { sessions: null, sig: "sig" },
+    {
+      sessions: [null],
+      sig: "sig",
+    },
+    { sessions: [signableSession], sig: 123 },
+    { sessions: [signableSession], sig: "" },
+  ])("rejects a malformed signed cookie: %j", (value) => {
+    expect(verifySessions(value)).toBe(false);
+    expect(readSessionCookies(JSON.stringify(value))).toEqual([]);
+  });
+
+  test("rejects a modified signature", () => {
+    const signed = signSessions([signableSession]);
+    expect(verifySessions({ ...signed, sig: "x".repeat(signed.sig.length) })).toBe(false);
+    expect(verifySessions({ ...signed, sig: "short" })).toBe(false);
   });
 
   test("returns an empty list for malformed cookie values", () => {
-    expect(parseAndVerifySessions("not-json")).toEqual([]);
-    expect(parseAndVerifySessions(JSON.stringify({ id: "session-1" }))).toEqual([]);
-    expect(parseAndVerifySessions(undefined)).toEqual([]);
+    expect(readSessionCookies("not-json")).toEqual([]);
+    expect(readSessionCookies(JSON.stringify({ id: "session-1" }))).toEqual([]);
+    expect(readSessionCookies(undefined)).toEqual([]);
   });
 
   test("supports secret rotation: signs with the first secret, verifies with all", () => {
     vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", OLD_SECRET);
-    const signedWithOld = signSession(signableSession);
+    const signedWithOld = signSessions([signableSession]);
 
     vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", `${NEW_SECRET}, ${OLD_SECRET}`);
-    expect(verifySession(signedWithOld)).toBe(true);
-    const signedWithNew = signSession(signableSession);
+    expect(verifySessions(signedWithOld)).toBe(true);
+    const signedWithNew = signSessions([signableSession]);
     expect(signedWithNew.sig).not.toEqual(signedWithOld.sig);
 
     vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", NEW_SECRET);
-    expect(verifySession(signedWithNew)).toBe(true);
-    expect(verifySession(signedWithOld)).toBe(false);
+    expect(verifySessions(signedWithNew)).toBe(true);
+    expect(verifySessions(signedWithOld)).toBe(false);
   });
 
   test("never falls back to the service user token", () => {
@@ -339,16 +438,16 @@ describe("session cookie signing", () => {
     vi.stubEnv("ZITADEL_SERVICE_USER_TOKEN_FILE", "/run/secrets/zitadel-token");
 
     expect(getSessionCookieSecrets()).toEqual([]);
-    expect(() => signSession(signableSession)).toThrow(/signing secret is not configured/);
+    expect(() => signSessions([signableSession])).toThrow(/signing secret is not configured/);
   });
 
   test("does not verify when no signing secret is configured", () => {
-    const signed = signSession(signableSession);
+    const signed = signSessions([signableSession]);
     unsetAllSecrets();
 
     expect(getSessionCookieSecrets()).toEqual([]);
-    expect(verifySession(signed)).toBe(false);
-    expect(() => signSession(signableSession)).toThrow(/signing secret is not configured/);
+    expect(verifySessions(signed)).toBe(false);
+    expect(() => signSessions([signableSession])).toThrow(/signing secret is not configured/);
   });
 
   test("rejects a secret shorter than the minimum length", () => {
@@ -356,19 +455,19 @@ describe("session cookie signing", () => {
     vi.stubEnv("ZITADEL_SERVICE_USER_TOKEN", "service-user-token");
 
     expect(getSessionCookieSecrets()).toEqual([]);
-    expect(() => signSession(signableSession)).toThrow(/at least 32 characters/);
+    expect(() => signSessions([signableSession])).toThrow(/at least 32 characters/);
   });
 
   test("rejects the rotation list if any value is shorter than the minimum length", () => {
-    const signed = signSession(signableSession);
+    const signed = signSessions([signableSession]);
     vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", `${NEW_SECRET},short`);
 
-    expect(verifySession(signed)).toBe(false);
+    expect(verifySessions(signed)).toBe(false);
   });
 
   test("accepts a dedicated secret of exactly the minimum length", () => {
     vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", "x".repeat(MIN_SESSION_COOKIE_SECRET_LENGTH));
 
-    expect(verifySession(signSession(signableSession))).toBe(true);
+    expect(verifySessions(signSessions([signableSession]))).toBe(true);
   });
 });
