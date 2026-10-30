@@ -3,7 +3,6 @@
  *--------------------------------------------*/
 import { cookies } from "next/headers";
 import { timestampDate, timestampFromMs } from "@zitadel/client";
-import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 
@@ -11,15 +10,13 @@ import { ZITADEL_ORGANIZATION } from "@root/constants/config";
  * Local Relative
  *--------------------------------------------*/
 import { logMessage } from "./logger";
+import { createSigner } from "./signing";
 
 import "server-only";
 
 // TODO: improve this to handle overflow
 const MAX_COOKIE_SIZE = 3500;
-const SIGNATURE_VERSION = "v1";
-const HKDF_INFO = `session-cookie-${SIGNATURE_VERSION}`;
-const DERIVED_KEY_LENGTH = 32;
-const MIN_SESSION_COOKIE_SECRET_LENGTH = 32;
+const sessionCookieSigner = createSigner("ZITADEL_SESSION_COOKIE_SECRET", "session-cookie", 32);
 
 type SignedSessions<T> = {
   sessions: T[];
@@ -282,80 +279,10 @@ export async function setSelectedSession(sessionId: string) {
  * Session cookie signing
  *--------------------------------------------*/
 
-const signingKeyCache = new Map<string, Buffer>();
-
-function getSigningKey(secret: string, info: string): Buffer {
-  const cacheKey = JSON.stringify([info, secret]);
-  let key = signingKeyCache.get(cacheKey);
-  if (!key) {
-    key = Buffer.from(hkdfSync("sha256", secret, "", info, DERIVED_KEY_LENGTH));
-    signingKeyCache.set(cacheKey, key);
-  }
-  return key;
-}
-
-function getSigningSecrets(): string[] {
-  return (process.env.ZITADEL_SESSION_COOKIE_SECRET ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
-/**
- * Returns all secrets that may be used to sign / verify the sessions cookie, in priority order.
- *
- * ZITADEL_SESSION_COOKIE_SECRET is required. A comma-separated list is supported so a secret can be
- * rotated without invalidating existing cookies: the first entry is used for signing, all entries are
- * accepted for verification. Every entry must be at least MIN_SESSION_COOKIE_SECRET_LENGTH characters
- * long; if the variable is unset or any entry is shorter, no secret is returned at all (signing fails
- * and /healthy reports unavailable).
- */
-export function getSessionCookieSecrets(): string[] {
-  const secrets = getSigningSecrets();
-
-  for (const secret of secrets) {
-    if (secret.length < MIN_SESSION_COOKIE_SECRET_LENGTH) {
-      logMessage.error(
-        `ZITADEL_SESSION_COOKIE_SECRET is invalid: every value must be at least ${MIN_SESSION_COOKIE_SECRET_LENGTH} characters long`
-      );
-      return [];
-    }
-  }
-
-  return Array.from(new Set(secrets));
-}
-
-function computeSignature(sessions: unknown[], secret: string): string {
-  return createHmac("sha256", getSigningKey(secret, HKDF_INFO))
-    .update(JSON.stringify([SIGNATURE_VERSION, sessions]))
-    .digest("base64url");
-}
-
-function getPrimarySigningSecret(): string {
-  const [secret] = getSessionCookieSecrets();
-  if (!secret) {
-    throw new Error(
-      `Session cookie signing secret is not configured. Set ZITADEL_SESSION_COOKIE_SECRET (at least ${MIN_SESSION_COOKIE_SECRET_LENGTH} characters).`
-    );
-  }
-  return secret;
-}
-
-function signaturesEqual(left: string, right: string): boolean {
-  const leftBytes = Buffer.from(left);
-  const rightBytes = Buffer.from(right);
-  if (leftBytes.length !== rightBytes.length) {
-    return false;
-  }
-  return timingSafeEqual(leftBytes, rightBytes);
-}
-
 function signSessions<T>(sessions: T[]): SignedSessions<T> {
-  const secret = getPrimarySigningSecret();
-
   return {
     sessions,
-    sig: computeSignature(sessions, secret),
+    sig: sessionCookieSigner.sign(sessions),
   };
 }
 
@@ -374,13 +301,5 @@ function verifySessions(value: unknown): value is SignedSessions<unknown> {
     return false;
   }
 
-  const { sig, sessions } = value;
-  // Check every candidate secret (no early return) to keep timing independent of which one matches
-  let valid = false;
-  for (const secret of getSessionCookieSecrets()) {
-    if (signaturesEqual(sig, computeSignature(sessions, secret))) {
-      valid = true;
-    }
-  }
-  return valid;
+  return sessionCookieSigner.verify(value.sessions, value.sig);
 }

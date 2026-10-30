@@ -3,12 +3,18 @@ import { expect, test } from "@playwright/test";
 import { type RegisteredUser, registerUser } from "./utils/register";
 import { MfaType, RegistrationType } from "./utils/register";
 import { generateTOTP, getRequiredEnv } from "./utils/utils";
-import { deleteUserById, getPasswordResetCode, getZitadelAccessToken } from "./utils/zitadel";
+import {
+  deleteUserById,
+  getPasswordResetCode,
+  getPasswordResetLink,
+  getZitadelAccessToken,
+} from "./utils/zitadel";
 
 test.describe("account edit flow", () => {
   test.describe.configure({ mode: "serial" });
 
   let idpUrl: string;
+  let passwordResetSecret: string;
   let portalUrl: string;
   let serviceAccountKey: string;
   let registerEmail: string;
@@ -18,6 +24,7 @@ test.describe("account edit flow", () => {
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
+    passwordResetSecret = getRequiredEnv("PASSWORD_RESET_SECRET");
     portalUrl = getRequiredEnv("PORTAL_URL");
     serviceAccountKey = getRequiredEnv("ZITADEL_SERVICE_ACCOUNT_KEY");
     accessToken = await getZitadelAccessToken(serviceAccountKey, idpUrl);
@@ -69,6 +76,18 @@ test.describe("account edit flow", () => {
     await page.getByTestId("forgot-password").click();
     await page.getByTestId("forgot-password-username").fill(registeredUser.email);
     await page.getByTestId("forgot-password-continue").click();
+    await expect(page.locator("#resetEmailSent")).toBeVisible();
+
+    // Rebuild the emailed link
+    const token = await getPasswordResetLink(
+      registeredUser.userId,
+      accessToken,
+      idpUrl,
+      passwordResetSecret
+    );
+    await page.goto(
+      `${portalUrl.replace(/\/$/, "")}/password/reset/continue?token=${encodeURIComponent(token)}`
+    );
 
     await expect(page).toHaveURL(/\/password\/reset\/verify/);
     await page.getByTestId("strong-factor-totp").click();

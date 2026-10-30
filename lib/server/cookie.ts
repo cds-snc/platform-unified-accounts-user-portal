@@ -48,12 +48,13 @@ export async function createSessionAndUpdateCookie(command: {
     retry: command.retry ?? false,
   });
 
-  const { session } = await getSession(createdSession.sessionId, createdSession.sessionToken);
+  const { sessionId, sessionToken } = createdSession;
+  const { session } = await getSession(sessionId, sessionToken);
 
   if (session?.factors?.user?.loginName) {
     const sessionCookie: Cookie = {
-      id: createdSession.sessionId,
-      token: createdSession.sessionToken,
+      id: sessionId,
+      token: sessionToken,
       creationTs: session.creationDate ? `${timestampMs(session.creationDate)}` : "",
       expirationTs: session.expirationDate ? `${timestampMs(session.expirationDate)}` : "",
       changeTs: session.changeDate ? `${timestampMs(session.changeDate)}` : "",

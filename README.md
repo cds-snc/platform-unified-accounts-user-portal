@@ -41,6 +41,7 @@ pnpm test        # run tests
 - `FRESHDESK_GROUP_ID`
 - `FRESHDESK_TAGS`
 - `ZITADEL_SESSION_COOKIE_SECRET`
+- `PASSWORD_RESET_SECRET`
 
 ## Stack
 

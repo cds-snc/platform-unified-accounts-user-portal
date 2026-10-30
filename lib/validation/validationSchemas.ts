@@ -101,6 +101,13 @@ const requestIdSchema = () => ({
   requestId: v.optional(v.pipe(v.string(), v.trim(), v.maxLength(200, "maxLength"))),
 });
 
+export const resetPasswordLinkSchema = v.object({
+  userId: v.pipe(v.string(), v.minLength(1)),
+  expiry: v.pipe(v.number(), v.safeInteger()),
+  passwordChanged: v.pipe(v.string(), v.regex(/^(?:none|-?\d+\.\d+)$/)),
+  ...requestIdSchema(),
+});
+
 const sessionIdSchema = () => ({
   sessionId: v.pipe(
     v.string(),

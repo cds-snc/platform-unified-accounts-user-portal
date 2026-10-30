@@ -3,7 +3,7 @@
  *--------------------------------------------*/
 import { NextResponse } from "next/server";
 
-import { getSessionCookieSecrets } from "@lib/cookies";
+import { getSigningSecrets } from "@lib/signing";
 
 export async function GET() {
   const requiredEnvVars = [
@@ -18,9 +18,15 @@ export async function GET() {
   const hasServiceUserToken = Boolean(
     process.env.ZITADEL_SERVICE_USER_TOKEN || process.env.ZITADEL_SERVICE_USER_TOKEN_FILE
   );
-  const hasSessionCookieSecrets = getSessionCookieSecrets().length > 0;
+  const hasSessionCookieSecrets = getSigningSecrets("ZITADEL_SESSION_COOKIE_SECRET", 32).length > 0;
+  const hasPasswordResetSecrets = getSigningSecrets("PASSWORD_RESET_SECRET", 32).length > 0;
 
-  if (missing.length > 0 || !hasServiceUserToken || !hasSessionCookieSecrets) {
+  if (
+    missing.length > 0 ||
+    !hasServiceUserToken ||
+    !hasSessionCookieSecrets ||
+    !hasPasswordResetSecrets
+  ) {
     return NextResponse.json({ error: "Missing required environment variables" }, { status: 503 });
   }
 

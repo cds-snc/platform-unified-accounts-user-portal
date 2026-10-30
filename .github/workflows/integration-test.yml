@@ -30,6 +30,8 @@ on:
         required: true
       password:
         required: true
+      password_reset_secret:
+        required: true
       test_callback_url:
         required: true
       test_client_id:
@@ -81,6 +83,7 @@ jobs:
         id: test
         env:
           IDP_URL: ${{ inputs.idp_url }}
+          PASSWORD_RESET_SECRET: ${{ secrets.password_reset_secret }}
           PORTAL_URL: ${{ inputs.portal_url }}
           REGISTER_EMAIL: ${{ secrets.register_email }}
           USERNAME: ${{ secrets.username }}
