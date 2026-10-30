@@ -16,7 +16,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { addSessionToCookie } from "@lib/cookies";
-import { RESET_LINK_TTL_SECONDS, signResetLink } from "@lib/server/password-reset";
+import { signResetLink } from "@lib/server/password-reset";
 import {
   createSessionFromChecks,
   getLoginSettings,
@@ -112,7 +112,7 @@ describe("GET /password/reset/continue", () => {
     vi.unstubAllEnvs();
   });
 
-  it("creates a basic session only after validation, stores it and redirects to MFA without a reset cookie", async () => {
+  it("creates a basic session only after validation, stores it and redirects to MFA", async () => {
     vi.mocked(createSessionFromChecks).mockImplementationOnce(async () => {
       expect(getUserByID).toHaveBeenCalledExactlyOnceWith(userId);
       expect(listAuthenticationMethodTypes).toHaveBeenCalledExactlyOnceWith(userId);
@@ -184,7 +184,7 @@ describe("GET /password/reset/continue", () => {
 
   it("rejects expired tokens without creating a session or looking up a user", async () => {
     const token = sign();
-    vi.advanceTimersByTime(RESET_LINK_TTL_SECONDS * 1000);
+    vi.advanceTimersByTime(15 * 60 * 1000);
     await expectResetRedirect(token);
     expect(getUserByID).not.toHaveBeenCalled();
     expect(createSessionFromChecks).not.toHaveBeenCalled();
