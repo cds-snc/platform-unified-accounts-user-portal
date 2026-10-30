@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Audit DNS requests
-        uses: cds-snc/dns-proxy-action@7b6ba63b4f045de61c98a3c1b99fdd08f32b0784 # v1.2.0
+        uses: cds-snc/dns-proxy-action@58d95c286bfa233aec52055237b26a20c6ae13a5 # v1.2.1
         env:
           DNS_PROXY_FORWARDTOSENTINEL: "true"
           DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.LOG_ANALYTICS_WORKSPACE_ID }}"
@@ -59,6 +59,6 @@ jobs:
 
       - name: Coverage Comment
         if: github.event_name == 'pull_request'
-        uses: davelosert/vitest-coverage-report-action@c4bbc33a89b7ace0e63d35f1f7d4bcee31155a73 # v2.13.0
+        uses: davelosert/vitest-coverage-report-action@8f86cfb56ed6d5613ea8cdc5259f207fbfd51ece # v2.13.1
         with:
           json-summary-path: ./coverage/coverage-summary.json

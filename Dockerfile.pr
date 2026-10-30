@@ -1,3 +1,6 @@
+ARG ECR_ACCOUNT_ID
+FROM ${ECR_ACCOUNT_ID}.dkr.ecr.ca-central-1.amazonaws.com/ecr-public/awsguru/aws-lambda-adapter:1.0.0@sha256:b4da35991627bdac98a81c377d0cc28e6989687359576dfda9f0b64be835d648 AS lambda-adapter-source
+
 # User portal that runs as a Lambda function.  It is used to create
 # Lambda function review environments for each PR.
 FROM node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 AS build
@@ -44,7 +47,7 @@ COPY scripts/pr-review-entrypoint.sh ./entrypoint.sh
 RUN apk update && apk add --no-cache aws-cli
 
 # Lambda web adapter: https://github.com/awslabs/aws-lambda-web-adapter
-COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:1.0.0@sha256:b4da35991627bdac98a81c377d0cc28e6989687359576dfda9f0b64be835d648 /lambda-adapter /opt/extensions/lambda-adapter
+COPY --from=lambda-adapter-source /lambda-adapter /opt/extensions/lambda-adapter
 RUN ln -s /tmp ./.next/cache
 
 EXPOSE 3002

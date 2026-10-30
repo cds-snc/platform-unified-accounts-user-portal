@@ -3,6 +3,7 @@
  *--------------------------------------------*/
 import { cookies } from "next/headers";
 import { timestampDate, timestampFromMs } from "@zitadel/client";
+import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 
@@ -14,7 +15,20 @@ import { logMessage } from "./logger";
 import "server-only";
 
 // TODO: improve this to handle overflow
-const MAX_COOKIE_SIZE = 2048;
+const MAX_COOKIE_SIZE = 3500;
+const SIGNATURE_VERSION = "v1";
+const HKDF_INFO = `session-cookie-${SIGNATURE_VERSION}`;
+const DERIVED_KEY_LENGTH = 32;
+const MIN_SESSION_COOKIE_SECRET_LENGTH = 32;
+
+type SignedSessions<T> = {
+  sessions: T[];
+  sig: string;
+};
+
+/*--------------------------------------------*
+ * Session cookies
+ *--------------------------------------------*/
 
 export type Cookie = {
   id: string;
@@ -37,12 +51,35 @@ async function setSessionHttpOnlyCookie<T>(sessions: SessionCookie<T>[]): Promis
 
   cookiesList.set({
     name: "sessions",
-    value: JSON.stringify(sessions),
+    value: JSON.stringify(signSessions(sessions)),
     httpOnly: true,
     path: "/",
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
+}
+
+function readSessionCookies<T>(value: string | undefined): SessionCookie<T>[] {
+  if (!value) {
+    return [];
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    logMessage.warn("readSessionCookies: ignoring malformed sessions cookie");
+    return [];
+  }
+
+  if (!verifySessions(parsed)) {
+    logMessage.warn(
+      "readSessionCookies: ignoring sessions cookie with a missing or invalid signature"
+    );
+    return [];
+  }
+
+  return parsed.sessions as SessionCookie<T>[];
 }
 
 export async function addSessionToCookie<T>({
@@ -55,9 +92,7 @@ export async function addSessionToCookie<T>({
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
-  let currentSessions: SessionCookie<T>[] = stringifiedCookie?.value
-    ? JSON.parse(stringifiedCookie?.value)
-    : [];
+  let currentSessions: SessionCookie<T>[] = readSessionCookies<T>(stringifiedCookie?.value);
 
   // Set all current sessions to non-active session
   currentSessions.forEach((session) => {
@@ -73,7 +108,7 @@ export async function addSessionToCookie<T>({
   } else {
     const temp = [...currentSessions, session];
 
-    if (JSON.stringify(temp).length >= MAX_COOKIE_SIZE) {
+    if (JSON.stringify(signSessions(temp)).length >= MAX_COOKIE_SIZE) {
       logMessage.warn("WARNING COOKIE OVERFLOW");
       // TODO: improve cookie handling
       // this replaces the first session (oldest) with the new one
@@ -109,7 +144,7 @@ export async function updateSessionCookie<T>({
   const stringifiedCookie = cookiesList.get("sessions");
 
   const sessions: SessionCookie<T>[] = stringifiedCookie?.value
-    ? JSON.parse(stringifiedCookie?.value)
+    ? readSessionCookies<T>(stringifiedCookie.value)
     : [session];
 
   // Set all current sessions to non-active session
@@ -150,9 +185,7 @@ export async function removeSessionFromCookie<T>({
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
-  const sessions: SessionCookie<T>[] = stringifiedCookie?.value
-    ? JSON.parse(stringifiedCookie?.value)
-    : [];
+  const sessions = readSessionCookies<T>(stringifiedCookie?.value);
 
   if (sessions.length < 1) {
     // No sessions in cookie
@@ -177,14 +210,11 @@ export async function getActiveSessionCookie() {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
-  if (stringifiedCookie?.value) {
-    const sessions: Cookie[] = JSON.parse(stringifiedCookie?.value);
+  const sessions: Cookie[] = readSessionCookies(stringifiedCookie?.value);
 
-    const activeSession = sessions.filter((session) => session.selectedSession);
-    if (activeSession.length) {
-      const sessionCookie = activeSession[0];
-      return sessionCookie;
-    }
+  const activeSession = sessions.find((session) => session.selectedSession);
+  if (activeSession) {
+    return activeSession;
   }
 
   throw new Error("No active Session cookie found");
@@ -198,20 +228,13 @@ export async function getSessionCookieById<T>({
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
+  const sessions = readSessionCookies<T>(stringifiedCookie?.value);
 
-    const found = sessions.find(
-      (s) => s.organization === ZITADEL_ORGANIZATION && s.id === sessionId
-    );
-    if (found) {
-      return found;
-    } else {
-      return Promise.reject();
-    }
-  } else {
-    return Promise.reject();
+  const found = sessions.find((s) => s.organization === ZITADEL_ORGANIZATION && s.id === sessionId);
+  if (found) {
+    return found;
   }
+  return Promise.reject();
 }
 
 /**
@@ -223,30 +246,29 @@ export async function getAllSessions<T>(cleanup: boolean = false): Promise<Sessi
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
-  if (stringifiedCookie?.value) {
-    const sessions: SessionCookie<T>[] = JSON.parse(stringifiedCookie?.value);
+  const sessions = readSessionCookies<T>(stringifiedCookie?.value);
 
-    if (cleanup) {
-      const now = new Date();
-      return sessions.filter((session) =>
-        session.expirationTs
-          ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
-          : true
-      );
-    } else {
-      return sessions;
-    }
-  } else {
+  if (!sessions.length) {
     logMessage.info("getAllSessions: No session cookie found, returning empty array");
     return [];
   }
+
+  if (cleanup) {
+    const now = new Date();
+    return sessions.filter((session) =>
+      session.expirationTs
+        ? timestampDate(timestampFromMs(Number(session.expirationTs))) > now
+        : true
+    );
+  }
+  return sessions;
 }
 
 export async function setSelectedSession(sessionId: string) {
   const cookiesList = await cookies();
   const stringifiedCookie = cookiesList.get("sessions");
 
-  const sessions: Cookie[] = stringifiedCookie?.value ? JSON.parse(stringifiedCookie?.value) : [];
+  const sessions: Cookie[] = readSessionCookies(stringifiedCookie?.value);
 
   await setSessionHttpOnlyCookie(
     sessions.map((session) => ({
@@ -254,4 +276,111 @@ export async function setSelectedSession(sessionId: string) {
       selectedSession: session.id === sessionId,
     }))
   );
+}
+
+/*--------------------------------------------*
+ * Session cookie signing
+ *--------------------------------------------*/
+
+const signingKeyCache = new Map<string, Buffer>();
+
+function getSigningKey(secret: string, info: string): Buffer {
+  const cacheKey = JSON.stringify([info, secret]);
+  let key = signingKeyCache.get(cacheKey);
+  if (!key) {
+    key = Buffer.from(hkdfSync("sha256", secret, "", info, DERIVED_KEY_LENGTH));
+    signingKeyCache.set(cacheKey, key);
+  }
+  return key;
+}
+
+function getSigningSecrets(): string[] {
+  return (process.env.ZITADEL_SESSION_COOKIE_SECRET ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Returns all secrets that may be used to sign / verify the sessions cookie, in priority order.
+ *
+ * ZITADEL_SESSION_COOKIE_SECRET is required. A comma-separated list is supported so a secret can be
+ * rotated without invalidating existing cookies: the first entry is used for signing, all entries are
+ * accepted for verification. Every entry must be at least MIN_SESSION_COOKIE_SECRET_LENGTH characters
+ * long; if the variable is unset or any entry is shorter, no secret is returned at all (signing fails
+ * and /healthy reports unavailable).
+ */
+export function getSessionCookieSecrets(): string[] {
+  const secrets = getSigningSecrets();
+
+  for (const secret of secrets) {
+    if (secret.length < MIN_SESSION_COOKIE_SECRET_LENGTH) {
+      logMessage.error(
+        `ZITADEL_SESSION_COOKIE_SECRET is invalid: every value must be at least ${MIN_SESSION_COOKIE_SECRET_LENGTH} characters long`
+      );
+      return [];
+    }
+  }
+
+  return Array.from(new Set(secrets));
+}
+
+function computeSignature(sessions: unknown[], secret: string): string {
+  return createHmac("sha256", getSigningKey(secret, HKDF_INFO))
+    .update(JSON.stringify([SIGNATURE_VERSION, sessions]))
+    .digest("base64url");
+}
+
+function getPrimarySigningSecret(): string {
+  const [secret] = getSessionCookieSecrets();
+  if (!secret) {
+    throw new Error(
+      `Session cookie signing secret is not configured. Set ZITADEL_SESSION_COOKIE_SECRET (at least ${MIN_SESSION_COOKIE_SECRET_LENGTH} characters).`
+    );
+  }
+  return secret;
+}
+
+function signaturesEqual(left: string, right: string): boolean {
+  const leftBytes = Buffer.from(left);
+  const rightBytes = Buffer.from(right);
+  if (leftBytes.length !== rightBytes.length) {
+    return false;
+  }
+  return timingSafeEqual(leftBytes, rightBytes);
+}
+
+function signSessions<T>(sessions: T[]): SignedSessions<T> {
+  const secret = getPrimarySigningSecret();
+
+  return {
+    sessions,
+    sig: computeSignature(sessions, secret),
+  };
+}
+
+function verifySessions(value: unknown): value is SignedSessions<unknown> {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  if (
+    !("sessions" in value) ||
+    !Array.isArray(value.sessions) ||
+    !("sig" in value) ||
+    typeof value.sig !== "string" ||
+    !value.sig
+  ) {
+    return false;
+  }
+
+  const { sig, sessions } = value;
+  // Check every candidate secret (no early return) to keep timing independent of which one matches
+  let valid = false;
+  for (const secret of getSessionCookieSecrets()) {
+    if (signaturesEqual(sig, computeSignature(sessions, secret))) {
+      valid = true;
+    }
+  }
+  return valid;
 }
