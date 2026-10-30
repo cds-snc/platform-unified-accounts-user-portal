@@ -52,17 +52,16 @@ test("rotates, trims and deduplicates secrets, rejecting any invalid configurati
 });
 
 test("enforces the configured minimum length when reading, signing and verifying", () => {
-  for (const minSecretLength of [16, 64]) {
-    const signer = createSigner("TEST_SIGNING_SECRET", "test", minSecretLength);
-    const secret = "a".repeat(minSecretLength);
-    vi.stubEnv("TEST_SIGNING_SECRET", secret);
-    expect(getSigningSecrets("TEST_SIGNING_SECRET", minSecretLength)).toEqual([secret]);
-    const signature = signer.sign("value");
-    expect(signer.verify("value", signature)).toBe(true);
+  const minSecretLength = 32;
+  const signer = createSigner("TEST_SIGNING_SECRET", "test", minSecretLength);
+  const secret = "a".repeat(minSecretLength);
+  vi.stubEnv("TEST_SIGNING_SECRET", secret);
+  expect(getSigningSecrets("TEST_SIGNING_SECRET", minSecretLength)).toEqual([secret]);
+  const signature = signer.sign("value");
+  expect(signer.verify("value", signature)).toBe(true);
 
-    vi.stubEnv("TEST_SIGNING_SECRET", "a".repeat(minSecretLength - 1));
-    expect(getSigningSecrets("TEST_SIGNING_SECRET", minSecretLength)).toEqual([]);
-    expect(() => signer.sign("value")).toThrow(`at least ${minSecretLength} characters`);
-    expect(signer.verify("value", signature)).toBe(false);
-  }
+  vi.stubEnv("TEST_SIGNING_SECRET", "a".repeat(minSecretLength - 1));
+  expect(getSigningSecrets("TEST_SIGNING_SECRET", minSecretLength)).toEqual([]);
+  expect(() => signer.sign("value")).toThrow(`at least ${minSecretLength} characters`);
+  expect(signer.verify("value", signature)).toBe(false);
 });

@@ -5,7 +5,6 @@ import { logMessage } from "@lib/logger";
 import "server-only";
 
 const SIGNATURE_VERSION = "v1";
-const signingKeyCache = new Map<string, Buffer>();
 
 export function getSigningSecrets(secretEnvVar: string, minSecretLength: number): string[] {
   const secrets = (process.env[secretEnvVar] ?? "")
@@ -25,6 +24,8 @@ export function getSigningSecrets(secretEnvVar: string, minSecretLength: number)
 
 export function createSigner(secretEnvVar: string, purpose: string, minSecretLength: number) {
   const info = `${purpose}-${SIGNATURE_VERSION}`;
+  const signingKeyCache = new Map<string, Buffer>();
+
   const getSecrets = () => getSigningSecrets(secretEnvVar, minSecretLength);
 
   function computeSignature(value: unknown, secret: string): string {
