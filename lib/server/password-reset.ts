@@ -1,35 +1,23 @@
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
-import { createHmac, timingSafeEqual } from "node:crypto";
 import * as v from "valibot";
 
 import { logMessage } from "@lib/logger";
+import { createSigner } from "@lib/signing";
 import { resetPasswordLinkSchema } from "@lib/validation/validationSchemas";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
 
 export const RESET_LINK_TTL_SECONDS = 15 * 60;
+const resetLinkSigner = createSigner("PASSWORD_RESET_SECRET", "password-reset-link", 32);
 
 type ResetLinkPayload = v.InferOutput<typeof resetPasswordLinkSchema>;
 type PasswordChanged = { seconds: bigint | string | number; nanos: number } | undefined;
 
-function getResetSecret(): string {
-  const secret = process.env.PASSWORD_RESET_SECRET;
-  if (!secret) {
-    throw new Error("Missing PASSWORD_RESET_SECRET environment variable");
-  }
-  return secret;
-}
-
-function hmac(value: string): Buffer {
-  return createHmac("sha256", getResetSecret()).update(value).digest();
-}
-
-function timestampFingerprint(changedAt: PasswordChanged): string {
+function normalizeTimestamp(changedAt: PasswordChanged): string {
   // Zitadel timestamps may have bigint, number or serialized string seconds.
-  const normalized = changedAt ? `${Number(changedAt.seconds)}.${Number(changedAt.nanos)}` : "none";
-  return hmac(normalized).toString("base64url");
+  return changedAt ? `${Number(changedAt.seconds)}.${Number(changedAt.nanos)}` : "none";
 }
 
 export function signResetLink({
@@ -44,13 +32,13 @@ export function signResetLink({
   const payload: ResetLinkPayload = {
     userId,
     expiry: Math.floor(Date.now() / 1000) + RESET_LINK_TTL_SECONDS,
-    passwordChanged: timestampFingerprint(passwordChanged),
+    passwordChanged: normalizeTimestamp(passwordChanged),
     ...(requestId
       ? { requestId: v.parse(resetPasswordLinkSchema.entries.requestId, requestId) }
       : {}),
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const signature = hmac(encodedPayload).toString("base64url");
+  const signature = resetLinkSigner.sign(encodedPayload);
   return `${encodedPayload}.${signature}`;
 }
 
@@ -73,7 +61,7 @@ export async function verifyResetLink(token: string): Promise<ResetLinkPayload |
     if (signature.toString("base64url") !== encodedSignature) {
       throw new Error("Invalid password reset link signature encoding");
     }
-    if (!timingSafeEqual(signature, hmac(encodedPayload))) {
+    if (!resetLinkSigner.verify(encodedPayload, encodedSignature)) {
       throw new Error("Password reset link signature did not match");
     }
 
@@ -95,7 +83,7 @@ export async function verifyResetLink(token: string): Promise<ResetLinkPayload |
       throw new Error("Password reset link user is not an active human");
     }
 
-    if (timestampFingerprint(user.type.value.passwordChanged) !== resetLink.passwordChanged) {
+    if (normalizeTimestamp(user.type.value.passwordChanged) !== resetLink.passwordChanged) {
       throw new Error("Password reset link was issued before the latest password change");
     }
 

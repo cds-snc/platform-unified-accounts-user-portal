@@ -58,7 +58,7 @@ services:
       - ZITADEL_API_URL=http://localhost:8080
       - ZITADEL_SERVICE_USER_TOKEN_FILE=/zitadel/login-client.pat
       - ZITADEL_SESSION_COOKIE_SECRET=LocalDevSessionCookieSecretNeeds32Chars
-      - PASSWORD_RESET_SECRET=asufficientlylongpasswordresetsecretvalue
+      - PASSWORD_RESET_SECRET=LocalDevPasswordResetSecretNeeds32Chars
     network_mode: service:zitadel
     user: "0"
     volumes:

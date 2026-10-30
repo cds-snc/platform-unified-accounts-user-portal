@@ -7,13 +7,13 @@ import {
   AuthenticationMethodType,
   SetPasswordResponseSchema,
 } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
-import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { logMessage } from "@lib/logger";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
 import { RESET_LINK_TTL_SECONDS } from "@lib/server/password-reset";
 import { checkAuthenticationLevel } from "@lib/server/route-protection";
+import { createSigner } from "@lib/signing";
 import {
   createSessionFromChecks,
   listAuthenticationMethodTypes,
@@ -136,7 +136,7 @@ describe("submitUserNameForm", () => {
 
     vi.stubEnv("NOTIFY_API_KEY", "notify-key");
     vi.stubEnv("TEMPLATE_ID", "template-123");
-    vi.stubEnv("PASSWORD_RESET_SECRET", "reset-signing-secret");
+    vi.stubEnv("PASSWORD_RESET_SECRET", "reset-signing-secret-at-least-32-chars");
   });
 
   it("responds the same and sends no email when no account exists", async () => {
@@ -177,15 +177,14 @@ describe("submitUserNameForm", () => {
     const token = url.searchParams.get("token")!;
     const [payload, signature] = token.split(".");
     const expiry = Math.floor(Date.now() / 1000) + RESET_LINK_TTL_SECONDS;
-    const hmac = (value: string) =>
-      createHmac("sha256", "reset-signing-secret").update(value).digest("base64url");
+    const signer = createSigner("PASSWORD_RESET_SECRET", "password-reset-link", 32);
     expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
       userId: "user-123",
       expiry,
-      passwordChanged: hmac(`${Number(passwordChanged.seconds)}.${Number(passwordChanged.nanos)}`),
+      passwordChanged: `${Number(passwordChanged.seconds)}.${Number(passwordChanged.nanos)}`,
       requestId: "req-123",
     });
-    expect(signature).toBe(hmac(payload));
+    expect(signature).toBe(signer.sign(payload));
     expect(passwordResetWithReturn).toHaveBeenCalledExactlyOnceWith({ userId: "user-123" });
     expect(cookies).not.toHaveBeenCalled();
     expect(createSessionFromChecks).not.toHaveBeenCalled();

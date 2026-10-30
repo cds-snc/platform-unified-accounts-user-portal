@@ -11,7 +11,6 @@ describe("GET /healthy", () => {
     "PASSWORD_RESET_SECRET",
   ];
   const serviceUserTokenEnvVars = ["ZITADEL_SERVICE_USER_TOKEN", "ZITADEL_SERVICE_USER_TOKEN_FILE"];
-  const sessionCookieSecret = "test-session-cookie-secret-at-least-32-chars";
   const originalEnv: Record<string, string | undefined> = {};
 
   beforeEach(() => {
@@ -19,7 +18,8 @@ describe("GET /healthy", () => {
       originalEnv[key] = process.env[key];
       process.env[key] = key === "ZITADEL_SERVICE_USER_TOKEN_FILE" ? "" : "test-value";
     }
-    vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", sessionCookieSecret);
+    vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", "test-session-cookie-secret-at-least-32-chars");
+    vi.stubEnv("PASSWORD_RESET_SECRET", "test-password-reset-secret-at-least-32-chars");
     vi.resetModules();
   });
 
@@ -87,4 +87,22 @@ describe("GET /healthy", () => {
     const response = await GET();
     expect(response.status).toBe(503);
   });
+
+  test("returns 503 when the password reset secret is not set", async () => {
+    vi.stubEnv("PASSWORD_RESET_SECRET", undefined);
+    const { GET } = await import("./route");
+
+    const response = await GET();
+    expect(response.status).toBe(503);
+  });
+
+  test.each([undefined, "too-short", `${"a".repeat(32)}, too-short`])(
+    "returns 503 for invalid password reset secrets: %s",
+    async (secret) => {
+      vi.stubEnv("PASSWORD_RESET_SECRET", secret);
+      const { GET } = await import("./route");
+
+      expect((await GET()).status).toBe(503);
+    }
+  );
 });
