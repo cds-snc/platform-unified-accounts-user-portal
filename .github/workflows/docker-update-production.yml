@@ -57,6 +57,7 @@ jobs:
       - docker-build
     permissions:
       contents: write
+      id-token: write
     uses: ./.github/workflows/docker-sbom.yml
     with:
       GITHUB_SHA: ${{ needs.get-version.outputs.version }}
