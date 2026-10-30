@@ -10,6 +10,7 @@ describe("GET /healthy", () => {
     "HCAPTCHA_SECRET",
   ];
   const serviceUserTokenEnvVars = ["ZITADEL_SERVICE_USER_TOKEN", "ZITADEL_SERVICE_USER_TOKEN_FILE"];
+  const sessionCookieSecret = "test-session-cookie-secret-at-least-32-chars";
   const originalEnv: Record<string, string | undefined> = {};
 
   beforeEach(() => {
@@ -17,6 +18,7 @@ describe("GET /healthy", () => {
       originalEnv[key] = process.env[key];
       process.env[key] = key === "ZITADEL_SERVICE_USER_TOKEN_FILE" ? "" : "test-value";
     }
+    vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", sessionCookieSecret);
     vi.resetModules();
   });
 
@@ -24,6 +26,7 @@ describe("GET /healthy", () => {
     for (const key of [...requiredEnvVars, ...serviceUserTokenEnvVars]) {
       process.env[key] = originalEnv[key];
     }
+    vi.unstubAllEnvs();
   });
 
   test("returns 200 when all required env vars are set", async () => {
@@ -62,6 +65,22 @@ describe("GET /healthy", () => {
     delete process.env.ZITADEL_API_URL;
     delete process.env.ZITADEL_SERVICE_USER_TOKEN;
     delete process.env.ZITADEL_SERVICE_USER_TOKEN_FILE;
+    const { GET } = await import("./route");
+
+    const response = await GET();
+    expect(response.status).toBe(503);
+  });
+
+  test("returns 503 when the session cookie secret is not set", async () => {
+    vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", undefined);
+    const { GET } = await import("./route");
+
+    const response = await GET();
+    expect(response.status).toBe(503);
+  });
+
+  test("returns 503 when the session cookie secret is too short", async () => {
+    vi.stubEnv("ZITADEL_SESSION_COOKIE_SECRET", "too-short");
     const { GET } = await import("./route");
 
     const response = await GET();
