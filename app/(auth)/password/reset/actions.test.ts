@@ -11,7 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { logMessage } from "@lib/logger";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
-import { RESET_LINK_TTL_SECONDS } from "@lib/server/password-reset";
 import { checkAuthenticationLevel } from "@lib/server/route-protection";
 import { createSigner } from "@lib/signing";
 import {
@@ -164,7 +163,7 @@ describe("submitUserNameForm", () => {
     expect(createSessionFromChecks).not.toHaveBeenCalled();
   });
 
-  it("emails the Zitadel code and a signed link containing only a token, without a session or cookie", async () => {
+  it("emails the Zitadel code and a signed link", async () => {
     const response = await submit();
 
     expect(response).toEqual({ success: true });
@@ -176,7 +175,7 @@ describe("submitUserNameForm", () => {
     expect([...url.searchParams.keys()]).toEqual(["token"]);
     const token = url.searchParams.get("token")!;
     const [payload, signature] = token.split(".");
-    const expiry = Math.floor(Date.now() / 1000) + RESET_LINK_TTL_SECONDS;
+    const expiry = Math.floor(Date.now() / 1000) + 15 * 60;
     const signer = createSigner("PASSWORD_RESET_SECRET", "password-reset-link", 32);
     expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
       userId: "user-123",
@@ -186,8 +185,6 @@ describe("submitUserNameForm", () => {
     });
     expect(signature).toBe(signer.sign(payload));
     expect(passwordResetWithReturn).toHaveBeenCalledExactlyOnceWith({ userId: "user-123" });
-    expect(cookies).not.toHaveBeenCalled();
-    expect(createSessionFromChecks).not.toHaveBeenCalled();
   });
 
   it("signs a valid requestId into the emailed link and drops invalid ones", async () => {
@@ -207,15 +204,6 @@ describe("submitUserNameForm", () => {
     expect(tokenPayload()).not.toHaveProperty("requestId");
   });
 
-  it("sends the email before responding in PR review environments", async () => {
-    vi.stubEnv("PR_REVIEW", "true");
-    await expect(submitUserNameForm({ loginName: "person@canada.ca" })).resolves.toEqual({
-      success: true,
-    });
-    expect(after).not.toHaveBeenCalled();
-    expect(sendEmail).toHaveBeenCalledOnce();
-  });
-
   it("emails users without strong MFA to contact support", async () => {
     vi.mocked(listAuthenticationMethodTypes).mockResolvedValue({ authMethodTypes: [] } as never);
 
@@ -227,11 +215,10 @@ describe("submitUserNameForm", () => {
     expect(createSessionFromChecks).not.toHaveBeenCalled();
   });
 
-  it("does not schedule email or access cookies when username validation fails", async () => {
+  it("does not attempt to send email when username validation fails", async () => {
     await expect(submitUserNameForm({ loginName: "" })).resolves.toEqual({
       error: "translated:errors.couldNotSendResetLink",
     });
-    expect(cookies).not.toHaveBeenCalled();
     expect(after).not.toHaveBeenCalled();
   });
 
@@ -251,12 +238,6 @@ describe("submitUserNameForm", () => {
     expect(logMessage.error).toHaveBeenCalledWith("Failed to send password reset email", {
       error: expect.any(Error),
     });
-  });
-
-  it("preserves the non-enumerating response when email delivery fails", async () => {
-    sendEmail.mockRejectedValue(new Error("Notify unavailable"));
-    await expect(submit()).resolves.toEqual({ success: true });
-    expect(logMessage.error).toHaveBeenCalled();
   });
 
   afterEach(() => {

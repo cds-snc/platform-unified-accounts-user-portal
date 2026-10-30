@@ -9,7 +9,7 @@ import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
 
-export const RESET_LINK_TTL_SECONDS = 15 * 60;
+const RESET_LINK_TTL_SECONDS = 15 * 60;
 const resetLinkSigner = createSigner("PASSWORD_RESET_SECRET", "password-reset-link", 32);
 
 type ResetLinkPayload = v.InferOutput<typeof resetPasswordLinkSchema>;
