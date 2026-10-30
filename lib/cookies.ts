@@ -19,10 +19,9 @@ const MAX_COOKIE_SIZE = 3500;
 const SIGNATURE_VERSION = "v1";
 const HKDF_INFO = `session-cookie-${SIGNATURE_VERSION}`;
 const DERIVED_KEY_LENGTH = 32;
+const MIN_SESSION_COOKIE_SECRET_LENGTH = 32;
 
-export const MIN_SESSION_COOKIE_SECRET_LENGTH = 32;
-
-export type SignedSessions<T> = {
+type SignedSessions<T> = {
   sessions: T[];
   sig: string;
 };
@@ -60,7 +59,7 @@ async function setSessionHttpOnlyCookie<T>(sessions: SessionCookie<T>[]): Promis
   });
 }
 
-export function readSessionCookies<T>(value: string | undefined): SessionCookie<T>[] {
+function readSessionCookies<T>(value: string | undefined): SessionCookie<T>[] {
   if (!value) {
     return [];
   }
@@ -351,7 +350,7 @@ function signaturesEqual(left: string, right: string): boolean {
   return timingSafeEqual(leftBytes, rightBytes);
 }
 
-export function signSessions<T>(sessions: T[]): SignedSessions<T> {
+function signSessions<T>(sessions: T[]): SignedSessions<T> {
   const secret = getPrimarySigningSecret();
 
   return {
@@ -360,7 +359,7 @@ export function signSessions<T>(sessions: T[]): SignedSessions<T> {
   };
 }
 
-export function verifySessions(value: unknown): value is SignedSessions<unknown> {
+function verifySessions(value: unknown): value is SignedSessions<unknown> {
   if (!value || typeof value !== "object") {
     return false;
   }
