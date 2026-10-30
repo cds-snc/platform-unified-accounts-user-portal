@@ -249,7 +249,12 @@
       "matches": "Matches",
       "doesNotMatch": "The entries for password must match",
       "success": "Success",
-      "requiredPasswordSuccess": "Valid password"
+      "requiredPasswordSuccess": "Valid password",
+      "met": "Met",
+      "notMet": "Not yet met",
+      "requirementMet": "{{requirement}}: requirement met.",
+      "requirementUnmet": "{{requirement}}: requirement no longer met.",
+      "allRequirementsMet": "All password requirements met."
     },
     "reset": {
       "title": "Reset your password",

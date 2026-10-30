@@ -249,7 +249,12 @@
       "matches": "Correspondance",
       "doesNotMatch": "Les entrées pour le mot de passe doivent correspondre.",
       "success": "Succès",
-      "requiredPasswordSuccess": "Mot de passe valide."
+      "requiredPasswordSuccess": "Mot de passe valide.",
+      "met": "Respectée",
+      "notMet": "Pas encore respectée",
+      "requirementMet": "{{requirement}} : exigence respectée.",
+      "requirementUnmet": "{{requirement}} : exigence qui n'est plus respectée.",
+      "allRequirementsMet": "Toutes les exigences du mot de passe sont respectées."
     },
     "reset": {
       "title": "Réinitialiser votre mot de passe",
