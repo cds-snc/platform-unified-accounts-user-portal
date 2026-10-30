@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.7.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.3...v1.7.0) (2026-10-30)
+
+
+### Features
+
+* Add ability for feature flags ([#609](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/609)) ([97c2b30](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/97c2b3080393497c1693507fecbb8b8ad9594405))
+* added privacy policy page ([#469](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/469)) ([ecb971e](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/ecb971eb28ad68fc29079800293d318c9bc9d444))
+* sign session cookie to prevent tampering ([#607](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/607)) ([e57b8b1](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/e57b8b1fe97809507778a06abab41ed26b41efe4))
+
+
+### Bug Fixes
+
+* build PR review Docker image using ECR cache ([#613](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/613)) ([7515f11](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/7515f1127985f6e364090a46284a4bd8639501cb))
+* **deps:** update all patch dependencies ([#594](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/594)) ([98c1d09](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/98c1d09ee99e0682f648995c7e202622aa4eea08))
+* loading to ECR before SBOM and vuln scan ([#614](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/614)) ([2e10cac](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/2e10caca5e63fdd001c4e307c5292f0adced527f))
+* totp error flow ([#566](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/566)) ([55be3b0](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/55be3b03cd7a989fc1305a0c2bc795bc361fac72))
+
+
+### Miscellaneous Chores
+
+* bump `dns-proxy-action` to v1.2.1 ([#612](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/612)) ([4d494f0](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/4d494f04c94207d778d53789d73cc44312fc6afa))
+* **deps:** lock file maintenance ([#598](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/598)) ([5e9bca6](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/5e9bca6bcb12ace64feb990669b55804bf26c15a))
+* **deps:** update all minor dependencies ([#595](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/595)) ([d79ee80](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/d79ee80ec9ea5abf8d0e3c06ba4449b3afc14bed))
+* **deps:** update all non-major github action dependencies ([#596](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/596)) ([eb3a262](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/eb3a262360c70639cbe8045fba51e3ef79cd9477))
+* **deps:** update grafana/k6:2.3.0-with-browser docker digest to 8663335 ([#597](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/597)) ([87b2359](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/87b235954ed042918354b78bab6ea164d985baa2))
+* next-js upgrade ([#608](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/608)) ([d77d7ea](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/d77d7ead5b9c3db0908c9d64a105146745232519))
+* Tweakings based on QA testing finds ([#605](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/605)) ([d341e7e](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/d341e7e27a96633e7d7d484e4b8009f3e034a95d))
+* upgrade dns-proxy-action to v1.2.1 ([#606](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/606)) ([47de8f6](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/47de8f6a5f5b8c644e333859a36fd6176271c750))
+
 ## [1.6.3](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.2...v1.6.3) (2026-10-24)
 
 
