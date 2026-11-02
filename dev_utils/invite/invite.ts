@@ -160,16 +160,35 @@ const inviteMain = async () => {
 
   const gcNotify = GCNotifyConnector.default(apiKey);
   await gcNotify.sendEmail(inviteEmail, templateId, {
-    subject: "You're Invited | Vous êtes invités",
+    subject: "Create your GC Platform account | Créez votre compte Plateforme GC",
     formResponse: `
-  **You're Invited | Vous êtes invités**
+Hello,
 
-  You're invited to try out this new super cool GCPlatform single sign on service!
-  Click on this [registration link to continue](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})
+As part of today’s GC Forms pilot session, you are invited to create your GC Platform account.
 
-  ---
+To get started, use the link below:
 
-  {{French translation to follow}}`,
+**[Register to the new GC Forms sign-in method (url)](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})**
+
+Thank you,
+
+GC Forms team
+
+---
+
+Bonjour,
+
+Dans le cadre de la séance pilote de Formulaires GC d’aujourd’hui, vous êtes invité(e) à créer votre compte Plateforme GC.
+
+Pour commencer, utilisez le lien ci-dessous :
+
+**[Inscrivez-vous à la nouvelle méthode de connexion de Formulaires GC (url)](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})**
+
+Merci,
+
+L’équipe Formulaires GC
+
+`,
   });
 };
 
