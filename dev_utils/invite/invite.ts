@@ -168,7 +168,7 @@ As part of today’s GC Forms pilot session, you are invited to create your GC P
 
 To get started, use the link below:
 
-**[Register to the new GC Forms sign-in method (url)](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})**
+**[Register to the new GC Forms sign-in method](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})**
 
 Thank you,
 
@@ -182,7 +182,7 @@ Dans le cadre de la séance pilote de Formulaires GC d’aujourd’hui, vous êt
 
 Pour commencer, utilisez le lien ci-dessous :
 
-**[Inscrivez-vous à la nouvelle méthode de connexion de Formulaires GC (url)](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})**
+**[Inscrivez-vous à la nouvelle méthode de connexion de Formulaires GC](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register?invite=${registerParam})**
 
 Merci,
 
