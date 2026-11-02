@@ -67,6 +67,7 @@ jobs:
       register_email: ${{ secrets.STAGING_INTEGRATION_TEST_REGISTER_EMAIL }}
       username: ${{ secrets.STAGING_INTEGRATION_TEST_USERNAME }}
       password: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD }}
+      password_reset_secret: ${{ secrets.STAGING_INTEGRATION_TEST_PASSWORD_RESET_SECRET }}
       test_callback_url: ${{ secrets.STAGING_INTEGRATION_TEST_CALLBACK_URL }}
       test_client_id: ${{ secrets.STAGING_INTEGRATION_TEST_CLIENT_ID }}
       totp_secret: ${{ secrets.STAGING_INTEGRATION_TEST_TOTP_SECRET }}
