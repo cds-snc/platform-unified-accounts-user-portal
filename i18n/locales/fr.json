@@ -474,7 +474,7 @@
     "help": "Besoin d'aide?",
     "validation": {
       "required": "Ce champ ne peut pas être vide",
-      "maxLength": "Le code de sécurité doit comporter {{maxLength}} caractères. au maximum",
+      "maxLength": "Le code de sécurité doit comporter {{maxLength}} caractères au maximum.",
       "length": "Doit contenir 6 caractères"
     },
     "errors": {
