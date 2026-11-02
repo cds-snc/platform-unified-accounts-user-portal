@@ -264,6 +264,10 @@
       "labels": {
         "confirmationCode": "Code de confirmation"
       },
+      "validation": {
+        "required": "Entrez le code de confirmation.",
+        "maxLength": "Le code de confirmation doit contenir au plus {{maxLength}} caractères."
+      },
       "errors": {
         "missingRequiredInformation": "Information obligatoire manquante",
         "couldNotSetPassword": "Le mot de passe n'a pas pu être défini.",
@@ -470,6 +474,7 @@
     "help": "Besoin d'aide?",
     "validation": {
       "required": "Ce champ ne peut pas être vide",
+      "maxLength": "Le code de sécurité doit contenir au plus {{maxLength}} caractères.",
       "length": "Doit contenir 6 caractères"
     },
     "errors": {

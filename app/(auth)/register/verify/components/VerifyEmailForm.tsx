@@ -86,7 +86,9 @@ export function VerifyEmailForm({
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`),
+          fieldValue: t(`validation.${issue.message}`, {
+            maxLength: issue.type === "max_length" ? issue.requirement : undefined,
+          }),
         })),
         formData: { code },
       };
