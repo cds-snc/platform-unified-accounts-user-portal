@@ -7,6 +7,7 @@
     },
     "title": "GC Platform",
     "required": "required",
+    "loading": "Loading...",
     "errorSummary": {
       "title": "Please correct the errors on the page",
       "itemFallback": "Please check this field."
