@@ -10,6 +10,7 @@ import {
   UserService,
 } from "@zitadel/proto/zitadel/user/v2/user_service_pb.js";
 import { createSign } from "crypto";
+import { createHmac, hkdfSync } from "node:crypto";
 
 let userService: Client<typeof UserService>;
 
@@ -169,6 +170,32 @@ export async function getPasswordResetCode(
   }
 
   return passwordResetCode;
+}
+
+export async function getPasswordResetLink(
+  userId: string,
+  accessToken: string,
+  apiBaseUrl: string,
+  passwordResetSecret: string
+) {
+  const { user } = await getUserService(accessToken, apiBaseUrl).getUserByID({ userId });
+  if (!user || user.type.case !== "human") {
+    throw new Error("Expected a human user for password reset");
+  }
+  const changedAt = user.type.value.passwordChanged;
+  const payload = {
+    userId,
+    expiry: Math.floor(Date.now() / 1000) + 15 * 60,
+    passwordChanged: changedAt ? `${Number(changedAt.seconds)}.${Number(changedAt.nanos)}` : "none",
+  };
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = createHmac(
+    "sha256",
+    Buffer.from(hkdfSync("sha256", passwordResetSecret, "", `password-reset-link-v1`, 32))
+  )
+    .update(JSON.stringify(["v1", encodedPayload]))
+    .digest("base64url");
+  return `${encodedPayload}.${signature}`;
 }
 
 export async function deleteUserById(userId: string, accessToken: string, apiBaseUrl: string) {
