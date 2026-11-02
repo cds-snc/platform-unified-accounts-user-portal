@@ -74,19 +74,6 @@ describe("PasswordValidationForm", () => {
     vi.mocked(useTranslation).mockReturnValue({ t: (key: string) => key } as never);
   });
 
-  it("identifies both password fields as new passwords", () => {
-    render(<PasswordValidationForm passwordComplexitySettings={settings} />);
-
-    expect(screen.getByLabelText(/create.labels.password/)).toHaveAttribute(
-      "autocomplete",
-      "new-password"
-    );
-    expect(screen.getByLabelText(/create.labels.confirmPassword/)).toHaveAttribute(
-      "autocomplete",
-      "new-password"
-    );
-  });
-
   it("keeps the form pending and prevents duplicate activation until submission finishes", async () => {
     const user = userEvent.setup();
     let resolveSubmission: (() => void) | undefined;

@@ -194,7 +194,6 @@ export function PasswordValidationForm({
               id="password"
               className="w-full"
               type="password"
-              autoComplete="new-password"
               required
               ariaDescribedbyIds={
                 hasError("password", state.validationErrors)
@@ -219,7 +218,6 @@ export function PasswordValidationForm({
               id="confirmPassword"
               className="w-full"
               type="password"
-              autoComplete="new-password"
               required
               ariaDescribedbyIds={
                 hasError("confirmPassword", state.validationErrors)
