@@ -69,7 +69,13 @@ export function PasswordValidationForm({
   requireConfirmationCode = false,
 }: {
   passwordComplexitySettings: PasswordComplexitySettings;
-  successCallback?: ({ password, code }: { password: string; code?: string }) => void;
+  successCallback?: ({
+    password,
+    code,
+  }: {
+    password: string;
+    code?: string;
+  }) => void | Promise<void>;
   requireConfirmationCode?: boolean;
 }) {
   const { t } = useTranslation(["password"]);
@@ -96,16 +102,20 @@ export function PasswordValidationForm({
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`complexity.${issue.message}`, {
-            minLength: passwordComplexitySettings.minLength || 8,
-          }),
+          fieldValue: t(
+            `${issue.path?.[0].key === "code" ? "reset.validation" : "complexity"}.${issue.message}`,
+            {
+              minLength: passwordComplexitySettings.minLength || 8,
+              maxLength: issue.type === "max_length" ? issue.requirement : undefined,
+            }
+          ),
         })),
         formData: formEntries,
       };
     }
 
     if (validationResult.success) {
-      successCallback?.({
+      await successCallback?.({
         password: formEntries.password as string,
         ...(requireConfirmationCode ? { code: formEntries.code as string } : {}),
       });

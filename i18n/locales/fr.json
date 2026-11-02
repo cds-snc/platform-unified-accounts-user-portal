@@ -7,6 +7,7 @@
     },
     "title": "Plateforme GC",
     "required": "obligatoire",
+    "loading": "Chargement...",
     "errorSummary": {
       "title": "Veuillez corriger les erreurs sur la page",
       "itemFallback": "Veuillez vérifier ce champ."
@@ -263,6 +264,10 @@
       "labels": {
         "confirmationCode": "Code de confirmation"
       },
+      "validation": {
+        "required": "Entrez le code de confirmation.",
+        "maxLength": "Le code de confirmation doit comporter {{maxLength}} caractères au maximum."
+      },
       "errors": {
         "missingRequiredInformation": "Information obligatoire manquante",
         "couldNotSetPassword": "Le mot de passe n'a pas pu être défini.",
@@ -469,6 +474,7 @@
     "help": "Besoin d'aide?",
     "validation": {
       "required": "Ce champ ne peut pas être vide",
+      "maxLength": "Le code de sécurité doit comporter {{maxLength}} caractères au maximum.",
       "length": "Doit contenir 6 caractères"
     },
     "errors": {

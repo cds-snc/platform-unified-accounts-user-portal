@@ -7,6 +7,7 @@
     },
     "title": "GC Platform",
     "required": "required",
+    "loading": "Loading...",
     "errorSummary": {
       "title": "Please correct the errors on the page",
       "itemFallback": "Please check this field."
@@ -263,6 +264,10 @@
       "labels": {
         "confirmationCode": "Confirmation code"
       },
+      "validation": {
+        "required": "Enter the confirmation code.",
+        "maxLength": "Confirmation code must be {{maxLength}} characters or fewer."
+      },
       "errors": {
         "missingRequiredInformation": "Missing required information",
         "couldNotSetPassword": "Could not set password",
@@ -469,6 +474,7 @@
     "help": "Need help?",
     "validation": {
       "required": "Cannot be empty",
+      "maxLength": "Security code must be {{maxLength}} characters or fewer.",
       "length": "Must be 6 characters"
     },
     "errors": {
