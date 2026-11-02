@@ -4,7 +4,10 @@ import * as v from "valibot";
 
 import { logMessage } from "@lib/logger";
 import { createSigner } from "@lib/signing";
-import { resetPasswordLinkSchema } from "@lib/validation/validationSchemas";
+import {
+  resetPasswordLinkSchema,
+  resetPasswordLinkTokenSchema,
+} from "@lib/validation/validationSchemas";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
@@ -44,19 +47,10 @@ export function signResetLink({
 
 export async function verifyResetLink(token: string): Promise<ResetLinkPayload | undefined> {
   try {
-    const [encodedPayload, encodedSignature, extra] = token.split(".");
-    if (
-      !encodedPayload ||
-      !encodedSignature ||
-      extra !== undefined ||
-      !/^[A-Za-z0-9_-]+$/.test(encodedPayload)
-    ) {
-      throw new Error("Invalid password reset link format");
-    }
-
-    if (!/^[A-Za-z0-9_-]{43}$/.test(encodedSignature)) {
-      throw new Error("Invalid password reset link signature format");
-    }
+    const [encodedPayload, encodedSignature] = v.parse(
+      resetPasswordLinkTokenSchema,
+      token.split(".")
+    );
     const signature = Buffer.from(encodedSignature, "base64url");
     if (signature.toString("base64url") !== encodedSignature) {
       throw new Error("Invalid password reset link signature encoding");

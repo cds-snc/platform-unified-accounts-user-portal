@@ -108,6 +108,11 @@ export const resetPasswordLinkSchema = v.object({
   ...requestIdSchema(),
 });
 
+export const resetPasswordLinkTokenSchema = v.tuple([
+  v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]+$/)),
+  v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]{43}$/)),
+]);
+
 const sessionIdSchema = () => ({
   sessionId: v.pipe(
     v.string(),

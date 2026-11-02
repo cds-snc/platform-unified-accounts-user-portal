@@ -19,7 +19,7 @@ export function getSigningSecrets(secretEnvVar: string, minSecretLength: number)
     return [];
   }
 
-  return Array.from(new Set(secrets));
+  return secrets;
 }
 
 export function createSigner(secretEnvVar: string, purpose: string, minSecretLength: number) {
