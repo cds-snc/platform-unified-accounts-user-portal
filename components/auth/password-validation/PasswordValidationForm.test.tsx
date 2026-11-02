@@ -35,7 +35,7 @@ describe("PasswordValidationForm", () => {
   it.each([
     ["en", "", "Enter the confirmation code."],
     ["en", "12345678901", "Confirmation code must be 10 characters or fewer."],
-    ["fr", "12345678901", "Le code de confirmation doit contenir au plus 10 caractères."],
+    ["fr", "12345678901", "Le code de confirmation doit comporter 10 caractères au maximum."],
     ["en", "1234567890", ""],
   ])("validates confirmation code %s/%s", async (language, code, message) => {
     const translations = createInstance();
