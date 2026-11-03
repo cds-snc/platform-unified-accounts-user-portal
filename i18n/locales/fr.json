@@ -82,7 +82,7 @@
       "lastName": "Nom de famille",
       "change": "Modifier",
       "cancel": "Annuler",
-      "updateAccount": "Mettre à jour",
+      "updateAccount": "Enregistrer les modifications",
       "updateDetails": "Mettez a jour vos renseignements personnels",
       "email": "Adresse courriel",
       "cannotBeChanged": "Ne peut être modifié",
