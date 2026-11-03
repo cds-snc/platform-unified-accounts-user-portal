@@ -142,7 +142,7 @@
     "registerLinkText": "create one now",
     "form": {
       "label": "Email address",
-      "description": "Enter your own individual government email address.",
+      "description": "Use a government email address only you can access, not a shared inbox.",
       "passwordLabel": "Password",
       "forgotPasswordLink": "Forgot password?",
       "signingIn": "Signing in...",
@@ -176,7 +176,7 @@
     "set": {
       "title": "Set a password",
       "description": "Choose a password for your account",
-      "codeSent": "A code has been sent to your email address.",
+      "codeSent": "We sent a code to your email address.",
       "noCodeReceived": "Didn't receive a code?",
       "resend": "Send a new code",
       "submit": "Continue",
@@ -368,9 +368,9 @@
   "register": {
     "incomplete": {
       "pageTitle": "A few more steps",
-      "title": "A few more steps to verify your account",
-      "item1": "You entered your government email and chose a password",
-      "item2": "Next step: Send a code to your email to validate your account",
+      "title": "A few more steps to verify account",
+      "item1": "You entered your GC email and chose a password",
+      "item2": "Next step: Send a code to your GC email address",
       "action": "Send code",
       "hint": "We'll prompt you to enter the code and add a verification method"
     },
@@ -378,8 +378,8 @@
       "password": "Password"
     },
     "closed": {
-      "title": "No registration at this time",
-      "description": "Unfortunately registration is currently closed."
+      "title": "If you have a GC Forms account, soon we'll invite you to join GC Platform",
+      "description": "For questions, contact us."
     },
     "title": "Create your account",
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
@@ -401,7 +401,7 @@
       "email": "Email address is a required field."
     },
     "terms": {
-      "agreement": "By creating an account you agree to the ",
+      "agreement": "By continuing, you accept the ",
       "linkText": "terms of use."
     },
     "validation": {
@@ -546,12 +546,12 @@
     "step2": {
       "title": "Step 2",
       "description": "Choose verification method",
-      "callout1": "Hardware key",
+      "callout1": "Security key",
       "callout2": "Device with Authenticator app "
     },
     "cta": {
       "createAccount": "Create GC Platform account",
-      "alreadyHaveAccount": "I already have a GC Platform account"
+      "alreadyHaveAccount": "Sign in with GC Platform"
     }
   },
   "404": {
