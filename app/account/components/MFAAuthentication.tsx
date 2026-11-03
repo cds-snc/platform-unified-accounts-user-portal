@@ -5,12 +5,12 @@
  *--------------------------------------------*/
 import { useState } from "react";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/utils/imageUrl";
+import { useTranslation } from "@i18n";
 import { Button } from "@components/ui/button/Button";
 import { Image } from "@components/ui/image/Image";
 import { ToastContainer } from "@components/ui/toast/Toast";

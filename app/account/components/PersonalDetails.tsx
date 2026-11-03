@@ -5,7 +5,6 @@
  *--------------------------------------------*/
 import { useActionState, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { useTranslation } from "react-i18next";
 
 import { cn } from "@lib/utils";
 /*--------------------------------------------*
@@ -13,6 +12,7 @@ import { cn } from "@lib/utils";
  *--------------------------------------------*/
 import { validatePersonalDetails } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
+import { useTranslation } from "@i18n";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";

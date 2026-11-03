@@ -4,9 +4,8 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { useTranslation } from "react-i18next";
-
 import { cn } from "@lib/utils";
+import { useTranslation } from "@i18n";
 import { LinkButton } from "@components/ui/button/LinkButton";
 
 /*--------------------------------------------*
