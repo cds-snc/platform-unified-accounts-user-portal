@@ -117,14 +117,14 @@ export const PersonalDetails = ({
   });
 
   return (
-    <>
-      <div className={cn("bg-white p-6", className)}>
+    <div className={cn("bg-white", className)}>
+      <div className={editMode ? "rounded-2xl border-2 border-gcds-green-700 p-6" : "p-6"}>
         <div className="flex items-center justify-between">
           <h3 id="personal-details-title" className="mb-4">
             {t("personalDetails.title")}
           </h3>
         </div>
-        <div className="mb-12">
+        <div>
           {!editMode && (
             <div className="flex flex-row">
               <ul className="grow list-none p-0">
@@ -164,8 +164,9 @@ export const PersonalDetails = ({
               action={formAction}
               onKeyDown={handleEscape}
               noValidate
+              className="flex flex-row gap-4"
             >
-              <fieldset>
+              <fieldset className="grow">
                 <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
                 <div className="mb-4 flex flex-col gap-4">
                   <div className="gcds-input-wrapper">
@@ -219,40 +220,39 @@ export const PersonalDetails = ({
                   </div>
                 </div>
               </fieldset>
-              <div className="flex gap-4">
-                {/* Could also specify the first and or last name being updated but this is probably clear enough */}
-                <SubmitButtonAction ariaDescribedBy="personal-details-title">
-                  {t("personalDetails.updateAccount")}
-                </SubmitButtonAction>
-                <Button theme="secondary" onClick={handleEditModeClose}>
-                  {t("personalDetails.cancel")}
-                </Button>
+              <div className="basis-1/3">
+                <div className="float-right">
+                  {/* Could also specify the first and or last name being updated but this is probably clear enough */}
+                  <SubmitButtonAction ariaDescribedBy="personal-details-title">
+                    {t("personalDetails.updateAccount")}
+                  </SubmitButtonAction>
+                </div>
               </div>
             </form>
           )}
         </div>
-        <div>
-          <div className="flex flex-row">
-            <div className="grow basis-1/2">
-              <h3 className="mb-4">{t("personalDetails.email")}</h3>
-              <div>
-                <em data-testid="account-email">{email}</em>
-              </div>
+      </div>
+      <div className="p-6">
+        <div className="flex flex-row">
+          <div className="grow basis-1/2">
+            <h3 className="mb-4">{t("personalDetails.email")}</h3>
+            <div>
+              <em data-testid="account-email">{email}</em>
             </div>
-            <div className="flex flex-col gap-2">
-              <div>
-                <strong>{t("personalDetails.cannotBeChanged")}</strong>
-              </div>
-              <div>
-                <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
-                  {t("personalDetails.createNewAccount")}
-                </Button>
-              </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div>
+              <strong>{t("personalDetails.cannotBeChanged")}</strong>
+            </div>
+            <div>
+              <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
+                {t("personalDetails.createNewAccount")}
+              </Button>
             </div>
           </div>
         </div>
       </div>
       <ToastContainer autoClose={false} containerId="account-details" />
-    </>
+    </div>
   );
 };
