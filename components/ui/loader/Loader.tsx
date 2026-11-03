@@ -11,7 +11,7 @@ interface LoaderProps {
 }
 
 export const Loader = async ({ message, className }: LoaderProps): Promise<React.ReactElement> => {
-  const { t } = await serverTranslation("common");
+  const { t } = await serverTranslation();
 
   return (
     <div

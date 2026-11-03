@@ -129,7 +129,7 @@ export function VerifyEmailForm({
           focussable={true}
           id="zitadelError"
         >
-          <I18n i18nKey={state.error} namespace="verify" />
+          <I18n i18nKey={`verify:${state.error}`} />
         </Alert>
       )}
 
@@ -148,8 +148,8 @@ export function VerifyEmailForm({
       {(codeLoading || codeSent) && (
         <AlertNotification.Info>
           <p className="mt-3 font-bold">
-            {codeLoading && <I18n i18nKey="sendingNewCode" namespace="verify" />}
-            {codeSent && <I18n i18nKey="sentNewCode" namespace="verify" />}
+            {codeLoading && <I18n i18nKey="verify:sendingNewCode" />}
+            {codeSent && <I18n i18nKey="verify:sentNewCode" />}
           </p>
         </AlertNotification.Info>
       )}
@@ -166,17 +166,17 @@ export function VerifyEmailForm({
               disabled={codeLoading}
               data-testid="resend-button"
             >
-              <I18n i18nKey="newCode" namespace="verify" />
+              <I18n i18nKey="verify:newCode" />
             </Button>
             {supportLink && (
               <Link href={supportLink} prefetch={false}>
-                <I18n i18nKey="help" namespace="verify" />
+                <I18n i18nKey="verify:help" />
               </Link>
             )}
           </div>
 
           <SubmitButtonAction>
-            <I18n i18nKey="submit" namespace="verify" />
+            <I18n i18nKey="verify:submit" />
           </SubmitButtonAction>
         </form>
       </div>

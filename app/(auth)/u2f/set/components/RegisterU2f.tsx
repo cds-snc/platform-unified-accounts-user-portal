@@ -203,7 +203,7 @@ export function RegisterU2f({ sessionId, requestId }: Props) {
       {error && (
         <div>
           <Alert type={ErrorStatus.ERROR}>
-            <I18n i18nKey={error} namespace="u2f" />
+            <I18n i18nKey={`u2f:${error}`} />
           </Alert>
         </div>
       )}
@@ -215,14 +215,13 @@ export function RegisterU2f({ sessionId, requestId }: Props) {
             htmlFor={"keyName"}
             hint={
               <I18n
-                i18nKey="set.hint"
-                namespace="u2f"
+                i18nKey="u2f:set.hint"
                 tagName="div"
                 className="text-base font-normal text-(--gcds-hint-text)"
               />
             }
           >
-            <I18n i18nKey="set.label" namespace="u2f" />
+            <I18n i18nKey="u2f:set.label" />
           </Label>
           <TextInput
             id={"keyName"}
@@ -243,7 +242,7 @@ export function RegisterU2f({ sessionId, requestId }: Props) {
           onClick={submitRegisterAndContinue}
           data-testid="submit-button"
         >
-          <I18n i18nKey="set.submit" namespace="u2f" />
+          <I18n i18nKey="u2f:set.submit" />
         </SubmitButton>
       </div>
     </form>

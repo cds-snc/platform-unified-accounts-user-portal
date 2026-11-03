@@ -15,12 +15,7 @@ export default async function PrivacyPolicyPage() {
   const Content = language === "fr" ? PrivacyPolicyContentFr : PrivacyPolicyContentEn;
 
   return (
-    <AuthPanel
-      titleI18nKey="title"
-      descriptionI18nKey="none"
-      namespace="privacy-policy"
-      variant="wide"
-    >
+    <AuthPanel titleI18nKey="privacy-policy:title" descriptionI18nKey="none" variant="wide">
       <div data-testid="privacy-policy-content">
         <Content />
       </div>

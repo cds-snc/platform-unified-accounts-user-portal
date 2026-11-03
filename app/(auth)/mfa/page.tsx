@@ -37,7 +37,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   return (
-    <AuthPanel titleI18nKey="title" descriptionI18nKey="verify.description" namespace="mfa">
+    <AuthPanel titleI18nKey="mfa:title" descriptionI18nKey="mfa:verify.description">
       <div className="flex flex-col space-y-4">
         <UserAvatar
           loginName={sessionFactors?.user?.loginName}

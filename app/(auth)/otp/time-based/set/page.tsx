@@ -51,7 +51,7 @@ export default async function Page(props: {
   const checkAfter = searchParams.checkAfter === "true";
 
   const { method } = params;
-  const { t } = await serverTranslation("otp");
+  const { t } = await serverTranslation();
 
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,
@@ -102,19 +102,14 @@ export default async function Page(props: {
 
   return (
     <>
-      <AuthPanel titleI18nKey="set.title" descriptionI18nKey="none" namespace="otp">
+      <AuthPanel titleI18nKey="otp:set.title" descriptionI18nKey="none">
         {totpResponse && "uri" in totpResponse && "secret" in totpResponse ? (
-          <I18n
-            i18nKey="set.totpRegisterDescription"
-            namespace="otp"
-            tagName="p"
-            className="mb-6"
-          />
+          <I18n i18nKey="otp:set.totpRegisterDescription" tagName="p" className="mb-6" />
         ) : null}
 
         {error && (
           <div className="py-4">
-            <Alert.Warning body={t(mappedUiError?.errorKey ?? "set.genericError")} />
+            <Alert.Warning body={t(mappedUiError?.errorKey ?? "otp:set.genericError")} />
           </div>
         )}
 
@@ -142,11 +137,11 @@ export default async function Page(props: {
 
             {shouldBlockContinue ? (
               <Button disabled dataTestId="totp-setup-continue">
-                <I18n i18nKey="set.submit" namespace="otp" />
+                <I18n i18nKey="otp:set.submit" />
               </Button>
             ) : (
               <LinkButton.Primary href={urlToContinue} data-testid="totp-setup-continue">
-                <I18n i18nKey="set.submit" namespace="otp" />
+                <I18n i18nKey="otp:set.submit" />
               </LinkButton.Primary>
             )}
           </div>

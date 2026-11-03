@@ -22,9 +22,9 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <AuthPanel
-      titleI18nKey={"verify.authAppTitle"}
+      titleI18nKey={"otp:verify.authAppTitle"}
       descriptionI18nKey="none"
-      namespace="otp"
+
       imageSrc={"/img/auth-app-icon.png"}
     >
       {sessionFactors && (

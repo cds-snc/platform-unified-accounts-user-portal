@@ -21,7 +21,6 @@ interface AuthPanelProps {
   titleI18nKey: string;
   pageTitleI18nKey?: string;
   descriptionI18nKey: string;
-  namespace: string;
   beforeTitle?: ReactNode;
   children?: ReactNode;
   imageSrc?: string;
@@ -35,7 +34,6 @@ export const AuthPanel = async ({
   titleI18nKey,
   pageTitleI18nKey,
   descriptionI18nKey,
-  namespace,
   children,
   imageSrc,
   variant = "default",

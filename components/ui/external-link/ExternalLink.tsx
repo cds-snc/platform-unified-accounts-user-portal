@@ -4,15 +4,7 @@ import { useId } from "react";
 
 import { useTranslation } from "@i18n/client";
 
-export const ExternalLink = ({
-  href,
-  i18nKey,
-  namespace,
-}: {
-  href: string;
-  i18nKey: string;
-  namespace: string;
-}) => {
+export const ExternalLink = ({ href, i18nKey }: { href: string; i18nKey: string }) => {
   const {
     t,
     i18n: { language: currentLang },
@@ -21,7 +13,7 @@ export const ExternalLink = ({
   return (
     <div>
       <a target="_blank" rel="noopener noreferrer" href={href} aria-describedby={id}>
-        {t(i18nKey, { ns: namespace, lng: currentLang })}{" "}
+        {t(i18nKey, { lng: currentLang })}{" "}
       </a>
       <span id={id} className="sr-only">
         {t("externalLinkIconLabel", { ns: "common", lng: currentLang })}

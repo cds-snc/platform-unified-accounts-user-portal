@@ -23,7 +23,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   if (process.env.OPEN_REGISTRATION === "true") {
     return (
-      <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="register">
+      <AuthPanel titleI18nKey="register:title" descriptionI18nKey="register:description">
         <RegisterForm requestId={requestId} />
       </AuthPanel>
     );
@@ -35,9 +35,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   if (!validationResult.success) {
     return (
       <AuthPanel
-        titleI18nKey="closed.title"
-        descriptionI18nKey="closed.description"
-        namespace="register"
+        titleI18nKey="register:closed.title"
+        descriptionI18nKey="register:closed.description"
         dataTestId="registration-closed"
       />
     );
@@ -50,7 +49,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   return (
-    <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="register">
+    <AuthPanel titleI18nKey="register:title" descriptionI18nKey="register:description">
       <RegisterForm requestId={requestId} email={inviteEmail} inviteCode={inviteCode} />
     </AuthPanel>
   );

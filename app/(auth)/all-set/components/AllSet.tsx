@@ -5,14 +5,14 @@ export const AllSet = () => {
     <>
       <div className="mb-8 flex items-center gap-3">
         <h1 id="page-heading" className="mb-0! text-4xl font-bold">
-          <I18n i18nKey="title" namespace="allSet" />
+          <I18n i18nKey="allSet:title" />
         </h1>
         <CircleCheckIcon className="size-10 fill-gcds-green-700" />
       </div>
 
       {/* Description */}
       <p className="mb-8">
-        <I18n i18nKey="description" namespace="allSet" />
+        <I18n i18nKey="allSet:description" />
       </p>
     </>
   );

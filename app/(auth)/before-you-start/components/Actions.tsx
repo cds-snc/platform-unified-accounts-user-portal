@@ -30,8 +30,7 @@ export const Actions = ({ requestId }: { requestId?: string }) => {
       <div className="flex flex-col items-center justify-center gap-4">
         <LinkButton.Primary href={register} className="">
           <I18n
-            i18nKey="cta.createAccount"
-            namespace="beforeYouStart"
+            i18nKey="beforeYouStart:cta.createAccount"
             tagName="div"
             className="mb-1 text-base"
           />
@@ -39,8 +38,7 @@ export const Actions = ({ requestId }: { requestId?: string }) => {
 
         <Link href={signIn} className="">
           <I18n
-            i18nKey="cta.alreadyHaveAccount"
-            namespace="beforeYouStart"
+            i18nKey="beforeYouStart:cta.alreadyHaveAccount"
             tagName="div"
             className="mb-1 text-base"
           />

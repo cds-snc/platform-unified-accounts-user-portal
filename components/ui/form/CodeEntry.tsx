@@ -30,10 +30,10 @@ export const CodeEntry = ({
     <div className={className}>
       <div className="gcds-input-wrapper">
         <Label htmlFor="code" required>
-          <I18n i18nKey="label" namespace="verify" />
+          <I18n i18nKey="verify:label" />
         </Label>
         <Hint id="codeHint">
-          <I18n i18nKey="hint" namespace="verify" />
+          <I18n i18nKey="verify:hint" />
         </Hint>
         {hasError("code", state.validationErrors) && (
           <ErrorMessage id={"errorMessageCode"}>

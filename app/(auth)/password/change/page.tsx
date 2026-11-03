@@ -41,9 +41,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <AuthPanel
-      titleI18nKey="change.title"
-      descriptionI18nKey="change.description"
-      namespace="password"
+      titleI18nKey="password:change.title"
+      descriptionI18nKey="passowrd:change.description"
     >
       <ChangePasswordForm
         passwordComplexitySettings={passwordComplexitySettings}

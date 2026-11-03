@@ -5,13 +5,13 @@ export const Welcome = () => {
     <>
       <div className="mb-8 flex items-center gap-3">
         <h1 id="page-heading" className="mb-0! text-4xl font-bold">
-          <I18n i18nKey="title" namespace="welcome" />
+          <I18n i18nKey="welcome:title" />
         </h1>
       </div>
 
       {/* Description */}
       <p className="mb-8">
-        <I18n i18nKey="description" namespace="welcome" />
+        <I18n i18nKey="welcome:description" />
       </p>
     </>
   );

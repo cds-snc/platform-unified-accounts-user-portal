@@ -52,7 +52,7 @@ type UpdateSessionCommand = {
 
 export async function verifyPassword(command: UpdateSessionCommand) {
   const sessionCookie = await getActiveSessionCookie();
-  const { t } = await serverTranslation("password");
+  const { t } = await serverTranslation();
 
   const session = await setSessionAndUpdateCookie({
     activeCookie: sessionCookie,
@@ -63,7 +63,7 @@ export async function verifyPassword(command: UpdateSessionCommand) {
       `Could not verify password during reset/change for user ${sessionCookie.loginName}`,
       e
     );
-    throw new Error(t("errors.failedToAuthenticate"));
+    throw new Error(t("password:errors.failedToAuthenticate"));
   });
 
   await completeFlowAndRedirect({
@@ -77,11 +77,11 @@ export async function passwordResetWithCode(command: {
   userId: string;
   password: string;
 }) {
-  const { t } = await serverTranslation("password");
+  const { t } = await serverTranslation();
   const normalizedCode = command.code?.replace(/\s+/g, "").trim();
 
   if (!command.userId?.trim()) {
-    return { error: t("errors.couldNotResetPassword") };
+    return { error: t("password:errors.couldNotResetPassword") };
   }
 
   // check for init state
@@ -90,12 +90,12 @@ export async function passwordResetWithCode(command: {
   const user = userResponse?.user;
 
   if (!user || user.userId !== command.userId) {
-    return { error: t("errors.couldNotResetPassword") };
+    return { error: t("password:errors.couldNotResetPassword") };
   }
   const userId = user.userId;
 
   if (user.state === UserState.INITIAL) {
-    return { error: t("errors.userInitialStateNotSupported") };
+    return { error: t("password:errors.userInitialStateNotSupported") };
   }
 
   // A reset code is only accepted when it is paired with the same browser session
@@ -108,7 +108,7 @@ export async function passwordResetWithCode(command: {
       session.factors.user.id !== userId ||
       !hasStrongMFA(session)
     ) {
-      return { error: t("errors.strongMfaRequiredForReset") };
+      return { error: t("password:errors.strongMfaRequiredForReset") };
     }
   }
 
@@ -138,7 +138,7 @@ export async function passwordResetWithCode(command: {
       userId,
       error: error instanceof Error ? error.message : String(error),
     });
-    return { error: t("errors.couldNotResetPassword") };
+    return { error: t("password:errors.couldNotResetPassword") };
   }
 }
 
@@ -148,7 +148,7 @@ type CheckSessionAndSetPasswordCommand = {
 
 export async function changePassword({ password }: CheckSessionAndSetPasswordCommand) {
   const session = await loadActiveSession();
-  const { t } = await serverTranslation("password");
+  const { t } = await serverTranslation();
   const payload = create(SetPasswordRequestSchema, {
     userId: session.factors.user.id,
     newPassword: {
@@ -171,6 +171,6 @@ export async function changePassword({ password }: CheckSessionAndSetPasswordCom
     })
     .catch((error) => {
       logMessage.error("Could not set password for user", error);
-      throw new Error(t("change.errors.couldNotChangePassword"));
+      throw new Error(t("password:change.errors.couldNotChangePassword"));
     });
 }

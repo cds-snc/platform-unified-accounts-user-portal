@@ -36,7 +36,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     _,
     { code, requestId }: { code: string; requestId?: string }
   ): Promise<FormState> {
-    const { t } = await serverTranslation("otp");
+    const { t } = await serverTranslation();
 
     if (typeof code !== "string" || (requestId && typeof requestId !== "string")) {
       throw new Error("Invalid parameters");
@@ -49,7 +49,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
       return {
         validationErrors: totpValidationResult.issues.map((issue) => ({
           fieldKey: (issue.path?.[0]?.key as string) || "code",
-          fieldValue: t(`verify.validation.${issue.message}`),
+          fieldValue: t(`otp:verify.validation.${issue.message}`),
         })),
         formData: { code: normalizedCode },
       };

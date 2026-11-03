@@ -179,7 +179,7 @@ export function PasswordValidationForm({
             )}
             <Hint>
               <div className="mb-2">
-                <I18n i18nKey="create.passwordHint" namespace="password" />
+                <I18n i18nKey="password:create.passwordHint" />
               </div>
               {passwordComplexitySettings && (
                 <PasswordComplexity

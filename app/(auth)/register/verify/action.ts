@@ -25,7 +25,7 @@ export const sendVerificationEmail = AuthenticatedAction(
     emailValidation: false,
   },
   async function sendVerificationEmail(session) {
-    const { t } = await serverTranslation("verify");
+    const { t } = await serverTranslation();
 
     const userId = session.factors.user.id;
 
@@ -34,7 +34,7 @@ export const sendVerificationEmail = AuthenticatedAction(
       userId,
     }).catch((error) => {
       logMessage.debug({ error, message: "Failed to get verification code" });
-      return { error: t("errors.couldNotGenerateCode") };
+      return { error: t("verify:errors.couldNotGenerateCode") };
     });
 
     if ("error" in codeResponse) {
@@ -42,14 +42,14 @@ export const sendVerificationEmail = AuthenticatedAction(
     }
 
     if (!codeResponse.verificationCode) {
-      return { error: t("errors.couldNotGenerateCode") };
+      return { error: t("verify:errors.couldNotGenerateCode") };
     }
 
     // Get user's email address
     const userResponse = await getUserByID(userId);
 
     if (!userResponse?.user) {
-      return { error: t("errors.couldNotLoadUser") };
+      return { error: t("verify:errors.couldNotLoadUser") };
     }
 
     const user = userResponse.user;
@@ -60,7 +60,7 @@ export const sendVerificationEmail = AuthenticatedAction(
     }
 
     if (!email) {
-      return { error: t("errors.couldNotLoadUserEmail") };
+      return { error: t("verify:errors.couldNotLoadUserEmail") };
     }
 
     // Send email via GC Notify
@@ -68,7 +68,7 @@ export const sendVerificationEmail = AuthenticatedAction(
     const templateId = process.env.TEMPLATE_ID;
 
     if (!apiKey || !templateId) {
-      return { error: t("errors.emailConfigurationError") };
+      return { error: t("verify:errors.emailConfigurationError") };
     }
 
     try {
@@ -82,7 +82,7 @@ export const sendVerificationEmail = AuthenticatedAction(
       return { success: true };
     } catch (error) {
       logMessage.error(JSON.stringify({ error, message: "Failed to send verification email" }));
-      return { error: t("errors.emailSendFailed") };
+      return { error: t("verify:errors.emailSendFailed") };
     }
   }
 );
@@ -98,7 +98,7 @@ export const checkVerificationCode = AuthenticatedAction(
     emailValidation: false,
   },
   async function checkVerificationCode(credentials, command: VerifyUserByEmailCommand) {
-    const { t } = await serverTranslation("verify");
+    const { t } = await serverTranslation();
     const userId = credentials.factors.user.id;
 
     const validationResult = await validateCode({ code: command.code } as {
@@ -106,7 +106,7 @@ export const checkVerificationCode = AuthenticatedAction(
     });
     if (!validationResult.success) {
       logMessage.warn("Server side validation failed for verification code");
-      return { error: t("errors.couldNotVerifyEmail") };
+      return { error: t("verify:errors.couldNotVerifyEmail") };
     }
 
     const verifyResponse = await verifyEmail({
@@ -114,7 +114,7 @@ export const checkVerificationCode = AuthenticatedAction(
       verificationCode: command.code,
     }).catch((error) => {
       logMessage.debug({ error, message: "Failed to verify email" });
-      return { error: t("errors.couldNotVerifyEmail") };
+      return { error: t("verify:errors.couldNotVerifyEmail") };
     });
 
     if ("error" in verifyResponse) {
@@ -122,7 +122,7 @@ export const checkVerificationCode = AuthenticatedAction(
     }
 
     if (!verifyResponse) {
-      return { error: t("errors.couldNotVerify") };
+      return { error: t("verify:errors.couldNotVerify") };
     }
 
     try {
@@ -132,7 +132,7 @@ export const checkVerificationCode = AuthenticatedAction(
       });
     } catch (error) {
       logMessage.error("Failed to record email verification on session", error);
-      return { error: t("errors.couldNotVerifyEmail") };
+      return { error: t("verify:errors.couldNotVerifyEmail") };
     }
 
     return { redirect: buildUrlWithRequestId("/mfa/set", command.requestId) };

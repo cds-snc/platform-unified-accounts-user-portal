@@ -45,7 +45,7 @@ export function AccountNavigation() {
         </li>
         {gcFormsLink && (
           <li>
-            <ExternalLink href={gcFormsLink} i18nKey="gcForms" namespace="common" />
+            <ExternalLink href={gcFormsLink} i18nKey="common:gcForms" />
           </li>
         )}
       </ul>
