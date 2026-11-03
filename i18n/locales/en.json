@@ -176,7 +176,7 @@
     "set": {
       "title": "Set a password",
       "description": "Choose a password for your account",
-      "codeSent": "We send a code to your email address.",
+      "codeSent": "We sent a code to your email address.",
       "noCodeReceived": "Didn't receive a code?",
       "resend": "Send a new code",
       "submit": "Continue",
