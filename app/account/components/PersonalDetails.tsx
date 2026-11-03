@@ -240,8 +240,8 @@ export const PersonalDetails = ({
               <em data-testid="account-email">{email}</em>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <div>
+          <div className="flex max-w-xs flex-col gap-2">
+            <div className="mx-auto">
               <strong>{t("personalDetails.cannotBeChanged")}</strong>
             </div>
             <div>

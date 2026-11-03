@@ -11,7 +11,7 @@
     "errors": {},
     "mfaAuthentication": {
       "addlMethods": "Ajouter une autre méthode",
-      "authenticatorApp": "Application d'authentification",
+      "authenticatorApp": "Appli d'authentification (p. ex., Google/Microsoft authenticator, Authy",
       "confirmRemove": {
         "cancel": "Annuler",
         "confirm": "Supprimer",
@@ -21,7 +21,7 @@
         "failedToRemoveAuthApp": "L'application d'authentification n'a pas pu être supprimée.",
         "failedToRemoveSecurityKey": "La clé de sécurité n'a pas pu être supprimée."
       },
-      "minimumNum": "Au moins une autre",
+      "minimumNum": "Au moins une autre méthode",
       "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
       "remove": "Supprimer",
       "securityKey": "Clé de sécurité",
@@ -29,25 +29,25 @@
         "authAppRemoved": "L'application d'authentification a été supprimée.",
         "keyRemoved": "La clé de sécurité a été supprimée."
       },
-      "title": "Ajouter une méthode de vérification",
+      "title": "Autres méthodes de vérification",
       "unknownDevice": "Appareil inconnu"
     },
     "navigation": {
       "account": "Compte",
       "ariaLabel": "Navigation du compte",
-      "product": "FR-Product",
+      "product": "Produit",
       "title": "Paramètres"
     },
     "personalDetails": {
-      "cannotBeChanged": "Ne peut être modifié",
+      "cannotBeChanged": "Ne peut être modifiée",
       "change": "Modifier",
-      "createNewAccount": "créer un nouveau compte",
-      "email": "Adresse courriel",
+      "createNewAccount": "Créer un nouveau compte ou communiquer avec l'equipe de soutien",
+      "email": "Adresse de courriel",
       "errors": {
         "updateFailed": "Vos renseignements personnels n'ont pas pu être modifiés"
       },
       "firstName": "Prénom",
-      "lastName": "Nom de famille",
+      "lastName": "Nom",
       "success": {
         "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
