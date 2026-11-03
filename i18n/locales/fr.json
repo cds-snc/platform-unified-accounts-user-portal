@@ -68,16 +68,16 @@
   "account": {
     "title": "Paramètres du compte",
     "navigation": {
-      "title": "Paramètres du compte",
+      "title": "Paramètres",
       "ariaLabel": "Navigation du compte",
-      "account": "Compte"
+      "account": "Compte",
+      "product": "FR-Product"
     },
     "errors": {
       "noSession": "Vos renseignements de compte n'ont pas pu être récupérés à partir de la session."
     },
     "personalDetails": {
       "title": "Profil",
-      "fullName": "Nom complet",
       "firstName": "Prénom",
       "lastName": "Nom de famille",
       "change": "Modifier",
@@ -102,13 +102,12 @@
       }
     },
     "authentication": {
-      "title": "Vérification de sécurité",
       "password": "Mot de passe",
       "change": "Modifier"
     },
     "mfaAuthentication": {
       "title": "Ajouter une méthode de vérification",
-      "minimumNum": "(au moins une autre)",
+      "minimumNum": "Au moins une autre",
       "securityKey": "Clé de sécurité",
       "noTwoFactor": "Aucune méthode d'authentification à deux facteurs n'est configurée.",
       "authenticatorApp": "Application d'authentification",

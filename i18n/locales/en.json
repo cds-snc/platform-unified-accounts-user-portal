@@ -68,16 +68,16 @@
   "account": {
     "title": "Account settings",
     "navigation": {
-      "title": "Account settings",
+      "title": "Settings",
       "ariaLabel": "Account navigation",
-      "account": "Account"
+      "account": "Account",
+      "product": "Product"
     },
     "errors": {
       "noSession": "Your account information could not be retrieved from the session."
     },
     "personalDetails": {
       "title": "Profile",
-      "fullName": "Full name",
       "firstName": "First name",
       "lastName": "Last name",
       "change": "Change",
@@ -86,7 +86,7 @@
       "updateDetails": "Update your personal details",
       "email": "Email address",
       "cannotBeChanged": "Cannot change",
-      "createNewAccount": "Create new account",
+      "createNewAccount": "Create new account or contact support",
       "success": {
         "updateSuccess": "Your personal details were updated"
       },
@@ -102,16 +102,15 @@
       }
     },
     "authentication": {
-      "title": "Security verification",
       "password": "Password",
       "change": "Change"
     },
     "mfaAuthentication": {
-      "title": "Other verification method",
-      "minimumNum": "(minimum one other)",
+      "title": "Other verification",
+      "minimumNum": "Minimum one other",
       "securityKey": "Security key",
       "noTwoFactor": "No two-factor authentication methods configured.",
-      "authenticatorApp": "Authentication app",
+      "authenticatorApp": "Authenticator App (e.g Google/Microsoft authenticator, Authy)",
       "addlMethods": "Add another method",
       "remove": "Remove",
       "unknownDevice": "Unknown device",

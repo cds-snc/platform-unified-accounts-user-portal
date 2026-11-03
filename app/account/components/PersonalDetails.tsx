@@ -118,35 +118,39 @@ export const PersonalDetails = ({
 
   return (
     <>
-      <div className={cn("rounded-2xl border-2 border-gray-300 bg-white p-6", className)}>
+      <div className={cn("bg-white p-6", className)}>
         <div className="flex items-center justify-between">
-          <h3 id="personal-details-title" className="mb-6">
+          <h3 id="personal-details-title" className="mb-4">
             {t("personalDetails.title")}
           </h3>
         </div>
-        <div className="mb-4">
+        <div className="mb-12">
           {!editMode && (
             <div className="flex flex-row">
               <ul className="grow list-none p-0">
-                <li>
-                  <div className="mb-1 font-bold">{t("personalDetails.fullName")}</div>
+                <li className="mb-6">
+                  <div className="mb-1 font-bold">{t("personalDetails.firstName")}</div>
                   <div>
-                    <em data-testid="account-name">
-                      {firstName} {lastName}
-                    </em>
+                    <em data-testid="first-name">{firstName}</em>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-1 font-bold">{t("personalDetails.lastName")}</div>
+                  <div>
+                    <em data-testid="last-name">{lastName}</em>
                   </div>
                 </li>
               </ul>
               <div className="flex flex-col">
                 <Button
-                  theme="link"
+                  theme="primary"
                   onClick={() => setEditMode(!editMode)}
                   aria-describedby="personal-details-title"
                   aria-expanded={editMode}
                   aria-controls="personal-details-form"
                   disabled={editMode}
                   buttonRef={changeButtonRef}
-                  className="mt-auto"
+
                   dataTestId="account-name-change"
                 >
                   {t("personalDetails.change")}
@@ -229,14 +233,14 @@ export const PersonalDetails = ({
         </div>
         <div>
           <div className="flex flex-row">
-            <div className="grow">
-              <div className="mb-2 font-semibold">{t("personalDetails.email")}</div>
+            <div className="grow basis-1/2">
+              <h3 className="mb-4">{t("personalDetails.email")}</h3>
               <div>
                 <em data-testid="account-email">{email}</em>
               </div>
             </div>
-            <div className="flex flex-col">
-              <div className="mb-2">
+            <div className="flex flex-col gap-2">
+              <div>
                 <strong>{t("personalDetails.cannotBeChanged")}</strong>
               </div>
               <div>
