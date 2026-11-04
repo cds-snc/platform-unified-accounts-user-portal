@@ -16,8 +16,7 @@
         "cancel": "Cancel",
         "confirm": "Remove",
         "title": "Remove verification",
-        "message": "Are you sure you want to remove",
-        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
+        "message": "Are you sure you want to remove"
       },
       "errors": {
         "failedToRemoveAuthApp": "Failed to remove authenticator app.",

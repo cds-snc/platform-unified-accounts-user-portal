@@ -16,8 +16,7 @@
         "cancel": "Annuler",
         "confirm": "Supprimer",
         "title": "Supprimer une méthode de vérification",
-        "message": "Are you sure you want to remove {{mfa}}",
-        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
+        "message": "Voulez-vous réellement supprimer"
       },
       "errors": {
         "failedToRemoveAuthApp": "L'application d'authentification n'a pas pu être supprimée.",
