@@ -15,7 +15,9 @@
       "confirmRemove": {
         "cancel": "Annuler",
         "confirm": "Supprimer",
-        "title": "Confirmer la suppression de la méthode MFA"
+        "title": "Supprimer une méthode de vérification",
+        "message": "Are you sure you want to remove {{mfa}}",
+        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
       },
       "errors": {
         "failedToRemoveAuthApp": "L'application d'authentification n'a pas pu être supprimée.",
@@ -81,7 +83,8 @@
     "button": {
       "back": "Retourner",
       "continue": "Continuer",
-      "submit": "Soumettre"
+      "submit": "Soumettre",
+      "close": "Fermer"
     },
     "errorSummary": {
       "itemFallback": "Veuillez vérifier ce champ.",

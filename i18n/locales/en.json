@@ -15,7 +15,9 @@
       "confirmRemove": {
         "cancel": "Cancel",
         "confirm": "Remove",
-        "title": "Confirm the removal of this MFA method"
+        "title": "Remove verification",
+        "message": "Are you sure you want to remove",
+        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
       },
       "errors": {
         "failedToRemoveAuthApp": "Failed to remove authenticator app.",
@@ -81,7 +83,8 @@
     "button": {
       "back": "Back",
       "continue": "Continue",
-      "submit": "Submit"
+      "submit": "Submit",
+      "close": "Close"
     },
     "errorSummary": {
       "itemFallback": "Please check this field.",
