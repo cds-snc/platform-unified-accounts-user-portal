@@ -2,7 +2,7 @@
  * Internal Aliases
  *--------------------------------------------*/
 import { getError, hasError } from "@lib/validation/validators";
-import { I18n } from "@i18n";
+import { useTranslation } from "@i18n";
 
 /*--------------------------------------------*
  * Local Relative
@@ -26,15 +26,14 @@ export const CodeEntry = ({
   code?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation("verify");
   return (
     <div className={className}>
       <div className="gcds-input-wrapper">
         <Label htmlFor="code" required>
-          <I18n i18nKey="verify:label" />
+          {t("label")}
         </Label>
-        <Hint id="codeHint">
-          <I18n i18nKey="verify:hint" />
-        </Hint>
+        <Hint id="codeHint">{t("hint")}</Hint>
         {hasError("code", state.validationErrors) && (
           <ErrorMessage id={"errorMessageCode"}>
             {getError("code", state.validationErrors)}

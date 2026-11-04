@@ -166,7 +166,10 @@
     "skip-link": "Skip to main content"
   },
   "mfa": {
+    "title": "Select a verification method",
     "set": {
+      "title": "Add a verification method",
+      "description": "When you sign in, you will be asked to confirm your identity in another way, as an extra layer of security. You’ll be able to add additional methods later in your account settings.",
       "authenticator": {
         "description": "(ex: Microsoft Authenticator)",
         "title": "Authentication app"
@@ -186,6 +189,7 @@
   },
   "otp": {
     "set": {
+      "title": "Set up two-factor authentication",
       "copied": "Copied",
       "copyLink": "Copy set-up link",
       "labels": {
@@ -193,11 +197,27 @@
       },
       "required": {},
       "submit": "Continue",
-      "totpRegisterDescription": "Scan the QR Code or navigate to the URL link."
+      "totpRegisterDescription": "Scan the QR Code or navigate to the URL link.",
+      "genericError": "We couldn’t set up your authenticator app right now. Please try again.",
+      "invalidCode": "The code is invalid. Please try again.",
+      "invalidCodeLength": "The code must be exactly 6 digits.",
+      "alreadySetUp": "Your authenticator app is already configured on your account."
     },
     "verify": {
-      "form": {},
-      "validation": {}
+      "title": "One-time code",
+      "authAppTitle": "Use authentication app",
+      "otpDescription": "Enter the code from your authentication app",
+      "emailDescription": "Enter the code received by email",
+      "form": {
+        "label": "Security code",
+        "noCodeReceived": "Didn't receive a code?",
+        "resendCode": "Re-send code"
+      },
+      "validation": {
+        "required": "Cannot be empty",
+        "maxLength": "Less than 10 characters",
+        "invalidCodeLength": "Enter the 6-digit code from your authenticator app."
+      }
     }
   },
   "password": {
@@ -255,27 +275,50 @@
   },
   "privacy-policy": {},
   "register": {
-    "closed": {},
+    "title": "Create your account",
+    "description": "We’re asking for this information as we’re transferring all GC Forms accounts to a new authentication provider.",
+    "closed": {
+      "title": "If you have a GC Forms account, soon we'll invite you to join GC Platform",
+      "description": "For questions, contact us."
+    },
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
     "errors": {
       "couldNotCreateSession": "Could not create session",
       "couldNotCreateUser": "Could not create user",
       "couldNotRegisterUser": "Could not register user account"
     },
-    "incomplete": {},
+    "incomplete": {
+      "pageTitle": "A few more steps",
+      "title": "A few more steps to verify account",
+      "item1": "You entered your GC email and chose a password",
+      "item2": "Next step: Send a code to your GC email address",
+      "action": "Send code",
+      "hint": "We'll prompt you to enter the code and add a verification method"
+    },
     "labels": {
       "email": "Email address",
       "firstname": "First name",
       "lastname": "Last name"
     },
     "methods": {},
-    "password": {},
-    "required": {},
+    "password": {
+      "title": "Password creation",
+      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider."
+    },
     "terms": {
       "agreement": "By continuing, you accept the ",
       "linkText": "terms of use."
     },
-    "validation": {}
+    "validation": {
+      "required": "Complete the required fields to continue.",
+      "requiredFirstname": "First name is required.",
+      "requiredLastname": "Last name is required.",
+      "requiredEmail": "Email address is required.",
+      "maxLength": "Email address must be less than 255 characters.",
+      "maxLengthFirstname": "First name must be less than 251 characters.",
+      "maxLengthLastname": "Last name must be less than 251 characters.",
+      "validGovEmail": "Enter a valid individual Government of Canada email address."
+    }
   },
   "rpApps": {
     "defaultAppName": ""
@@ -310,7 +353,7 @@
       "submit": "Continue"
     },
     "verify": {
-      "confirmation": {},
+      "title": "To continue, Tap your security Key",
       "errors": {
         "couldNotRetrievePasskey": "An error occurred while retrieving security key",
         "verificationFailed": "An error occurred during security key verification"
@@ -318,6 +361,8 @@
     }
   },
   "verify": {
+    "title": "Check your email for your account security code",
+    "description": "Please enter the code received by email. ",
     "errors": {
       "couldNotVerifyEmail": "Could not verify email"
     },
@@ -328,7 +373,11 @@
     "sendingNewCode": "Sending new code...",
     "sentNewCode": "New code sent!",
     "submit": "Continue",
-    "validation": {}
+    "validation": {
+      "required": "Cannot be empty",
+      "maxLength": "Security code must be {{maxLength}} characters or fewer.",
+      "length": "Must be 6 characters"
+    }
   },
   "versionUpdater": {
     "description": "A new version of the app is available. Refresh the page to get the latest updates.",

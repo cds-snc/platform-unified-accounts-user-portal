@@ -60,11 +60,7 @@ export const AuthPanel = async ({
         )}
 
         {titleI18nKey !== "none" && (
-          <AuthPanelTitle
-            i18nKey={titleI18nKey}
-
-            className={imageSrc ? "text-center" : ""}
-          />
+          <AuthPanelTitle i18nKey={titleI18nKey} className={imageSrc ? "text-center" : ""} />
         )}
         {descriptionI18nKey !== "none" && (
           <I18n i18nKey={descriptionI18nKey} tagName="p" className="mb-6" />
