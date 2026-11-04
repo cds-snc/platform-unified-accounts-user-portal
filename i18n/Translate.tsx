@@ -15,11 +15,12 @@ export function I18n({
   data?: Record<string, unknown>;
   tagName?: "span" | "p" | "div";
 } & React.HTMLAttributes<HTMLElement>) {
-  const { t } = useTranslation();
+  const [namespace, translationKey] = i18nKey.split(":");
+  const { t } = useTranslation(namespace);
 
   return (
     <Tag data-i18n-key={i18nKey} {...props}>
-      {t(i18nKey, data) as string}
+      {t(translationKey, data) as string}
     </Tag>
   );
 }

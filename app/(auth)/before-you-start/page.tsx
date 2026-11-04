@@ -29,8 +29,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         <div className="mt-6 space-y-6">
           {/* Step 1: Verify your email address */}
           <Step
-            titleKey="step1.title"
-            descKey="step1.description"
+            titleKey="beforeYouStart:step1.title"
+            descKey="beforeYouStart:step1.description"
             iconSrc="/img/email_@.svg"
           ></Step>
           <CallOut className="mb-10">
@@ -50,8 +50,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           </CallOut>
           {/* Step 2: Set up two-factor authentication */}
           <Step
-            titleKey="step2.title"
-            descKey="step2.description"
+            titleKey="beforeYouStart:step2.title"
+            descKey="beforeYouStart:step2.description"
             iconSrc="/img/lock__circle_open.svg"
           ></Step>
           <div className="mt-3">
