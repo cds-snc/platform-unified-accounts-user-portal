@@ -118,7 +118,7 @@ export const PersonalDetails = ({
 
   return (
     <div className={cn("bg-white", className)}>
-      <div className={editMode ? "rounded-2xl border-2 border-gcds-green-700 p-6" : "p-6"}>
+      <div className={"p-6"}>
         <div className="flex items-center justify-between">
           <h3 id="personal-details-title" className="mb-4">
             {t("personalDetails.title")}
