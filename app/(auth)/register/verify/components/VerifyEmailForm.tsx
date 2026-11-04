@@ -25,7 +25,7 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 import { checkVerificationCode, sendVerificationEmail } from "../action";
 
 type FormState = {
-  error?: string;
+  errorKey?: string;
   validationErrors?: { fieldKey: string; fieldValue: string }[];
   formData?: {
     code?: string;
@@ -97,9 +97,9 @@ export function VerifyEmailForm({
       requestId: requestId,
     });
 
-    if (response && "error" in response && response?.error) {
+    if (response && "errorKey" in response && response.errorKey) {
       return {
-        error: response.error,
+        errorKey: response.errorKey,
       };
     }
 
@@ -112,7 +112,7 @@ export function VerifyEmailForm({
 
   const [state, formAction] = useActionState(localFormAction, {
     validationErrors: undefined,
-    error: undefined,
+    errorKey: undefined,
     formData: {
       code: "",
     },
@@ -120,14 +120,14 @@ export function VerifyEmailForm({
 
   return (
     <>
-      {state.error && (
+      {state.errorKey && (
         <Alert
           type={ErrorStatus.ERROR}
           // heading={state.authError.title}
           focussable={true}
           id="zitadelError"
         >
-          <I18n i18nKey={state.error} namespace="verify" />
+          <I18n i18nKey={state.errorKey} namespace="verify" />
         </Alert>
       )}
 
