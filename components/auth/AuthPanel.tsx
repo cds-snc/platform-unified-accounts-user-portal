@@ -52,7 +52,7 @@ export const AuthPanel = async ({
   return (
     <RequestingAppProvider appName={callingApp}>
       <div id={panelId} data-testid={dataTestId}>
-        <PageTitle i18nKey={pageTitleI18nKey ?? titleI18nKey} namespace={namespace} />
+        <PageTitle i18nKey={pageTitleI18nKey ?? titleI18nKey} />
         {imageSrc && (
           <div className="mb-6 flex justify-center">
             <Image src={getImageUrl(imageSrc)} alt="" width={125} height={96} />
@@ -62,12 +62,12 @@ export const AuthPanel = async ({
         {titleI18nKey !== "none" && (
           <AuthPanelTitle
             i18nKey={titleI18nKey}
-            namespace={namespace}
+
             className={imageSrc ? "text-center" : ""}
           />
         )}
         {descriptionI18nKey !== "none" && (
-          <I18n i18nKey={descriptionI18nKey} namespace={namespace} tagName="p" className="mb-6" />
+          <I18n i18nKey={descriptionI18nKey} tagName="p" className="mb-6" />
         )}
         {children}
       </div>
