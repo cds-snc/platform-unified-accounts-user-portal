@@ -42,7 +42,7 @@ describe("UserNameForm", () => {
 
     expect(getByLabelText(/form\.label/i)).toBeInTheDocument();
     expect(getByText("form.description")).toBeInTheDocument();
-    expect(getByRole("button", { name: "button.continue" })).toBeInTheDocument();
+    expect(getByRole("button", { name: "common:button.continue" })).toBeInTheDocument();
   });
 
   it("shows validation error and does not submit when username is invalid", async () => {
@@ -53,7 +53,7 @@ describe("UserNameForm", () => {
 
     const { getByRole, getByText } = render(<UserNameForm requestId="req-123" />);
 
-    await userEvent.click(getByRole("button", { name: "button.continue" }));
+    await userEvent.click(getByRole("button", { name: "common:button.continue" }));
 
     await vi.waitFor(() => {
       expect(getByText("validation.requiredUsername")).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe("UserNameForm", () => {
     const { getByLabelText, getByRole } = render(<UserNameForm requestId="req-123" />);
 
     await userEvent.type(getByLabelText(/form\.label/i), "person@canada.ca");
-    await userEvent.click(getByRole("button", { name: "button.continue" }));
+    await userEvent.click(getByRole("button", { name: "common:button.continue" }));
     expect(submitUserNameForm).toHaveBeenCalledWith({
       loginName: "person@canada.ca",
 
@@ -83,7 +83,7 @@ describe("UserNameForm", () => {
     );
 
     await userEvent.type(getByLabelText(/form\.label/i), "person@canada.ca");
-    await userEvent.click(getByRole("button", { name: "button.continue" }));
+    await userEvent.click(getByRole("button", { name: "common:button.continue" }));
 
     await vi.waitFor(() => {
       expect(getAllByText("title").length).toBeGreaterThan(0);
