@@ -364,8 +364,8 @@
     "title": "Créer votre compte",
     "description": "Nous vous demandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
     "closed": {
-      "title": "Aucune inscription pour le moment",
-      "description": "Malheureusement, l'inscription est actuellement fermée."
+      "title": "Si vous avez un compte Formulaires GC, on vous invitera bientôt à vous inscrire à Plateforme GC",
+      "description": "Pour toute question, contactez-nous"
     },
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
     "errors": {
@@ -376,12 +376,12 @@
       "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur"
     },
     "incomplete": {
-      "pageTitle": "Encore quelques étapes",
-      "title": "Encore quelques étapes pour valider votre compte",
-      "item1": "Vous avez saisi votre adresse courriel gouvernementale et choisi un mot de passe",
-      "item2": "Étape suivante : Envoyer un code à votre courriel pour valider votre compte",
+      "pageTitle": "Prochaines étapes",
+      "title": "Prochaines étapes pour vérifier votre compte",
+      "item1": "Vous avez saisi votre adresse courriel du GC et choisi un mot de passe",
+      "item2": "Prochaine étape: Envoyer un code de sécurité à votre adresse courriel du GC",
       "action": "Envoyer le code",
-      "hint": "Nous vous demanderons ensuite de saisir le code et d'ajouter un moyen de vérification"
+      "hint": "On vous demandera de saisir le code de sécurité et d'ajouter une méthode de vérification"
     },
     "labels": {
       "email": "Adresse courriel",
