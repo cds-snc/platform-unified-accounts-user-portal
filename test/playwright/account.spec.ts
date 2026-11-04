@@ -80,7 +80,11 @@ test.describe("account edit flow", () => {
     await page.getByTestId("forgot-password").click();
     await page.getByTestId("forgot-password-username").fill(registeredUser.email);
     await page.getByTestId("forgot-password-continue").click();
-    await expect(page.locator("#resetEmailSent")).toBeVisible();
+    await expect(page).toHaveURL(/\/password\/reset\/sent(?:\?|$)/);
+    const sentPanel = page.getByTestId("password-reset-sent");
+    await expect(sentPanel).toBeVisible();
+    await expect(sentPanel.getByText(registeredUser.email, { exact: true })).toBeVisible();
+    await expect(sentPanel.getByTestId("resend-submit")).toBeVisible();
 
     // Rebuild the emailed link
     const token = await getPasswordResetLink(

@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { UserState } from "@zitadel/proto/zitadel/user/v2/user_pb";
 import { AuthenticationMethodType } from "@zitadel/proto/zitadel/user/v2/user_service_pb";
 import * as v from "valibot";
@@ -7,13 +8,60 @@ import { createSigner } from "@lib/signing";
 import {
   resetPasswordLinkSchema,
   resetPasswordLinkTokenSchema,
+  resetPasswordRequestSchema,
 } from "@lib/validation/validationSchemas";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
 import "server-only";
 
-const RESET_LINK_TTL_SECONDS = 15 * 60;
+export const RESET_LINK_TTL_SECONDS = 15 * 60;
 const resetLinkSigner = createSigner("PASSWORD_RESET_SECRET", "password-reset-link", 32);
+const resetRequestSigner = createSigner("PASSWORD_RESET_SECRET", "password-reset-request", 32);
+const RESET_REQUEST_COOKIE = "password-reset-request";
+
+type ResetRequest = v.InferOutput<typeof resetPasswordRequestSchema>;
+
+export async function storePasswordResetRequest(
+  command: Omit<ResetRequest, "expiry">
+): Promise<void> {
+  const payload = v.parse(resetPasswordRequestSchema, {
+    ...command,
+    expiry: Math.floor(Date.now() / 1000) + RESET_LINK_TTL_SECONDS,
+  });
+  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const cookieStore = await cookies();
+  cookieStore.set(RESET_REQUEST_COOKIE, `${encoded}.${resetRequestSigner.sign(encoded)}`, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: RESET_LINK_TTL_SECONDS,
+  });
+}
+
+export async function getPasswordResetRequest(): Promise<ResetRequest | undefined> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(RESET_REQUEST_COOKIE)?.value;
+  if (!token) return undefined;
+
+  try {
+    const [payload, signature] = v.parse(resetPasswordLinkTokenSchema, token.split("."));
+    if (!resetRequestSigner.verify(payload, signature)) {
+      throw new Error("Password reset request signature did not match");
+    }
+    const request = v.parse(
+      resetPasswordRequestSchema,
+      JSON.parse(Buffer.from(payload, "base64url").toString())
+    );
+    if (request.expiry <= Math.floor(Date.now() / 1000)) {
+      throw new Error("Password reset request expired");
+    }
+    return request;
+  } catch (error) {
+    logMessage.warn("Failed to verify password reset request", { error });
+    return undefined;
+  }
+}
 
 type ResetLinkPayload = v.InferOutput<typeof resetPasswordLinkSchema>;
 type PasswordChanged = { seconds: bigint | string | number; nanos: number } | undefined;

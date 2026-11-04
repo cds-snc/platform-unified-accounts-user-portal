@@ -108,7 +108,13 @@ export const resetPasswordLinkSchema = v.object({
   ...requestIdSchema(),
 });
 
-export const resetPasswordLinkTokenSchema = v.tuple([
+export const resetPasswordRequestSchema = v.object({
+  loginName: govEmailValidation(),
+  expiry: v.pipe(v.number(), v.safeInteger()),
+  ...requestIdSchema(),
+});
+
+export const resetPasswordLinkTokenSchema = v.strictTuple([
   v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]+$/)),
   v.pipe(v.string(), v.regex(/^[A-Za-z0-9_-]{43}$/)),
 ]);

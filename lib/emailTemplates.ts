@@ -4,30 +4,29 @@ type GCNotifyTemplate = {
 };
 
 export const getPasswordResetTemplate = (
+  givenName: string,
   resetCode: string,
   resetLink: string
 ): GCNotifyTemplate => ({
-  subject: "Reset your password | Réinitialiser votre mot de passe",
+  subject: "Reset password | Confirmer votre inscription",
   formResponse: `
-**Reset your password | Réinitialiser votre mot de passe**
+${givenName}
 
-[Continue resetting your password](${resetLink}). When asked for a security code, use the following: 
-
-**${resetCode}**
+1. Visit [reset password link](${resetLink}) and choose your verification method. Use it to navigate to the reset password screen.
+1. GC Platform will ask for a code. Enter: **${resetCode}** 
 
 ---
 
-FR - [Continue resetting your password](${resetLink}). When asked for a security code, use the following: 
+${givenName}
 
-**${resetCode}**
+1. FR - Visit [reset password link](${resetLink}) and choose your verification method. Use it to navigate to the reset password screen.
+1. FR - GC Platform will ask for a code. Enter: **${resetCode}** 
 `,
 });
 
 export const getPasswordResetContactSupportTemplate = (contactUsUrl: string): GCNotifyTemplate => ({
-  subject: "Reset your password | Réinitialiser votre mot de passe",
+  subject: "Reset password | Confirmer votre inscription",
   formResponse: `
-**Reset your password | Réinitialiser votre mot de passe**
-
 Someone asked to reset your password, but your account is not fully set up yet. Please [contact us](${contactUsUrl}) for help.
 
 ---
