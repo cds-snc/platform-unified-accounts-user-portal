@@ -232,24 +232,19 @@ export const PersonalDetails = ({
           )}
         </div>
       </div>
-      <div className="p-6">
-        <div className="flex flex-row">
-          <div className="grow basis-1/2">
-            <h3 className="mb-4">{t("personalDetails.email")}</h3>
-            <div>
-              <em data-testid="account-email">{email}</em>
-            </div>
+      <div className="flex flex-col gap-4 p-6">
+        <div>
+          <h3 className="mb-4">{t("personalDetails.email")}</h3>
+          <div>
+            <em data-testid="account-email">{email}</em>
           </div>
-          <div className="flex max-w-xs flex-col gap-2">
-            <div className="mx-auto">
-              <strong>{t("personalDetails.cannotBeChanged")}</strong>
-            </div>
-            <div>
-              <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
-                {t("personalDetails.createNewAccount")}
-              </Button>
-            </div>
-          </div>
+        </div>
+        <div>
+          <div className="mb-1 font-bold">{t("personalDetails.cannotBeChanged")}</div>
+
+          <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
+            {t("personalDetails.createNewAccount")}
+          </Button>
         </div>
       </div>
       <ToastContainer autoClose={false} containerId="account-details" />
