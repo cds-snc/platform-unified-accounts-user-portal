@@ -50,7 +50,7 @@ export function ResendCode() {
         </div>
       </form>
 
-      <div className="mt-8 flex items-center gap-4">
+      <div className="mt-4 flex items-center gap-4">
         {supportLink && (
           <Link href={supportLink} prefetch={false}>
             <I18n i18nKey="help" namespace="verify" />
