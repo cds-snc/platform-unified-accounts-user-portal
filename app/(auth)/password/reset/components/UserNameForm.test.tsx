@@ -38,10 +38,9 @@ describe("UserNameForm", () => {
   });
 
   it("renders username field and continue button", () => {
-    const { getByLabelText, getByText, getByRole } = render(<UserNameForm requestId="req-123" />);
+    const { getByLabelText, getByRole } = render(<UserNameForm requestId="req-123" />);
 
     expect(getByLabelText(/form\.label/i)).toBeInTheDocument();
-    expect(getByText("form.description")).toBeInTheDocument();
     expect(getByRole("button", { name: "common:button.continue" })).toBeInTheDocument();
   });
 

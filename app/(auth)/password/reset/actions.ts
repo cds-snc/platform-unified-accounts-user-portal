@@ -3,7 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-
+import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { GCNotifyConnector } from "@gcforms/connectors";
 import { create } from "@zitadel/client";
@@ -21,8 +21,13 @@ import {
 } from "@lib/emailTemplates";
 import { logMessage } from "@lib/logger";
 import { passwordResetWithCode, verifyPassword } from "@lib/server/password";
-import { signResetLink } from "@lib/server/password-reset";
+import {
+  getPasswordResetRequest,
+  signResetLink,
+  storePasswordResetRequest,
+} from "@lib/server/password-reset";
 import { SiteConfigService } from "@lib/site-config";
+import { buildUrlWithRequestId } from "@lib/utils";
 import {
   validateCode,
   validatePassword,
@@ -47,6 +52,30 @@ export const submitUserNameForm = async (
     return { error: t("password:errors.couldNotSendResetLink") };
   }
 
+  const requestId = validateRequestId(command.requestId);
+  const resetRequest = {
+    loginName: validationResult.output.username,
+    requestId: requestId.success ? requestId.output : undefined,
+  };
+  await storePasswordResetRequest(resetRequest);
+  await schedulePasswordResetEmail(resetRequest);
+
+  redirect(buildUrlWithRequestId("/password/reset/sent", resetRequest.requestId), "push");
+};
+
+export const resendPasswordResetEmail = async (): Promise<
+  { error: string } | { success: true }
+> => {
+  const request = await getPasswordResetRequest();
+  if (!request) {
+    logMessage.warn("Password reset resend requested without a valid reset request");
+    return { error: "errors.couldNotSendResetLink" };
+  }
+  await schedulePasswordResetEmail(request);
+  return { success: true };
+};
+
+async function schedulePasswordResetEmail(command: SendResetCodeCommand) {
   // Send the password reset email after the response is sent to the client
   // so that timing attacks cannot be used to infer valid usernames
   if (process.env.PR_REVIEW !== "true") {
@@ -55,9 +84,7 @@ export const submitUserNameForm = async (
     // In Lambda PR review environments, `after()` does not work reliably
     await sendPasswordResetEmail(command);
   }
-
-  return { success: true };
-};
+}
 
 async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCommand) {
   const apiKey = process.env.NOTIFY_API_KEY;
@@ -113,10 +140,12 @@ async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCom
       }),
     });
 
+    const givenName = user.type.value.profile?.givenName;
     await gcNotify.sendEmail(
       email.email,
       templateId,
       getPasswordResetTemplate(
+        givenName ?? "",
         verificationCode,
         siteConfig.getSiteLink(`password/reset/continue?${params}`)
       )

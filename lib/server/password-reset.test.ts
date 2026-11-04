@@ -16,7 +16,21 @@ import { logMessage } from "@lib/logger";
 import { createSigner } from "@lib/signing";
 import { getUserByID, listAuthenticationMethodTypes } from "@lib/zitadel";
 
-import { signResetLink, verifyResetLink } from "./password-reset";
+import {
+  getPasswordResetRequest,
+  signResetLink,
+  storePasswordResetRequest,
+  verifyResetLink,
+} from "./password-reset";
+
+const resetCookie = vi.hoisted(() => ({
+  get: vi.fn<() => { value: string } | undefined>(),
+  set: vi.fn<(name: string, value: string, options: unknown) => void>(),
+}));
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(async () => resetCookie),
+}));
 
 vi.mock("@lib/zitadel", () => ({
   getUserByID: vi.fn(),
@@ -26,6 +40,115 @@ vi.mock("@lib/zitadel", () => ({
 vi.mock("@lib/logger", () => ({
   logMessage: { warn: vi.fn(), error: vi.fn() },
 }));
+
+describe("password reset requests", () => {
+  const now = 1792497600;
+  const command = { loginName: "person@canada.ca", requestId: "oidc_original" };
+  const payload = { ...command, expiry: now + 900 };
+  const signer = createSigner("PASSWORD_RESET_SECRET", "password-reset-request", 32);
+  const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
+  const setToken = (token: string) => resetCookie.get.mockReturnValue({ value: token });
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(now * 1000);
+    vi.stubEnv("PASSWORD_RESET_SECRET", "current-password-reset-signing-secret");
+    resetCookie.set.mockImplementation((_, value) => {
+      setToken(value);
+    });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+  });
+
+  it.each(["production", "development"])(
+    "stores a signed 15-minute cookie with appropriate attributes in %s",
+    async (environment) => {
+      vi.stubEnv("NODE_ENV", environment);
+
+      await storePasswordResetRequest(command);
+
+      const token = resetCookie.set.mock.calls[0][1];
+      const [encoded, signature] = token.split(".");
+      expect(JSON.parse(Buffer.from(encoded, "base64url").toString())).toEqual(payload);
+      expect(signer.verify(encoded, signature)).toBe(true);
+      expect(resetCookie.set).toHaveBeenCalledExactlyOnceWith("password-reset-request", token, {
+        httpOnly: true,
+        secure: environment === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 900,
+      });
+      await expect(getPasswordResetRequest()).resolves.toEqual(payload);
+      expect(resetCookie.get).toHaveBeenCalledWith("password-reset-request");
+    }
+  );
+
+  it("round-trips a normalized username without an OIDC request", async () => {
+    await storePasswordResetRequest({ loginName: " Person@Canada.ca " });
+
+    await expect(getPasswordResetRequest()).resolves.toEqual({
+      loginName: "person@canada.ca",
+      expiry: now + 900,
+    });
+  });
+
+  it("rejects invalid input before writing a cookie", async () => {
+    await expect(storePasswordResetRequest({ loginName: "not-an-email" })).rejects.toThrow();
+    expect(resetCookie.set).not.toHaveBeenCalled();
+  });
+
+  it("returns undefined without logging when the cookie is absent", async () => {
+    await expect(getPasswordResetRequest()).resolves.toBeUndefined();
+    expect(logMessage.warn).not.toHaveBeenCalled();
+  });
+
+  it("accepts a request just before expiry and rejects it at the expiry boundary", async () => {
+    await storePasswordResetRequest(command);
+    vi.advanceTimersByTime(900_000 - 1);
+    await expect(getPasswordResetRequest()).resolves.toEqual(payload);
+    vi.advanceTimersByTime(1);
+    await expect(getPasswordResetRequest()).resolves.toBeUndefined();
+    expect(logMessage.warn).toHaveBeenCalledWith("Failed to verify password reset request", {
+      error: new Error("Password reset request expired"),
+    });
+    expect(resetCookie.set).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["username", { ...payload, loginName: "other@canada.ca" }],
+    ["OIDC request", { ...payload, requestId: "oidc_other" }],
+    ["expiry", { ...payload, expiry: now + 1800 }],
+  ])("rejects a tampered %s", async (_, tampered) => {
+    setToken(`${encode(tampered)}.${signer.sign(encode(payload))}`);
+
+    await expect(getPasswordResetRequest()).resolves.toBeUndefined();
+    expect(logMessage.warn).toHaveBeenCalledWith("Failed to verify password reset request", {
+      error: new Error("Password reset request signature did not match"),
+    });
+  });
+
+  it.each([
+    ["malformed token", "not-a-token"],
+    [
+      "signed invalid payload",
+      () => {
+        const encoded = encode({ ...payload, loginName: "" });
+        return `${encoded}.${signer.sign(encoded)}`;
+      },
+    ],
+  ])("logs and rejects a %s", async (_, token) => {
+    setToken(typeof token === "function" ? token() : token);
+
+    await expect(getPasswordResetRequest()).resolves.toBeUndefined();
+    expect(logMessage.warn).toHaveBeenCalledWith("Failed to verify password reset request", {
+      error: expect.any(Error),
+    });
+  });
+});
 
 describe("password reset links", () => {
   const userId = "user-123";
@@ -140,6 +263,7 @@ describe("password reset links", () => {
     `${encode(validPayload)}.!`,
     `${encode(validPayload)}.${"A".repeat(42)}`,
     `${encode(validPayload)}.${"A".repeat(43)}=`,
+    `${encode(validPayload)}.${"A".repeat(43)}.extra`,
   ])("rejects malformed token %s before looking up the user", async (token) => {
     await expect(verifyResetLink(token)).resolves.toBeUndefined();
     expect(getUserByID).not.toHaveBeenCalled();
