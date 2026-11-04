@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.0...v1.7.1) (2026-11-04)
+
+
+### Miscellaneous Chores
+
+* EN updates to match Figma ([#625](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/625)) ([ef0b1d9](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/ef0b1d9dc020153fd31e3080b996def5aa99c72f))
+* Next.js 16.4.5 update ([#632](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/632)) ([230cec6](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/230cec6b0a88a0ccaefb4aca3cd2a2f8bdf7be20))
+
 ## [1.7.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.6.3...v1.7.0) (2026-11-02)
 
 
