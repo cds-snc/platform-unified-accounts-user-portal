@@ -1,15 +1,22 @@
 import { logMessage } from "@lib/logger";
 
+const getSafeKeyForLogging = (value: unknown): string | number | null => {
+  if (typeof value === "string") return value;
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : String(value); // Handle NaN
+  }
+  if (value === null || value === undefined) return null;
+  return `[${typeof value}]`;
+};
+
 export function parseTranslationKey(i18nKey: unknown): { namespace: string; key: string } {
   const isString = typeof i18nKey === "string";
   const isEmpty = isString && i18nKey.length === 0;
   const hasWhitespace = isString && /\s/.test(i18nKey);
 
   if (!isString || isEmpty || hasWhitespace) {
-    // Carefully log the input type and include only string values to avoid unsafe serialization
     logMessage.warn("Invalid translation key. Falling back to common namespace.", {
-      inputType: i18nKey === null ? "null" : typeof i18nKey,
-      ...(typeof i18nKey === "string" && { translationKey: i18nKey }),
+      translationKey: getSafeKeyForLogging(i18nKey),
     });
     return { namespace: "common", key: typeof i18nKey === "string" ? i18nKey : "" };
   }
@@ -23,7 +30,7 @@ export function parseTranslationKey(i18nKey: unknown): { namespace: string; key:
 
   if (!namespaceOrKey || !translationKey || extraSegments.length > 0) {
     logMessage.warn("Malformed translation key. Falling back to common namespace.", {
-      translationKey: i18nKey,
+      translationKey: getSafeKeyForLogging(i18nKey),
     });
     return { namespace: "common", key: i18nKey };
   }
