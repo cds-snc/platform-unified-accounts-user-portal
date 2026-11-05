@@ -39,7 +39,7 @@ type SubmitLoginCommand = {
  * Returns generic error messages to prevent username enumeration
  */
 export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ error: string }> => {
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("start");
   let accountLocked = false;
 
   const { username, password, requestId } = command;

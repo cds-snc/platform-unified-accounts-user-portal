@@ -17,9 +17,10 @@ export const serverTranslation = cache(
   async (ns?: string | string[], options?: { keyPrefix?: string; lang?: string }) => {
     const i18nLang = options?.lang ?? (await getCurrentLanguage());
 
-    const i18nextInstance = await initI18next(i18nLang, ns ?? [""]);
+    const namespaces = ns ?? "common";
+    const i18nextInstance = await initI18next(i18nLang, namespaces);
     return {
-      t: i18nextInstance.getFixedT(i18nLang, ns, options?.keyPrefix),
+      t: i18nextInstance.getFixedT(i18nLang, namespaces, options?.keyPrefix),
       i18n: i18nextInstance,
     };
   }

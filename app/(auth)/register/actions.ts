@@ -35,7 +35,7 @@ type RegisterUserCommand = {
 // When registration is open export the `registerUser` function
 
 export async function registerUser(command: RegisterUserCommand) {
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("register");
 
   if (process.env.OPEN_REGISTRATION !== "true") {
     if (command.inviteCode) {
@@ -121,7 +121,7 @@ interface CompleteInviteCommand extends RegisterUserCommand {
 }
 
 async function completeInvite(command: CompleteInviteCommand) {
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("register");
 
   let redirectUrl = null;
 

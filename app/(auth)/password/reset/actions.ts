@@ -43,7 +43,7 @@ export const submitUserNameForm = async (
   const validationResult = await validateUsername({ username: command.loginName });
   if (!validationResult.success) {
     logMessage.warn("Server side validation failed for password reset username");
-    const { t } = await serverTranslation();
+    const { t } = await serverTranslation("password");
     return { error: t("password:errors.couldNotSendResetLink") };
   }
 

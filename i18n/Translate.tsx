@@ -4,6 +4,7 @@
  * Internal Aliases
  *--------------------------------------------*/
 import { useTranslation } from "./client";
+import { parseTranslationKey } from "./parseTranslationKey";
 export function I18n({
   i18nKey,
   data,
@@ -15,12 +16,13 @@ export function I18n({
   data?: Record<string, unknown>;
   tagName?: "span" | "p" | "div";
 } & React.HTMLAttributes<HTMLElement>) {
-  const [namespace, translationKey] = i18nKey.split(":");
+  const { namespace, key: translationKey } = parseTranslationKey(i18nKey);
+
   const { t } = useTranslation(namespace);
 
   return (
     <Tag data-i18n-key={i18nKey} {...props}>
-      {t(translationKey, data) as string}
+      {t(translationKey, { ...data, nsSeparator: false }) as string}
     </Tag>
   );
 }

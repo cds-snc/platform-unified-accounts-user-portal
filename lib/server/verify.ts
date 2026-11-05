@@ -61,7 +61,7 @@ export async function sendAccountRestrictedEmail({ loginName }: { loginName: str
 }
 
 export async function sendPasswordChangedEmail(command: SendPasswordChangedEmailCommand) {
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("password");
 
   // Get user's email address
   const userResponse = await getUserByID(command.userId);

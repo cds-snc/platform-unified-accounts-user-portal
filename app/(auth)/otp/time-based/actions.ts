@@ -36,7 +36,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     _,
     { code, requestId }: { code: string; requestId?: string }
   ): Promise<FormState> {
-    const { t } = await serverTranslation();
+    const { t } = await serverTranslation("otp");
 
     if (typeof code !== "string" || (requestId && typeof requestId !== "string")) {
       throw new Error("Invalid parameters");

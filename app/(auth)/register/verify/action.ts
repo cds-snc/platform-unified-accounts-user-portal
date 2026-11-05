@@ -25,7 +25,7 @@ export const sendVerificationEmail = AuthenticatedAction(
     emailValidation: false,
   },
   async function sendVerificationEmail(session) {
-    const { t } = await serverTranslation();
+    const { t } = await serverTranslation("verify");
 
     const userId = session.factors.user.id;
 
@@ -98,7 +98,7 @@ export const checkVerificationCode = AuthenticatedAction(
     emailValidation: false,
   },
   async function checkVerificationCode(credentials, command: VerifyUserByEmailCommand) {
-    const { t } = await serverTranslation();
+    const { t } = await serverTranslation("verify");
     const userId = credentials.factors.user.id;
 
     const validationResult = await validateCode({ code: command.code } as {

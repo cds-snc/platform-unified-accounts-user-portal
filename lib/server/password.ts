@@ -52,7 +52,7 @@ type UpdateSessionCommand = {
 
 export async function verifyPassword(command: UpdateSessionCommand) {
   const sessionCookie = await getActiveSessionCookie();
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("password");
 
   const session = await setSessionAndUpdateCookie({
     activeCookie: sessionCookie,
@@ -77,7 +77,7 @@ export async function passwordResetWithCode(command: {
   userId: string;
   password: string;
 }) {
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("password");
   const normalizedCode = command.code?.replace(/\s+/g, "").trim();
 
   if (!command.userId?.trim()) {
@@ -148,7 +148,7 @@ type CheckSessionAndSetPasswordCommand = {
 
 export async function changePassword({ password }: CheckSessionAndSetPasswordCommand) {
   const session = await loadActiveSession();
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("password");
   const payload = create(SetPasswordRequestSchema, {
     userId: session.factors.user.id,
     newPassword: {

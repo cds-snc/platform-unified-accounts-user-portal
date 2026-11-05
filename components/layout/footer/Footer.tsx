@@ -6,7 +6,7 @@ import { getImageUrl } from "@lib/utils/imageUrl";
 import { serverTranslation } from "@i18n/server";
 import { Version } from "@components/layout/footer/Version";
 export const Footer = async ({ children }: { children?: React.ReactNode }) => {
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("fip");
 
   return (
     <footer

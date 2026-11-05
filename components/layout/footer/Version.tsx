@@ -8,7 +8,7 @@ const deploymentId = process.env.NEXT_DEPLOYMENT_ID || "local";
 
 export const Version = async () => {
   const shortVersion = getShortVersion(VERSION);
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("footer");
 
   return (
     <div className="mt-2 text-sm text-slate-800">

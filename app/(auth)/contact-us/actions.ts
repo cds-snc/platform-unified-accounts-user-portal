@@ -48,7 +48,7 @@ export async function submitContactFormAction(
   const language = command.language
     ? normalizeLocaleToSupportedLanguage(command.language)
     : await getCurrentLanguage();
-  const { t } = await serverTranslation("common", { lang: language });
+  const { t } = await serverTranslation("contact-us", { lang: language });
   const genericErrorResponse = {
     error: t("contact-us:errors.submitFailed"),
   };

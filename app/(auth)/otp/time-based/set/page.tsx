@@ -51,7 +51,7 @@ export default async function Page(props: {
   const checkAfter = searchParams.checkAfter === "true";
 
   const { method } = params;
-  const { t } = await serverTranslation();
+  const { t } = await serverTranslation("otp");
 
   let totpResponse: RegisterTOTPResponse | undefined,
     error: Error | undefined,
