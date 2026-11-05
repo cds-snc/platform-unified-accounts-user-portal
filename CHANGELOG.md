@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.1...v1.7.2) (2026-11-04)
+
+
+### Miscellaneous Chores
+
+* upgrade to latest `sanitize-pii` release ([#633](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/633)) ([cd73560](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/cd735608b936ef54d6ea68a3b638170140c17022))
+
 ## [1.7.1](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.0...v1.7.1) (2026-11-04)
 
 

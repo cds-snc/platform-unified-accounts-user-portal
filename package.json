@@ -1,6 +1,6 @@
 {
   "name": "platform-unified-accounts-user-portal",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "private": true,
   "prettier": {
     "plugins": [
@@ -48,7 +48,7 @@
     "util:invite": "tsx ./dev_utils/invite/invite.ts"
   },
   "dependencies": {
-    "@cdssnc/sanitize-pii": "^2.2.0",
+    "@cdssnc/sanitize-pii": "^2.3.1",
     "@gcforms/connectors": "^2.2.20",
     "@gcforms/core": "2.2.28",
     "@gcforms/hcaptcha": "1.1.5",

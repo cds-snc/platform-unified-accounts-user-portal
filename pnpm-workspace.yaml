@@ -21,3 +21,4 @@ minimumReleaseAgeExclude:
   - "@next/swc-win32-arm64-msvc@16.4.5"
   - "@next/swc-win32-x64-msvc@16.4.5"
   - eslint-config-next@16.4.5
+  - "@cdssnc/sanitize-pii@2.3.1"
