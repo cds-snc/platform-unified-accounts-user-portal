@@ -6,7 +6,11 @@ export function parseTranslationKey(i18nKey: unknown): { namespace: string; key:
   const hasWhitespace = isString && /\s/.test(i18nKey);
 
   if (!isString || isEmpty || hasWhitespace) {
-    logMessage.warn("Invalid translation key. Falling back to common namespace.");
+    // Carefully log the input type and include only string values to avoid unsafe serialization
+    logMessage.warn("Invalid translation key. Falling back to common namespace.", {
+      inputType: i18nKey === null ? "null" : typeof i18nKey,
+      ...(typeof i18nKey === "string" && { translationKey: i18nKey }),
+    });
     return { namespace: "common", key: typeof i18nKey === "string" ? i18nKey : "" };
   }
 
@@ -18,7 +22,9 @@ export function parseTranslationKey(i18nKey: unknown): { namespace: string; key:
   }
 
   if (!namespaceOrKey || !translationKey || extraSegments.length > 0) {
-    logMessage.warn("Malformed translation key. Falling back to common namespace.");
+    logMessage.warn("Malformed translation key. Falling back to common namespace.", {
+      translationKey: i18nKey,
+    });
     return { namespace: "common", key: i18nKey };
   }
 
