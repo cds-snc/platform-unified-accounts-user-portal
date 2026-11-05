@@ -98,7 +98,6 @@ export const checkVerificationCode = AuthenticatedAction(
     emailValidation: false,
   },
   async function checkVerificationCode(credentials, command: VerifyUserByEmailCommand) {
-    const { t } = await serverTranslation("verify");
     const userId = credentials.factors.user.id;
 
     const validationResult = await validateCode({ code: command.code } as {
@@ -106,7 +105,7 @@ export const checkVerificationCode = AuthenticatedAction(
     });
     if (!validationResult.success) {
       logMessage.warn("Server side validation failed for verification code");
-      return { error: t("errors.couldNotVerifyEmail") };
+      return { errorKey: "errors.couldNotVerifyEmail" };
     }
 
     const verifyResponse = await verifyEmail({
@@ -114,15 +113,19 @@ export const checkVerificationCode = AuthenticatedAction(
       verificationCode: command.code,
     }).catch((error) => {
       logMessage.debug({ error, message: "Failed to verify email" });
-      return { error: t("errors.couldNotVerifyEmail") };
+      return { errorKey: "errors.couldNotVerifyEmail" };
     });
 
-    if ("error" in verifyResponse) {
+    if ("errorKey" in verifyResponse) {
       return verifyResponse;
     }
 
+    if ("error" in verifyResponse) {
+      return { errorKey: "errors.couldNotVerifyEmail" };
+    }
+
     if (!verifyResponse) {
-      return { error: t("errors.couldNotVerify") };
+      return { errorKey: "errors.couldNotVerifyEmail" };
     }
 
     try {
@@ -132,7 +135,7 @@ export const checkVerificationCode = AuthenticatedAction(
       });
     } catch (error) {
       logMessage.error("Failed to record email verification on session", error);
-      return { error: t("errors.couldNotVerifyEmail") };
+      return { errorKey: "errors.couldNotVerifyEmail" };
     }
 
     return { redirect: buildUrlWithRequestId("/mfa/set", command.requestId) };
