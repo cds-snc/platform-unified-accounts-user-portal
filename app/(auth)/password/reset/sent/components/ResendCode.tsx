@@ -33,19 +33,19 @@ export function ResendCode() {
   return (
     <div className="w-full">
       <p className="mt-6">
-        <I18n i18nKey="reset.sent.linkExpires" namespace="password" />
+        <I18n i18nKey="password:reset.sent.linkExpires" />
       </p>
       {state && "error" in state && <p role="alert">{t("errors.couldNotSendResetLink")}</p>}
       {state && "success" in state && (
         <p role="status">
-          <I18n i18nKey="reset.sent.resendRequested" namespace="password" />
+          <I18n i18nKey="password:reset.sent.resendRequested" />
         </p>
       )}
       <form id="resend-code" action={formAction} noValidate>
         <div className="mt-6 flex items-center gap-4">
           <BackButton />
           <SubmitButtonAction dataTestId="resend-submit">
-            <I18n i18nKey="reset.sent.resendLink" namespace="password" />
+            <I18n i18nKey="password:reset.sent.resendLink" />
           </SubmitButtonAction>
         </div>
       </form>
@@ -53,7 +53,7 @@ export function ResendCode() {
       <div className="mt-4 flex items-center gap-4">
         {supportLink && (
           <Link href={supportLink} prefetch={false}>
-            <I18n i18nKey="help" namespace="verify" />
+            <I18n i18nKey="verify:help" />
           </Link>
         )}
       </div>

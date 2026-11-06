@@ -36,7 +36,7 @@ describe("ResendCode", () => {
     );
     render(<ResendCode />);
 
-    const submit = screen.getByRole("button", { name: "reset.sent.resendLink" });
+    const submit = screen.getByRole("button", { name: "password:reset.sent.resendLink" });
     await userEvent.click(submit);
     expect(resendPasswordResetEmail).toHaveBeenCalledExactlyOnceWith();
     expect(submit).toHaveAttribute("aria-disabled", "true");
@@ -44,7 +44,9 @@ describe("ResendCode", () => {
     expect(resendPasswordResetEmail).toHaveBeenCalledOnce();
 
     finish({ success: true });
-    expect(await screen.findByRole("status")).toHaveTextContent("reset.sent.resendRequested");
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "password:reset.sent.resendRequested"
+    );
   });
 
   it.each(["expired", "failed"])("shows an error when the request is %s", async (reason) => {
@@ -57,7 +59,7 @@ describe("ResendCode", () => {
     }
     render(<ResendCode />);
 
-    await userEvent.click(screen.getByRole("button", { name: "reset.sent.resendLink" }));
+    await userEvent.click(screen.getByRole("button", { name: "password:reset.sent.resendLink" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "translated:errors.couldNotSendResetLink"
