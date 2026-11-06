@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.7.3](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.2...v1.7.3) (2026-11-06)
+
+
+### Bug Fixes
+
+* stops renovate PRs from creating env w secrets ([#636](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/636)) ([080d6d4](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/080d6d4f1f536ed29850fa76da39e88948c073f4))
+* translation keys after refactor ([#640](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/640)) ([cf2149d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/cf2149dc324bdc0c7506fe47b0cc7bd0a72d3a77))
+
+
+### Miscellaneous Chores
+
+* revised content ([#631](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/631)) ([c73f170](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c73f17024e4bcb5220e87ed7354a793bf0a05085))
+* upgrade to Node 26 ([#635](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/635)) ([222fd92](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/222fd92e7ddfdf68ddd505b4728e96b85cf8ce9a))
+
 ## [1.7.2](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.1...v1.7.2) (2026-11-04)
 
 
