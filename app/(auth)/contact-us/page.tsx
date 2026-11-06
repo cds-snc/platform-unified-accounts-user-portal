@@ -11,7 +11,7 @@ import { ContactUsForm } from "./components/ContactUsForm";
 
 export default async function ContactUsPage() {
   return (
-    <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="contact-us">
+    <AuthPanel titleI18nKey="contact-us:title" descriptionI18nKey="contact-us:description">
       <ContactUsForm siteKey={process.env.HCAPTCHA_SITE_KEY ?? ""} />
     </AuthPanel>
   );

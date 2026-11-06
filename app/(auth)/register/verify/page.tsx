@@ -32,7 +32,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   return (
-    <AuthPanel titleI18nKey="title" descriptionI18nKey="description" namespace="verify">
+    <AuthPanel titleI18nKey="verify:title" descriptionI18nKey="verify:description">
       <VerifyEmailForm
         loginName={session.factors?.user?.loginName}
         userId={session.factors.user.id}

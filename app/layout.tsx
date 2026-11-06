@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await serverTranslation("common");
+  const { t } = await serverTranslation();
   return { title: t("title") };
 }
 

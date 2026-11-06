@@ -42,7 +42,7 @@ export async function registerUser(command: RegisterUserCommand) {
       return completeInvite(command as CompleteInviteCommand);
     }
     return {
-      error: t("errors.couldNotCreateUser"),
+      error: t("register:errors.couldNotCreateUser"),
     };
   }
 
@@ -59,7 +59,7 @@ export async function registerUser(command: RegisterUserCommand) {
     if (!validationResult.success) {
       logMessage.warn("Server side validation failed for registration");
       return {
-        error: t("errors.couldNotCreateUser"),
+        error: t("register:errors.couldNotCreateUser"),
       };
     }
 
@@ -72,7 +72,7 @@ export async function registerUser(command: RegisterUserCommand) {
 
     if (!addResponse) {
       logMessage.error("Failed to create user account during registration");
-      return { error: t("errors.couldNotCreateUser") };
+      return { error: t("register:errors.couldNotCreateUser") };
     }
 
     const checks = create(ChecksSchema, {
@@ -88,7 +88,7 @@ export async function registerUser(command: RegisterUserCommand) {
 
     if (!session || !session.factors?.user) {
       logMessage.error("Failed to create session after registration");
-      return { error: t("errors.couldNotCreateSession") };
+      return { error: t("register:errors.couldNotCreateSession") };
     }
 
     // An undefined humanUser is passed as the newly created user will not have their
@@ -111,7 +111,7 @@ export async function registerUser(command: RegisterUserCommand) {
       (e as Error).message
     );
 
-    return { error: t("errors.couldNotRegisterUser") };
+    return { error: t("register:errors.couldNotRegisterUser") };
   }
   redirect(redirectUrl.redirect, "push");
 }
@@ -143,7 +143,7 @@ async function completeInvite(command: CompleteInviteCommand) {
     if (!validationResult.success || !codeValidation.success) {
       logMessage.warn("Server side validation failed for registration");
       return {
-        error: t("errors.couldNotCreateUser"),
+        error: t("register:errors.couldNotCreateUser"),
       };
     }
 
@@ -160,7 +160,7 @@ async function completeInvite(command: CompleteInviteCommand) {
         `User ${command.email} attempted to register for an invite but does not exist`
       );
       return {
-        error: t("errors.couldNotCreateUser"),
+        error: t("register:errors.couldNotCreateUser"),
       };
     }
 
@@ -169,7 +169,7 @@ async function completeInvite(command: CompleteInviteCommand) {
     if (!isValidInvite) {
       logMessage.warn(`User ${command.email} attempted to register with an invalid invite code`);
       return {
-        error: t("errors.couldNotCreateUser"),
+        error: t("register:errors.couldNotCreateUser"),
       };
     }
 
@@ -215,7 +215,7 @@ async function completeInvite(command: CompleteInviteCommand) {
 
     if (!session || !session.factors?.user) {
       logMessage.error("Failed to create session after registration");
-      return { error: t("errors.couldNotCreateSession") };
+      return { error: t("register:errors.couldNotCreateSession") };
     }
 
     // An undefined humanUser is passed as the newly created user will not have their
@@ -238,7 +238,7 @@ async function completeInvite(command: CompleteInviteCommand) {
       (e as Error).message
     );
 
-    return { error: t("errors.couldNotRegisterUser") };
+    return { error: t("register:errors.couldNotRegisterUser") };
   }
   redirect(redirectUrl.redirect, "push");
 }

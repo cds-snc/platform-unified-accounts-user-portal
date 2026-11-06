@@ -153,7 +153,7 @@ describe("submitLoginForm", () => {
       password: "",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
     expect(getLoginSettings).not.toHaveBeenCalled();
     expect(createSessionAndUpdateCookie).not.toHaveBeenCalled();
   });
@@ -166,7 +166,7 @@ describe("submitLoginForm", () => {
       password: "P@ssw0rd",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
   });
 
   it.each([
@@ -186,7 +186,7 @@ describe("submitLoginForm", () => {
         password: "P@ssw0rd",
       });
 
-      expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+      expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
       expect(sendAccountRestrictedEmail).toHaveBeenCalledWith({ loginName: "person@canada.ca" });
       expect(mockRedirect).not.toHaveBeenCalled();
     }
@@ -200,7 +200,7 @@ describe("submitLoginForm", () => {
       password: "P@ssw0rd",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
   });
 
   it("returns generic error when authenticated user cannot be loaded", async () => {
@@ -211,7 +211,7 @@ describe("submitLoginForm", () => {
       password: "P@ssw0rd",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
   });
 
   it("returns generic error when user is in INITIAL state", async () => {
@@ -230,7 +230,7 @@ describe("submitLoginForm", () => {
       password: "P@ssw0rd",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
   });
 
   it("returns email verification redirect when required", async () => {
@@ -257,7 +257,7 @@ describe("submitLoginForm", () => {
       password: "P@ssw0rd",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
   });
 
   it("returns MFA redirect when additional factor is required", async () => {
@@ -298,7 +298,7 @@ describe("submitLoginForm", () => {
       requestId: "req-123",
     });
 
-    expect(response).toEqual({ error: "translated:validation.invalidCredentials" });
+    expect(response).toEqual({ error: "translated:start:validation.invalidCredentials" });
   });
 
   it("completes OIDC callback when a valid stored session is selected", async () => {

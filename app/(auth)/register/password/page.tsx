@@ -28,9 +28,8 @@ export default async function Page() {
 
   return (
     <AuthPanel
-      titleI18nKey="password.title"
-      descriptionI18nKey="password.description"
-      namespace="register"
+      titleI18nKey="register:password.title"
+      descriptionI18nKey="register:password.description"
     >
       <PasswordPageClient passwordComplexitySettings={passwordComplexitySettings} />
     </AuthPanel>

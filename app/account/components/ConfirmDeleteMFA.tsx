@@ -3,12 +3,10 @@ import { Button } from "@components/ui/button/Button";
 import { Dialog, useDialogRef } from "@components/ui/dialog/Dialog";
 
 export const ConfirmDeleteMFADialog = ({
-  authType,
   mfaName,
   handleConfirm,
   handleClose,
 }: {
-  authType: "authenticator" | "securityKey";
   mfaName: string;
   handleConfirm: () => void;
   handleClose: () => void;
@@ -22,7 +20,7 @@ export const ConfirmDeleteMFADialog = ({
         {t("mfaAuthentication.confirmRemove.cancel")}
       </Button>
       <Button
-        theme="destructive"
+        theme="primary"
         onClick={() => {
           dialog.current?.close();
           handleClose();
@@ -44,16 +42,15 @@ export const ConfirmDeleteMFADialog = ({
     >
       <div className="p-5">
         <div>
-          <p className="mb-6">
-            {t(
-              authType === "authenticator"
-                ? "mfaAuthentication.confirmRemove.message"
-                : "mfaAuthentication.confirmRemove.securityKeyMessage",
-              {
-                mfa: mfaName === "totp" ? t("mfaAuthentication.authenticatorApp") : mfaName,
-              }
-            )}
-          </p>
+          <p className="mb-6">{t("mfaAuthentication.confirmRemove.message")}</p>
+          {mfaName === "totp" ? (
+            <p className="font-bold">{t("mfaAuthentication.authenticatorApp")}</p>
+          ) : (
+            <p>
+              <span className="font-bold">{t("mfaAuthentication.securityKey")}</span>
+              <span className="px-2">{mfaName}</span>
+            </p>
+          )}
         </div>
       </div>
     </Dialog>

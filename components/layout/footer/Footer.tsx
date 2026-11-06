@@ -26,7 +26,11 @@ export const Footer = async ({ children }: { children?: React.ReactNode }) => {
 
         <div className="min-w-42">
           <picture>
-            <img className="h-10 lg:h-8" alt={t("text")} src={getImageUrl("/img/wmms-blk.svg")} />
+            <img
+              className="h-10 lg:h-8"
+              alt={t("fip:text")}
+              src={getImageUrl("/img/wmms-blk.svg")}
+            />
           </picture>
         </div>
       </div>

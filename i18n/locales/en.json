@@ -1,98 +1,60 @@
 {
-  "common": {
-    "button": {
-      "back": "Back",
-      "continue": "Continue",
-      "submit": "Submit"
-    },
-    "title": "GC Platform",
-    "required": "required",
-    "loading": "Loading...",
-    "errorSummary": {
-      "title": "Please correct the errors on the page",
-      "itemFallback": "Please check this field."
-    },
-    "gcForms": "GC Forms",
-    "externalLinkIconLabel": " (Opens in a new tab)"
-  },
-  "error": {
-    "title": "There's a problem with our site",
-    "instructions": "Try again in a while.",
-    "about": "About GC Forms",
-    "contact": "Contact Support"
-  },
-  "header": {
-    "lang-toggle": "Language selection",
-    "logout": "Sign out",
-    "switchAccount": "Switch accounts"
-  },
-  "fip": {
-    "link": "http://canada.ca/en.html",
-    "text": "Symbol of the Government of Canada",
-    "label": "Government of Canada homepage"
-  },
-  "layout": {
-    "skip-link": "Skip to main content"
-  },
-  "footer": {
-    "version": "Version",
-    "about": {
-      "desc": "About"
-    },
-    "terms-and-conditions": {
-      "desc": "Terms and conditions"
-    },
-    "terms-of-use": {
-      "desc": "Terms of use"
-    },
-    "sla": {
-      "desc": "Service-level agreement"
-    },
-    "support": {
-      "desc": "Support"
-    },
-    "privacy-policy": {
-      "desc": "Privacy policy"
-    },
-    "contact-us": {
-      "desc": "Contact us"
-    },
-    "ariaLabel": "Footer"
-  },
-  "versionUpdater": {
-    "title": "New version available",
-    "description": "A new version of the app is available. Refresh the page to get the latest updates.",
-    "close": "Close",
-    "refreshNow": "Reload and update"
+  "404": {
+    "body": "Sorry, the page you’re looking for was not found.",
+    "title": "Page not found"
   },
   "account": {
-    "title": "Account settings",
-    "navigation": {
-      "title": "Account settings",
-      "ariaLabel": "Account navigation",
-      "account": "Account"
+    "authentication": {
+      "change": "Change",
+      "password": "Password"
     },
-    "errors": {
-      "noSession": "Your account information could not be retrieved from the session."
+    "mfaAuthentication": {
+      "addlMethods": "Add another method",
+      "authenticatorApp": "Authenticator App (e.g Google/Microsoft authenticator, Authy)",
+      "confirmRemove": {
+        "cancel": "Cancel",
+        "confirm": "Remove",
+        "title": "Remove verification",
+        "message": "Are you sure you want to remove"
+      },
+      "errors": {
+        "cannotRemoveSecurityKey": "Cannot remove security key. At least one authentication method must be configured.",
+        "failedToRemoveAuthApp": "Failed to remove authenticator app.",
+        "failedToRemoveSecurityKey": "Failed to remove security key."
+      },
+      "minimumNum": "Minimum one other",
+      "noTwoFactor": "No two-factor authentication methods configured.",
+      "remove": "Remove",
+      "securityKey": "Security key",
+      "success": {
+        "authAppRemoved": "Authenticator app was removed.",
+        "keyRemoved": "Security key was removed."
+      },
+      "title": "Other verification",
+      "unknownDevice": "Unknown device"
+    },
+    "navigation": {
+      "account": "Account",
+      "ariaLabel": "Account navigation",
+      "product": "Product",
+      "title": "Settings"
     },
     "personalDetails": {
-      "title": "Profile",
-      "fullName": "Full name",
-      "firstName": "First name",
-      "lastName": "Last name",
-      "change": "Change",
-      "cancel": "Cancel",
-      "updateAccount": "Update",
-      "updateDetails": "Update your personal details",
-      "email": "Email address",
       "cannotBeChanged": "Cannot change",
-      "createNewAccount": "Create new account",
-      "success": {
-        "updateSuccess": "Your personal details were updated"
-      },
+      "change": "Change",
+      "createNewAccount": "Create new account or contact support",
+      "email": "Email address",
       "errors": {
         "updateFailed": "Failed to update personal details"
       },
+      "firstName": "First name",
+      "lastName": "Last name",
+      "success": {
+        "updateSuccess": "Your personal details were updated"
+      },
+      "title": "Profile",
+      "updateAccount": "Save Changes",
+      "updateDetails": "Update your personal details",
       "validation": {
         "required": "Complete the required fields to continue.",
         "requiredFirstname": "First name is required.",
@@ -100,106 +62,198 @@
         "maxLengthFirstname": "First name must be less than 251 characters.",
         "maxLengthLastname": "Last name must be less than 251 characters."
       }
-    },
-    "authentication": {
-      "title": "Security verification",
-      "password": "Password",
-      "change": "Change"
-    },
-    "mfaAuthentication": {
-      "title": "Other verification method",
-      "minimumNum": "(minimum one other)",
-      "securityKey": "Security key",
-      "noTwoFactor": "No two-factor authentication methods configured.",
-      "authenticatorApp": "Authentication app",
-      "addlMethods": "Add another method",
-      "remove": "Remove",
-      "unknownDevice": "Unknown device",
-      "success": {
-        "keyRemoved": "Security key was removed.",
-        "authAppRemoved": "Authenticator app was removed."
-      },
-      "confirmRemove": {
-        "title": "Confirm the removal of this MFA method",
-        "confirm": "Remove",
-        "cancel": "Cancel",
-        "message": "Are you sure you want to remove {{mfa}}",
-        "securityKeyMessage": "Are you sure you want to remove this security key: {{mfa}} ?"
-      },
-      "errors": {
-        "cannotRemoveSecurityKey": "Cannot remove security key. At least one authentication method must be configured.",
-        "failedToRemoveSecurityKey": "Failed to remove security key.",
-        "failedToRemoveAuthApp": "Failed to remove authenticator app."
-      }
     }
   },
-  "start": {
-    "title": "Sign in{{app}}",
-    "signUpText": "If you do not have an account, you can",
-    "signUpLink": "create one now.",
-    "userName": "Name",
-    "register": "If you do not have an account, you can",
-    "registerLinkText": "create one now",
-    "form": {
-      "label": "Email address",
-      "description": "Use a government email address only you can access, not a shared inbox.",
-      "passwordLabel": "Password",
-      "forgotPasswordLink": "Forgot password?",
-      "signingIn": "Signing in...",
-      "submit": "Sign in"
+  "allSet": {
+    "continueButton": "Continue{{app}}",
+    "description": "Your account is now secured with two-factor authentication.",
+    "title": "You're all set!"
+  },
+  "beforeYouStart": {
+    "cta": {
+      "alreadyHaveAccount": "Sign in with GC Platform",
+      "createAccount": "Create GC Platform account"
     },
+    "step1": {
+      "title": "Step 1 ",
+      "description": "Sign in to your GC email account",
+      "callout1": "You need email access to create a GC Platform account.",
+      "callout2": "Use the same email address as your GC Forms account."
+    },
+    "step2": {
+      "title": "Step 2",
+      "description": "Choose verification method",
+      "callout1": "Security key",
+      "callout2": "Device with Authenticator app "
+    },
+    "title": "Before you start"
+  },
+  "common": {
+    "button": {
+      "back": "Back",
+      "continue": "Continue",
+      "submit": "Submit",
+      "close": "Close"
+    },
+    "errorSummary": {
+      "itemFallback": "Please check this field.",
+      "title": "Please correct the errors on the page"
+    },
+    "externalLinkIconLabel": " (Opens in a new tab)",
+    "gcForms": "GC Forms",
+    "loading": "Loading...",
+    "required": "required",
+    "title": "GC Platform"
+  },
+  "contact-us": {
+    "description": "Have a question or need help? Fill out the form below and we will get back to you as soon as possible.",
+    "errors": {
+      "generic": "Something went wrong sending your message. Please try again.",
+      "submitFailed": "Failed to send message. Please try again."
+    },
+    "issueTypeOptions": {
+      "placeholder": "Select an option",
+      "passwordReset": "Unable to reset password",
+      "mfaIssue": "Second factor authentication is missing or not working",
+      "signUpIssue": "Unable to sign up",
+      "other": "Other"
+    },
+    "issueTypeLabel": "Issue type",
+    "labels": {
+      "email": "Email address",
+      "fullName": "Full name",
+      "issueType": "What is your issue related to?",
+      "message": "Message"
+    },
+    "success": {
+      "description": "Thank you for reaching out. We will respond to you within 2 business days.",
+      "title": "Message sent"
+    },
+    "title": "Contact us",
     "validation": {
+      "requiredFullName": "Full name is required.",
+      "maxLengthFullName": "Full name must be less than 251 characters.",
       "requiredEmail": "Email address is required.",
-      "maxLength": "Email address must be less than 255 characters.",
-      "validGovEmail": "Enter a valid individual Government of Canada email address.",
-      "requiredPassword": "Password is required.",
-      "invalidCredentials": "Invalid email address or password. Please try again.",
-      "lockedOut": "Contact Support - There is an issue with your account"
+      "invalidEmail": "Enter a valid email address.",
+      "maxLengthEmail": "Email address must be less than 255 characters.",
+      "requiredIssueType": "Please select an issue type.",
+      "invalidIssueType": "Please select a valid issue type.",
+      "requiredMessage": "Message is required.",
+      "maxLengthMessage": "Message must be less than 2000 characters."
+    }
+  },
+  "error": {
+    "about": "About GC Forms",
+    "contact": "Contact Support",
+    "title": "There's a problem with our site",
+    "instructions": "Try again in a while."
+  },
+  "fip": {
+    "link": "http://canada.ca/en.html",
+    "text": "Symbol of the Government of Canada"
+  },
+  "footer": {
+    "about": {
+      "desc": "About"
     },
-    "session": {
-      "otherAccount": "Different account",
-      "continueWithAccount": "Continue with {{account}}",
-      "continueWithOther": "Continue with different account"
+    "contact-us": {
+      "desc": "Contact us"
+    },
+    "privacy-policy": {
+      "desc": "Privacy policy"
+    },
+    "sla": {
+      "desc": "Service-level agreement"
+    },
+    "support": { "desc": "Support" },
+    "terms-and-conditions": { "desc": "Terms and conditions" },
+    "terms-of-use": {
+      "desc": "Terms of use"
+    },
+    "version": "Version"
+  },
+  "hCaptcha": {
+    "failPage": {
+      "helpOptions": {
+        "item1": "Turning off any virtual private network (VPN), firewall or proxy server.",
+        "item2": "Using a different browser, device or network.",
+        "item3": "Checking browser plugins as some may block submissions.",
+        "title": "Try:",
+        "tryAgain": "You can also try submitting again."
+      },
+      "title": "We did not receive your submission"
+    }
+  },
+  "header": {
+    "lang-toggle": "Language selection",
+    "logout": "Sign out",
+    "switchAccount": "Switch accounts"
+  },
+  "layout": {
+    "skip-link": "Skip to main content"
+  },
+  "mfa": {
+    "title": "Select a verification method",
+    "set": {
+      "title": "Add a verification method",
+      "description": "When you sign in, you will be asked to confirm your identity in another way, as an extra layer of security. You’ll be able to add additional methods later in your account settings.",
+      "authenticator": {
+        "description": "(ex: Microsoft Authenticator)",
+        "title": "Authentication app"
+      },
+      "continue": "Continue",
+      "email": {},
+      "securityKey": {
+        "description": "(ex: Government-issued Yubikey)",
+        "title": "Security key"
+      }
+    },
+    "unavailable": {
+      "link": "contact us",
+      "text": "If your multifactor method is unavailable for any reason, please"
+    },
+    "verify": {
+      "title": "Verify your identity",
+      "description": "Choose one of the following authentication factors.",
+      "noResults": "No second factors available to set up."
+    }
+  },
+  "otp": {
+    "set": {
+      "title": "Set up two-factor authentication",
+      "copied": "Copied",
+      "copyLink": "Copy set-up link",
+      "labels": {
+        "code": "Code"
+      },
+      "required": {
+        "code": "This field is required"
+      },
+      "submit": "Continue",
+      "totpRegisterDescription": "Scan the QR Code or navigate to the URL link.",
+      "genericError": "We couldn’t set up your authenticator app right now. Please try again.",
+      "invalidCode": "The code is invalid. Please try again.",
+      "invalidCodeLength": "The code must be exactly 6 digits.",
+      "alreadySetUp": "Your authenticator app is already configured on your account."
+    },
+    "verify": {
+      "title": "One-time code",
+      "authAppTitle": "Use authentication app",
+      "otpDescription": "Enter the code from your authentication app",
+      "emailDescription": "Enter the code received by email",
+      "form": {
+        "label": "Security code",
+        "noCodeReceived": "Didn't receive a code?",
+        "resendCode": "Re-send code"
+      },
+      "validation": {
+        "required": "Cannot be empty",
+        "maxLength": "Less than 10 characters",
+        "invalidCodeLength": "Enter the 6-digit code from your authenticator app."
+      }
     }
   },
   "password": {
-    "title": "Enter your password",
-    "forgot": "Forgot password?",
-    "verify": {
-      "title": "Password",
-      "description": "Please enter your password or select a different account.",
-      "form": {
-        "resetPassword": "Reset password",
-        "label": "Password"
-      }
-    },
-    "set": {
-      "title": "Set a password",
-      "description": "Choose a password for your account",
-      "codeSent": "We sent a code to your email address.",
-      "noCodeReceived": "Didn't receive a code?",
-      "resend": "Send a new code",
-      "submit": "Continue",
-      "labels": {
-        "code": "Security code",
-        "newPassword": "New password",
-        "confirmPassword": "Confirm password"
-      },
-      "required": {
-        "code": "This field is required.",
-        "newPassword": "You have to provide a new password.",
-        "confirmPassword": "You have to confirm your password."
-      },
-      "errors": {
-        "couldNotSetPassword": "Could not set password",
-        "couldNotResetPassword": "Could not reset password.",
-        "couldNotVerifyPassword": "Could not verify password.",
-        "couldNotLoadUser": "Could not load user.",
-        "couldNotLoadUserEmail": "Could not load user email address.",
-        "emailConfigurationError": "Email configuration error.",
-        "emailSendFailed": "Failed to send email."
-      }
-    },
     "change": {
       "title": "Change password",
       "description": "Set the password for your account",
@@ -216,23 +270,6 @@
         "couldNotChangePassword": "Could not change password",
         "couldNotVerifyPassword": "Could not verify password",
         "unknownError": "An error occurred."
-      }
-    },
-    "create": {
-      "title": "Set your password",
-      "submit": "Continue",
-      "labels": {
-        "password": "Password",
-        "confirmPassword": "Confirm password"
-      },
-      "passwordHint": "Your password should be hard to guess with:",
-      "disabled": {
-        "title": "Registration disabled",
-        "description": "The registration is disabled. Please contact the administrator."
-      },
-      "missingOrInvalidData": {
-        "title": "Missing or invalid data",
-        "description": "Provide your first name, last name, and email address to register."
       }
     },
     "complexity": {
@@ -257,22 +294,21 @@
       "requirementUnmet": "{{requirement}}: requirement no longer met.",
       "allRequirementsMet": "All password requirements met."
     },
-    "reset": {
-      "title": "Reset your password",
-      "description": "Reset your password to continue using GC Forms.",
+    "create": {
+      "title": "Set your password",
       "submit": "Continue",
-      "emailSent": "If an account exists for this email address, we sent a link to reset your password. The link will expire in 15 minutes.",
       "labels": {
-        "confirmationCode": "Confirmation code"
+        "password": "Password",
+        "confirmPassword": "Confirm password"
       },
-      "validation": {
-        "required": "Enter the confirmation code.",
-        "maxLength": "Confirmation code must be {{maxLength}} characters or fewer."
+      "passwordHint": "Your password should be hard to guess with:",
+      "disabled": {
+        "title": "Registration disabled",
+        "description": "The registration is disabled. Please contact the administrator."
       },
-      "errors": {
-        "missingRequiredInformation": "Missing required information",
-        "couldNotSetPassword": "Could not set password",
-        "couldNotVerifyPassword": "Could not verify password"
+      "missingOrInvalidData": {
+        "title": "Missing or invalid data",
+        "description": "Provide your first name, last name, and email address to register."
       }
     },
     "errors": {
@@ -294,78 +330,44 @@
       "couldNotLoadAuthMethods": "Could not load authentication methods",
       "failedPrecondition": "Failed precondition",
       "sessionNotValid": "Session is not valid"
-    }
-  },
-  "mfa": {
-    "title": "Select a verification method",
-    "verify": {
-      "title": "Verify your identity",
-      "description": "Choose one of the following authentication factors.",
-      "noResults": "No second factors available to set up."
     },
-    "unavailable": {
-      "text": "If your multifactor method is unavailable for any reason, please",
-      "link": "contact us"
-    },
-    "set": {
-      "title": "Add a verification method",
-      "description": "When you sign in, you will be asked to confirm your identity in another way, as an extra layer of security. You’ll be able to add additional methods later in your account settings.",
-      "skip": "Skip for now",
-      "securityKey": {
-        "title": "Security key",
-        "recommended": "Recommended",
-        "description": "(ex: Government-issued Yubikey)"
-      },
-      "authenticator": {
-        "title": "Authentication app",
-        "description": "(ex: Microsoft Authenticator)"
-      },
-      "email": {
-        "title": "Email",
-        "description": "(ex: One-time code via email)"
-      },
-      "byDefault": "By default",
-      "continue": "Continue"
-    }
-  },
-  "otp": {
-    "verify": {
-      "title": "One-time code",
-      "authAppTitle": "Use authentication app",
-      "otpDescription": "Enter the code from your authentication app",
-      "emailDescription": "Enter the code received by email",
-      "form": {
-        "label": "Security code",
-        "noCodeReceived": "Didn't receive a code?",
-        "resendCode": "Re-send code"
+    "reset": {
+      "title": "Reset your password",
+      "description": "Reset your password to continue using GC Forms.",
+      "submit": "Continue",
+      "emailSent": "If an account exists for this email address, we sent a link to reset your password. The link will expire in 15 minutes.",
+      "labels": {
+        "confirmationCode": "Confirmation code"
       },
       "validation": {
-        "required": "Cannot be empty",
-        "maxLength": "Less than 10 characters",
-        "invalidCodeLength": "Enter the 6-digit code from your authenticator app."
-      }
-    },
-    "set": {
-      "title": "Set up two-factor authentication",
-      "totpDescription": "Scan the QR code with your authenticator app.",
-      "emailDescription": "Enter your email address to receive a code via email.",
-      "totpRegisterDescription": "Scan the QR Code or navigate to the URL link.",
-      "copyLink": "Copy set-up link",
-      "copied": "Copied",
-      "submit": "Continue",
-      "genericError": "We couldn’t set up your authenticator app right now. Please try again.",
-      "invalidCode": "The code is invalid. Please try again.",
-      "invalidCodeLength": "The code must be exactly 6 digits.",
-      "alreadySetUp": "Your authenticator app is already configured on your account.",
-      "labels": {
-        "code": "Code"
+        "required": "Enter the confirmation code.",
+        "maxLength": "Confirmation code must be {{maxLength}} characters or fewer."
       },
-      "required": {
-        "code": "This field is required"
+      "errors": {
+        "missingRequiredInformation": "Missing required information",
+        "couldNotSetPassword": "Could not set password",
+        "couldNotVerifyPassword": "Could not verify password"
       }
     }
   },
+  "privacy-policy": {
+    "title": "Privacy Notice for Staff Using Canadian Digital Services’ Single Sign-On"
+  },
   "register": {
+    "title": "Create your account",
+    "description": "We’re asking for this information as we’re transferring all GC Forms accounts to a new authentication provider.",
+    "closed": {
+      "title": "If you have a GC Forms account, soon we'll invite you to join GC Platform",
+      "description": "For questions, contact us."
+    },
+    "emailInputHint": "Use a government address only you can access, not a shared inbox.",
+    "errors": {
+      "couldNotCreateUser": "Could not create user",
+      "couldNotCreateSession": "Could not create session",
+      "userNotFound": "User account not found in the system",
+      "couldNotLinkIDP": "Could not link identity provider to the user account",
+      "couldNotRegisterUser": "Could not register user account"
+    },
     "incomplete": {
       "pageTitle": "A few more steps",
       "title": "A few more steps to verify account",
@@ -374,31 +376,15 @@
       "action": "Send code",
       "hint": "We'll prompt you to enter the code and add a verification method"
     },
-    "methods": {
-      "password": "Password"
-    },
-    "closed": {
-      "title": "If you have a GC Forms account, soon we'll invite you to join GC Platform",
-      "description": "For questions, contact us."
-    },
-    "title": "Create your account",
-    "emailInputHint": "Use a government address only you can access, not a shared inbox.",
-    "description": "We’re asking for this information as we’re transferring all GC Forms accounts to a new authentication provider.",
-    "noMethodAvailableWarning": "No authentication method available. Please contact your administrator.",
-    "selectMethod": "Select the method you would like to authenticate",
-    "agreeTo": "To register, you must agree to the terms of use",
-    "termsOfService": "Terms of service",
-    "privacyPolicy": "Privacy policy",
-    "submit": "Continue",
     "labels": {
+      "email": "Email address",
       "firstname": "First name",
-      "lastname": "Last name",
-      "email": "Email address"
+      "lastname": "Last name"
     },
-    "required": {
-      "firstname": "First name is a required field.",
-      "lastname": "Last name is a required field.",
-      "email": "Email address is a required field."
+
+    "password": {
+      "title": "Password creation",
+      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider."
     },
     "terms": {
       "agreement": "By continuing, you accept the ",
@@ -413,17 +399,37 @@
       "maxLengthFirstname": "First name must be less than 251 characters.",
       "maxLengthLastname": "Last name must be less than 251 characters.",
       "validGovEmail": "Enter a valid individual Government of Canada email address."
+    }
+  },
+  "rpApps": {
+    "GC Forms": " to GC Forms",
+    "GC Notify": " to GC Notify",
+    "defaultAppName": ""
+  },
+  "start": {
+    "title": "Sign in{{app}}",
+    "form": {
+      "description": "Use a government email address only you can access, not a shared inbox.",
+      "forgotPasswordLink": "Forgot password?",
+      "label": "Email address",
+      "passwordLabel": "Password",
+      "signingIn": "Signing in...",
+      "submit": "Sign in"
     },
-    "errors": {
-      "couldNotCreateUser": "Could not create user",
-      "couldNotCreateSession": "Could not create session",
-      "userNotFound": "User account not found in the system",
-      "couldNotLinkIDP": "Could not link identity provider to the user account",
-      "couldNotRegisterUser": "Could not register user account"
+    "register": "If you do not have an account, you can",
+    "registerLinkText": "create one now",
+    "session": {
+      "continueWithAccount": "Continue with {{account}}",
+      "continueWithOther": "Continue with different account",
+      "otherAccount": "Different account"
     },
-    "password": {
-      "title": "Password creation",
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider."
+    "validation": {
+      "requiredEmail": "Email address is required.",
+      "maxLength": "Email address must be less than 255 characters.",
+      "validGovEmail": "Enter a valid individual Government of Canada email address.",
+      "requiredPassword": "Password is required.",
+      "invalidCredentials": "Invalid email address or password. Please try again.",
+      "lockedOut": "Contact Support - There is an issue with your account"
     }
   },
   "u2f": {
@@ -466,113 +472,32 @@
   "verify": {
     "title": "Check your email for your account security code",
     "description": "Please enter the code received by email. ",
-    "label": "Security code",
-    "hint": "Enter code within 15 minutes.",
-    "submit": "Continue",
-    "newCode": "Send a new code",
-    "sendingNewCode": "Sending new code...",
-    "sentNewCode": "New code sent!",
-    "help": "Need help?",
-    "validation": {
-      "required": "Cannot be empty",
-      "maxLength": "Security code must be {{maxLength}} characters or fewer.",
-      "length": "Must be 6 characters"
-    },
     "errors": {
       "couldNotVerifyEmail": "Could not verify email",
       "failedToAddOTPEmail": "Could not set up email verification. Please try again.",
       "couldNotResentEmail": "Could not resend verification email. Please try again."
+    },
+    "help": "Need help?",
+    "hint": "Enter code within 15 minutes.",
+    "label": "Security code",
+    "newCode": "Send a new code",
+    "sendingNewCode": "Sending new code...",
+    "sentNewCode": "New code sent!",
+    "submit": "Continue",
+    "validation": {
+      "required": "Cannot be empty",
+      "maxLength": "Security code must be {{maxLength}} characters or fewer.",
+      "length": "Must be 6 characters"
     }
   },
-  "allSet": {
-    "title": "You're all set!",
-    "description": "Your account is now secured with two-factor authentication.",
-    "continueButton": "Continue{{app}}"
+  "versionUpdater": {
+    "description": "A new version of the app is available. Refresh the page to get the latest updates.",
+    "refreshNow": "Reload and update",
+    "title": "New version available"
   },
   "welcome": {
-    "title": "Welcome to GC Platform",
     "description": "You've created your account and verification method",
+    "title": "Welcome to GC Platform",
     "continueButton": "Continue{{app}}"
-  },
-  "contact-us": {
-    "title": "Contact us",
-    "description": "Have a question or need help? Fill out the form below and we will get back to you as soon as possible.",
-    "labels": {
-      "fullName": "Full name",
-      "email": "Email address",
-      "issueType": "What is your issue related to?",
-      "message": "Message"
-    },
-    "issueTypeOptions": {
-      "placeholder": "Select an option",
-      "passwordReset": "Unable to reset password",
-      "mfaIssue": "Second factor authentication is missing or not working",
-      "signUpIssue": "Unable to sign up",
-      "other": "Other"
-    },
-    "issueTypeLabel": "Issue type",
-    "success": {
-      "title": "Message sent",
-      "description": "Thank you for reaching out. We will respond to you within 2 business days."
-    },
-    "errors": {
-      "generic": "Something went wrong sending your message. Please try again.",
-      "submitFailed": "Failed to send message. Please try again."
-    },
-    "validation": {
-      "requiredFullName": "Full name is required.",
-      "maxLengthFullName": "Full name must be less than 251 characters.",
-      "requiredEmail": "Email address is required.",
-      "invalidEmail": "Enter a valid email address.",
-      "maxLengthEmail": "Email address must be less than 255 characters.",
-      "requiredIssueType": "Please select an issue type.",
-      "invalidIssueType": "Please select a valid issue type.",
-      "requiredMessage": "Message is required.",
-      "maxLengthMessage": "Message must be less than 2000 characters."
-    }
-  },
-  "privacy-policy": {
-    "title": "Privacy Notice for Staff Using Canadian Digital Services’ Single Sign-On"
-  },
-  "beforeYouStart": {
-    "title": "Before you start",
-    "step1": {
-      "title": "Step 1 ",
-      "description": "Sign in to your GC email account",
-      "callout1": "You need email access to create a GC Platform account.",
-
-      "callout2": "Use the same email address as your GC Forms account."
-    },
-    "step2": {
-      "title": "Step 2",
-      "description": "Choose verification method",
-      "callout1": "Security key",
-      "callout2": "Device with Authenticator app "
-    },
-    "cta": {
-      "createAccount": "Create GC Platform account",
-      "alreadyHaveAccount": "Sign in with GC Platform"
-    }
-  },
-  "404": {
-    "title": "Page not found",
-    "body": "Sorry, the page you’re looking for was not found."
-  },
-  "rpApps": {
-    "GC Forms": " to GC Forms",
-    "GC Notify": " to GC Notify",
-    "defaultAppName": ""
-  },
-  "hCaptcha": {
-    "failPage": {
-      "title": "We did not receive your submission",
-      "helpOptions": {
-        "title": "Try:",
-        "item1": "Turning off any virtual private network (VPN), firewall or proxy server.",
-        "item2": "Using a different browser, device or network.",
-        "item3": "Checking browser plugins as some may block submissions.",
-        "tryAgain": "You can also try submitting again."
-      }
-    }
   }
 }

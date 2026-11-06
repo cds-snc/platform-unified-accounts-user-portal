@@ -110,7 +110,7 @@ export function TotpRegister({ uri, requestId, checkAfter }: Props) {
             </div>
 
             <SubmitButtonAction>
-              <I18n i18nKey="set.submit" namespace="otp" />
+              <I18n i18nKey="otp:set.submit" />
             </SubmitButtonAction>
           </form>
         </>

@@ -217,7 +217,7 @@ describe("submitUserNameForm", () => {
 
   it("does not attempt to send email when username validation fails", async () => {
     await expect(submitUserNameForm({ loginName: "" })).resolves.toEqual({
-      error: "translated:errors.couldNotSendResetLink",
+      error: "translated:password:errors.couldNotSendResetLink",
     });
     expect(after).not.toHaveBeenCalled();
   });

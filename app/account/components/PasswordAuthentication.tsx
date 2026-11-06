@@ -3,8 +3,10 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
-import Link from "next/link";
-import { useTranslation } from "react-i18next";
+
+import { cn } from "@lib/utils";
+import { useTranslation } from "@i18n";
+import { LinkButton } from "@components/ui/button/LinkButton";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -14,29 +16,26 @@ export const PasswordAuthentication = ({ className }: { className: string }) => 
   const { t } = useTranslation("account");
 
   return (
-    <div className={className}>
-      <div className="flex items-center justify-between">
-        <h3 className="mb-6">{t("authentication.title")}</h3>
-      </div>
+    <div className={cn("bg-white p-6", className)}>
       <div className="flex flex-row">
         <div className="grow">
-          <div id="password-title" className="mb-1 font-semibold">
+          <h3 id="password-title" className="mb-6">
             {t("authentication.password")}
-          </div>
+          </h3>
           {/* Placeholder password characters used instead of real password for security reasons */}
           <div>
             &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
           </div>
         </div>
         <div className="flex">
-          <Link
+          <LinkButton.Primary
             href="/password/change"
             aria-describedby="password-title"
-            className="mt-auto mb-1"
+            className="my-auto"
             data-testid="account-password-change"
           >
             {t("authentication.change")}
-          </Link>
+          </LinkButton.Primary>
         </div>
       </div>
     </div>

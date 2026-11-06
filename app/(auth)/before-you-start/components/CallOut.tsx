@@ -32,12 +32,7 @@ export const CallOut = ({ iconSrc, i18nKey, className, children }: CallOutProps)
         {children !== undefined ? (
           children
         ) : (
-          <I18n
-            i18nKey={i18nKey as string}
-            namespace="beforeYouStart"
-            tagName="div"
-            className="mb-1 text-base"
-          />
+          <I18n i18nKey={i18nKey as string} tagName="div" className="mb-1 text-base" />
         )}
       </div>
     </div>

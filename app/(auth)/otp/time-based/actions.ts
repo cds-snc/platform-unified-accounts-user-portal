@@ -49,7 +49,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
       return {
         validationErrors: totpValidationResult.issues.map((issue) => ({
           fieldKey: (issue.path?.[0]?.key as string) || "code",
-          fieldValue: t(`verify.validation.${issue.message}`),
+          fieldValue: t(`otp:verify.validation.${issue.message}`),
         })),
         formData: { code: normalizedCode },
       };

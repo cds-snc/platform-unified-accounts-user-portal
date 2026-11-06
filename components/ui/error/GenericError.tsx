@@ -40,7 +40,7 @@ export function GenericError({
           height={39}
           className="sm:hidden"
         />
-        <I18n i18nKey={title} namespace="error" />
+        <I18n i18nKey={`error:${title}`} />
         <Image
           src={getImageUrl("/img/lines-circle-right.svg")}
           alt=""
@@ -51,18 +51,18 @@ export function GenericError({
       </h1>
       {instructions && (
         <p className="mt-3">
-          <I18n i18nKey={instructions} namespace="error" />
+          <I18n i18nKey={`error:${instructions}`} />
         </p>
       )}
       <div className="mt-3 mb-6 flex flex-wrap justify-center gap-4">
         {aboutLink && (
           <a href={aboutLink}>
-            <I18n i18nKey="about" namespace="error" />
+            <I18n i18nKey="error:about" />
           </a>
         )}
         {/* Use a full-page navigation to leave the current error boundary state. */}
         <a href={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/contact-us`}>
-          <I18n i18nKey="contact" namespace="error" />
+          <I18n i18nKey="error:contact" />
         </a>
       </div>
       <Image

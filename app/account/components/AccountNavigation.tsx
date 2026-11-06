@@ -22,19 +22,16 @@ export function AccountNavigation() {
   const gcFormsLink = getSiteLink("gcForms");
 
   return (
-    <nav
-      aria-label={t("navigation.ariaLabel")}
-      className="rounded-2xl border-2 border-gray-300 bg-white p-6"
-    >
-      <h1 className="mb-6 text-3xl font-semibold" id="page-heading">
+    <nav aria-label={t("navigation.ariaLabel")} className="bg-white p-6">
+      <h1 className="mb-6 text-2xl font-semibold" id="page-heading">
         {t("navigation.title")}
       </h1>
       <ul className="list-none space-y-4 p-0">
         <li>
           <h2 className="text-base">
             {isAccountPage ? (
-              <span aria-current="page" className="font-semibold text-gcds-green-750">
-                {t("navigation.account")}
+              <span aria-current="page" className="text-gcds-grayscale-800">
+                {t("navigation.product")}
               </span>
             ) : (
               <Link
@@ -48,7 +45,7 @@ export function AccountNavigation() {
         </li>
         {gcFormsLink && (
           <li>
-            <ExternalLink href={gcFormsLink} i18nKey="gcForms" namespace="common" />
+            <ExternalLink href={gcFormsLink} i18nKey="common:gcForms" />
           </li>
         )}
       </ul>

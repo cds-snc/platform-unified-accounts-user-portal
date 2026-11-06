@@ -21,31 +21,28 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     <div data-request-id={requestId}>
       <AuthPanel
         titleI18nKey="none"
-        pageTitleI18nKey="title"
+        pageTitleI18nKey="beforeYouStart:title"
         descriptionI18nKey=""
-        namespace="beforeYouStart"
         variant="narrow"
       >
         <Title />
         <div className="mt-6 space-y-6">
           {/* Step 1: Verify your email address */}
           <Step
-            titleKey="step1.title"
-            descKey="step1.description"
+            titleKey="beforeYouStart:step1.title"
+            descKey="beforeYouStart:step1.description"
             iconSrc="/img/email_@.svg"
           ></Step>
           <CallOut className="mb-10">
             <>
               <I18n
-                i18nKey="step1.callout1"
-                namespace="beforeYouStart"
+                i18nKey="beforeYouStart:step1.callout1"
                 tagName="div"
                 className="mb-4 text-base"
               />
 
               <I18n
-                i18nKey="step1.callout2"
-                namespace="beforeYouStart"
+                i18nKey="beforeYouStart:step1.callout2"
                 tagName="div"
                 className="mb-0 text-base"
               />
@@ -53,13 +50,16 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           </CallOut>
           {/* Step 2: Set up two-factor authentication */}
           <Step
-            titleKey="step2.title"
-            descKey="step2.description"
+            titleKey="beforeYouStart:step2.title"
+            descKey="beforeYouStart:step2.description"
             iconSrc="/img/lock__circle_open.svg"
           ></Step>
           <div className="mt-3">
-            <CallOut iconSrc="/img/fingerprint_sm_blk.svg" i18nKey="step2.callout1" />
-            <CallOut iconSrc="/img/qr_code_scanner.svg" i18nKey="step2.callout2" />
+            <CallOut
+              iconSrc="/img/fingerprint_sm_blk.svg"
+              i18nKey="beforeYouStart:step2.callout1"
+            />
+            <CallOut iconSrc="/img/qr_code_scanner.svg" i18nKey="beforeYouStart:step2.callout2" />
           </div>
         </div>
       </AuthPanel>

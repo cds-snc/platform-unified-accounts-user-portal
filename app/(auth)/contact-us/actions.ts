@@ -50,7 +50,7 @@ export async function submitContactFormAction(
     : await getCurrentLanguage();
   const { t } = await serverTranslation("contact-us", { lang: language });
   const genericErrorResponse = {
-    error: t("errors.submitFailed"),
+    error: t("contact-us:errors.submitFailed"),
   };
 
   const validationResult = await validateContactForm(command);

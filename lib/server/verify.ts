@@ -67,7 +67,7 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
   const userResponse = await getUserByID(command.userId);
 
   if (!userResponse?.user) {
-    return { error: t("errors.couldNotLoadUser") };
+    return { error: t("password:errors.couldNotLoadUser") };
   }
 
   const user = userResponse.user;
@@ -78,7 +78,7 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
   }
 
   if (!email) {
-    return { error: t("errors.couldNotLoadUserEmail") };
+    return { error: t("password:errors.couldNotLoadUserEmail") };
   }
 
   // Send email via GC Notify
@@ -86,7 +86,7 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
   const templateId = process.env.TEMPLATE_ID;
 
   if (!apiKey || !templateId) {
-    return { error: t("errors.emailConfigurationError") };
+    return { error: t("password:errors.emailConfigurationError") };
   }
 
   try {
@@ -98,6 +98,6 @@ export async function sendPasswordChangedEmail(command: SendPasswordChangedEmail
     return { success: true };
   } catch (error) {
     logMessage.debug({ error, message: "Failed to send password changed email" });
-    return { error: t("errors.emailSendFailed") };
+    return { error: t("password:errors.emailSendFailed") };
   }
 }

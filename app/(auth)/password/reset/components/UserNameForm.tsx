@@ -149,7 +149,7 @@ export const UserNameForm = ({ requestId }: Props) => {
         </div>
 
         <SubmitButtonAction dataTestId="forgot-password-continue">
-          {t("button.continue")}
+          {t("common:button.continue")}
         </SubmitButtonAction>
       </form>
     </div>
