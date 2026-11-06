@@ -1,4 +1,4 @@
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS base
+FROM node:26-alpine@sha256:20c29f6abefc3dffbdcae5677e4ee5dd0c45073a24ff6f5a7f25010b825f0a7b AS base
 
 ARG GIT_SHA
 
@@ -10,11 +10,11 @@ ENV GIT_SHA=$GIT_SHA
 COPY . /src
 WORKDIR /src
 
-RUN corepack enable
+RUN npm install --global corepack@0.36.0 && corepack enable
 RUN pnpm install
 RUN pnpm build
 
-FROM node:24-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS final
+FROM node:26-alpine@sha256:20c29f6abefc3dffbdcae5677e4ee5dd0c45073a24ff6f5a7f25010b825f0a7b AS final
 LABEL maintainer="-"
 
 ARG GIT_SHA
