@@ -28,7 +28,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   return (
-    <AuthPanel titleI18nKey="mfa.verify.title" descriptionI18nKey="mfa:verify.description">
+    <AuthPanel titleI18nKey="mfa:verify.title" descriptionI18nKey="mfa:verify.description">
       <StrongFactorSelection
         canUseTotp={canUseTotp}
         canUseU2F={canUseU2F}
