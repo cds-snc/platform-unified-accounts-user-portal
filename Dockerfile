@@ -10,7 +10,7 @@ ENV GIT_SHA=$GIT_SHA
 COPY . /src
 WORKDIR /src
 
-RUN corepack enable
+RUN npm install --global corepack@0.36.0 && corepack enable
 RUN pnpm install
 RUN pnpm build
 
