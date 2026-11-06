@@ -26,10 +26,9 @@ export default async function Page() {
 
   return (
     <AuthPanel
-      titleI18nKey="reset.sent.checkEmail"
-      pageTitleI18nKey="reset.sent.checkEmail"
+      titleI18nKey="password:reset.sent.checkEmail"
+      pageTitleI18nKey="password:reset.sent.checkEmail"
       descriptionI18nKey="none"
-      namespace="password"
       imageSrc="/img/email-icon.png"
       variant="narrow"
       dataTestId="password-reset-sent"
