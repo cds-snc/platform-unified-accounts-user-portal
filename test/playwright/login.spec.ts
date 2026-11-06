@@ -32,8 +32,8 @@ test.describe("login user flow", { tag: "@smoke" }, () => {
     await page.locator("#totp #code").fill(await generateTOTP(totpSecret));
     await page.locator("#totp button[type=submit]").click();
 
-    await expect(page.locator("#personal-details-title")).toBeVisible();
     await expect(page).toHaveURL(/\/account$/);
+    await expect(page.locator("#personal-details-title")).toBeVisible();
     await expect(page.getByTestId("account-email")).toHaveText(username);
   });
 
