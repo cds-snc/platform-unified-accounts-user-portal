@@ -7,8 +7,7 @@ import { cookies } from "next/headers";
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { LANGUAGE_COOKIE_NAME } from "./client";
-import { languages } from "./settings";
+import { LANGUAGE_COOKIE_NAME, languages } from "./settings";
 
 export const normalizeLocaleToSupportedLanguage = (locale: string) => {
   if (languages.includes(locale)) {

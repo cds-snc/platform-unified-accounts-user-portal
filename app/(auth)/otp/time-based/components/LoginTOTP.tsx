@@ -49,6 +49,11 @@ export function LoginTOTP({
     },
   });
 
+  const validationErrors = state.validationErrors?.map(({ fieldKey, errorKey }) => ({
+    fieldKey,
+    fieldValue: t(errorKey),
+  }));
+
   return (
     <>
       {!isPending && state.errorKey && (
@@ -64,13 +69,13 @@ export function LoginTOTP({
         </div>
       )}
 
-      <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
+      <ErrorSummary id="errorSummary" validationErrors={validationErrors} />
 
       <UserAvatar loginName={loginName} displayName={displayName} showDropdown={false} />
 
       <div className="w-full">
         <form id="totp" action={formAction} noValidate>
-          <CodeEntry state={state} code={""} className="mt-8" />
+          <CodeEntry state={{ ...state, validationErrors }} code={""} className="mt-8" />
           <div className="mt-6 flex items-center gap-4">
             <BackButton />
             <SubmitButtonAction dataTestId="totp-submit">

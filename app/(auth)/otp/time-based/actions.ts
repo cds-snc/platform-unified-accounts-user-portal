@@ -16,11 +16,10 @@ import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
 import { getZitadelUiError, type ZitadelErrorKey } from "@lib/zitadel-errors";
-import { serverTranslation } from "@i18n/server";
 export type FormState = {
   // Translated on the client so the message always matches the language the user is viewing.
   errorKey?: ZitadelErrorKey;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: { fieldKey: string; errorKey: string }[];
   formData?: {
     code?: string;
   };
@@ -36,8 +35,6 @@ export const handleOTPFormSubmit = AuthenticatedAction(
     _,
     { code, requestId }: { code: string; requestId?: string }
   ): Promise<FormState> {
-    const { t } = await serverTranslation("otp");
-
     if (typeof code !== "string" || (requestId && typeof requestId !== "string")) {
       throw new Error("Invalid parameters");
     }
@@ -49,7 +46,7 @@ export const handleOTPFormSubmit = AuthenticatedAction(
       return {
         validationErrors: totpValidationResult.issues.map((issue) => ({
           fieldKey: (issue.path?.[0]?.key as string) || "code",
-          fieldValue: t(`verify.validation.${issue.message}`),
+          errorKey: `verify.validation.${issue.message}`,
         })),
         formData: { code: normalizedCode },
       };
