@@ -21,7 +21,7 @@ permissions: {}
 
 jobs:
   pr-review-build:
-    if: ${{ github.event.pull_request.user.login != 'renovate[bot]' }}
+    if: ${{ github.event.pull_request.user.login != 'renovate-cds[bot]' }}
     runs-on: ubuntu-24.04-arm
     permissions:
       id-token: write
