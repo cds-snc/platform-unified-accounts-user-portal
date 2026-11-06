@@ -331,12 +331,16 @@
       "sessionNotValid": "La session n'est pas valide"
     },
     "reset": {
-      "title": "Réinitialiser votre mot de passe",
-      "description": "Réinitialisez votre mot de passe pour continuer à utiliser Formulaires GC.",
-      "submit": "Continuer",
-      "emailSent": "FR - If an account exists for this email address, we sent a link to reset your password. The link will expire in 15 minutes.",
+      "title": "FR - Enter your email address",
+      "description": "FR - We'll send a reset link if your email has a GC Platform account.",
       "labels": {
         "confirmationCode": "Code de confirmation"
+      },
+      "sent": {
+        "checkEmail": "FR - Check your email",
+        "linkExpires": "FR - The link expires in 15 minutes.",
+        "resendLink": "FR - Re-send link",
+        "resendRequested": "FR - A new reset link has been sent."
       },
       "validation": {
         "required": "Entrez le code de confirmation.",
@@ -415,7 +419,7 @@
   "start": {
     "title": "Se connecter{{app}}",
     "form": {
-      "description": "Entrez votre propre adresse courriel individuelle du gouvernement.",
+      "description": "FR - Use a government email address only you can access, not a shared inbox.",
       "forgotPasswordLink": "Vous avez oublié votre mot de passe?",
       "label": "Adresse courriel",
       "passwordLabel": "Mot de passe",
