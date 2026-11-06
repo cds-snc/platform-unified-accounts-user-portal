@@ -129,7 +129,7 @@ export function VerifyEmailForm({
           focussable={true}
           id="zitadelError"
         >
-          <I18n i18nKey={`verify:${state.error}`} />
+          <I18n i18nKey={state.error} />
         </Alert>
       )}
 

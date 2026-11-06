@@ -86,7 +86,7 @@ export const NextSteps = async ({
             </div>
           ))}
         </div>
-        <NextStepAction action={action} text="incomplete.action" />
+        <NextStepAction action={action} text="register:incomplete.action" />
         {hintI18nKey && (
           <div className="mt-4">
             <I18n i18nKey={hintI18nKey} />
