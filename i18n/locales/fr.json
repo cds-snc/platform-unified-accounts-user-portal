@@ -331,10 +331,14 @@
       "sessionNotValid": "La session n'est pas valide"
     },
     "reset": {
-      "title": "FR - Enter your email address",
-      "description": "FR - We'll send a reset link if your email has a GC Platform account.",
+      "title": "Réinitialisez votre mot de passe",
+      "description": "Réinitialisez votre mot de passe pour continuer à utiliser votre compte.",
       "labels": {
         "confirmationCode": "Code de confirmation"
+      },
+      "start": {
+        "title": "FR - Enter your email address",
+        "description": "FR - We'll send a reset link if your email has a GC Platform account."
       },
       "sent": {
         "checkEmail": "FR - Check your email",

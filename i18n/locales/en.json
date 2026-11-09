@@ -332,10 +332,14 @@
       "sessionNotValid": "Session is not valid"
     },
     "reset": {
-      "title": "Enter your email address",
-      "description": "We'll send a reset link if your email has a GC Platform account.",
+      "title": "Reset your password",
+      "description": "Reset your password to continue using your account.",
       "labels": {
         "confirmationCode": "Confirmation code"
+      },
+      "start": {
+        "title": "Enter your email address",
+        "description": "We'll send a reset link if your email has a GC Platform account."
       },
       "sent": {
         "checkEmail": "Check your email",
