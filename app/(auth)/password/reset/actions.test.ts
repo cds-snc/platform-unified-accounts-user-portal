@@ -335,7 +335,7 @@ describe("submitUserNameForm", () => {
       vi.clearAllMocks();
 
       await expect(resendPasswordResetEmail()).resolves.toEqual({
-        error: "errors.couldNotSendResetLink",
+        errorKey: "errors.couldNotSendResetLink",
       });
       expect(after).not.toHaveBeenCalled();
       expect(listUsers).not.toHaveBeenCalled();

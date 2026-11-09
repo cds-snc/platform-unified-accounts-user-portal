@@ -65,7 +65,7 @@ describe("ResendCode", () => {
   it.each(["expired", "failed"])("shows an error when the request is %s", async (reason) => {
     if (reason === "expired") {
       vi.mocked(resendPasswordResetEmail).mockResolvedValue({
-        error: "errors.couldNotSendResetLink",
+        errorKey: "errors.couldNotSendResetLink",
       });
     } else {
       vi.mocked(resendPasswordResetEmail).mockRejectedValue(new Error("Network failure"));

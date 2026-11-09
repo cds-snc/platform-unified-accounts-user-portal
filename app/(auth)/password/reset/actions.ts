@@ -64,12 +64,12 @@ export const submitUserNameForm = async (
 };
 
 export const resendPasswordResetEmail = async (): Promise<
-  { error: string } | { success: true }
+  { errorKey: string } | { success: true }
 > => {
   const request = await getPasswordResetRequest();
   if (!request) {
     logMessage.warn("Password reset resend requested without a valid reset request");
-    return { error: "errors.couldNotSendResetLink" };
+    return { errorKey: "errors.couldNotSendResetLink" };
   }
   await schedulePasswordResetEmail(request);
   return { success: true };

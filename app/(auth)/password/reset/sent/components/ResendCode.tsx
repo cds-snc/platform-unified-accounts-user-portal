@@ -27,12 +27,12 @@ export function ResendCode() {
   const [state, formAction] = useActionState(async () => {
     try {
       const result = await resendPasswordResetEmail();
-      if ("success" in result) {
+      if ("success" in result && result.success) {
         toast.success(t("reset.sent.resendRequested"));
       }
       return result;
     } catch {
-      return { error: "errors.couldNotSendResetLink" };
+      return { errorKey: "errors.couldNotSendResetLink" };
     }
   }, undefined);
 
@@ -41,10 +41,10 @@ export function ResendCode() {
       <p className="mt-6">
         <I18n i18nKey="password:reset.sent.linkExpires" />
       </p>
-      {state && "error" in state && (
+      {state && "errorKey" in state && (
         <div className="mt-8">
           <Alert type={ErrorStatus.ERROR} focussable={true}>
-            {t("errors.couldNotSendResetLink")}
+            {t(state.errorKey)}
           </Alert>
         </div>
       )}
