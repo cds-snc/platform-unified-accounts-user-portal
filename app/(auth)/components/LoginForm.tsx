@@ -11,7 +11,12 @@ import { Cookie } from "@lib/cookies";
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateUsernameAndPassword } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -34,7 +39,7 @@ type FormState = {
     password: string;
   };
   error?: string;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
 };
 
 export function LoginForm({ requestId, session, isOtherSession = false }: Props) {
@@ -50,7 +55,6 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
     const username = (formData?.get("username") as string) || "";
     const password = formData?.get("password") as string;
 
-    // Validate form entries and map any errors to form state with translated messages
     const formEntriesData = formData ? Object.fromEntries(formData.entries()) : {};
     const validationResult = await validateUsernameAndPassword(formEntriesData);
 
@@ -60,7 +64,8 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
         ...previousState,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`, { ns: "start" }),
+          errorKey: `validation.${issue.message}`,
+          options: { ns: "start" },
         })),
         formData: {
           username: username,
@@ -95,12 +100,17 @@ export function LoginForm({ requestId, session, isOtherSession = false }: Props)
     return previousState;
   };
 
-  const [state, formAction] = useActionState(localFormAction, {
+  const [rawState, formAction] = useActionState(localFormAction, {
     formData: {
       username: session?.loginName ?? "",
       password: "",
     },
   });
+
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   return (
     <div>

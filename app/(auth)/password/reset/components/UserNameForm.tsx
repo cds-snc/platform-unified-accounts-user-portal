@@ -10,7 +10,12 @@ import { useActionState } from "react";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { validateUsername } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { useTranslation } from "@i18n/client";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -31,7 +36,7 @@ type FormState = {
   };
   error?: string;
   sent?: boolean;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
 };
 
 export const UserNameForm = ({ requestId }: Props) => {
@@ -44,7 +49,6 @@ export const UserNameForm = ({ requestId }: Props) => {
   ): Promise<FormState> => {
     const username = (formData?.get("username") as string) || "";
 
-    // Validate form entries and map any errors to form state with translated messages
     const formEntriesData = formData ? Object.fromEntries(formData.entries()) : {};
     const validationResult = await validateUsername(formEntriesData);
     if (!validationResult.success) {
@@ -52,7 +56,8 @@ export const UserNameForm = ({ requestId }: Props) => {
         ...previousState,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`, { ns: "start" }),
+          errorKey: `validation.${issue.message}`,
+          options: { ns: "start" },
         })),
         formData: {
           username: username,
@@ -82,12 +87,17 @@ export const UserNameForm = ({ requestId }: Props) => {
     return { formData: { username }, sent: true };
   };
 
-  const [state, formAction] = useActionState(localFormAction, {
+  const [rawState, formAction] = useActionState(localFormAction, {
     formData: {
       username: "",
     },
     validationErrors: undefined,
   });
+
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   return (
     <div>
