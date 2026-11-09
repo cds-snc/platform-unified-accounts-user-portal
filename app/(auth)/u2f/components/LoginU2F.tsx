@@ -6,6 +6,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { updateSessionForU2FChallenge, verifyU2FLogin } from "@root/app/(auth)/u2f/actions";
+import { U2F_ERRORS } from "@root/app/(auth)/u2f/u2f-errors";
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -87,16 +89,18 @@ export function LoginU2F({ requestId }: Props) {
         return challenges.webAuthN.publicKeyCredentialRequestOptions;
       })
       .catch(() => {
-        setError(t("verify.errors.verificationFailed"));
-        throw new Error("U2F Challenges could not be initiated");
+        setError("verify.errors.verificationFailed");
+        return undefined;
       });
+
+    if (!publicKeyCredential) return;
 
     const data = await getCredentialAssertionData(
       publicKeyCredential.publicKey as PublicKeyCredentialRequestOptionsData
     );
 
     if (!data) {
-      setError(t("verify.errors.couldNotRetrievePasskey"));
+      setError("verify.errors.couldNotRetrievePasskey");
       return;
     }
     const result = await verifyU2FLogin({
@@ -121,7 +125,18 @@ export function LoginU2F({ requestId }: Props) {
     <div className="w-full">
       {error && (
         <div className="py-4">
-          <Alert type={ErrorStatus.ERROR}>{error}</Alert>
+          <Alert type={ErrorStatus.ERROR}>
+            {getSafeErrorMessageFromKey({
+              errorKey: error,
+              fallbackKey: "verify.errors.verificationFailed",
+              allowedErrorKeys: [
+                ...Object.values(U2F_ERRORS),
+                "verify.errors.verificationFailed",
+                "verify.errors.couldNotRetrievePasskey",
+              ],
+              t,
+            })}
+          </Alert>
         </div>
       )}
     </div>

@@ -13,7 +13,12 @@ import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { cn } from "@lib/utils";
 import { CONTACT_US_ISSUE_TYPES, ISSUE_TYPE_I18N_KEYS } from "@lib/validation/contactUsIssueTypes";
 import { validateContactForm } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { SubmitButton } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
@@ -29,7 +34,7 @@ import { submitContactFormAction } from "../actions";
 type FormState = {
   success?: boolean;
   error?: string;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
   formData?: {
     fullName?: string;
     email?: string;
@@ -58,7 +63,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
 
   const { captcha, execute, reset } = useHCaptcha({ siteKey });
 
-  const handleSubmit = async (previousState: FormState, formData: FormData) => {
+  const handleSubmit = async (previousState: FormState, formData: FormData): Promise<FormState> => {
     if (submissionInProgress.current) return previousState;
     submissionInProgress.current = true;
 
@@ -76,7 +81,7 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
         error: undefined,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`),
+          errorKey: `validation.${issue.message}`,
         })),
         formData: formEntries,
       };
@@ -126,7 +131,11 @@ export function ContactUsForm({ siteKey }: { siteKey: string }) {
     }
   };
 
-  const [state, formAction, isPending] = useActionState(handleSubmit, initialState);
+  const [rawState, formAction, isPending] = useActionState(handleSubmit, initialState);
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   if (state.error === "captchaFailed") {
     return <CaptchaFail />;

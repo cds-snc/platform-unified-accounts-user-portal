@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { PasswordComplexitySettings } from "@zitadel/proto/zitadel/settings/v2/password_settings_pb";
 
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -42,7 +43,7 @@ export function SetRegisterPasswordForm({
       [k: string]: FormDataEntryValue;
     });
     if (!validateAccountData.success) {
-      setError(t("create.missingOrInvalidData.title"));
+      setError("password:create.missingOrInvalidData.title");
     }
 
     const response = await registerUser({
@@ -66,7 +67,21 @@ export function SetRegisterPasswordForm({
 
   return (
     <>
-      {error && <Alert type={ErrorStatus.ERROR}>{error}</Alert>}
+      {error && (
+        <Alert type={ErrorStatus.ERROR}>
+          {getSafeErrorMessageFromKey({
+            errorKey: error,
+            fallbackKey: "register:errors.couldNotRegisterUser",
+            allowedErrorKeys: [
+              "password:create.missingOrInvalidData.title",
+              "register:errors.couldNotCreateUser",
+              "register:errors.couldNotCreateSession",
+              "register:errors.couldNotRegisterUser",
+            ],
+            t,
+          })}
+        </Alert>
+      )}
       <PasswordValidationForm
         passwordComplexitySettings={passwordComplexitySettings}
         successCallback={successCallback}
