@@ -5,7 +5,7 @@ export type SiteConfig = {
   zitadelOrganizationId: string;
 };
 
-export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "support" | "gcForms";
+export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "gcForms";
 
 // Use URL templates with {baseUrl} and optional {locale}; set false to hide a link.
 type SiteLinkValue = string | false;
@@ -17,10 +17,9 @@ export type TrustedDomainConfig = Pick<SiteConfig, "baseUrl"> & {
 
 const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig => ({
   // TODO: update to the SSO about page when it becomes available
-  about: "https://articles.alpha.canada.ca/forms-formulaires/",
-  termsOfUse: false,
-  sla: false,
-  support: false,
+  about: false,
+  termsOfUse: "/terms-of-use",
+  sla: "/sla",
   gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/forms",
   ...overrides,
 });
