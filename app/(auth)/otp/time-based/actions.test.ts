@@ -108,7 +108,7 @@ describe("handleOTPFormSubmit", () => {
     const result = await handleOTPFormSubmit({ code: "12" });
 
     expect(result.validationErrors).toEqual([
-      { fieldKey: "code", fieldValue: "translated:otp:verify.validation.invalidCodeLength" },
+      { fieldKey: "code", errorKey: "verify.validation.invalidCodeLength" },
     ]);
     expect(result.errorKey).toBeUndefined();
     expect(updateSession).not.toHaveBeenCalled();

@@ -248,7 +248,7 @@
       "validation": {
         "required": "Cannot be empty",
         "maxLength": "Less than 10 characters",
-        "invalidCodeLength": "Enter the 6-digit code from your authenticator app."
+        "invalidCodeLength": "Entrez le code à 6 chiffres de votre application d’authentification."
       }
     }
   },
