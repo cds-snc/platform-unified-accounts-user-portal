@@ -17,6 +17,7 @@ import {
   type ValidationErrorKey,
 } from "@lib/validation/validators";
 import { useTranslation } from "@i18n/client";
+import { BackButton } from "@components/ui/button/BackButton";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
@@ -35,7 +36,7 @@ type FormState = {
     username: string;
   };
   error?: string;
-  sent?: boolean;
+  pending?: boolean;
   validationErrors?: ValidationErrorKey[];
 };
 
@@ -84,7 +85,7 @@ export const UserNameForm = ({ requestId }: Props) => {
       };
     }
 
-    return { formData: { username }, sent: true };
+    return { formData: { username }, pending: true };
   };
 
   const [rawState, formAction] = useActionState(localFormAction, {
@@ -102,12 +103,6 @@ export const UserNameForm = ({ requestId }: Props) => {
   return (
     <div>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
-
-      {state.sent && (
-        <Alert type={ErrorStatus.SUCCESS} focussable={true} id="resetEmailSent">
-          {t("reset.emailSent", { ns: "password" })}
-        </Alert>
-      )}
 
       {state.error && (
         <Alert
@@ -134,9 +129,6 @@ export const UserNameForm = ({ requestId }: Props) => {
             <Label id={"label-username"} htmlFor={"username"} className="required" required>
               {t("form.label")}
             </Label>
-            <div className="mb-4 text-sm text-black" id="login-description">
-              {t("form.description")}
-            </div>
             {hasError("username", state.validationErrors) && (
               <ErrorMessage id={"errorMessageUsername"}>
                 {getError("username", state.validationErrors)}
@@ -158,9 +150,12 @@ export const UserNameForm = ({ requestId }: Props) => {
           </div>
         </div>
 
-        <SubmitButtonAction dataTestId="forgot-password-continue">
-          {t("common:button.continue")}
-        </SubmitButtonAction>
+        <div className="mt-6 flex items-center gap-4">
+          <BackButton />
+          <SubmitButtonAction dataTestId="forgot-password-continue">
+            {t("common:button.continue")}
+          </SubmitButtonAction>
+        </div>
       </form>
     </div>
   );

@@ -20,7 +20,7 @@ const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig 
   about: "https://articles.alpha.canada.ca/forms-formulaires/",
   termsOfUse: false,
   sla: false,
-  support: false,
+  support: "/contact-us",
   gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/forms",
   ...overrides,
 });
