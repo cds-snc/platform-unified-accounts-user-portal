@@ -124,7 +124,7 @@ export const PersonalDetails = ({
   };
 
   return (
-    <div>
+    <>
       <div className="flex items-center justify-between">
         <h3 id="personal-details-title" className="mb-4">
           {t("personalDetails.title")}
@@ -253,6 +253,6 @@ export const PersonalDetails = ({
         </div>
       </div>
       <ToastContainer autoClose={false} containerId="account-details" />
-    </div>
+    </>
   );
 };
