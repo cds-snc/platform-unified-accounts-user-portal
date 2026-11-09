@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 declare global {
   interface BigInt {
@@ -71,14 +72,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  turbopack: {
-    rules: {
-      "*.md": {
-        loaders: ["raw-loader"],
-        as: "*.js",
-      },
-    },
-  },
   ...(process.env.DEBUG && {
     logging: {
       fetches: {
@@ -89,5 +82,6 @@ const nextConfig: NextConfig = {
     },
   }),
 };
+const withMDX = createMDX();
 
-export default nextConfig;
+export default withMDX(nextConfig);
