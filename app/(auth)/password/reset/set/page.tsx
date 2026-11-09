@@ -30,11 +30,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   }
 
   return (
-    <AuthPanel
-      titleI18nKey="reset.title"
-      descriptionI18nKey="reset.description"
-      namespace="password"
-    >
+    <AuthPanel titleI18nKey="password:reset.title" descriptionI18nKey="password:reset.description">
       <PasswordReset
         passwordComplexitySettings={passwordComplexitySettings}
         requestId={requestId}

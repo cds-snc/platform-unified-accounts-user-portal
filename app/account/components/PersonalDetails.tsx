@@ -5,7 +5,6 @@
  *--------------------------------------------*/
 import { useActionState, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { useTranslation } from "react-i18next";
 
 import { cn } from "@lib/utils";
 /*--------------------------------------------*
@@ -13,6 +12,7 @@ import { cn } from "@lib/utils";
  *--------------------------------------------*/
 import { validatePersonalDetails } from "@lib/validation/validationSchemas";
 import { getError, hasError } from "@lib/validation/validators";
+import { useTranslation } from "@i18n";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -117,36 +117,40 @@ export const PersonalDetails = ({
   });
 
   return (
-    <>
-      <div className={cn("rounded-2xl border-2 border-gray-300 bg-white p-6", className)}>
+    <div className={cn("bg-white", className)}>
+      <div className={"p-6"}>
         <div className="flex items-center justify-between">
-          <h3 id="personal-details-title" className="mb-6">
+          <h3 id="personal-details-title" className="mb-4">
             {t("personalDetails.title")}
           </h3>
         </div>
-        <div className="mb-4">
+        <div>
           {!editMode && (
             <div className="flex flex-row">
               <ul className="grow list-none p-0">
-                <li>
-                  <div className="mb-1 font-bold">{t("personalDetails.fullName")}</div>
+                <li className="mb-6">
+                  <div className="mb-1 font-bold">{t("personalDetails.firstName")}</div>
                   <div>
-                    <em data-testid="account-name">
-                      {firstName} {lastName}
-                    </em>
+                    <em data-testid="first-name">{firstName}</em>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-1 font-bold">{t("personalDetails.lastName")}</div>
+                  <div>
+                    <em data-testid="last-name">{lastName}</em>
                   </div>
                 </li>
               </ul>
               <div className="flex flex-col">
                 <Button
-                  theme="link"
+                  theme="primary"
                   onClick={() => setEditMode(!editMode)}
                   aria-describedby="personal-details-title"
                   aria-expanded={editMode}
                   aria-controls="personal-details-form"
                   disabled={editMode}
                   buttonRef={changeButtonRef}
-                  className="mt-auto"
+
                   dataTestId="account-name-change"
                 >
                   {t("personalDetails.change")}
@@ -160,8 +164,9 @@ export const PersonalDetails = ({
               action={formAction}
               onKeyDown={handleEscape}
               noValidate
+              className="flex flex-row gap-4"
             >
-              <fieldset>
+              <fieldset className="grow">
                 <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
                 <div className="mb-4 flex flex-col gap-4">
                   <div className="gcds-input-wrapper">
@@ -215,40 +220,34 @@ export const PersonalDetails = ({
                   </div>
                 </div>
               </fieldset>
-              <div className="flex gap-4">
-                {/* Could also specify the first and or last name being updated but this is probably clear enough */}
-                <SubmitButtonAction ariaDescribedBy="personal-details-title">
-                  {t("personalDetails.updateAccount")}
-                </SubmitButtonAction>
-                <Button theme="secondary" onClick={handleEditModeClose}>
-                  {t("personalDetails.cancel")}
-                </Button>
+              <div className="basis-1/3">
+                <div className="float-right">
+                  {/* Could also specify the first and or last name being updated but this is probably clear enough */}
+                  <SubmitButtonAction ariaDescribedBy="personal-details-title">
+                    {t("personalDetails.updateAccount")}
+                  </SubmitButtonAction>
+                </div>
               </div>
             </form>
           )}
         </div>
+      </div>
+      <div className="flex flex-col gap-4 p-6">
         <div>
-          <div className="flex flex-row">
-            <div className="grow">
-              <div className="mb-2 font-semibold">{t("personalDetails.email")}</div>
-              <div>
-                <em data-testid="account-email">{email}</em>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="mb-2">
-                <strong>{t("personalDetails.cannotBeChanged")}</strong>
-              </div>
-              <div>
-                <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
-                  {t("personalDetails.createNewAccount")}
-                </Button>
-              </div>
-            </div>
+          <h3 className="mb-4">{t("personalDetails.email")}</h3>
+          <div>
+            <em data-testid="account-email">{email}</em>
           </div>
+        </div>
+        <div>
+          <div className="mb-1 font-bold">{t("personalDetails.cannotBeChanged")}</div>
+
+          <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
+            {t("personalDetails.createNewAccount")}
+          </Button>
         </div>
       </div>
       <ToastContainer autoClose={false} containerId="account-details" />
-    </>
+    </div>
   );
 };

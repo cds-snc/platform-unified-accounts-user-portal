@@ -38,7 +38,7 @@ export const Label = (props: LabelProps): React.ReactElement => {
       {required && (
         <span className="label--required">
           {"("}
-          <I18n data-testid="required" aria-hidden i18nKey="required" namespace="common" />
+          <I18n data-testid="required" aria-hidden i18nKey="required" />
           {")"}
         </span>
       )}

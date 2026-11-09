@@ -9,10 +9,10 @@ import { PageTitle } from "@components/ui/title/PageTitle";
 export default async function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <PageTitle i18nKey="title" namespace="404" />
+      <PageTitle i18nKey="404:title" />
       <div className="text-center">
         <h1 className="mt-8 mb-6!">
-          <I18n i18nKey="title" namespace="404" />
+          <I18n i18nKey="404:title" />
         </h1>
         <Image
           src={getImageUrl("/img/goose.png")}
@@ -23,7 +23,7 @@ export default async function NotFound() {
           preload={true}
         />
         <p>
-          <I18n i18nKey="body" namespace="404" />
+          <I18n i18nKey="404:body" />
         </p>
       </div>
     </div>

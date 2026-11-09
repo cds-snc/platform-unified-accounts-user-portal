@@ -55,6 +55,9 @@ test.describe("account edit flow", () => {
     await page.locator("#personal-details-form #lastname").fill("Account");
     await page.locator("#personal-details-form button[type='submit']").click();
 
+    await expect(page.getByTestId("first-name")).toHaveText("Updated");
+    await expect(page.getByTestId("last-name")).toHaveText("Account");
+
     await page.getByTestId("account-password-change").click();
     await expect(page.locator("#password-form #password")).toBeVisible();
     await page.locator("#password-form #password").fill(newPassword);
@@ -62,7 +65,8 @@ test.describe("account edit flow", () => {
     await page.getByTestId("password-validation-continue").click();
 
     await expect(page).toHaveURL(/\/account$/);
-    await expect(page.getByTestId("account-name")).toHaveText("Updated Account");
+    await expect(page.getByTestId("first-name")).toHaveText("Updated");
+    await expect(page.getByTestId("last-name")).toHaveText("Account");
     await expect(page.getByTestId("account-email")).toHaveText(registeredUser!.email);
   });
 

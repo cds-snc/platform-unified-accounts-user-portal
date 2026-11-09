@@ -26,9 +26,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <AuthPanel
-      titleI18nKey="verify.title"
+      titleI18nKey="u2f:verify.title"
       descriptionI18nKey="none"
-      namespace="u2f"
       imageSrc="/img/key-icon.png"
     >
       <UserAvatar

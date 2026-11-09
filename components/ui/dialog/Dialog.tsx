@@ -52,7 +52,7 @@ export const Dialog = ({
   className?: string;
   handleClose?: () => void;
 }) => {
-  const { t } = useTranslation("form-builder");
+  const { t } = useTranslation();
   const [isOpen, changeOpen] = useState(true);
   const close = useCallback(() => {
     dialogRef.current?.close();
@@ -103,7 +103,7 @@ export const Dialog = ({
         {title && (
           <div className="bg-white px-4 pt-4">
             <h2
-              className="m-0! inline-block px-0 text-xl! font-bold"
+              className="m-0! inline-block px-0 text-2xl! font-bold"
               id={`modal-title-${modalRandomId}`}
               tabIndex={-1}
             >
@@ -113,11 +113,11 @@ export const Dialog = ({
         )}
 
         <>{children}</>
-        {actions && <div className="sticky bottom-0 flex gap-2 bg-white p-4 pt-0">{actions}</div>}
+        {actions && <div className="sticky bottom-0 flex gap-4 bg-white p-4 pt-0">{actions}</div>}
         <Button
           theme="link"
           className="group absolute top-0 right-0 z-1000 mt-4 mr-4"
-          aria-label={t("close")}
+          aria-label={t("button.close")}
           onClick={close}
           dataTestId="close-dialog"
         >

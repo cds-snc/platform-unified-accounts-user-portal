@@ -79,7 +79,7 @@ export function LoginTOTP({
           <div className="mt-6 flex items-center gap-4">
             <BackButton />
             <SubmitButtonAction dataTestId="totp-submit">
-              <I18n i18nKey="submit" namespace="verify" />
+              <I18n i18nKey="verify:submit" />
             </SubmitButtonAction>
           </div>
         </form>
@@ -87,7 +87,7 @@ export function LoginTOTP({
         <div className="mt-8 flex items-center gap-4">
           {supportLink && (
             <Link href={supportLink} prefetch={false}>
-              <I18n i18nKey="help" namespace="verify" />
+              <I18n i18nKey="verify:help" />
             </Link>
           )}
         </div>

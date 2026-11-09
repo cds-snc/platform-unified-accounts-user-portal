@@ -5,12 +5,12 @@
  *--------------------------------------------*/
 import { useState } from "react";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
 
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
 import { getImageUrl } from "@lib/utils/imageUrl";
+import { useTranslation } from "@i18n";
 import { Button } from "@components/ui/button/Button";
 import { Image } from "@components/ui/image/Image";
 import { ToastContainer } from "@components/ui/toast/Toast";
@@ -65,10 +65,8 @@ export const MFAAuthentication = ({
   return (
     <>
       <div className={className}>
-        <div className="mb-6 flex flex-row items-baseline gap-2">
-          <h3 className="-mb-2">{t("mfaAuthentication.title")}</h3>
-          <span className="">{t("mfaAuthentication.minimumNum")}</span>
-        </div>
+        <h3 className="mb-2">{t("mfaAuthentication.title")}</h3>
+        <div className="mb-4">{t("mfaAuthentication.minimumNum")}</div>
 
         {!hasMFAMethods && <p>{t("mfaAuthentication.noTwoFactor")}</p>}
 
@@ -82,7 +80,7 @@ export const MFAAuthentication = ({
                     .map((data) => {
                       const id = `u2f-${data.id}`;
                       return (
-                        <li key={data.id} className="mb-4 flex flex-row">
+                        <li key={data.id} className="mb-4">
                           <div className="flex grow items-center gap-2">
                             <Image
                               src={getImageUrl("/img/fingerprint_24px.png")}
@@ -92,31 +90,34 @@ export const MFAAuthentication = ({
                               className="inline-block"
                             />
 
-                            <div id={id} className="flex items-center gap-1">
+                            <div id={id} className="flex items-center gap-2">
                               <span className="font-semibold">
                                 {t("mfaAuthentication.securityKey")}
                               </span>
                               <span>({data.name || t("mfaAuthentication.unknownDevice")})</span>
                             </div>
+                            {hasMultipleMFAMethods && (
+                              <>
+                                <span>&bull;</span>
+                                <Button
+                                  onClick={() =>
+                                    setMfaForDeletion({ id: data.id, name: data.name })
+                                  }
+                                  theme="link"
+                                  aria-describedby={id}
+                                  dataTestId="account-mfa-u2f-remove"
+                                >
+                                  {t("mfaAuthentication.remove")}
+                                </Button>
+                              </>
+                            )}
                           </div>
-                          {hasMultipleMFAMethods && (
-                            <div>
-                              <Button
-                                onClick={() => setMfaForDeletion({ id: data.id, name: data.name })}
-                                theme="link"
-                                aria-describedby={id}
-                                dataTestId="account-mfa-u2f-remove"
-                              >
-                                {t("mfaAuthentication.remove")}
-                              </Button>
-                            </div>
-                          )}
                         </li>
                       );
                     })}
 
                 {authenticatorStatus && (
-                  <li className="mb-4 flex flex-row">
+                  <li className="mb-4">
                     <div className="flex grow items-center gap-2">
                       <Image
                         src={getImageUrl("/img/verified_user_24px.png")}
@@ -128,18 +129,19 @@ export const MFAAuthentication = ({
                       <span className="font-semibold">
                         {t("mfaAuthentication.authenticatorApp")}
                       </span>
+                      {hasMultipleMFAMethods && (
+                        <>
+                          <span>&bull;</span>
+                          <Button
+                            onClick={() => setMfaForDeletion({ id: "totp", name: "totp" })}
+                            theme="link"
+                            dataTestId="account-mfa-totp-remove"
+                          >
+                            {t("mfaAuthentication.remove")}
+                          </Button>
+                        </>
+                      )}
                     </div>
-                    {hasMultipleMFAMethods && (
-                      <div>
-                        <Button
-                          onClick={() => setMfaForDeletion({ id: "totp", name: "totp" })}
-                          theme="link"
-                          dataTestId="account-mfa-totp-remove"
-                        >
-                          {t("mfaAuthentication.remove")}
-                        </Button>
-                      </div>
-                    )}
                   </li>
                 )}
               </ul>
@@ -163,7 +165,6 @@ export const MFAAuthentication = ({
       <ToastContainer autoClose={false} containerId="account-authentication" />
       {mfaForDeletion && (
         <ConfirmDeleteMFADialog
-          authType={mfaForDeletion.id === "totp" ? "authenticator" : "securityKey"}
           mfaName={mfaForDeletion.name}
           handleClose={() => setMfaForDeletion(undefined)}
           handleConfirm={async () => {

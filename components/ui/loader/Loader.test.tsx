@@ -16,7 +16,7 @@ describe("Loader", () => {
     render(await Loader({}));
 
     const status = screen.getByRole("status");
-    expect(serverTranslation).toHaveBeenCalledWith("common");
+    expect(serverTranslation).toHaveBeenCalledWith();
     expect(status).toHaveTextContent("Chargement...");
     expect(status.querySelector(".animate-spin")).toHaveAttribute("aria-hidden", "true");
   });

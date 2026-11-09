@@ -18,17 +18,10 @@ export type NextAction = (typeof NextAction)[keyof typeof NextAction];
 interface NextStepActionProps {
   action: NextAction;
   text: string;
-  namespace: string;
   redirect?: string;
   requestId?: string;
 }
-export const NextStepAction = ({
-  action,
-  text,
-  namespace,
-  redirect,
-  requestId,
-}: NextStepActionProps) => {
+export const NextStepAction = ({ action, text, redirect, requestId }: NextStepActionProps) => {
   const router = useRouter();
   const [working, setWorking] = useState(false);
   const nextStep = async () => {
@@ -54,7 +47,7 @@ export const NextStepAction = ({
   return (
     <form className="mt-4" action={nextStep}>
       <SubmitButton type="submit" loading={working}>
-        <I18n i18nKey={text} namespace={namespace} />
+        <I18n i18nKey={text} />
       </SubmitButton>
     </form>
   );

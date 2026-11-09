@@ -26,9 +26,8 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
     <div data-wide-panel="true">
       <AuthPanel
         titleI18nKey="none"
-        pageTitleI18nKey="title"
+        pageTitleI18nKey="allSet:title"
         descriptionI18nKey="none"
-        namespace="allSet"
         wide={true}
         requestId={requestId}
         variant="wide"

@@ -31,12 +31,14 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
 
   return (
     <NextSteps
-      titleI18nKey="incomplete.title"
-      namespace="register"
+      titleI18nKey="register:incomplete.title"
       imageSrc="/img/cardinal.png"
       variant="narrow"
-      listI18nKeys={[{ key: "incomplete.item1", checked: true }, { key: "incomplete.item2" }]}
-      hintI18nKey="incomplete.hint"
+      listI18nKeys={[
+        { key: "register:incomplete.item1", checked: true },
+        { key: "register:incomplete.item2" },
+      ]}
+      hintI18nKey="register:incomplete.hint"
       action="sendCode"
       requestId={requestId}
     ></NextSteps>

@@ -27,7 +27,6 @@ interface NextStepsProps {
   listI18nKeys: { key: string; checked?: boolean }[];
   hintI18nKey?: string;
   imageSrc?: string;
-  namespace: string;
   variant?: "default" | "narrow" | "wide";
   requestId?: string;
 }
@@ -39,7 +38,6 @@ export const NextSteps = async ({
   listI18nKeys,
   hintI18nKey,
   imageSrc,
-  namespace,
   variant,
   requestId,
 }: NextStepsProps) => {
@@ -54,7 +52,7 @@ export const NextSteps = async ({
   return (
     <RequestingAppProvider appName={callingApp}>
       <div id={panelId}>
-        <PageTitle i18nKey={pageTitleI18nKey ?? titleI18nKey} namespace={namespace} />
+        <PageTitle i18nKey={pageTitleI18nKey ?? titleI18nKey} />
         {imageSrc && (
           <div className="mb-6 flex justify-center">
             <Image
@@ -71,7 +69,7 @@ export const NextSteps = async ({
           </div>
         )}
 
-        <NextStepsTitle i18nKey={titleI18nKey} namespace={namespace} />
+        <NextStepsTitle i18nKey={titleI18nKey} />
         <div className="flex flex-col">
           {listI18nKeys.map((listKey) => (
             <div key={listKey.key} className="mb-4 flex flex-row gap-4">
@@ -83,15 +81,15 @@ export const NextSteps = async ({
                 )}
               </div>
               <div className="flex items-center">
-                <I18n i18nKey={listKey.key} namespace={namespace} />
+                <I18n i18nKey={listKey.key} />
               </div>
             </div>
           ))}
         </div>
-        <NextStepAction action={action} text="incomplete.action" namespace={namespace} />
+        <NextStepAction action={action} text="register:incomplete.action" />
         {hintI18nKey && (
           <div className="mt-4">
-            <I18n i18nKey={hintI18nKey} namespace={namespace} />
+            <I18n i18nKey={hintI18nKey} />
           </div>
         )}
       </div>

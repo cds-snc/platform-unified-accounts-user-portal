@@ -5,7 +5,7 @@ export const Title = () => {
   return (
     <div className="flex justify-start gap-2">
       <LeftIcon />
-      <AuthPanelTitle i18nKey="title" namespace="beforeYouStart" />
+      <AuthPanelTitle i18nKey="beforeYouStart:title" />
       <RightIcon />
     </div>
   );

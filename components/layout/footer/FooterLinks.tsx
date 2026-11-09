@@ -23,7 +23,7 @@ export const FooterLinks = () => {
       {aboutLink && (
         <>
           <a className="whitespace-nowrap" href={aboutLink} target="_blank">
-            <I18n i18nKey="about.desc" namespace="footer" />
+            <I18n i18nKey="footer:about.desc" />
           </a>
           <BulletPoint />
         </>
@@ -31,7 +31,7 @@ export const FooterLinks = () => {
       {termsOfUseLink && (
         <>
           <a className="whitespace-nowrap" href={termsOfUseLink} target="_blank">
-            <I18n i18nKey="terms-of-use.desc" namespace="footer" />
+            <I18n i18nKey="footer:terms-of-use.desc" />
           </a>
           <BulletPoint />
         </>
@@ -39,17 +39,17 @@ export const FooterLinks = () => {
       {slaLink && (
         <>
           <a className="whitespace-nowrap" href={slaLink} target="_blank">
-            <I18n i18nKey="sla.desc" namespace="footer" />
+            <I18n i18nKey="footer:sla.desc" />
           </a>
           <BulletPoint />
         </>
       )}
       <Link className="whitespace-nowrap" href="/privacy-policy">
-        <I18n i18nKey="privacy-policy.desc" namespace="footer" />
+        <I18n i18nKey="footer:privacy-policy.desc" />
       </Link>
       <BulletPoint />
       <Link className="whitespace-nowrap" href="/contact-us">
-        <I18n i18nKey="contact-us.desc" namespace="footer" />
+        <I18n i18nKey="footer:contact-us.desc" />
       </Link>
     </span>
   );

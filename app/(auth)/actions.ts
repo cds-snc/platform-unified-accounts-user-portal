@@ -48,7 +48,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   if (!validationResult.success) {
     logMessage.warn("Server side validation failed for username and password");
     return {
-      error: t("validation.invalidCredentials"),
+      error: t("start:validation.invalidCredentials"),
     };
   }
 
@@ -76,18 +76,18 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
     logMessage.debug("Account is disabled or locked");
     // Same response as any other failure; the account owner is told by email instead
     after(() => sendAccountRestrictedEmail({ loginName: username }));
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   }
 
   if (!session) {
     // Always return generic error (don't reveal if user exists or password is wrong)
     logMessage.debug("Authentication failed, returning generic message");
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   }
 
   if (!session?.factors?.user?.id) {
     logMessage.warn("Session created but no user ID found");
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   }
 
   // Fetch user details
@@ -95,7 +95,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   if (!userResponse.user) {
     logMessage.warn("User not found after successful authentication");
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   }
 
   const user = userResponse.user;
@@ -104,7 +104,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
   // Check if user is in initial state (not supported)
   if (user.state === UserState.INITIAL) {
     logMessage.warn("User in INITIAL state - not supported");
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   }
 
   const abandoned = await handleAbandonedRegistrationFlow(requestId);
@@ -129,7 +129,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   if (authMethods.length === 0) {
     logMessage.error("No authentication methods found for user");
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   }
 
   // Check MFA requirements and redirect appropriately
@@ -137,7 +137,7 @@ export const submitLoginForm = async (command: SubmitLoginCommand): Promise<{ er
 
   if ("error" in mfaFactorCheck) {
     logMessage.error(`MFA factor check failed: ${mfaFactorCheck.error}`);
-    return { error: t("validation.invalidCredentials") };
+    return { error: t("start:validation.invalidCredentials") };
   } else {
     redirect(mfaFactorCheck.redirect, "push");
   }
