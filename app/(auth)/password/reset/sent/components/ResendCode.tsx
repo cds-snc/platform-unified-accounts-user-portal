@@ -14,6 +14,8 @@ import { useSiteConfig } from "@components/contexts/SiteConfigContext";
  *--------------------------------------------*/
 import { BackButton } from "@components/ui/button/BackButton";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
+import { Alert, ErrorStatus } from "@components/ui/form";
+import { toast } from "@components/ui/toast/Toast";
 
 import { resendPasswordResetEmail } from "../../actions";
 
@@ -24,7 +26,10 @@ export function ResendCode() {
 
   const [state, formAction] = useActionState(async () => {
     try {
-      return await resendPasswordResetEmail();
+      const result = await resendPasswordResetEmail();
+      if ("success" in result) {
+        toast.success(t("reset.sent.resendRequested"));
+      }
     } catch {
       return { error: "errors.couldNotSendResetLink" };
     }
@@ -35,11 +40,12 @@ export function ResendCode() {
       <p className="mt-6">
         <I18n i18nKey="password:reset.sent.linkExpires" />
       </p>
-      {state && "error" in state && <p role="alert">{t("errors.couldNotSendResetLink")}</p>}
-      {state && "success" in state && (
-        <p role="status">
-          <I18n i18nKey="password:reset.sent.resendRequested" />
-        </p>
+      {state && "error" in state && (
+        <div className="mt-8">
+          <Alert type={ErrorStatus.ERROR} focussable={true}>
+            {t("errors.couldNotSendResetLink")}
+          </Alert>
+        </div>
       )}
       <form id="resend-code" action={formAction} noValidate>
         <div className="mt-6 flex items-center gap-4">

@@ -1,6 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { ToastContainer } from "@components/ui/toast/Toast";
 
 import { resendPasswordResetEmail } from "../../actions";
 
@@ -27,14 +29,19 @@ describe("ResendCode", () => {
     vi.resetAllMocks();
   });
 
-  it("requests a resend without passing any client-controlled data and announces the result", async () => {
+  it("requests a resend without client-controlled data and shows a success toast for each resend", async () => {
     let finish!: (value: { success: true }) => void;
     vi.mocked(resendPasswordResetEmail).mockReturnValue(
       new Promise((resolve) => {
         finish = resolve;
       })
     );
-    render(<ResendCode />);
+    render(
+      <>
+        <ResendCode />
+        <ToastContainer autoClose={false} containerId="default" />
+      </>
+    );
 
     const submit = screen.getByRole("button", { name: "password:reset.sent.resendLink" });
     await userEvent.click(submit);
@@ -44,9 +51,15 @@ describe("ResendCode", () => {
     expect(resendPasswordResetEmail).toHaveBeenCalledOnce();
 
     finish({ success: true });
-    expect(await screen.findByRole("status")).toHaveTextContent(
-      "password:reset.sent.resendRequested"
-    );
+    const successToast = await screen.findByRole("alert");
+    expect(successToast).toHaveTextContent("translated:reset.sent.resendRequested");
+    expect(successToast).toHaveClass("gc-toast--success");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    vi.mocked(resendPasswordResetEmail).mockResolvedValue({ success: true });
+    await userEvent.click(submit);
+    await waitFor(() => expect(screen.getAllByRole("alert")).toHaveLength(2));
+    expect(resendPasswordResetEmail).toHaveBeenCalledTimes(2);
   });
 
   it.each(["expired", "failed"])("shows an error when the request is %s", async (reason) => {
@@ -57,13 +70,19 @@ describe("ResendCode", () => {
     } else {
       vi.mocked(resendPasswordResetEmail).mockRejectedValue(new Error("Network failure"));
     }
-    render(<ResendCode />);
+    render(
+      <>
+        <ResendCode />
+        <ToastContainer autoClose={false} containerId="default" />
+      </>
+    );
 
     await userEvent.click(screen.getByRole("button", { name: "password:reset.sent.resendLink" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "translated:errors.couldNotSendResetLink"
     );
+    expect(screen.queryByText("translated:reset.sent.resendRequested")).not.toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });
