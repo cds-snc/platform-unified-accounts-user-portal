@@ -6,7 +6,6 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
-import { cn } from "@lib/utils";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
@@ -44,12 +43,10 @@ export const PersonalDetails = ({
   firstName,
   lastName,
   email,
-  className,
 }: {
   firstName: string;
   lastName: string;
   email: string;
-  className?: string;
 }) => {
   const { t } = useTranslation("account");
   const [editMode, setEditMode] = useState(false);
@@ -127,122 +124,120 @@ export const PersonalDetails = ({
   };
 
   return (
-    <div className={cn("bg-white", className)}>
-      <div className={"p-6"}>
-        <div className="flex items-center justify-between">
-          <h3 id="personal-details-title" className="mb-4">
-            {t("personalDetails.title")}
-          </h3>
-        </div>
-        <div>
-          {!editMode && (
-            <div className="flex flex-row">
-              <ul className="grow list-none p-0">
-                <li className="mb-6">
-                  <div className="mb-1 font-bold">{t("personalDetails.firstName")}</div>
-                  <div>
-                    <em data-testid="first-name">{firstName}</em>
-                  </div>
-                </li>
-                <li>
-                  <div className="mb-1 font-bold">{t("personalDetails.lastName")}</div>
-                  <div>
-                    <em data-testid="last-name">{lastName}</em>
-                  </div>
-                </li>
-              </ul>
-              <div className="flex flex-col">
-                <Button
-                  theme="primary"
-                  onClick={() => setEditMode(!editMode)}
-                  aria-describedby="personal-details-title"
-                  aria-expanded={editMode}
-                  aria-controls="personal-details-form"
-                  disabled={editMode}
-                  buttonRef={changeButtonRef}
+    <div>
+      <div className="flex items-center justify-between">
+        <h3 id="personal-details-title" className="mb-4">
+          {t("personalDetails.title")}
+        </h3>
+      </div>
+      <div className="mb-6">
+        {!editMode && (
+          <div className="flex flex-row">
+            <ul className="grow list-none p-0">
+              <li className="mb-2">
+                <div className="mb-1 font-bold">{t("personalDetails.firstName")}</div>
+                <div>
+                  <em data-testid="first-name">{firstName}</em>
+                </div>
+              </li>
+              <li>
+                <div className="mb-1 font-bold">{t("personalDetails.lastName")}</div>
+                <div>
+                  <em data-testid="last-name">{lastName}</em>
+                </div>
+              </li>
+            </ul>
+            <div className="flex flex-col">
+              <Button
+                theme="primary"
+                onClick={() => setEditMode(!editMode)}
+                aria-describedby="personal-details-title"
+                aria-expanded={editMode}
+                aria-controls="personal-details-form"
+                disabled={editMode}
+                buttonRef={changeButtonRef}
 
-                  dataTestId="account-name-change"
-                >
-                  {t("personalDetails.change")}
-                </Button>
+                dataTestId="account-name-change"
+              >
+                {t("personalDetails.change")}
+              </Button>
+            </div>
+          </div>
+        )}
+        {editMode && (
+          <form
+            id="personal-details-form"
+            action={formAction}
+            onKeyDown={handleEscape}
+            noValidate
+            className="flex flex-row gap-4"
+          >
+            <fieldset className="grow">
+              <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
+              <div className="mb-4 flex flex-col gap-4">
+                <div className="gcds-input-wrapper">
+                  <Label className="required" htmlFor="firstname" required>
+                    {t("personalDetails.firstName")}
+                  </Label>
+                  {hasError("firstname", state.validationErrors) && (
+                    <ErrorMessage id={"errorMessageFirstname"}>
+                      {getError("firstname", state.validationErrors)}
+                    </ErrorMessage>
+                  )}
+                  <TextInput
+                    className="w-full"
+                    type="text"
+                    id="firstname"
+                    autoComplete="given-name"
+                    ref={firstNameRef}
+                    required
+                    defaultValue={state.formData?.firstname ?? ""}
+                    ariaDescribedbyIds={
+                      hasError("firstname", state.validationErrors)
+                        ? ["errorMessageFirstname"]
+                        : undefined
+                    }
+                    invalid={hasError("firstname", state.validationErrors)}
+                  />
+                </div>
+                <div className="gcds-input-wrapper">
+                  <Label htmlFor="lastname" required>
+                    {t("personalDetails.lastName")}
+                  </Label>
+                  {hasError("lastname", state.validationErrors) && (
+                    <ErrorMessage id={"errorMessageLastname"}>
+                      {getError("lastname", state.validationErrors)}
+                    </ErrorMessage>
+                  )}
+                  <TextInput
+                    className="w-full"
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    id="lastname"
+                    defaultValue={state.formData?.lastname ?? ""}
+                    ariaDescribedbyIds={
+                      hasError("lastname", state.validationErrors)
+                        ? ["errorMessageLastname"]
+                        : undefined
+                    }
+                    invalid={hasError("lastname", state.validationErrors)}
+                  />
+                </div>
+              </div>
+            </fieldset>
+            <div className="basis-1/3">
+              <div className="float-right">
+                {/* Could also specify the first and or last name being updated but this is probably clear enough */}
+                <SubmitButtonAction ariaDescribedBy="personal-details-title">
+                  {t("personalDetails.updateAccount")}
+                </SubmitButtonAction>
               </div>
             </div>
-          )}
-          {editMode && (
-            <form
-              id="personal-details-form"
-              action={formAction}
-              onKeyDown={handleEscape}
-              noValidate
-              className="flex flex-row gap-4"
-            >
-              <fieldset className="grow">
-                <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
-                <div className="mb-4 flex flex-col gap-4">
-                  <div className="gcds-input-wrapper">
-                    <Label className="required" htmlFor="firstname" required>
-                      {t("personalDetails.firstName")}
-                    </Label>
-                    {hasError("firstname", state.validationErrors) && (
-                      <ErrorMessage id={"errorMessageFirstname"}>
-                        {getError("firstname", state.validationErrors)}
-                      </ErrorMessage>
-                    )}
-                    <TextInput
-                      className="w-full"
-                      type="text"
-                      id="firstname"
-                      autoComplete="given-name"
-                      ref={firstNameRef}
-                      required
-                      defaultValue={state.formData?.firstname ?? ""}
-                      ariaDescribedbyIds={
-                        hasError("firstname", state.validationErrors)
-                          ? ["errorMessageFirstname"]
-                          : undefined
-                      }
-                      invalid={hasError("firstname", state.validationErrors)}
-                    />
-                  </div>
-                  <div className="gcds-input-wrapper">
-                    <Label htmlFor="lastname" required>
-                      {t("personalDetails.lastName")}
-                    </Label>
-                    {hasError("lastname", state.validationErrors) && (
-                      <ErrorMessage id={"errorMessageLastname"}>
-                        {getError("lastname", state.validationErrors)}
-                      </ErrorMessage>
-                    )}
-                    <TextInput
-                      className="w-full"
-                      type="text"
-                      autoComplete="family-name"
-                      required
-                      id="lastname"
-                      defaultValue={state.formData?.lastname ?? ""}
-                      ariaDescribedbyIds={
-                        hasError("lastname", state.validationErrors)
-                          ? ["errorMessageLastname"]
-                          : undefined
-                      }
-                      invalid={hasError("lastname", state.validationErrors)}
-                    />
-                  </div>
-                </div>
-              </fieldset>
-              <div className="basis-1/3">
-                <div className="float-right">
-                  {/* Could also specify the first and or last name being updated but this is probably clear enough */}
-                  <SubmitButtonAction ariaDescribedBy="personal-details-title">
-                    {t("personalDetails.updateAccount")}
-                  </SubmitButtonAction>
-                </div>
-              </div>
-            </form>
-          )}
-        </div>
+          </form>
+        )}
       </div>
-      <div className="flex flex-col gap-4 p-6">
+      <div className="mb-6 flex flex-col gap-4">
         <div>
           <h3 className="mb-4">{t("personalDetails.email")}</h3>
           <div>
