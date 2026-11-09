@@ -30,6 +30,7 @@ export function ResendCode() {
       if ("success" in result) {
         toast.success(t("reset.sent.resendRequested"));
       }
+      return result;
     } catch {
       return { error: "errors.couldNotSendResetLink" };
     }
