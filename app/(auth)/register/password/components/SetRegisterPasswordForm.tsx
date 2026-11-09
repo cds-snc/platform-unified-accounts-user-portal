@@ -33,7 +33,7 @@ export function SetRegisterPasswordForm({
   requestId?: string;
   inviteCode?: string;
 }) {
-  const { t } = useTranslation(["password"]);
+  const { t } = useTranslation(["password", "register"]);
 
   const [error, setError] = useState("");
 
