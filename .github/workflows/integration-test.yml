@@ -57,7 +57,7 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:ee15712262f017b8157421b212b12099146645f44b1bc5c0514cbbe6a229b1d0
     steps:
       - name: Audit DNS requests
-        uses: cds-snc/dns-proxy-action@58d95c286bfa233aec52055237b26a20c6ae13a5 # v1.2.1
+        uses: cds-snc/dns-proxy-action@db1dcfd7d049041985df926671cae9d356738008 # v1.2.2
         env:
           DNS_PROXY_FORWARDTOSENTINEL: "true"
           DNS_PROXY_LOGANALYTICSWORKSPACEID: "${{ secrets.log_analytics_workspace_id }}"
