@@ -5,7 +5,7 @@ export type SiteConfig = {
   zitadelOrganizationId: string;
 };
 
-export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "gcForms";
+export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "support" | "gcForms";
 
 // Use URL templates with {baseUrl} and optional {locale}; set false to hide a link.
 type SiteLinkValue = string | false;
@@ -20,6 +20,7 @@ const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig 
   about: false,
   termsOfUse: "/terms-of-use",
   sla: "/sla",
+  support: "/contact-us",
   gcForms: "https://forms-staging.cdssandbox.xyz/{locale}/forms",
   ...overrides,
 });
