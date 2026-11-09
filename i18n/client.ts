@@ -10,8 +10,7 @@ import { initReactI18next, useTranslation as reactUseTranslation } from "react-i
 /*--------------------------------------------*
  * Local Relative
  *--------------------------------------------*/
-import { getOptions } from "./settings";
-export const LANGUAGE_COOKIE_NAME = "i18next";
+import { getOptions, LANGUAGE_COOKIE_NAME } from "./settings";
 
 const languageDetector = new LanguageDetector();
 

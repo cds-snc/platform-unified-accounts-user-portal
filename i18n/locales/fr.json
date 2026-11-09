@@ -236,19 +236,19 @@
       "alreadySetUp": "Votre application d'authentification est déjà configurée sur votre compte."
     },
     "verify": {
-      "title": "One-time code",
-      "authAppTitle": "Use authentication app",
-      "otpDescription": "Enter the code from your authentication app",
-      "emailDescription": "Enter the code received by email",
+      "title": "Code à usage unique",
+      "authAppTitle": "Utilisez l'application d'authentification",
+      "otpDescription": "Entrez le code de votre application d'authentification",
+      "emailDescription": "Entrez le code reçu par courriel",
       "form": {
-        "label": "Security code",
-        "noCodeReceived": "Didn't receive a code?",
-        "resendCode": "Re-send code"
+        "label": "Code de sécurité",
+        "noCodeReceived": "Vous n'avez pas reçu de code?",
+        "resendCode": "Renvoyer le code"
       },
       "validation": {
-        "required": "Cannot be empty",
-        "maxLength": "Less than 10 characters",
-        "invalidCodeLength": "Enter the 6-digit code from your authenticator app."
+        "required": "Ce champ ne peut pas être vide",
+        "maxLength": "Moins de 10 caractères",
+        "invalidCodeLength": "Entrez le code à 6 chiffres de votre application d’authentification."
       }
     }
   },

@@ -13,3 +13,5 @@ export function getOptions(lang: string = fallbackLng, ns: string | string[] = d
     ns,
   };
 }
+
+export const LANGUAGE_COOKIE_NAME = "i18next";

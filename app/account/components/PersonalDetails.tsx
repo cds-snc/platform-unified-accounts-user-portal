@@ -11,7 +11,12 @@ import { cn } from "@lib/utils";
  * Internal Aliases
  *--------------------------------------------*/
 import { validatePersonalDetails } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
@@ -27,7 +32,7 @@ import { updatePersonalDetailsAction } from "../actions";
 
 type FormState = {
   error?: string;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
   formData?: {
     firstname?: string;
     lastname?: string;
@@ -83,7 +88,7 @@ export const PersonalDetails = ({
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`personalDetails.validation.${issue.message}`),
+          errorKey: `personalDetails.validation.${issue.message}`,
         })),
         formData: formEntries,
       };
@@ -108,13 +113,18 @@ export const PersonalDetails = ({
     };
   };
 
-  const [state, formAction] = useActionState(localFormAction, {
+  const [rawState, formAction] = useActionState(localFormAction, {
     validationErrors: undefined,
     formData: {
       firstname: firstName || "",
       lastname: lastName || "",
     },
   });
+
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   return (
     <div className={cn("bg-white", className)}>
