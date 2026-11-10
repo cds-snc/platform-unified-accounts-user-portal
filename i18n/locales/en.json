@@ -8,7 +8,7 @@
   },
   "account": {
     "authentication": {
-      "change": "Change",
+      "reset": "Reset or change",
       "password": "Password"
     },
     "mfaAuthentication": {
@@ -43,10 +43,14 @@
       "title": "Settings"
     },
     "personalDetails": {
-      "cannotBeChanged": "Cannot change",
+      "cannotBeChanged": "Cannot be changed",
       "change": "Change",
-      "createNewAccount": "Create new account or contact support",
-      "email": "Email address",
+      "createNewAccount": "Create new account",
+      "or": "or",
+      "contactSupport": "contact support",
+      "forMoreInformation": "for more information",
+      "email": "Email",
+      "emailAddress": "Email address",
       "errors": {
         "updateFailed": "Failed to update personal details"
       },

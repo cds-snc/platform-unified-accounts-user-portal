@@ -26,11 +26,9 @@ import { ConfirmDeleteMFADialog } from "./ConfirmDeleteMFA";
 export const MFAAuthentication = ({
   u2fList,
   authenticatorStatus,
-  className,
 }: {
   u2fList: Array<{ id: string; name: string; state?: string }>;
   authenticatorStatus: boolean;
-  className?: string;
 }) => {
   const { t } = useTranslation("account");
 
@@ -64,7 +62,7 @@ export const MFAAuthentication = ({
 
   return (
     <>
-      <div className={className}>
+      <div className="rounded-xl border-1 border-gray-300 bg-white p-6">
         <h3 className="mb-2">{t("mfaAuthentication.title")}</h3>
         <div className="mb-4">{t("mfaAuthentication.minimumNum")}</div>
 

@@ -26,7 +26,7 @@ export function AccountNavigation() {
       aria-label={t("navigation.ariaLabel")}
       className="rounded-xl border-1 border-gray-300 bg-white p-6"
     >
-      <h1 className="mb-6 text-2xl font-semibold" id="page-heading">
+      <h1 className="mb-4 text-2xl font-semibold" id="page-heading">
         {t("navigation.title")}
       </h1>
       <ul className="list-none space-y-4 p-0">
