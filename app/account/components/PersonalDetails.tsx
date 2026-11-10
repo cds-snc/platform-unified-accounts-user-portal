@@ -4,6 +4,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { useActionState, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { flushSync } from "react-dom";
 
 /*--------------------------------------------*
@@ -17,6 +18,7 @@ import {
   type ValidationErrorKey,
 } from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
+import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Button } from "@components/ui/button/Button";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -52,6 +54,8 @@ export const PersonalDetails = ({
   const [editMode, setEditMode] = useState(false);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const changeButtonRef = useRef<HTMLButtonElement>(null);
+  const { getSiteLink } = useSiteConfig();
+  const supportLink = getSiteLink("support");
 
   useEffect(() => {
     if (editMode) {
@@ -125,43 +129,40 @@ export const PersonalDetails = ({
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h3 id="personal-details-title" className="mb-4">
-          {t("personalDetails.title")}
-        </h3>
-      </div>
-      <div className="mb-6">
+      <div className="mb-6 rounded-xl border-1 border-gray-300 bg-white p-6">
         {!editMode && (
-          <div className="flex flex-row">
-            <ul className="grow list-none p-0">
-              <li className="mb-2">
-                <div className="mb-1 font-bold">{t("personalDetails.firstName")}</div>
-                <div>
-                  <em data-testid="first-name">{firstName}</em>
-                </div>
-              </li>
-              <li>
-                <div className="mb-1 font-bold">{t("personalDetails.lastName")}</div>
-                <div>
-                  <em data-testid="last-name">{lastName}</em>
-                </div>
-              </li>
-            </ul>
-            <div className="flex flex-col">
-              <Button
-                theme="primary"
-                onClick={() => setEditMode(!editMode)}
-                aria-describedby="personal-details-title"
-                aria-expanded={editMode}
-                aria-controls="personal-details-form"
-                disabled={editMode}
-                buttonRef={changeButtonRef}
-
-                dataTestId="account-name-change"
-              >
-                {t("personalDetails.change")}
-              </Button>
+          <div className="flex flex-row items-start">
+            <div className="grow">
+              <h3 id="personal-details-title" className="mb-4">
+                {t("personalDetails.title")}
+              </h3>
+              <ul className="grow list-none p-0">
+                <li className="mb-4">
+                  <div className="mb-1 font-bold">{t("personalDetails.firstName")}</div>
+                  <div>
+                    <em data-testid="first-name">{firstName}</em>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-1 font-bold">{t("personalDetails.lastName")}</div>
+                  <div>
+                    <em data-testid="last-name">{lastName}</em>
+                  </div>
+                </li>
+              </ul>
             </div>
+            <Button
+              theme="primary"
+              onClick={() => setEditMode(!editMode)}
+              aria-describedby="personal-details-title"
+              aria-expanded={editMode}
+              aria-controls="personal-details-form"
+              disabled={editMode}
+              buttonRef={changeButtonRef}
+              dataTestId="account-name-change"
+            >
+              {t("personalDetails.change")}
+            </Button>
           </div>
         )}
         {editMode && (
@@ -173,8 +174,12 @@ export const PersonalDetails = ({
             className="flex flex-row gap-4"
           >
             <fieldset className="grow">
-              <legend className="sr-only">{t("personalDetails.updateDetails")}</legend>
-              <div className="mb-4 flex flex-col gap-4">
+              <legend>
+                <h3 id="personal-details-title" className="mb-4">
+                  {t("personalDetails.title")}
+                </h3>
+              </legend>
+              <div className="flex flex-col gap-4">
                 <div className="gcds-input-wrapper">
                   <Label className="required" htmlFor="firstname" required>
                     {t("personalDetails.firstName")}
@@ -237,12 +242,18 @@ export const PersonalDetails = ({
           </form>
         )}
       </div>
-      <div className="mb-6 flex flex-col gap-4">
+
+      <div className="mb-6 rounded-xl border-1 border-gray-300 bg-white p-6">
         <div>
           <h3 className="mb-4">{t("personalDetails.email")}</h3>
-          <div>
-            <em data-testid="account-email">{email}</em>
-          </div>
+          <ul className="list-none p-0">
+            <li className="mb-4">
+              <div className="mb-1 font-bold">{t("personalDetails.emailAddress")}</div>
+              <div>
+                <em data-testid="account-email">{email}</em>
+              </div>
+            </li>
+          </ul>
         </div>
         <div>
           <div className="mb-1 font-bold">{t("personalDetails.cannotBeChanged")}</div>
@@ -250,9 +261,18 @@ export const PersonalDetails = ({
           <Button theme="link" onClick={logoutAndRegister} dataTestId="account-create-new">
             {t("personalDetails.createNewAccount")}
           </Button>
+          {supportLink && (
+            <>
+              <span className="mx-1">{t("personalDetails.or")}</span>
+              <Link href={supportLink} prefetch={false}>
+                {t("personalDetails.contactSupport")}
+              </Link>
+              <span className="mx-1">{t("personalDetails.forMoreInformation")}</span>
+            </>
+          )}
         </div>
+        <ToastContainer autoClose={false} containerId="account-details" />
       </div>
-      <ToastContainer autoClose={false} containerId="account-details" />
     </>
   );
 };

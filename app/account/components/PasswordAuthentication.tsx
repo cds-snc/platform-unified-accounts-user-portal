@@ -4,8 +4,9 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
+import Link from "next/link";
+
 import { useTranslation } from "@i18n";
-import { LinkButton } from "@components/ui/button/LinkButton";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -15,26 +16,20 @@ export const PasswordAuthentication = () => {
   const { t } = useTranslation("account");
 
   return (
-    <div className="flex flex-row">
-      <div className="grow">
-        <h3 id="password-title" className="mb-6">
-          {t("authentication.password")}
-        </h3>
-        {/* Placeholder password characters used instead of real password for security reasons */}
-        <div>
-          &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
-        </div>
+    <div className="mb-6 rounded-xl border-1 border-gray-300 bg-white p-6">
+      <h3 id="password-title">{t("authentication.password")}</h3>
+      {/* Placeholder password characters used instead of real password for security reasons */}
+      <div className="mb-2">
+        &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
       </div>
-      <div className="flex">
-        <LinkButton.Primary
-          href="/password/change"
-          aria-describedby="password-title"
-          className="my-auto"
-          data-testid="account-password-change"
-        >
-          {t("authentication.change")}
-        </LinkButton.Primary>
-      </div>
+      <Link
+        href="/password/change"
+        prefetch={false}
+        aria-describedby="password-title"
+        data-testid="account-password-change"
+      >
+        {t("authentication.reset")}
+      </Link>
     </div>
   );
 };

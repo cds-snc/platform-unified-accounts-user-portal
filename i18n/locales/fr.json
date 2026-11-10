@@ -8,7 +8,7 @@
   },
   "account": {
     "authentication": {
-      "change": "Modifier",
+      "reset": "Réinitialiser ou modifier",
       "password": "Mot de passe"
     },
     "errors": {},
@@ -46,8 +46,12 @@
     "personalDetails": {
       "cannotBeChanged": "Ne peut être modifiée",
       "change": "Modifier",
-      "createNewAccount": "Créer un nouveau compte ou communiquer avec l'equipe de soutien",
-      "email": "Adresse de courriel",
+      "createNewAccount": "Créer un nouveau compte",
+      "or": "ou",
+      "contactSupport": "communiquer avec l'equipe de soutien",
+      "forMoreInformation": "pour plus d'informations",
+      "email": "Courriel",
+      "emailAddress": "Adresse de courriel",
       "errors": {
         "updateFailed": "Vos renseignements personnels n'ont pas pu être modifiés"
       },
@@ -58,7 +62,6 @@
       },
       "title": "Profil",
       "updateAccount": "Enregistrer les modifications",
-      "updateDetails": "Mettez a jour vos renseignements personnels",
       "validation": {
         "maxLengthFirstname": "Le prénom doit comporter moins de 251 caractères.",
         "maxLengthLastname": "Le nom de famille doit comporter moins de 251 caractères.",
