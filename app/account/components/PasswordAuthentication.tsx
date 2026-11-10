@@ -22,7 +22,12 @@ export const PasswordAuthentication = () => {
       <div className="mb-2">
         &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
       </div>
-      <Link href="/password/change" prefetch={false}>
+      <Link
+        href="/password/change"
+        prefetch={false}
+        aria-describedby="password-title"
+        data-testid="account-password-change"
+      >
         {t("authentication.reset")}
       </Link>
     </div>

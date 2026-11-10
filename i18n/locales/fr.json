@@ -62,7 +62,6 @@
       },
       "title": "Profil",
       "updateAccount": "Enregistrer les modifications",
-      "updateDetails": "Mettez a jour vos renseignements personnels",
       "validation": {
         "maxLengthFirstname": "Le prénom doit comporter moins de 251 caractères.",
         "maxLengthLastname": "Le nom de famille doit comporter moins de 251 caractères.",

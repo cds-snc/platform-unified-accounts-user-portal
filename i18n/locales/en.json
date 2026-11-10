@@ -61,7 +61,6 @@
       },
       "title": "Profile",
       "updateAccount": "Save Changes",
-      "updateDetails": "Update your personal details",
       "validation": {
         "maxLengthFirstname": "First name must be less than 251 characters.",
         "maxLengthLastname": "Last name must be less than 251 characters.",
