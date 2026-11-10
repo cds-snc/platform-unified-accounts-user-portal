@@ -88,6 +88,21 @@ export const containsSymbol = (field: string): boolean => {
 
 type ValidationError = { fieldKey: string; fieldValue: string };
 
+export type ValidationErrorKey = {
+  fieldKey: string;
+  errorKey: string;
+  options?: Record<string, unknown>;
+};
+
+export const translateValidationErrors = (
+  errors: ValidationErrorKey[] | undefined,
+  t: (key: string, options?: Record<string, unknown>) => string
+): ValidationError[] | undefined =>
+  errors?.map(({ fieldKey, errorKey, options }) => ({
+    fieldKey,
+    fieldValue: t(errorKey, options),
+  }));
+
 /**
  * Helper to get the realted error key if one exists.
  * Requires that validationErrors has been populated with translated strings.

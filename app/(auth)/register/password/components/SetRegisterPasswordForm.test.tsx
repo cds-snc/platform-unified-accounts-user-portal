@@ -80,28 +80,42 @@ describe("SetRegisterPasswordForm", () => {
   });
 
   it("shows server returned error and does not redirect", async () => {
-    vi.mocked(registerUser).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
+    vi.mocked(registerUser).mockResolvedValue({
+      error: "register:errors.couldNotCreateUser",
+    } as never);
 
     render(<SetRegisterPasswordForm {...baseProps} />);
 
     await userEvent.click(screen.getByRole("button", { name: "trigger-password-submit" }));
 
     await waitFor(() => {
-      expect(screen.getByText("errors.couldNotCreateUser")).toBeInTheDocument();
+      expect(screen.getByText("register:errors.couldNotCreateUser")).toBeInTheDocument();
     });
   });
 
   it("continues registration call even when account validation fails", async () => {
     vi.mocked(validateAccount).mockResolvedValue({ success: false } as never);
-    vi.mocked(registerUser).mockResolvedValue({ error: "errors.couldNotCreateUser" } as never);
+    vi.mocked(registerUser).mockResolvedValue({
+      error: "register:errors.couldNotCreateUser",
+    } as never);
 
     render(<SetRegisterPasswordForm {...baseProps} />);
 
     await userEvent.click(screen.getByRole("button", { name: "trigger-password-submit" }));
 
     await waitFor(() => {
-      expect(screen.getByText("errors.couldNotCreateUser")).toBeInTheDocument();
+      expect(screen.getByText("register:errors.couldNotCreateUser")).toBeInTheDocument();
     });
     expect(registerUser).toHaveBeenCalled();
+  });
+
+  it("uses a safe fallback instead of displaying unknown server errors", async () => {
+    vi.mocked(registerUser).mockResolvedValue({ error: "raw backend details" });
+    render(<SetRegisterPasswordForm {...baseProps} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "trigger-password-submit" }));
+
+    expect(await screen.findByText("register:errors.couldNotRegisterUser")).toBeInTheDocument();
+    expect(screen.queryByText("raw backend details")).not.toBeInTheDocument();
   });
 });

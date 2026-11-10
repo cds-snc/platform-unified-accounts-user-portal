@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 import { setRegistrationFlag } from "@lib/client/registration";
 import { validateCode } from "@lib/validation/validationSchemas";
+import { translateValidationErrors, type ValidationErrorKey } from "@lib/validation/validators";
 import { I18n, useTranslation } from "@i18n";
 import { useSiteConfig } from "@components/contexts/SiteConfigContext";
 import { Alert as AlertNotification } from "@components/ui/alert/Alert";
@@ -26,7 +27,7 @@ import { checkVerificationCode, sendVerificationEmail } from "../action";
 
 type FormState = {
   error?: string;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
   formData?: {
     code?: string;
   };
@@ -77,18 +78,21 @@ export function VerifyEmailForm({
     setCodeLoading(false);
   }
 
-  const localFormAction = async (previousState: FormState, formData: FormData) => {
+  const localFormAction = async (
+    previousState: FormState,
+    formData: FormData
+  ): Promise<FormState> => {
     const code = (formData.get("code") as string) || "";
 
-    // Validate form entries and map any errors to form state with translated messages
     const validationResult = await validateCode({ code });
     if (!validationResult.success) {
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`, {
+          errorKey: `validation.${issue.message}`,
+          options: {
             maxLength: issue.type === "max_length" ? issue.requirement : undefined,
-          }),
+          },
         })),
         formData: { code },
       };
@@ -112,13 +116,18 @@ export function VerifyEmailForm({
     return previousState;
   };
 
-  const [state, formAction] = useActionState(localFormAction, {
+  const [rawState, formAction] = useActionState(localFormAction, {
     validationErrors: undefined,
     error: undefined,
     formData: {
       code: "",
     },
   });
+
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   return (
     <>

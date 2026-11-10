@@ -9,7 +9,12 @@ import { useRouter } from "next/navigation";
 
 import { buildUrlWithRequestId } from "@lib/utils";
 import { validateAccount } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { useTranslation } from "@i18n";
 /*--------------------------------------------*
  * Internal Aliases
@@ -28,7 +33,7 @@ import { useRegistration } from "../context/RegistrationContext";
 
 type FormState = {
   error?: string;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
   formData?: {
     firstname?: string;
     lastname?: string;
@@ -63,7 +68,7 @@ export function RegisterForm({ requestId, email, inviteCode }: Props) {
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`),
+          errorKey: `validation.${issue.message}`,
         })),
         formData: formEntries,
       };
@@ -80,7 +85,7 @@ export function RegisterForm({ requestId, email, inviteCode }: Props) {
     return previousState;
   };
 
-  const [state, formAction] = useActionState(localFormAction, {
+  const [rawState, formAction] = useActionState(localFormAction, {
     validationErrors: undefined,
     formData: {
       firstname: "",
@@ -88,6 +93,11 @@ export function RegisterForm({ requestId, email, inviteCode }: Props) {
       email,
     },
   });
+
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   return (
     <>

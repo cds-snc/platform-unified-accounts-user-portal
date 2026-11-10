@@ -10,8 +10,14 @@ import { useActionState } from "react";
  *--------------------------------------------*/
 import { getSafeErrorMessage } from "@lib/safeErrorMessage";
 import { validateUsername } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { useTranslation } from "@i18n/client";
+import { BackButton } from "@components/ui/button/BackButton";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Alert, ErrorStatus, Label, TextInput } from "@components/ui/form";
 import { ErrorMessage } from "@components/ui/form/ErrorMessage";
@@ -30,8 +36,8 @@ type FormState = {
     username: string;
   };
   error?: string;
-  sent?: boolean;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  pending?: boolean;
+  validationErrors?: ValidationErrorKey[];
 };
 
 export const UserNameForm = ({ requestId }: Props) => {
@@ -44,7 +50,6 @@ export const UserNameForm = ({ requestId }: Props) => {
   ): Promise<FormState> => {
     const username = (formData?.get("username") as string) || "";
 
-    // Validate form entries and map any errors to form state with translated messages
     const formEntriesData = formData ? Object.fromEntries(formData.entries()) : {};
     const validationResult = await validateUsername(formEntriesData);
     if (!validationResult.success) {
@@ -52,7 +57,8 @@ export const UserNameForm = ({ requestId }: Props) => {
         ...previousState,
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(`validation.${issue.message}`, { ns: "start" }),
+          errorKey: `validation.${issue.message}`,
+          options: { ns: "start" },
         })),
         formData: {
           username: username,
@@ -79,25 +85,24 @@ export const UserNameForm = ({ requestId }: Props) => {
       };
     }
 
-    return { formData: { username }, sent: true };
+    return { formData: { username }, pending: true };
   };
 
-  const [state, formAction] = useActionState(localFormAction, {
+  const [rawState, formAction] = useActionState(localFormAction, {
     formData: {
       username: "",
     },
     validationErrors: undefined,
   });
 
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
+
   return (
     <div>
       <ErrorSummary id="errorSummary" validationErrors={state.validationErrors} />
-
-      {state.sent && (
-        <Alert type={ErrorStatus.SUCCESS} focussable={true} id="resetEmailSent">
-          {t("reset.emailSent", { ns: "password" })}
-        </Alert>
-      )}
 
       {state.error && (
         <Alert
@@ -124,9 +129,6 @@ export const UserNameForm = ({ requestId }: Props) => {
             <Label id={"label-username"} htmlFor={"username"} className="required" required>
               {t("form.label")}
             </Label>
-            <div className="mb-4 text-sm text-black" id="login-description">
-              {t("form.description")}
-            </div>
             {hasError("username", state.validationErrors) && (
               <ErrorMessage id={"errorMessageUsername"}>
                 {getError("username", state.validationErrors)}
@@ -148,9 +150,12 @@ export const UserNameForm = ({ requestId }: Props) => {
           </div>
         </div>
 
-        <SubmitButtonAction dataTestId="forgot-password-continue">
-          {t("common:button.continue")}
-        </SubmitButtonAction>
+        <div className="mt-6 flex items-center gap-4">
+          <BackButton />
+          <SubmitButtonAction dataTestId="forgot-password-continue">
+            {t("common:button.continue")}
+          </SubmitButtonAction>
+        </div>
       </form>
     </div>
   );

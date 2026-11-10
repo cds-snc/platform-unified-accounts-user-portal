@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { completeFlowAndRedirect } from "@lib/server/auth-flow";
 import { updateSession } from "@lib/server/session";
 import { validateTotpCode } from "@lib/validation/validationSchemas";
-import { serverTranslation } from "@i18n/server";
 
 import { handleOTPFormSubmit } from "./actions";
 
@@ -28,10 +27,6 @@ vi.mock("@lib/validation/validationSchemas", () => ({
   validateTotpCode: vi.fn(),
 }));
 
-vi.mock("@i18n/server", () => ({
-  serverTranslation: vi.fn(),
-}));
-
 vi.mock("@lib/logger", () => ({
   logMessage: {
     error: vi.fn(),
@@ -45,9 +40,6 @@ describe("handleOTPFormSubmit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(serverTranslation).mockResolvedValue({
-      t: (key: string) => `translated:${key}`,
-    } as never);
     vi.mocked(validateTotpCode).mockResolvedValue({ success: true } as never);
   });
 
@@ -116,7 +108,7 @@ describe("handleOTPFormSubmit", () => {
     const result = await handleOTPFormSubmit({ code: "12" });
 
     expect(result.validationErrors).toEqual([
-      { fieldKey: "code", fieldValue: "translated:otp:verify.validation.invalidCodeLength" },
+      { fieldKey: "code", errorKey: "verify.validation.invalidCodeLength" },
     ]);
     expect(result.errorKey).toBeUndefined();
     expect(updateSession).not.toHaveBeenCalled();

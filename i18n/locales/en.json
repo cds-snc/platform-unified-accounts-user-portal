@@ -342,7 +342,7 @@
       "verificationRequired": "User verification check required"
     },
     "reset": {
-      "description": "Reset your password to continue using GC Forms.",
+      "description": "Reset your password to continue using your account.",
       "emailSent": "If an account exists for this email address, we sent a link to reset your password. The link will expire in 15 minutes.",
       "errors": {
         "couldNotSetPassword": "Could not set password",
@@ -351,6 +351,16 @@
       },
       "labels": {
         "confirmationCode": "Confirmation code"
+      },
+      "start": {
+        "title": "Enter your email address",
+        "description": "We'll send a reset link if your email has a GC Platform account."
+      },
+      "sent": {
+        "checkEmail": "Check your email",
+        "linkExpires": "The link expires in 15 minutes.",
+        "resendLink": "Re-send link",
+        "resendRequested": "A new reset link has been sent."
       },
       "submit": "Continue",
       "title": "Reset your password",

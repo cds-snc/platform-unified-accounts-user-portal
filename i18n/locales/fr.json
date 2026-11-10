@@ -248,19 +248,19 @@
       "totpRegisterDescription": "Scannez le code QR ou accédez au lien URL."
     },
     "verify": {
-      "authAppTitle": "Use authentication app",
-      "emailDescription": "Enter the code received by email",
+      "title": "Code à usage unique",
+      "authAppTitle": "Utilisez l'application d'authentification",
+      "otpDescription": "Entrez le code de votre application d'authentification",
+      "emailDescription": "Entrez le code reçu par courriel",
       "form": {
-        "label": "Security code",
-        "noCodeReceived": "Didn't receive a code?",
-        "resendCode": "Re-send code"
+        "label": "Code de sécurité",
+        "noCodeReceived": "Vous n'avez pas reçu de code?",
+        "resendCode": "Renvoyer le code"
       },
-      "otpDescription": "Enter the code from your authentication app",
-      "title": "One-time code",
       "validation": {
-        "invalidCodeLength": "Enter the 6-digit code from your authenticator app.",
-        "maxLength": "Less than 10 characters",
-        "required": "Cannot be empty"
+        "required": "Ce champ ne peut pas être vide",
+        "maxLength": "Moins de 10 caractères",
+        "invalidCodeLength": "Entrez le code à 6 chiffres de votre application d’authentification."
       }
     }
   },
@@ -343,7 +343,7 @@
       "verificationRequired": "La vérification de l'utilisateur doit être effectuée"
     },
     "reset": {
-      "description": "Réinitialisez votre mot de passe pour continuer à utiliser Formulaires GC.",
+      "description": "Réinitialisez votre mot de passe pour continuer à utiliser votre compte.",
       "emailSent": "FR - If an account exists for this email address, we sent a link to reset your password. The link will expire in 15 minutes.",
       "errors": {
         "couldNotSetPassword": "Le mot de passe n'a pas pu être défini.",
@@ -353,8 +353,18 @@
       "labels": {
         "confirmationCode": "Code de confirmation"
       },
+      "start": {
+        "title": "FR - Enter your email address",
+        "description": "FR - We'll send a reset link if your email has a GC Platform account."
+      },
+      "sent": {
+        "checkEmail": "FR - Check your email",
+        "linkExpires": "FR - The link expires in 15 minutes.",
+        "resendLink": "FR - Re-send link",
+        "resendRequested": "FR - A new reset link has been sent."
+      },
       "submit": "Continuer",
-      "title": "Réinitialiser votre mot de passe",
+      "title": "Réinitialisez votre mot de passe",
       "validation": {
         "maxLength": "Le code de confirmation doit comporter {{maxLength}} caractères au maximum.",
         "required": "Entrez le code de confirmation."
@@ -429,7 +439,7 @@
   },
   "start": {
     "form": {
-      "description": "Entrez votre propre adresse courriel individuelle du gouvernement.",
+      "description": "FR - Use a government email address only you can access, not a shared inbox.",
       "forgotPasswordLink": "Vous avez oublié votre mot de passe?",
       "label": "Adresse courriel",
       "passwordLabel": "Mot de passe",

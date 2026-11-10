@@ -115,7 +115,7 @@ describe("registration", () => {
 
       const response = await registerUser(openRegistrationCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateUser" });
       expect(validateAccountWithPassword).not.toHaveBeenCalled();
       expect(addHumanUser).not.toHaveBeenCalled();
       expect(listUsers).not.toHaveBeenCalled();
@@ -174,7 +174,7 @@ describe("registration", () => {
 
       const response = await registerUser(openRegistrationCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateUser" });
       expect(addHumanUser).not.toHaveBeenCalled();
       expect(sendVerificationEmail).not.toHaveBeenCalled();
     });
@@ -184,7 +184,7 @@ describe("registration", () => {
 
       const response = await registerUser(openRegistrationCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateUser" });
       expect(createSessionAndUpdateCookie).not.toHaveBeenCalled();
       expect(sendVerificationEmail).not.toHaveBeenCalled();
     });
@@ -194,7 +194,7 @@ describe("registration", () => {
 
       const response = await registerUser(openRegistrationCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateSession" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateSession" });
       expect(sendVerificationEmail).not.toHaveBeenCalled();
       expect(mockRedirect).not.toHaveBeenCalled();
     });
@@ -225,7 +225,7 @@ describe("registration", () => {
 
       const response = await registerUser(openRegistrationCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotRegisterUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotRegisterUser" });
       expect(mockRedirect).not.toHaveBeenCalled();
     });
   });
@@ -240,7 +240,7 @@ describe("registration", () => {
 
       const response = await registerUser(inviteCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateUser" });
       expect(listUsers).not.toHaveBeenCalled();
       expect(sendVerificationEmail).not.toHaveBeenCalled();
     });
@@ -250,7 +250,7 @@ describe("registration", () => {
 
       const response = await registerUser(inviteCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateUser" });
       expect(verifyInviteCode).not.toHaveBeenCalled();
       expect(setPassword).not.toHaveBeenCalled();
       expect(sendVerificationEmail).not.toHaveBeenCalled();
@@ -261,7 +261,7 @@ describe("registration", () => {
 
       const response = await registerUser(inviteCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateUser" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateUser" });
       expect(verifyInviteCode).toHaveBeenCalledWith(inviteCommand.inviteCode, "user-123");
       expect(updateHuman).not.toHaveBeenCalled();
       expect(setPassword).not.toHaveBeenCalled();
@@ -273,7 +273,7 @@ describe("registration", () => {
 
       const response = await registerUser(inviteCommand);
 
-      expect(response).toEqual({ error: "translated:register:errors.couldNotCreateSession" });
+      expect(response).toEqual({ error: "register:errors.couldNotCreateSession" });
       expect(sendVerificationEmail).not.toHaveBeenCalled();
     });
   });

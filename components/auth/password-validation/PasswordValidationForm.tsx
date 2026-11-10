@@ -13,7 +13,12 @@ import {
   confirmPasswordSchema,
   passwordSchema,
 } from "@lib/validation/validationSchemas";
-import { getError, hasError } from "@lib/validation/validators";
+import {
+  getError,
+  hasError,
+  translateValidationErrors,
+  type ValidationErrorKey,
+} from "@lib/validation/validators";
 import { I18n, useTranslation } from "@i18n";
 import { SubmitButtonAction } from "@components/ui/button/SubmitButton";
 import { Label, TextInput } from "@components/ui/form";
@@ -27,7 +32,7 @@ import { Hint } from "@components/ui/form/Hint";
 import { PasswordComplexity } from "./PasswordComplexity";
 type FormState = {
   error?: string;
-  validationErrors?: { fieldKey: string; fieldValue: string }[];
+  validationErrors?: ValidationErrorKey[];
 };
 
 const validateCreatePassword = async (
@@ -89,7 +94,6 @@ export function PasswordValidationForm({
       ...((requireConfirmationCode && { code: (formData.get("code") as string) || "" }) || {}),
     };
 
-    // Validate form entries and map any errors to form state with translated messages
     const formEntriesData = Object.fromEntries(formData.entries());
     const validationResult = await validateCreatePassword(
       formEntriesData,
@@ -102,13 +106,11 @@ export function PasswordValidationForm({
       return {
         validationErrors: validationResult.issues.map((issue) => ({
           fieldKey: issue.path?.[0].key as string,
-          fieldValue: t(
-            `${issue.path?.[0].key === "code" ? "reset.validation" : "complexity"}.${issue.message}`,
-            {
-              minLength: passwordComplexitySettings.minLength || 8,
-              maxLength: issue.type === "max_length" ? issue.requirement : undefined,
-            }
-          ),
+          errorKey: `${issue.path?.[0].key === "code" ? "reset.validation" : "complexity"}.${issue.message}`,
+          options: {
+            minLength: passwordComplexitySettings.minLength || 8,
+            maxLength: issue.type === "max_length" ? issue.requirement : undefined,
+          },
         })),
         formData: formEntries,
       };
@@ -124,12 +126,17 @@ export function PasswordValidationForm({
     return previousState;
   };
 
-  const [state, formAction] = useActionState(validateAndSubmit, {
+  const [rawState, formAction] = useActionState(validateAndSubmit, {
     error: undefined,
     validationErrors: undefined,
   });
 
   const [dirty, setDirty] = useState(false);
+
+  const state = {
+    ...rawState,
+    validationErrors: translateValidationErrors(rawState.validationErrors, t),
+  };
 
   return (
     <>
@@ -152,7 +159,7 @@ export function PasswordValidationForm({
               </Label>
               {hasError("code", state.validationErrors) && (
                 <ErrorMessage id={"errorMessageCode"}>
-                  {t(getError("code", state.validationErrors))}
+                  {getError("code", state.validationErrors)}
                 </ErrorMessage>
               )}
               <TextInput
@@ -174,7 +181,7 @@ export function PasswordValidationForm({
             </Label>
             {getError("password", state.validationErrors) && (
               <ErrorMessage id={"errorMessagePassword"}>
-                {t(getError("password", state.validationErrors))}
+                {getError("password", state.validationErrors)}
               </ErrorMessage>
             )}
             <Hint>
