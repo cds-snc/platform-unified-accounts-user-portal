@@ -3,6 +3,7 @@
 /*--------------------------------------------*
  * Framework and Third-Party
  *--------------------------------------------*/
+import { useRouter } from "next/navigation";
 
 /*--------------------------------------------*
  * Internal Aliases
@@ -17,6 +18,7 @@ const LanguageToggle = () => {
     t,
     i18n: { language: currentLang, changeLanguage },
   } = useTranslation("header");
+  const router = useRouter();
 
   const lang = {
     en: { text: "English", abbr: "en" },
@@ -34,10 +36,11 @@ const LanguageToggle = () => {
         id="lang-toggle-link"
         className="gcds-lang-toggle cursor-pointer border-none bg-transparent p-0 text-inherit underline hover:no-underline"
         lang={displayLang.abbr}
-        onClick={() => {
+        onClick={async () => {
           const requestedLang = currentLang === "en" ? "fr" : "en";
-          changeLanguage(requestedLang);
+          await changeLanguage(requestedLang);
           document.documentElement.lang = requestedLang;
+          router.refresh();
         }}
       >
         <span>{displayLang.text}</span>

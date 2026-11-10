@@ -10,6 +10,11 @@ const components: MDXComponents = {
       </a>
     );
   },
+  p: ({ children, ...props }) => (
+    <p {...props} className="pb-4">
+      {children}
+    </p>
+  ),
   table: ({ children, ...props }) => (
     <table {...props} className="border-1 border-black-default">
       {children}
@@ -24,6 +29,16 @@ const components: MDXComponents = {
     <td {...props} className="border-1 border-black-default p-2">
       {children}
     </td>
+  ),
+  ul: ({ children, ...props }) => (
+    <ul {...props} className="pb-4">
+      {children}
+    </ul>
+  ),
+  ol: ({ children, ...props }) => (
+    <ol {...props} className="pb-4">
+      {children}
+    </ol>
   ),
 };
 
