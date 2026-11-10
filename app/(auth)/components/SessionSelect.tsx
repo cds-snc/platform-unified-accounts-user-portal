@@ -64,8 +64,8 @@ const SessionTile = ({
       onClick={select}
       className={cn([
         "group flex w-full cursor-pointer items-center gap-4 border-x border-t border-gcds-grayscale-400 bg-white p-4 text-left transition-colors duration-200 hover:border-indigo-700 hover:bg-indigo-50 focus-visible:border-indigo-700 focus-visible:bg-indigo-50 focus-visible:outline-none",
-        first && "rounded-t-2xl",
-        last && "rounded-b-2xl border-b",
+        first && "rounded-t-xl",
+        last && "rounded-b-xl border-b",
       ])}
     >
       {session ? (

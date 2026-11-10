@@ -47,9 +47,11 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   return (
     <>
       <PageTitle i18nKey="account:navigation.title" />
-      <PersonalDetails firstName={firstName} lastName={lastName} email={email} />
-      <PasswordAuthentication className="mb-6" />
-      <div className="bg-white p-6">
+      <div className="mb-8 rounded-xl border-1 border-gray-300 bg-white p-6">
+        <PersonalDetails firstName={firstName} lastName={lastName} email={email} />
+        <PasswordAuthentication />
+      </div>
+      <div className="rounded-xl border-1 border-gray-300 bg-white p-6">
         <MFAAuthentication
           u2fList={u2fList}
           authenticatorStatus={session.authMethods.includes(4)}

@@ -4,7 +4,6 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 
-import { cn } from "@lib/utils";
 import { useTranslation } from "@i18n";
 import { LinkButton } from "@components/ui/button/LinkButton";
 
@@ -12,31 +11,29 @@ import { LinkButton } from "@components/ui/button/LinkButton";
  * Internal Aliases
  *--------------------------------------------*/
 
-export const PasswordAuthentication = ({ className }: { className: string }) => {
+export const PasswordAuthentication = () => {
   const { t } = useTranslation("account");
 
   return (
-    <div className={cn("bg-white p-6", className)}>
-      <div className="flex flex-row">
-        <div className="grow">
-          <h3 id="password-title" className="mb-6">
-            {t("authentication.password")}
-          </h3>
-          {/* Placeholder password characters used instead of real password for security reasons */}
-          <div>
-            &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
-          </div>
+    <div className="flex flex-row">
+      <div className="grow">
+        <h3 id="password-title" className="mb-6">
+          {t("authentication.password")}
+        </h3>
+        {/* Placeholder password characters used instead of real password for security reasons */}
+        <div>
+          &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
         </div>
-        <div className="flex">
-          <LinkButton.Primary
-            href="/password/change"
-            aria-describedby="password-title"
-            className="my-auto"
-            data-testid="account-password-change"
-          >
-            {t("authentication.change")}
-          </LinkButton.Primary>
-        </div>
+      </div>
+      <div className="flex">
+        <LinkButton.Primary
+          href="/password/change"
+          aria-describedby="password-title"
+          className="my-auto"
+          data-testid="account-password-change"
+        >
+          {t("authentication.change")}
+        </LinkButton.Primary>
       </div>
     </div>
   );
