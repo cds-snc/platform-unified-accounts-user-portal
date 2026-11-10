@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.8.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.2...v1.8.0) (2026-11-10)
+
+
+### Features
+
+* add password reset sent screen ([#628](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/628)) ([becba2c](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/becba2c5e95b6b495f48535ab38dedecc23b1449))
+* policy pages ([#646](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/646)) ([79efd7b](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/79efd7b539c166bd3e3be5e2fe93ebf1db59d1d7))
+
+
+### Bug Fixes
+
+* add privacy policy markdown ([#651](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/651)) ([5c8625e](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/5c8625e6b008dddd4ca5be507eb19453f3babfad))
+* skip PR review env cleanup for Renovate ([#645](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/645)) ([a953257](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/a95325782c604807d089be0cb172012674851f56))
+* stops renovate PRs from creating env w secrets ([#636](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/636)) ([080d6d4](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/080d6d4f1f536ed29850fa76da39e88948c073f4))
+* TOTP and remaining pages error message language update ([#629](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/629)) ([88ad66d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/88ad66db0a64375aca2510364b295f21d4318e51))
+* translation keys after refactor ([#640](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/640)) ([cf2149d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/cf2149dc324bdc0c7506fe47b0cc7bd0a72d3a77))
+* use consistent white panel border styling ([#647](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/647)) ([13cde36](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/13cde367e05dad635422e0a851b8ded263d1a04c))
+
+
+### Miscellaneous Chores
+
+* **deps:** update cds-snc/dns-proxy-action action to v1.2.2 ([#642](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/642)) ([0141b80](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/0141b8089f7505f6f0e69ffaf4219d83e8ceb368))
+* Privacy pages content ([#654](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/654)) ([c082fad](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c082fadafd15817bc152feb304aa096186f5ee9c))
+* revised content ([#631](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/631)) ([c73f170](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c73f17024e4bcb5220e87ed7354a793bf0a05085))
+* Update GC Platform policy documents ([#652](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/652)) ([714ba49](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/714ba49b906dc8326bc7041093edb3ba4c5af90b))
+* upgrade to Node 26 ([#635](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/635)) ([222fd92](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/222fd92e7ddfdf68ddd505b4728e96b85cf8ce9a))
+
 ## [1.7.2](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.1...v1.7.2) (2026-11-04)
 
 
