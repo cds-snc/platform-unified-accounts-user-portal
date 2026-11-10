@@ -35,7 +35,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
         tabIndex={-1}
         aria-labelledby="page-heading"
       >
-        <div className="grid items-start gap-6 py-4 tablet:grid-cols-[18rem_1fr] tablet:gap-8">
+        <div className="grid items-start gap-6 py-4 tablet:grid-cols-[18rem_1fr]">
           <aside className="w-full">
             <AccountNavigation />
           </aside>

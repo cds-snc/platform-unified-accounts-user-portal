@@ -22,29 +22,29 @@ export const FooterLinks = () => {
     <span className="mr-10 inline-block">
       {aboutLink && (
         <>
-          <a className="whitespace-nowrap" href={aboutLink} target="_blank">
+          <Link className="whitespace-nowrap" href={aboutLink} target="_blank">
             <I18n i18nKey="footer:about.desc" />
-          </a>
+          </Link>
           <BulletPoint />
         </>
       )}
       {termsOfUseLink && (
         <>
-          <a className="whitespace-nowrap" href={termsOfUseLink} target="_blank">
+          <Link className="whitespace-nowrap" href={termsOfUseLink} target="_blank">
             <I18n i18nKey="footer:terms-of-use.desc" />
-          </a>
+          </Link>
           <BulletPoint />
         </>
       )}
       {slaLink && (
         <>
-          <a className="whitespace-nowrap" href={slaLink} target="_blank">
+          <Link className="whitespace-nowrap" href={slaLink} target="_blank">
             <I18n i18nKey="footer:sla.desc" />
-          </a>
+          </Link>
           <BulletPoint />
         </>
       )}
-      <Link className="whitespace-nowrap" href="/privacy-policy">
+      <Link className="whitespace-nowrap" href="/privacy-policy" target="_blank">
         <I18n i18nKey="footer:privacy-policy.desc" />
       </Link>
       <BulletPoint />
