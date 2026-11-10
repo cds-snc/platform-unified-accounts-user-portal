@@ -22,7 +22,10 @@ export function AccountNavigation() {
   const gcFormsLink = getSiteLink("gcForms");
 
   return (
-    <nav aria-label={t("navigation.ariaLabel")} className="bg-white p-6">
+    <nav
+      aria-label={t("navigation.ariaLabel")}
+      className="rounded-xl border-1 border-gray-300 bg-white p-6"
+    >
       <h1 className="mb-6 text-2xl font-semibold" id="page-heading">
         {t("navigation.title")}
       </h1>
