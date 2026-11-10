@@ -64,7 +64,7 @@ function VersionUpdaterDialog() {
       ref={dialogRef}
       aria-labelledby="version-updater-title"
       aria-describedby="version-updater-description"
-      className="fixed inset-0 m-auto w-full max-w-2xl rounded-2xl border border-gray-300 bg-white p-8 shadow-xl backdrop:bg-black/45"
+      className="fixed inset-0 m-auto w-full max-w-2xl rounded-xl border border-gray-300 bg-white p-8 shadow-xl backdrop:bg-black/45"
       onCancel={(e) => e.preventDefault()}
     >
       <div className="flex items-start justify-between gap-4">

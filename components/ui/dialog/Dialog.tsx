@@ -96,7 +96,7 @@ export const Dialog = ({
     >
       <div
         className={cn(
-          `relative max-h-[80%] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-gray-300 bg-white shadow-xl`,
+          `relative max-h-[80%] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-xl border border-gray-300 bg-white shadow-xl`,
           className
         )}
       >
