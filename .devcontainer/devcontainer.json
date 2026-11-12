@@ -6,8 +6,8 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "26.13.0",
-      "pnpmVersion": "12.9.0"
+      "version": "26.13.1",
+      "pnpmVersion": "12.17.0"
     },
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
