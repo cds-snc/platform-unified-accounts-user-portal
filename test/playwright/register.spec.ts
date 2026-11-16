@@ -1,9 +1,8 @@
-import { test } from "@playwright/test";
-
-import { type RegisteredUser, registerUser } from "./utils/register";
+import { test } from "./utils/fixtures";
+import { registerUser } from "./utils/register";
 import { MfaType, RegistrationType } from "./utils/register";
 import { getRequiredEnv } from "./utils/utils";
-import { deleteUserById, getZitadelAccessToken } from "./utils/zitadel";
+import { getZitadelAccessToken } from "./utils/zitadel";
 
 test.describe("register user flow", () => {
   let idpUrl: string;
@@ -12,7 +11,6 @@ test.describe("register user flow", () => {
   let registerEmail: string;
   let accessToken: string;
   let zitadelOrgId: string;
-  const registeredUsers: RegisteredUser[] = [];
 
   test.beforeAll(async () => {
     idpUrl = getRequiredEnv("IDP_URL");
@@ -23,37 +21,29 @@ test.describe("register user flow", () => {
     zitadelOrgId = getRequiredEnv("ZITADEL_ORGANIZATION_ID");
   });
 
-  test.afterAll(async () => {
-    await Promise.all(
-      registeredUsers.map((user) => deleteUserById(user.userId, accessToken, idpUrl))
-    );
+  test("creates a new user with TOTP MFA", async ({ page, trackUserForCleanup }) => {
+    await registerUser(page, {
+      portalUrl,
+      idpUrl,
+      accessToken,
+      registerEmail,
+      zitadelOrgId,
+      mfaType: MfaType.TOTP,
+      registrationFlow: RegistrationType.INVITE,
+      trackUserForCleanup,
+    });
   });
 
-  test("creates a new user with TOTP MFA", async ({ page }) => {
-    registeredUsers.push(
-      await registerUser(page, {
-        portalUrl,
-        idpUrl,
-        accessToken,
-        registerEmail,
-        zitadelOrgId,
-        mfaType: MfaType.TOTP,
-        registrationFlow: RegistrationType.INVITE,
-      })
-    );
-  });
-
-  test("creates a new user with U2F MFA", async ({ page }) => {
-    registeredUsers.push(
-      await registerUser(page, {
-        portalUrl,
-        idpUrl,
-        accessToken,
-        registerEmail,
-        zitadelOrgId,
-        mfaType: MfaType.U2F,
-        registrationFlow: RegistrationType.INVITE,
-      })
-    );
+  test("creates a new user with U2F MFA", async ({ page, trackUserForCleanup }) => {
+    await registerUser(page, {
+      portalUrl,
+      idpUrl,
+      accessToken,
+      registerEmail,
+      zitadelOrgId,
+      mfaType: MfaType.U2F,
+      registrationFlow: RegistrationType.INVITE,
+      trackUserForCleanup,
+    });
   });
 });

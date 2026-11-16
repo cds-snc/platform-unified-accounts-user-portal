@@ -32,6 +32,7 @@ export async function registerUser(
     zitadelOrgId,
     mfaType,
     registrationFlow,
+    trackUserForCleanup,
   }: {
     portalUrl: string;
     idpUrl: string;
@@ -40,9 +41,11 @@ export async function registerUser(
     zitadelOrgId: string;
     mfaType: (typeof MfaType)[keyof typeof MfaType];
     registrationFlow: (typeof RegistrationType)[keyof typeof RegistrationType];
+    trackUserForCleanup: (email: string, accessToken: string, idpUrl: string) => void;
   }
 ): Promise<RegisteredUser> {
   const email = getRandomEmail(registerEmail);
+  trackUserForCleanup(email, accessToken, idpUrl);
   const password = getRandomPassword();
   const virtualAuthenticator =
     mfaType === MfaType.U2F ? await addVirtualAuthenticator(page) : undefined;
@@ -91,6 +94,9 @@ export async function registerUser(
   // Verify email
   await expect(page.locator("#verify-form #code")).toBeVisible();
   const userId = await getUserIdByEmail(email, accessToken, idpUrl);
+  if (!userId) {
+    throw new Error(`Unable to find userId for email ${email}`);
+  }
   const emailVerificationCode = await getEmailVerificationCode(userId, accessToken, idpUrl);
   await page.locator("#verify-form #code").fill(emailVerificationCode);
   await page.locator("#verify-form button[type='submit']").click();

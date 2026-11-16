@@ -105,7 +105,7 @@ export async function getUserIdByEmail(
   email: string,
   accessToken: string,
   apiBaseUrl: string
-): Promise<string> {
+): Promise<string | undefined> {
   const response = await getUserService(accessToken, apiBaseUrl).listUsers({
     queries: [
       create(SearchQuerySchema, {
@@ -119,13 +119,22 @@ export async function getUserIdByEmail(
       }),
     ],
   });
-  const userId = response.result?.[0]?.userId;
+  return response.result?.[0]?.userId;
+}
 
-  if (!userId) {
-    throw new Error(`Unable to find userId for email ${email}`);
+export async function deleteUserByEmail(
+  email: string,
+  accessToken: string,
+  apiBaseUrl: string
+): Promise<void> {
+  const userId = await getUserIdByEmail(email, accessToken, apiBaseUrl);
+  if (userId) {
+    await getUserService(accessToken, apiBaseUrl).deleteUser(
+      create(DeleteUserRequestSchema, {
+        userId,
+      })
+    );
   }
-
-  return userId;
 }
 
 export async function getEmailVerificationCode(
@@ -196,12 +205,4 @@ export async function getPasswordResetLink(
     .update(JSON.stringify(["v1", encodedPayload]))
     .digest("base64url");
   return `${encodedPayload}.${signature}`;
-}
-
-export async function deleteUserById(userId: string, accessToken: string, apiBaseUrl: string) {
-  return getUserService(accessToken, apiBaseUrl).deleteUser(
-    create(DeleteUserRequestSchema, {
-      userId,
-    })
-  );
 }
