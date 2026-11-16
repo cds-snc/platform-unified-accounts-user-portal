@@ -13,7 +13,6 @@ type RegistrationData = {
   email: string;
   requestId?: string;
   inviteCode?: string;
-  acceptedTerms?: boolean;
 };
 
 type RegistrationContextType = {
@@ -62,7 +61,7 @@ export function RegistrationProvider({
   const isHydrated = typeof window !== "undefined";
 
   const setRegistrationData = (data: RegistrationData) => {
-    setRegistrationDataState({ ...data, acceptedTerms });
+    setRegistrationDataState(data);
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, acceptedTerms }));
     } catch {
