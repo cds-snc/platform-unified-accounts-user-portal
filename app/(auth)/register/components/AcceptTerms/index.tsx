@@ -1,4 +1,3 @@
-"use server";
 import { AuthPanel } from "@components/auth/AuthPanel";
 
 import { ContentSwitcher } from "../../../(static)/components/ContentSwitcher";
