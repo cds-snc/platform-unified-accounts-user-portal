@@ -147,5 +147,12 @@ describe("PasswordValidationForm", () => {
     expect(document.getElementById("errorMessagePassword")).toHaveTextContent(
       "At least 8 characters"
     );
+    const passwordInput = screen.getByLabelText(/^Password/);
+    expect(passwordInput).toHaveAttribute("aria-invalid", "true");
+    expect(passwordInput).toHaveAttribute(
+      "aria-describedby",
+      "errorMessagePassword password-complexity-requirements"
+    );
+    expect(passwordInput.matches(".gc-error-message + .gc-input-text")).toBe(true);
   });
 });

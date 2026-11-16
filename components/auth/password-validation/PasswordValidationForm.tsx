@@ -179,11 +179,6 @@ export function PasswordValidationForm({
             <Label htmlFor="password" required>
               {t("create.labels.password")}
             </Label>
-            {getError("password", state.validationErrors) && (
-              <ErrorMessage id={"errorMessagePassword"}>
-                {getError("password", state.validationErrors)}
-              </ErrorMessage>
-            )}
             <Hint>
               <div className="mb-2">
                 <I18n i18nKey="password:create.passwordHint" />
@@ -197,6 +192,11 @@ export function PasswordValidationForm({
                 />
               )}
             </Hint>
+            {getError("password", state.validationErrors) && (
+              <ErrorMessage id={"errorMessagePassword"}>
+                {getError("password", state.validationErrors)}
+              </ErrorMessage>
+            )}
             <TextInput
               id="password"
               className="w-full"
