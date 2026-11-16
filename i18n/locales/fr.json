@@ -396,7 +396,7 @@
       "couldNotCreateSession": "Problème de création de la session",
       "couldNotCreateUser": "Problème de création de l'utilisateur. Veuillez contacter le support pour plus d'informations.",
       "couldNotLinkIDP": "Impossible de lier le fournisseur d'identité au compte utilisateur",
-      "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur",
+      "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur. Veuillez contacter le support pour plus d'informations.",
       "userNotFound": "Compte utilisateur introuvable dans le système"
     },
     "incomplete": {
