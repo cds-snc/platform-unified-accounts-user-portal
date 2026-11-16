@@ -291,7 +291,7 @@ export async function listUsers({ loginName, userName, phone, email }: ListUsers
           case: "loginNameQuery",
           value: {
             loginName,
-            method: TextQueryMethod.EQUALS,
+            method: TextQueryMethod.EQUALS_IGNORE_CASE,
           },
         },
       })
@@ -305,7 +305,7 @@ export async function listUsers({ loginName, userName, phone, email }: ListUsers
           case: "userNameQuery",
           value: {
             userName,
-            method: TextQueryMethod.EQUALS,
+            method: TextQueryMethod.EQUALS_IGNORE_CASE,
           },
         },
       });
@@ -318,7 +318,7 @@ export async function listUsers({ loginName, userName, phone, email }: ListUsers
           case: "emailQuery",
           value: {
             emailAddress: email,
-            method: TextQueryMethod.EQUALS,
+            method: TextQueryMethod.EQUALS_IGNORE_CASE,
           },
         },
       });
