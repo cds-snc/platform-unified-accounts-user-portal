@@ -390,9 +390,9 @@
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
     "errors": {
       "couldNotCreateSession": "Could not create session",
-      "couldNotCreateUser": "Could not create user",
+      "couldNotCreateUser": "Could not create user. Please contact support for more information.",
       "couldNotLinkIDP": "Could not link identity provider to the user account",
-      "couldNotRegisterUser": "Could not register user account",
+      "couldNotRegisterUser": "Could not register user account. Please contact support for more information.",
       "userNotFound": "User account not found in the system"
     },
     "incomplete": {
