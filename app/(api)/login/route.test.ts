@@ -59,10 +59,13 @@ describe("GET /login", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(
-      "https://portal.test/before-you-start?requestId=oidc_zitadel-request-456&organization=test-organization"
+      "https://portal.test/register/before-you-start?requestId=oidc_zitadel-request-456&organization=test-organization"
     );
     expect(getAuthRequest).toHaveBeenCalledWith({ authRequestId: "request-123" });
-    expect(constructUrl).toHaveBeenCalledWith(expect.any(NextRequest), "/before-you-start");
+    expect(constructUrl).toHaveBeenCalledWith(
+      expect.any(NextRequest),
+      "/register/before-you-start"
+    );
   });
 
   it("redirects non-registration requests to interactive login", async () => {
