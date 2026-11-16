@@ -22,7 +22,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
       <AuthPanel
         titleI18nKey="none"
         pageTitleI18nKey="beforeYouStart:title"
-        descriptionI18nKey=""
+        descriptionI18nKey="none"
         variant="narrow"
       >
         <Title />
