@@ -1,6 +1,9 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
+import { redirect } from "next/navigation";
+
+import { buildUrlWithParams } from "@lib/utils";
 import { SearchParams } from "@lib/utils";
 import { I18n } from "@i18n/Translate";
 import { AuthPanel } from "@components/auth/AuthPanel";
@@ -17,6 +20,10 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
   const searchParams = await props.searchParams;
   const { requestId, invite } = searchParams;
 
+  if (!invite || process.env.REGISTRATION_OPEN !== "true") {
+    redirect(buildUrlWithParams("/register", { requestId, invite }));
+  }
+
   return (
     <div data-request-id={requestId}>
       <AuthPanel
@@ -24,6 +31,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
         pageTitleI18nKey="beforeYouStart:title"
         descriptionI18nKey="none"
         variant="narrow"
+        dataTestId="before-you-start-panel"
       >
         <Title />
         <div className="mt-6 space-y-6">
