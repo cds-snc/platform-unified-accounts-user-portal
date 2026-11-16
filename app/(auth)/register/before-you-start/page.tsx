@@ -15,7 +15,7 @@ import { Title } from "./components/Title";
 
 export default async function Page(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
-  const { requestId } = searchParams;
+  const { requestId, invite } = searchParams;
 
   return (
     <div data-request-id={requestId}>
@@ -63,7 +63,7 @@ export default async function Page(props: { searchParams: Promise<SearchParams> 
           </div>
         </div>
       </AuthPanel>
-      <ActionsClient requestId={requestId} />
+      <ActionsClient requestId={requestId} invite={invite} />
     </div>
   );
 }

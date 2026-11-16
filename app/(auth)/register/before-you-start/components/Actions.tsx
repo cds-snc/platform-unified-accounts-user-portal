@@ -9,12 +9,12 @@ import { createPortal } from "react-dom";
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { buildUrlWithRequestId } from "@lib/utils";
+import { buildUrlWithParams } from "@lib/utils";
 import { I18n } from "@i18n";
 import { LinkButton } from "@components/ui/button/LinkButton";
 
 // Actions to be rendered outside of the auth panel, in the document body.
-export const Actions = ({ requestId }: { requestId?: string }) => {
+export const Actions = ({ requestId, invite }: { requestId?: string; invite?: string }) => {
   const containerEl =
     typeof document === "undefined" ? null : document.getElementById("outside-auth-container");
 
@@ -22,8 +22,8 @@ export const Actions = ({ requestId }: { requestId?: string }) => {
     return null;
   }
 
-  const register = buildUrlWithRequestId("/register", requestId);
-  const signIn = buildUrlWithRequestId("/", requestId);
+  const register = buildUrlWithParams("/register", { requestId, invite });
+  const signIn = buildUrlWithParams("/", { requestId, invite });
 
   return createPortal(
     <div className="mt-10 flex items-center justify-center">

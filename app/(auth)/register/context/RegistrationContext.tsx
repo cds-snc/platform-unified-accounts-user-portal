@@ -63,7 +63,7 @@ export function RegistrationProvider({
   const setRegistrationData = (data: RegistrationData) => {
     setRegistrationDataState(data);
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, acceptedTerms }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       // sessionStorage may not be available
     }
