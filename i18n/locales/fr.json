@@ -394,9 +394,9 @@
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
     "errors": {
       "couldNotCreateSession": "Problème de création de la session",
-      "couldNotCreateUser": "Problème de création de l'utilisateur",
+      "couldNotCreateUser": "Problème de création de l'utilisateur. Veuillez contacter le support pour plus d'informations.",
       "couldNotLinkIDP": "Impossible de lier le fournisseur d'identité au compte utilisateur",
-      "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur",
+      "couldNotRegisterUser": "Impossible d'enregistrer le compte utilisateur. Veuillez contacter le support pour plus d'informations.",
       "userNotFound": "Compte utilisateur introuvable dans le système"
     },
     "incomplete": {
