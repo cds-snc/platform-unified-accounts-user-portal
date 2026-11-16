@@ -54,7 +54,7 @@ jobs:
       contents: read
     container:
       # Playwright Docker image tag must match the pnpm-lock.yaml pinned version
-      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:ee15712262f017b8157421b212b12099146645f44b1bc5c0514cbbe6a229b1d0
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:f6fe3cf9a493670b9a20f33597a807262abb25c40c31839ba4ac1dbc51fe7366
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@db1dcfd7d049041985df926671cae9d356738008 # v1.2.2
@@ -71,7 +71,7 @@ jobs:
           persist-credentials: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
