@@ -3,13 +3,18 @@
     "body": "Désolé, la page que vous cherchez n'a pas été trouvée.",
     "title": "Page non trouvée"
   },
+  "acceptTOU": {
+    "cancel": "Annuler",
+    "continue": "Accepter",
+    "title": "Conditions d’utilisation de Plateforme GC"
+  },
   "accessibility": {
     "title": "Accessibilité"
   },
   "account": {
     "authentication": {
-      "reset": "Réinitialiser ou modifier",
-      "password": "Mot de passe"
+      "password": "Mot de passe",
+      "reset": "Réinitialiser ou modifier"
     },
     "errors": {},
     "mfaAuthentication": {
@@ -46,17 +51,17 @@
     "personalDetails": {
       "cannotBeChanged": "Ne peut être modifiée",
       "change": "Modifier",
-      "createNewAccount": "Créer un nouveau compte",
-      "or": "ou",
       "contactSupport": "communiquer avec l'equipe de soutien",
-      "forMoreInformation": "pour plus d'informations",
+      "createNewAccount": "Créer un nouveau compte",
       "email": "Courriel",
       "emailAddress": "Adresse de courriel",
       "errors": {
         "updateFailed": "Vos renseignements personnels n'ont pas pu être modifiés"
       },
       "firstName": "Prénom",
+      "forMoreInformation": "pour plus d'informations",
       "lastName": "Nom",
+      "or": "ou",
       "success": {
         "updateSuccess": "Vos renseignements personnels ont été mis à jour"
       },
@@ -251,19 +256,19 @@
       "totpRegisterDescription": "Scannez le code QR ou accédez au lien URL."
     },
     "verify": {
-      "title": "Code à usage unique",
       "authAppTitle": "Utilisez l'application d'authentification",
-      "otpDescription": "Entrez le code de votre application d'authentification",
       "emailDescription": "Entrez le code reçu par courriel",
       "form": {
         "label": "Code de sécurité",
         "noCodeReceived": "Vous n'avez pas reçu de code?",
         "resendCode": "Renvoyer le code"
       },
+      "otpDescription": "Entrez le code de votre application d'authentification",
+      "title": "Code à usage unique",
       "validation": {
-        "required": "Ce champ ne peut pas être vide",
+        "invalidCodeLength": "Entrez le code à 6 chiffres de votre application d’authentification.",
         "maxLength": "Moins de 10 caractères",
-        "invalidCodeLength": "Entrez le code à 6 chiffres de votre application d’authentification."
+        "required": "Ce champ ne peut pas être vide"
       }
     }
   },
@@ -356,15 +361,15 @@
       "labels": {
         "confirmationCode": "Code de confirmation"
       },
-      "start": {
-        "title": "FR - Enter your email address",
-        "description": "FR - We'll send a reset link if your email has a GC Platform account."
-      },
       "sent": {
         "checkEmail": "FR - Check your email",
         "linkExpires": "FR - The link expires in 15 minutes.",
         "resendLink": "FR - Re-send link",
         "resendRequested": "FR - A new reset link has been sent."
+      },
+      "start": {
+        "description": "FR - We'll send a reset link if your email has a GC Platform account.",
+        "title": "FR - Enter your email address"
       },
       "submit": "Continuer",
       "title": "Réinitialisez votre mot de passe",

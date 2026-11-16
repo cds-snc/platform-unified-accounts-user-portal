@@ -3,6 +3,11 @@
     "body": "Sorry, the page you’re looking for was not found.",
     "title": "Page not found"
   },
+  "acceptTOU": {
+    "cancel": "Cancel",
+    "continue": "Agree",
+    "title": "GC Platform terms of use"
+  },
   "accessibility": {
     "title": "Accessibility"
   },
