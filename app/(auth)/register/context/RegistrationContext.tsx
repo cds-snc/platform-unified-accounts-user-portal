@@ -13,7 +13,7 @@ type RegistrationData = {
   email: string;
   requestId?: string;
   inviteCode?: string;
-  acceptedTerms: boolean;
+  acceptedTerms?: boolean;
 };
 
 type RegistrationContextType = {
