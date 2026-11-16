@@ -27,7 +27,12 @@ export const Actions = ({ requestId }: { requestId?: string }) => {
         <LinkButton.Secondary href={cancel} className="">
           {t("cancel")}
         </LinkButton.Secondary>
-        <Button className="" type="submit" theme="primary" onClick={() => handleClick()}>
+        <Button
+          data-testid="acceptTOU-button"
+          type="submit"
+          theme="primary"
+          onClick={() => handleClick()}
+        >
           {t("continue")}
         </Button>
       </div>

@@ -65,6 +65,12 @@ export async function registerUser(
     throw new Error(`Unsupported registration flow: ${registrationFlow}`);
   }
 
+  // Accept Terms of Use
+
+  await expect(page.getByTestId("acceptTOU-content")).toBeVisible();
+  await expect(page.getByTestId("acceptTOU-button")).toBeVisible();
+  await page.getByTestId("acceptTOU-button").click();
+
   // Enter user details
   await expect(page.locator("#register-form #firstname")).toBeVisible();
   await page.locator("#register-form #firstname").fill("Integration");
