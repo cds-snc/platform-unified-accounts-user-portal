@@ -30,6 +30,14 @@ test.describe("user interface", { tag: "@smoke" }, () => {
   test("registration page is closed", async ({ page }) => {
     await page.goto(portalUrl);
     await page.getByTestId("register-link").click();
+
+    // Accept Terms of Use
+
+    await expect(page.getByTestId("acceptTOU-content")).toBeVisible();
+    await expect(page.getByTestId("acceptTOU-button")).toBeVisible();
+    await page.getByTestId("acceptTOU-button").click();
+
+    // Get registration closed page
     await expect(page.getByTestId("registration-closed")).toBeVisible();
   });
 });

@@ -9,6 +9,6 @@ const Actions = dynamic(() => import("./Actions").then((mod) => mod.Actions), {
   ssr: false,
 });
 
-export default function ActionsClient(props: { requestId?: string }) {
+export default function ActionsClient(props: { requestId?: string; invite?: string }) {
   return <Actions {...props} />;
 }

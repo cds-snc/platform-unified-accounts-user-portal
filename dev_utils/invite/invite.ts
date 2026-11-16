@@ -91,7 +91,7 @@ const inviteMain = async () => {
     if (typeof val !== "string") {
       throw new Error("Email must not be empty");
     }
-    return val;
+    return val.toLocaleLowerCase();
   });
 
   const [givenName, familyName] = inviteEmail.split("@")[0].split(".");

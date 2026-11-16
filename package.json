@@ -4,7 +4,8 @@
   "private": true,
   "prettier": {
     "plugins": [
-      "prettier-plugin-tailwindcss"
+      "prettier-plugin-tailwindcss",
+      "prettier-plugin-sort-json"
     ],
     "tailwindStylesheet": "./styles/app.css",
     "trailingComma": "es5",
@@ -12,7 +13,8 @@
     "printWidth": 100,
     "useTabs": false,
     "semi": true,
-    "singleQuote": false
+    "singleQuote": false,
+    "jsonRecursiveSort": true
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
@@ -110,6 +112,7 @@
     "openid-client": "^6.8.7",
     "postcss": "^8.5.14",
     "prettier": "^3.7.4",
+    "prettier-plugin-sort-json": "^4.2.0",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "sass": "^1.97.1",
     "tailwind-merge": "^3.6.0",

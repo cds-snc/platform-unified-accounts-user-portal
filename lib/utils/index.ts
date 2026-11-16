@@ -52,3 +52,14 @@ export function buildUrlWithRequestId(path: string, requestId?: string): string 
   params.set("requestId", requestId);
   return `${path}?${params.toString()}`;
 }
+
+export function buildUrlWithParams(path: string, params?: Record<string, string | undefined>) {
+  if (!params) return path;
+  const generatedParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value !== "undefined") {
+      generatedParams.set(key, value);
+    }
+  }
+  return `${path}?${generatedParams.toString()}`;
+}

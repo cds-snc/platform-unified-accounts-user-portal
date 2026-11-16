@@ -4,6 +4,7 @@
  * Framework and Third-Party
  *--------------------------------------------*/
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+
 const STORAGE_KEY = "registration-data";
 
 type RegistrationData = {
@@ -17,6 +18,7 @@ type RegistrationData = {
 type RegistrationContextType = {
   registrationData: RegistrationData | null;
   setRegistrationData: (data: RegistrationData) => void;
+  setAcceptedTerms: (val: boolean) => void;
   isHydrated: boolean;
 };
 
@@ -40,11 +42,19 @@ function readFromStorage(): RegistrationData | null {
   return null;
 }
 
-export function RegistrationProvider({ children }: { children: ReactNode }) {
+export function RegistrationProvider({
+  children,
+  acceptTerms,
+}: {
+  children: ReactNode;
+  acceptTerms: ReactNode;
+}) {
   // Lazy initializer - reads from storage on first client render
   const [registrationData, setRegistrationDataState] = useState<RegistrationData | null>(
     readFromStorage
   );
+
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // In client components, `typeof window !== "undefined"` is true after hydration
   // Note: This will be false during SSR but true on client
@@ -71,10 +81,11 @@ export function RegistrationProvider({ children }: { children: ReactNode }) {
       value={{
         registrationData,
         setRegistrationData,
+        setAcceptedTerms,
         isHydrated,
       }}
     >
-      {children}
+      {acceptedTerms ? children : acceptTerms}
     </RegistrationContext.Provider>
   );
 }

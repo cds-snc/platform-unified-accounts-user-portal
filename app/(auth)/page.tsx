@@ -22,7 +22,7 @@ export default async function LoginPage(props: { searchParams: Promise<SearchPar
     async (sessions) => new Map(sessions.map((session) => [session.id, session]))
   );
 
-  const registerLink = buildUrlWithRequestId("/register", requestId);
+  const registerLink = buildUrlWithRequestId("/register/before-you-start", requestId);
 
   return (
     <AuthPanel titleI18nKey="start:title" descriptionI18nKey="none" requestId={requestId}>

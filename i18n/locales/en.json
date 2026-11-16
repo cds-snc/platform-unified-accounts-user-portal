@@ -3,13 +3,18 @@
     "body": "Sorry, the page you’re looking for was not found.",
     "title": "Page not found"
   },
+  "acceptTOU": {
+    "cancel": "Cancel",
+    "continue": "Agree",
+    "title": "GC Platform terms of use"
+  },
   "accessibility": {
     "title": "Accessibility"
   },
   "account": {
     "authentication": {
-      "reset": "Reset or change",
-      "password": "Password"
+      "password": "Password",
+      "reset": "Reset or change"
     },
     "mfaAuthentication": {
       "addlMethods": "Add another method",
@@ -45,17 +50,17 @@
     "personalDetails": {
       "cannotBeChanged": "Cannot be changed",
       "change": "Change",
-      "createNewAccount": "Create new account",
-      "or": "or",
       "contactSupport": "contact support",
-      "forMoreInformation": "for more information",
+      "createNewAccount": "Create new account",
       "email": "Email",
       "emailAddress": "Email address",
       "errors": {
         "updateFailed": "Failed to update personal details"
       },
       "firstName": "First name",
+      "forMoreInformation": "for more information",
       "lastName": "Last name",
+      "or": "or",
       "success": {
         "updateSuccess": "Your personal details were updated"
       },
@@ -355,15 +360,15 @@
       "labels": {
         "confirmationCode": "Confirmation code"
       },
-      "start": {
-        "title": "Enter your email address",
-        "description": "We'll send a reset link if your email has a GC Platform account."
-      },
       "sent": {
         "checkEmail": "Check your email",
         "linkExpires": "The link expires in 15 minutes.",
         "resendLink": "Re-send link",
         "resendRequested": "A new reset link has been sent."
+      },
+      "start": {
+        "description": "We'll send a reset link if your email has a GC Platform account.",
+        "title": "Enter your email address"
       },
       "submit": "Continue",
       "title": "Reset your password",

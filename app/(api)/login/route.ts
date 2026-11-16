@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
   // RP is requesting the registration flow
   if (authRequest && authRequest.prompt.includes(Prompt.CREATE)) {
-    const registerUrl = constructUrl(request, "/before-you-start");
+    const registerUrl = constructUrl(request, "/register/before-you-start");
     registerUrl.searchParams.set("requestId", oidcRequestId);
 
     registerUrl.searchParams.set("organization", ZITADEL_ORGANIZATION);
