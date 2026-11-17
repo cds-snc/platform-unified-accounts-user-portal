@@ -118,7 +118,7 @@
     "title": "Plateforme GC"
   },
   "contact-us": {
-    "description": "Vous avez une question ou besoin d'aide? Remplissez le formulaire ci-dessous et nous vous répondrons dès que possible.",
+    "description": "Vous avez une question ou besoin d'aide? Remplissez le formulaire ci-dessous et  vous répondrons dès que possible.",
     "errors": {
       "generic": "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer.",
       "submitFailed": "Échec de l'envoi du message. Veuillez réessayer."
@@ -138,10 +138,10 @@
       "message": "Message"
     },
     "success": {
-      "description": "Merci de nous avoir contactés. Nous vous répondrons dans un délai de 2 jours ouvrables.",
+      "description": "Merci de  avoir contactés.  vous répondrons dans un délai de 2 jours ouvrables.",
       "title": "Message envoyé"
     },
-    "title": "Nous contacter",
+    "title": " contacter",
     "validation": {
       "invalidEmail": "Entrez une adresse courriel valide.",
       "invalidIssueType": "Veuillez sélectionner un type de problème valide.",
@@ -158,7 +158,7 @@
     "about": "À propos de Plateforme GC",
     "contact": "Contacter l'équipe de soutien",
     "instructions": "Veuillez réessayer plus tard.",
-    "title": "Nous éprouvons des difficultés avec notre site"
+    "title": " éprouvons des difficultés avec notre site"
   },
   "fip": {
     "link": "http://canada.ca/fr.html",
@@ -169,7 +169,7 @@
       "desc": "À propos"
     },
     "contact-us": {
-      "desc": "Nous contacter"
+      "desc": " contacter"
     },
     "privacy-policy": {
       "desc": "Politique de confidentialité"
@@ -197,7 +197,7 @@
         "title": "Essayez les choses suivantes :",
         "tryAgain": "Vous pouvez également essayer de soumettre à nouveau."
       },
-      "title": "Nous n’avons pas reçu votre soumission"
+      "title": " n’avons pas reçu votre soumission"
     }
   },
   "header": {
@@ -215,7 +215,7 @@
         "title": "Application d'authentification"
       },
       "continue": "Continuer",
-      "description": "Lors de la connexion, on vous demandera de confirmer votre identité d'une autre façon, comme couche de sécurité supplémentaire. Vous pourrez ajouter d'autres méthodes plus tard dans les paramètres de votre compte.",
+      "description": "À chaque ouverture de session, entrez votre mot de passe comme première méthode de vérification. Vérifiez ensuite votre identité à l’aide d’une deuxième méthode afin de terminer l’ouverture de session.  Choisissez la deuxième méthode de vérification :",
       "email": {},
       "securityKey": {
         "description": "(ex : Yubikey émise par le gouvernement)",
@@ -225,7 +225,7 @@
     },
     "title": "Sélectionnez une méthode de vérification",
     "unavailable": {
-      "link": "nous contacter",
+      "link": " contacter",
       "text": "Si votre méthode d'authentification multifacteur n'est pas disponible, pour quelque raison que ce soit, veuillez"
     },
     "verify": {
@@ -252,8 +252,8 @@
         "code": "Ce champ est obligatoire"
       },
       "submit": "Continuer",
-      "title": "Configurer l'authentification à deux facteurs",
-      "totpRegisterDescription": "Scannez le code QR ou accédez au lien URL."
+      "title": "Ajouter une application d’authentification",
+      "totpRegisterDescription": "Pour balayer le code QR, utilisez une application d’authentification comme Microsoft Authenticator ou Google Authenticator."
     },
     "verify": {
       "authAppTitle": "Utilisez l'application d'authentification",
@@ -395,7 +395,7 @@
       "description": "Pour toute question, contactez-nous",
       "title": "Si vous avez un compte Formulaires GC, on vous invitera bientôt à vous inscrire à Plateforme GC"
     },
-    "description": "Nous vous demandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
+    "description": 
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
     "errors": {
       "couldNotCreateSession": "Problème de création de la session",
@@ -419,7 +419,7 @@
     },
     "password": {
       "description": "Nous vous redemandons ces informations car nous transférons tous les comptes GC Forms vers un nouveau fournisseur d'authentification.",
-      "title": "Création du mot de passe"
+      "title": "Créer un mot de passe"
     },
     "terms": {
       "agreement": "En créant un compte, vous acceptez les ",
@@ -486,11 +486,11 @@
         "verificationCancelled": "La vérification de la clé de sécurité a été annulée.",
         "verificationFailed": "Impossible de vérifier la clé de sécurité. Veuillez réessayer."
       },
-      "hint": "Donnez un nom à votre clé",
-      "label": "Nom de la clé de sécurité",
+      "hint": "Utilisez un nom qui vous aidera à retrouver la clé.",
+      "label": "Nommez votre clé ",
       "placeholder": "ex : Ma clé de sécurité",
       "submit": "Continuer",
-      "title": "Activez votre clé"
+      "title": "Ajouter une clé de sécurité"
     },
     "verify": {
       "confirmation": {
@@ -512,20 +512,20 @@
     }
   },
   "verify": {
-    "description": "Veuillez entrer le code reçu par courriel. ",
+    "description": "Un code vous a été envoyé par courriel. ",
     "errors": {
       "couldNotResentEmail": "Le courriel de vérification n'a pas pu être renvoyé. Veuillez réessayer.",
       "couldNotVerifyEmail": "Problème de vérification du courriel",
       "failedToAddOTPEmail": "Impossible de configurer la vérification par courriel. Veuillez réessayer."
     },
     "help": "Besoin d'aide?",
-    "hint": "Entrez le code d'ici 15 minutes.",
-    "label": "Code de sécurité",
+    "hint": "Pour poursuivre la création de votre compte, entrez le code dans les 15 minutes.",
+    "label": "Code",
     "newCode": "Envoyer un nouveau code",
     "sendingNewCode": "Envoi d'un nouveau code...",
     "sentNewCode": "Nouveau code envoyé",
     "submit": "Continuer",
-    "title": "Vérifiez votre courriel pour le code de sécurité de votre compte",
+    "title": "Vérifiez vos courriels",
     "validation": {
       "length": "Doit contenir 6 caractères",
       "maxLength": "Le code de sécurité doit comporter {{maxLength}} caractères au maximum.",
