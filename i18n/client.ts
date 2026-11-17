@@ -26,9 +26,10 @@ i18next
     ...getOptions(),
     lng: undefined, // detect the language on client side
     detection: {
-      order: ["localstorage", "cookie"],
+      order: ["localstorage", "cookie", "querystring", "navigator"],
       lookupCookie: LANGUAGE_COOKIE_NAME,
       lookupLocalStorage: "i18nextLng",
+      lookupQuerystring: "lng",
       caches: ["localStorage", "cookie"],
     },
     debug: process.env.I18N_DEBUG === "true",
