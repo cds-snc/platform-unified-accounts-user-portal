@@ -1,14 +1,10 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 
+import { test } from "./utils/fixtures";
 import { type RegisteredUser, registerUser } from "./utils/register";
 import { MfaType, RegistrationType } from "./utils/register";
 import { generateTOTP, getRequiredEnv } from "./utils/utils";
-import {
-  deleteUserById,
-  getPasswordResetCode,
-  getPasswordResetLink,
-  getZitadelAccessToken,
-} from "./utils/zitadel";
+import { getPasswordResetCode, getPasswordResetLink, getZitadelAccessToken } from "./utils/zitadel";
 
 test.describe("account edit flow", () => {
   test.describe.configure({ mode: "serial" });
@@ -32,13 +28,7 @@ test.describe("account edit flow", () => {
     zitadelOrgId = getRequiredEnv("ZITADEL_ORGANIZATION_ID");
   });
 
-  test.afterAll(async () => {
-    if (registeredUser) {
-      await deleteUserById(registeredUser!.userId, accessToken, idpUrl);
-    }
-  });
-
-  test("updates a user's name and password", async ({ page }) => {
+  test("updates a user's name and password", async ({ page, trackUserForCleanup }) => {
     const newPassword = "NewPassword123!";
     registeredUser = await registerUser(page, {
       portalUrl,
@@ -48,6 +38,7 @@ test.describe("account edit flow", () => {
       zitadelOrgId,
       mfaType: MfaType.TOTP,
       registrationFlow: RegistrationType.INVITE,
+      trackUserForCleanup,
     });
 
     await page.getByTestId("account-name-change").click();
