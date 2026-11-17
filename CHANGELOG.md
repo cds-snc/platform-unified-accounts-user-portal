@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.9.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.8.0...v1.9.0) (2026-11-17)
+
+
+### Features
+
+* Accept Terms of Use ([#676](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/676)) ([a8975d7](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/a8975d7017a9a7e719295caab65ffb6790e667c7))
+
+
+### Bug Fixes
+
+* adjust account page panels ([#655](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/655)) ([274d622](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/274d622c52ef0b053e6347ab8678e35be79534bf))
+* always delete Playwright test users ([#680](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/680)) ([1f73744](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/1f737443e8e8e9213209d9cd521d2ec17827ab27))
+* minor content fixes ([#657](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/657)) ([fdb4e4e](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/fdb4e4e57f09d43b1cf7aab1bcbe0f4b794027df))
+* show error border on password input ([#665](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/665)) ([f22723b](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/f22723b2afe614c2b3e469f8805d789b8c52b770))
+* update account creation error ([#679](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/679)) ([c8a5491](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c8a54913a9b28916c77a164ba0a159eefde6ee64))
+* update error page about us link text ([#664](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/664)) ([e9cf5dd](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/e9cf5dd7563cb34bffc73e05d67d360dd6ac91f4))
+
+
+### Miscellaneous Chores
+
+* **deps:** lock file maintenance ([#638](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/638)) ([880f2e3](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/880f2e3ee5b5881bcdc400b1a62abf08c90812e5))
+* **deps:** lock file maintenance ([#666](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/666)) ([69cc0b0](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/69cc0b0da94f822718440793cc4735db0622a53b))
+* **deps:** update all minor dependencies ([#643](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/643)) ([c4d9210](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c4d9210b80ba99eff956a4affc0278ebe9fd78b8))
+* **deps:** update all minor dependencies ([#663](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/663)) ([b295ab3](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/b295ab37e51071c896167905313dfda571ac4972))
+* **deps:** update all non-major github action dependencies ([#661](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/661)) ([c11ccb2](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/c11ccb290fed7d11098d56bc2ccc377a056adb21))
+* **deps:** update all patch dependencies ([#641](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/641)) ([bbd9745](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/bbd9745554eb8b8a786fde4b8b49b9a6419b9cf6))
+* **deps:** update all patch dependencies ([#662](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/662)) ([b4e8091](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/b4e8091bbdd9fafc124ed62c73702889537f4e91))
+* upgrade to latest Node.js release ([#659](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/659)) ([8ab9775](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/8ab9775f5d705c14929133a1976163e9e9a307fc))
+
 ## [1.8.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.7.2...v1.8.0) (2026-11-10)
 
 
