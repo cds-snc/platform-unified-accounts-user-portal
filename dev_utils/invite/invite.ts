@@ -182,7 +182,7 @@ Dans le cadre de la séance pilote de Formulaires GC d’aujourd’hui, vous êt
 
 Pour commencer, utilisez le lien ci-dessous :
 
-**[Inscrivez-vous à la nouvelle méthode de connexion de Formulaires GC](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register/before-you-start?invite=${registerParam})**
+**[Inscrivez-vous à la nouvelle méthode de connexion de Formulaires GC](http${envHost.includes("localhost") ? "" : "s"}://${envHost}/register/before-you-start?lng=fr&invite=${registerParam})**
 
 Merci,
 
