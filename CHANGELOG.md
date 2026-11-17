@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.9.0...v1.10.0) (2026-11-17)
+
+
+### Features
+
+* lang param to set initial language ([#683](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/683)) ([a6ba49d](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/a6ba49d93719e101280770d62cfecc6bd5470763))
+
 ## [1.9.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.8.0...v1.9.0) (2026-11-17)
 
 
