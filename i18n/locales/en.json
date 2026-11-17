@@ -126,7 +126,7 @@
     "issueTypeOptions": {
       "mfaIssue": "Second factor authentication is missing or not working",
       "other": "Other",
-      "passwordReset": "Unable to reset password",
+      "Reset": "Unable to reset ",
       "placeholder": "Select an option",
       "signUpIssue": "Unable to sign up"
     },
@@ -214,7 +214,7 @@
         "title": "Authentication app"
       },
       "continue": "Continue",
-      "description": "When you sign in, you will be asked to confirm your identity in another way, as an extra layer of security. You’ll be able to add additional methods later in your account settings.",
+      "description": "At each sign in, enter your password as the first way to verify. Then verify a second way to finish signing in.  Choose your second way to verify:",
       "email": {},
       "securityKey": {
         "description": "(ex: Government-issued Yubikey)",
@@ -251,8 +251,8 @@
         "code": "This field is required"
       },
       "submit": "Continue",
-      "title": "Set up two-factor authentication",
-      "totpRegisterDescription": "Scan the QR Code or navigate to the URL link."
+      "title": "Add authenticator",
+      "totpRegisterDescription": "To scan the QR Code, use an authenticator app such as Microsoft or Google Authenticator."
     },
     "verify": {
       "authAppTitle": "Use authentication app",
@@ -271,29 +271,29 @@
       }
     }
   },
-  "password": {
+  "": {
     "change": {
-      "description": "Set the password for your account",
+      "description": "Set the  for your account",
       "errors": {
-        "couldNotChangePassword": "Could not change password",
-        "couldNotVerifyPassword": "Could not verify password",
+        "couldNotChange": "Could not change ",
+        "couldNotVerify": "Could not verify ",
         "unknownError": "An error occurred."
       },
       "labels": {
-        "confirmPassword": "Confirm password",
-        "newPassword": "New password"
+        "confirm": "Confirm ",
+        "new": "New "
       },
       "required": {
-        "confirmPassword": "This field is required",
-        "newPassword": "You have to provide a new password."
+        "confirm": "This field is required",
+        "new": "You have to provide a new ."
       },
       "submit": "Continue",
-      "title": "Change password"
+      "title": "Change "
     },
     "complexity": {
-      "allRequirementsMet": "All password requirements met.",
-      "doesNotMatch": "The entries for password must match",
-      "equals": "Passwords must match.",
+      "allRequirementsMet": "All  requirements met.",
+      "doesNotMatch": "The entries for  must match",
+      "equals": "s must match.",
       "hasLowercase": "A lowercase letter",
       "hasNumber": "A number",
       "hasSymbol": "A symbol",
@@ -302,12 +302,12 @@
       "maxLength": "Less than 51 characters",
       "met": "Met",
       "minLength": "At least {{minLength}} characters",
-      "mustMatch": "The passwords must match.",
+      "mustMatch": "The s must match.",
       "notMet": "Not yet met",
       "required": "This field is required.",
-      "requiredConfirmPassword": "Confirm password is required.",
-      "requiredPassword": "Password is required.",
-      "requiredPasswordSuccess": "Valid password",
+      "requiredConfirm": "Confirm  is required.",
+      "required": " is required.",
+      "requiredSuccess": "Valid ",
       "requirementMet": "{{requirement}}: requirement met.",
       "requirementUnmet": "{{requirement}}: requirement no longer met.",
       "success": "Success"
@@ -318,14 +318,14 @@
         "title": "Registration disabled"
       },
       "labels": {
-        "confirmPassword": "Confirm password",
-        "password": "Password"
+        "confirm": "Confirm ",
+        "": ""
       },
       "missingOrInvalidData": {
         "description": "Provide your first name, last name, and email address to register.",
         "title": "Missing or invalid data"
       },
-      "passwordHint": "Your password should be hard to guess with:",
+      "Hint": "Your  should be hard to guess with:",
       "submit": "Continue",
       "title": "Set your password"
     },
@@ -409,8 +409,8 @@
       "lastname": "Last name"
     },
     "password": {
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider.",
-      "title": "Password creation"
+      "description": 
+      "title": "Create password"
     },
     "terms": {
       "agreement": "By continuing, you accept the ",
@@ -477,15 +477,15 @@
         "verificationCancelled": "Security key verification was cancelled.",
         "verificationFailed": "Could not verify security key. Please try again."
       },
-      "hint": "Give your key a name",
-      "label": "Security key name",
+      "hint": "Use a name that helps you find the key.",
+      "label": "Name your key",
       "placeholder": "ex: My security key",
       "submit": "Continue",
-      "title": "Activate your key"
+      "title": "Add security key"
     },
     "verify": {
       "confirmation": {
-        "title": "To continue, Tap your security Key"
+        "title": "To continue, tap your security key"
       },
       "description": "Verify your account with your device.",
       "errors": {
@@ -503,20 +503,20 @@
     }
   },
   "verify": {
-    "description": "Please enter the code received by email. ",
+    "description": "We sent a code to your email address. ",
     "errors": {
       "couldNotResentEmail": "Could not resend verification email. Please try again.",
       "couldNotVerifyEmail": "Could not verify email",
       "failedToAddOTPEmail": "Could not set up email verification. Please try again."
     },
     "help": "Need help?",
-    "hint": "Enter code within 15 minutes.",
-    "label": "Security code",
+    "hint": "To continue creating your account, enter code within 15 minutes.",
+    "label": "Code",
     "newCode": "Send a new code",
     "sendingNewCode": "Sending new code...",
     "sentNewCode": "New code sent!",
     "submit": "Continue",
-    "title": "Check your email for your account security code",
+    "title": "Check your email",
     "validation": {
       "length": "Must be 6 characters",
       "maxLength": "Security code must be {{maxLength}} characters or fewer.",
