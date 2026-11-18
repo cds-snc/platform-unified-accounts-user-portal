@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { setRegistrationFlag } from "@lib/client/registration";
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 import { validateCode } from "@lib/validation/validationSchemas";
 import { translateValidationErrors, type ValidationErrorKey } from "@lib/validation/validators";
 import { I18n, useTranslation } from "@i18n";
@@ -138,7 +139,12 @@ export function VerifyEmailForm({
           focussable={true}
           id="zitadelError"
         >
-          <I18n i18nKey={`verify:${state.errorKey}`} />
+          {getSafeErrorMessageFromKey({
+            errorKey: state.errorKey,
+            fallbackKey: "errors.couldNotVerifyEmail",
+            allowedErrorKeys: ["errors.couldNotVerifyEmail"],
+            t,
+          })}
         </Alert>
       )}
 
@@ -149,7 +155,14 @@ export function VerifyEmailForm({
       {resendErrorKey && (
         <div className="py-4" data-testid="warning">
           <AlertNotification.Warning>
-            <p className="mt-3 font-bold">{t(resendErrorKey)}</p>
+            <p className="mt-3 font-bold">
+              {getSafeErrorMessageFromKey({
+                errorKey: resendErrorKey,
+                fallbackKey: "errors.couldNotResentEmail",
+                allowedErrorKeys: ["errors.couldNotResentEmail"],
+                t,
+              })}
+            </p>
           </AlertNotification.Warning>
         </div>
       )}
