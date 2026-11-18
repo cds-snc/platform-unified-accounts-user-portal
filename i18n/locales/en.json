@@ -386,7 +386,7 @@
       "description": "For questions, contact us.",
       "title": "If you have a GC Forms account, soon we'll invite you to join GC Platform"
     },
-    "description": "We’re asking for this information as we’re transferring all GC Forms accounts to a new authentication provider.",
+    "description":
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
     "errors": {
       "couldNotCreateSession": "Could not create session",
