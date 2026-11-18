@@ -45,7 +45,9 @@ type SendResetCodeCommand = {
 export const submitUserNameForm = async (
   command: SendResetCodeCommand
 ): Promise<{ error: string } | { success: true }> => {
-  const validationResult = await validateUsername({ username: command.loginName });
+  const validationResult = await validateUsername({
+    username: command.loginName,
+  });
   if (!validationResult.success) {
     logMessage.warn("Server side validation failed for password reset username");
     const { t } = await serverTranslation("password");
@@ -126,7 +128,10 @@ async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCom
       return;
     }
 
-    const { verificationCode } = await passwordResetWithReturn({ userId: user.userId });
+    const { verificationCode } = await passwordResetWithReturn({
+      userId: user.userId,
+    });
+
     if (!verificationCode) {
       throw new Error("Password reset code missing from response");
     }

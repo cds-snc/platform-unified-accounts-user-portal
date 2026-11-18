@@ -1,23 +1,23 @@
 {
-  "name": "platform-unified-accounts-user-portal",
-  "image": "mcr.microsoft.com/devcontainers/base:bullseye@sha256:d233ca1cefb8829b5a474659dc32537652772d702bdc49a20f366eedf588da35",
   "containerEnv": {
     "SHELL": "/bin/zsh"
   },
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "26.13.1",
-      "pnpmVersion": "12.17.0"
-    },
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-  },
-
   "customizations": {
     "vscode": {
       "extensions": ["github.copilot", "github.vscode-github-actions"]
     }
   },
 
-  "remoteUser": "vscode",
-  "postCreateCommand": "pnpm install"
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "pnpmVersion": "12.17.0",
+      "version": "26.13.1"
+    }
+  },
+
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye@sha256:d233ca1cefb8829b5a474659dc32537652772d702bdc49a20f366eedf588da35",
+  "name": "platform-unified-accounts-user-portal",
+  "postCreateCommand": "pnpm install",
+  "remoteUser": "vscode"
 }
