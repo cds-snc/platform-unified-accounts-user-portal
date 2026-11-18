@@ -55,25 +55,25 @@ export function VerifyEmailForm({
 
   const supportLink = getSiteLink("support");
 
-  const [error, setError] = useState<string>("");
+  const [resendErrorKey, setResendErrorKey] = useState<string>("");
 
   const [codeLoading, setCodeLoading] = useState<boolean>(false);
   const [codeSent, setCodeSent] = useState<boolean>(false);
 
   async function resendCode() {
-    setError("");
+    setResendErrorKey("");
     setCodeLoading(true);
 
     try {
       const response = await sendVerificationEmail();
 
-      if (response && "error" in response && response.error) {
-        setError(response.error);
+      if (response && "errorKey" in response && response.errorKey) {
+        setResendErrorKey(response.errorKey);
       } else {
         setCodeSent(true);
       }
     } catch {
-      setError(t("errors.couldNotResendEmail"));
+      setResendErrorKey("errors.couldNotResentEmail");
     }
     setCodeLoading(false);
   }
@@ -146,10 +146,10 @@ export function VerifyEmailForm({
 
       {children}
 
-      {error && (
+      {resendErrorKey && (
         <div className="py-4" data-testid="warning">
           <AlertNotification.Warning>
-            <p className="mt-3 font-bold">{error}</p>
+            <p className="mt-3 font-bold">{t(resendErrorKey)}</p>
           </AlertNotification.Warning>
         </div>
       )}
