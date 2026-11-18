@@ -132,7 +132,6 @@ async function sendPasswordResetEmail({ loginName, requestId }: SendResetCodeCom
       userId: user.userId,
     });
 
-    logMessage.warn(`Verification Code: ${verificationCode}`);
     if (!verificationCode) {
       throw new Error("Password reset code missing from response");
     }
