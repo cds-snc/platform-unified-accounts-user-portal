@@ -215,7 +215,7 @@
         "title": "Application d'authentification"
       },
       "continue": "Continuer",
-      "description": "À chaque ouverture de session, entrez votre mot de passe comme première méthode de vérification. Vérifiez ensuite votre identité à l’aide d’une deuxième méthode afin de terminer l’ouverture de session.  Choisissez la deuxième méthode de vérification :",
+      "description": "À chaque ouverture de session, entrez votre mot de passe comme première méthode de vérification. Vérifiez ensuite votre identité à l’aide d’une deuxième méthode afin de terminer l’ouverture de session.Choisissez la deuxième méthode de vérification :",
       "email": {},
       "securityKey": {
         "description": "(ex : Yubikey émise par le gouvernement)",
@@ -253,7 +253,7 @@
       },
       "submit": "Continuer",
       "title": "Ajouter une application d’authentification",
-      "totpRegisterDescription": "Pour balayer le code QR, utilisez une application d’authentification comme Microsoft Authenticator ou Google Authenticator."
+      "totpRegisterDescription": "Pour balayer le code QR, utilisez une application d’authentificationcomme Microsoft Authenticator ou Google Authenticator."
     },
     "verify": {
       "authAppTitle": "Utilisez l'application d'authentification",
@@ -395,7 +395,7 @@
       "description": "Pour toute question, contactez-nous",
       "title": "Si vous avez un compte Formulaires GC, on vous invitera bientôt à vous inscrire à Plateforme GC"
     },
-    "description":  
+    "description": "",
     "emailInputHint": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
     "errors": {
       "couldNotCreateSession": "Problème de création de la session",
@@ -418,7 +418,7 @@
       "lastname": "Nom de famille"
     },
     "password": {
-      "description": 
+      "description": "",
       "title": "Créer un mot de passe"
     },
     "terms": {
@@ -486,7 +486,7 @@
         "verificationCancelled": "La vérification de la clé de sécurité a été annulée.",
         "verificationFailed": "Impossible de vérifier la clé de sécurité. Veuillez réessayer."
       },
-      "hint": Utilisez un nom qui vous aidera à retrouver la clé.
+      "hint": "Utilisez un nom qui vous aidera à retrouver la clé.",
       "label": "Nommez votre clé",
       "placeholder": "ex : Ma clé de sécurité",
       "submit": "Continuer",

@@ -214,7 +214,7 @@
         "title": "Authentication app"
       },
       "continue": "Continue",
-      "description": "At each sign in, enter your password as the first way to verify. Then verify a second way to finish signing in.  Choose your second way to verify:",
+      "description": "At each sign in, enter your password as the first way to verify. Then verify a second way to finish signing in.Choose your second way to verify:",
       "email": {},
       "securityKey": {
         "description": "(ex: Government-issued Yubikey)",
@@ -386,7 +386,7 @@
       "description": "For questions, contact us.",
       "title": "If you have a GC Forms account, soon we'll invite you to join GC Platform"
     },
-    "description":
+    "description": "",
     "emailInputHint": "Use a government address only you can access, not a shared inbox.",
     "errors": {
       "couldNotCreateSession": "Could not create session",
@@ -409,7 +409,7 @@
       "lastname": "Last name"
     },
     "password": {
-      "description":
+      "description": "",
       "title": "Create password"
     },
     "terms": {
