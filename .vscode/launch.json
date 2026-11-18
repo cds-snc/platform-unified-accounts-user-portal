@@ -1,55 +1,55 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
   "configurations": [
     {
-      "name": "Next.js: debug server-side",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "runtimeExecutable": "pnpm",
       "args": ["dev"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "name": "Next.js: debug server-side",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
       "skipFiles": ["<node_internals>/**"],
       "sourceMapPathOverrides": {
-        "webpack:///./*": "${workspaceFolder}/*",
-        "webpack://_N_E/[.]/(app|pages)/(.*)": "${workspaceFolder}/$1/$2",
-        "webpack://_N_E/[.]/(.*)": "${workspaceFolder}/.next/server/$1",
+        "turbopack:///[project]/*": "${workspaceFolder}/*",
         "webpack-internal:///(ssr)/./*": "${workspaceFolder}/*",
-        "turbopack:///[project]/*": "${workspaceFolder}/*"
-      }
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack://_N_E/[.]/(.*)": "${workspaceFolder}/.next/server/$1",
+        "webpack://_N_E/[.]/(app|pages)/(.*)": "${workspaceFolder}/$1/$2"
+      },
+      "type": "node"
     },
     {
       "name": "Next.js: debug client-side",
-      "type": "chrome",
       "request": "launch",
+      "type": "chrome",
       "url": "http://localhost:3002"
     },
     {
-      "name": "Next.js: debug full stack",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "runtimeExecutable": "pnpm",
       "args": ["dev"],
-      "skipFiles": ["<node_internals>/**"],
-      "sourceMapPathOverrides": {
-        "webpack:///./*": "${workspaceFolder}/*",
-        "webpack://_N_E/[.]/(app|pages)/(.*)": "${workspaceFolder}/$1/$2",
-        "webpack://_N_E/[.]/(.*)": "${workspaceFolder}/.next/server/$1",
-        "webpack-internal:///(ssr)/./*": "${workspaceFolder}/*",
-        "turbopack:///[project]/*": "${workspaceFolder}/*"
-      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "name": "Next.js: debug full stack",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
       "serverReadyAction": {
         "action": "debugWithChrome",
         "killOnServerStop": true,
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
         "webRoot": "${workspaceFolder}"
-      }
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMapPathOverrides": {
+        "turbopack:///[project]/*": "${workspaceFolder}/*",
+        "webpack-internal:///(ssr)/./*": "${workspaceFolder}/*",
+        "webpack:///./*": "${workspaceFolder}/*",
+        "webpack://_N_E/[.]/(.*)": "${workspaceFolder}/.next/server/$1",
+        "webpack://_N_E/[.]/(app|pages)/(.*)": "${workspaceFolder}/$1/$2"
+      },
+      "type": "node"
     }
-  ]
+  ],
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0"
 }
