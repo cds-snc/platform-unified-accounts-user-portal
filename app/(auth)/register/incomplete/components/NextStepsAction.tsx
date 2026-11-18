@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { sendVerificationEmail } from "@root/app/(auth)/register/verify/action";
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 import { buildUrlWithRequestId } from "@lib/utils";
-import { I18n } from "@i18n";
+import { I18n, useTranslation } from "@i18n";
 import { SubmitButton } from "@components/ui/button/SubmitButton";
+import { Alert, ErrorStatus } from "@components/ui/form";
 
 const NextAction = {
   SEND_CODE: "sendCode",
@@ -24,13 +26,17 @@ interface NextStepActionProps {
 export const NextStepAction = ({ action, text, redirect, requestId }: NextStepActionProps) => {
   const router = useRouter();
   const [working, setWorking] = useState(false);
+  const [errorKey, setErrorKey] = useState("");
+  const { t } = useTranslation("verify");
+
   const nextStep = async () => {
     setWorking(true);
     switch (action) {
       case NextAction.SEND_CODE:
+        setErrorKey("");
         const response = await sendVerificationEmail();
-        if ("error" in response) {
-          // Show an error?
+        if ("errorKey" in response) {
+          setErrorKey(response.errorKey);
           setWorking(false);
           return;
         }
@@ -45,10 +51,24 @@ export const NextStepAction = ({ action, text, redirect, requestId }: NextStepAc
     }
   };
   return (
-    <form className="mt-4" action={nextStep}>
-      <SubmitButton type="submit" loading={working}>
-        <I18n i18nKey={text} />
-      </SubmitButton>
-    </form>
+    <>
+      {errorKey && (
+        <div className="py-4">
+          <Alert type={ErrorStatus.ERROR} focussable>
+            {getSafeErrorMessageFromKey({
+              errorKey,
+              fallbackKey: "errors.couldNotResentEmail",
+              allowedErrorKeys: ["errors.couldNotResentEmail"],
+              t,
+            })}
+          </Alert>
+        </div>
+      )}
+      <form className="mt-4" action={nextStep}>
+        <SubmitButton type="submit" loading={working}>
+          <I18n i18nKey={text} />
+        </SubmitButton>
+      </form>
+    </>
   );
 };

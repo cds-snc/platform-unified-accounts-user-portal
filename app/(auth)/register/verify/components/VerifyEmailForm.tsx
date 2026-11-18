@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { setRegistrationFlag } from "@lib/client/registration";
+import { getSafeErrorMessageFromKey } from "@lib/safeErrorMessage";
 import { validateCode } from "@lib/validation/validationSchemas";
 import { translateValidationErrors, type ValidationErrorKey } from "@lib/validation/validators";
 import { I18n, useTranslation } from "@i18n";
@@ -26,7 +27,7 @@ import { ErrorSummary } from "@components/ui/form/ErrorSummary";
 import { checkVerificationCode, sendVerificationEmail } from "../action";
 
 type FormState = {
-  error?: string;
+  errorKey?: string;
   validationErrors?: ValidationErrorKey[];
   formData?: {
     code?: string;
@@ -55,25 +56,25 @@ export function VerifyEmailForm({
 
   const supportLink = getSiteLink("support");
 
-  const [error, setError] = useState<string>("");
+  const [errorKey, setErrorKey] = useState<string>("");
 
   const [codeLoading, setCodeLoading] = useState<boolean>(false);
   const [codeSent, setCodeSent] = useState<boolean>(false);
 
   async function resendCode() {
-    setError("");
+    setErrorKey("");
     setCodeLoading(true);
 
     try {
       const response = await sendVerificationEmail();
 
-      if (response && "error" in response && response.error) {
-        setError(response.error);
+      if (response && "errorKey" in response && response.errorKey) {
+        setErrorKey(response.errorKey);
       } else {
         setCodeSent(true);
       }
     } catch {
-      setError(t("errors.couldNotResendEmail"));
+      setErrorKey("errors.couldNotResentEmail");
     }
     setCodeLoading(false);
   }
@@ -103,9 +104,9 @@ export function VerifyEmailForm({
       requestId: requestId,
     });
 
-    if (response && "error" in response && response?.error) {
+    if (response && "errorKey" in response && response.errorKey) {
       return {
-        error: response.error,
+        errorKey: response.errorKey,
       };
     }
 
@@ -118,7 +119,7 @@ export function VerifyEmailForm({
 
   const [rawState, formAction] = useActionState(localFormAction, {
     validationErrors: undefined,
-    error: undefined,
+    errorKey: undefined,
     formData: {
       code: "",
     },
@@ -131,14 +132,19 @@ export function VerifyEmailForm({
 
   return (
     <>
-      {state.error && (
+      {state.errorKey && (
         <Alert
           type={ErrorStatus.ERROR}
           // heading={state.authError.title}
           focussable={true}
           id="zitadelError"
         >
-          <I18n i18nKey={state.error} />
+          {getSafeErrorMessageFromKey({
+            errorKey: state.errorKey,
+            fallbackKey: "errors.couldNotVerifyEmail",
+            allowedErrorKeys: ["errors.couldNotVerifyEmail"],
+            t,
+          })}
         </Alert>
       )}
 
@@ -146,10 +152,17 @@ export function VerifyEmailForm({
 
       {children}
 
-      {error && (
+      {errorKey && (
         <div className="py-4" data-testid="warning">
           <AlertNotification.Warning>
-            <p className="mt-3 font-bold">{error}</p>
+            <p className="mt-3 font-bold">
+              {getSafeErrorMessageFromKey({
+                errorKey: errorKey,
+                fallbackKey: "errors.couldNotResentEmail",
+                allowedErrorKeys: ["errors.couldNotResentEmail"],
+                t,
+              })}
+            </p>
           </AlertNotification.Warning>
         </div>
       )}
