@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.10.0...v1.10.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* untranslated content upon language switcher toggle ([#630](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/630)) ([b284236](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/b28423624c7bdc436c3d7de9d4df6bc332095233))
+
 ## [1.10.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.9.0...v1.10.0) (2026-11-17)
 
 
