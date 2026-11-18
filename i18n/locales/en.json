@@ -126,7 +126,7 @@
     "issueTypeOptions": {
       "mfaIssue": "Second factor authentication is missing or not working",
       "other": "Other",
-      "passwordReset": "Unable to reset password",
+      "passwordReset": "Unable to reset",
       "placeholder": "Select an option",
       "signUpIssue": "Unable to sign up"
     },
@@ -214,7 +214,7 @@
         "title": "Authentication app"
       },
       "continue": "Continue",
-      "description": "When you sign in, you will be asked to confirm your identity in another way, as an extra layer of security. You’ll be able to add additional methods later in your account settings.",
+      "description": "At each sign in, enter your password as the first way to verify. Then verify a second way to finish signing in.  Choose your second way to verify:",
       "email": {},
       "securityKey": {
         "description": "(ex: Government-issued Yubikey)",
@@ -251,8 +251,8 @@
         "code": "This field is required"
       },
       "submit": "Continue",
-      "title": "Set up two-factor authentication",
-      "totpRegisterDescription": "Scan the QR Code or navigate to the URL link."
+      "title": "Add authenticator",
+      "totpRegisterDescription": "To scan the QR Code, use an authenticator app such as Microsoft or Google Authenticator."
     },
     "verify": {
       "authAppTitle": "Use authentication app",
@@ -409,8 +409,8 @@
       "lastname": "Last name"
     },
     "password": {
-      "description": "We're asking for your information again because we're transferring all GC Forms accounts to a new authentication provider.",
-      "title": "Password creation"
+      "description":
+      "title": "Create password"
     },
     "terms": {
       "agreement": "By continuing, you accept the ",
@@ -477,15 +477,15 @@
         "verificationCancelled": "Security key verification was cancelled.",
         "verificationFailed": "Could not verify security key. Please try again."
       },
-      "hint": "Give your key a name",
-      "label": "Security key name",
+      "hint": "Use a name that helps you find the key",
+      "label": "Name your key",
       "placeholder": "ex: My security key",
       "submit": "Continue",
-      "title": "Activate your key"
+      "title": "Add security key"
     },
     "verify": {
       "confirmation": {
-        "title": "To continue, Tap your security Key"
+        "title": "To continue, tap your security key"
       },
       "description": "Verify your account with your device.",
       "errors": {
@@ -503,20 +503,20 @@
     }
   },
   "verify": {
-    "description": "Please enter the code received by email. ",
+    "description": "We sent a code to your email address ",
     "errors": {
       "couldNotResentEmail": "Could not resend verification email. Please try again.",
       "couldNotVerifyEmail": "Could not verify email",
       "failedToAddOTPEmail": "Could not set up email verification. Please try again."
     },
     "help": "Need help?",
-    "hint": "Enter code within 15 minutes.",
-    "label": "Security code",
+    "hint": "To continue creating your account, enter code within 15 minutes.",
+    "label": "Code",
     "newCode": "Send a new code",
     "sendingNewCode": "Sending new code...",
     "sentNewCode": "New code sent!",
     "submit": "Continue",
-    "title": "Check your email for your account security code",
+    "title": "Check your email",
     "validation": {
       "length": "Must be 6 characters",
       "maxLength": "Security code must be {{maxLength}} characters or fewer.",
