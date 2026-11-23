@@ -447,7 +447,7 @@
   },
   "start": {
     "form": {
-      "description": "FR - Use a government email address only you can access, not a shared inbox.",
+      "description": "Utilisez une adresse courriel du gouvernement à laquelle vous seul avez accès, et non une boîte de réception partagée.",
       "forgotPasswordLink": "Vous avez oublié votre mot de passe?",
       "label": "Adresse courriel",
       "passwordLabel": "Mot de passe",

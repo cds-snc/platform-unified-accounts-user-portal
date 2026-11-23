@@ -19,8 +19,8 @@ ${givenName}
 
 ${givenName}
 
-1. FR - Visit [reset password link](${resetLink}) and choose your verification method. Use it to navigate to the reset password screen.
-1. FR - GC Platform will ask for a code. Enter: **${resetCode}** 
+1. Visitez [le lien de réinitialisation du mot de passe](${resetLink}) et choisissez votre méthode de vérification. Utilisez-la pour accéder à l'écran de réinitialisation du mot de passe.
+1. Plateforme GC vous demandera un code. Saisissez : **${resetCode}** 
 `,
 });
 
