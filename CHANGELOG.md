@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.10.1](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.10.0...v1.10.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* add password reset translations ([#692](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/692)) ([6661b62](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/6661b624879358d8cae22534e2ab0cc6287b32ab))
+* **deps:** update all patch dependencies ([#688](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/688)) ([d35de82](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/d35de82b2d7f2cd1825c9304ff3ff103ec313b2f))
+* untranslated content upon language switcher toggle ([#630](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/630)) ([b284236](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/b28423624c7bdc436c3d7de9d4df6bc332095233))
+
+
+### Miscellaneous Chores
+
+* **deps:** lock file maintenance ([#691](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/691)) ([05bd86e](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/05bd86eee2b93c31ea07cf2f025bd98c1f31dedd))
+* **deps:** update all minor dependencies ([#689](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/689)) ([ac09c8c](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/ac09c8c02175b0f37b3e90ed9c82d6720e47d31e))
+* **deps:** update dependency prettier to v3.10.1 ([#690](https://github.com/cds-snc/platform-unified-accounts-user-portal/issues/690)) ([5f417b8](https://github.com/cds-snc/platform-unified-accounts-user-portal/commit/5f417b8c5a0b7818bd820f4b882b2f8e13c068e9))
+
 ## [1.10.0](https://github.com/cds-snc/platform-unified-accounts-user-portal/compare/v1.9.0...v1.10.0) (2026-11-17)
 
 
