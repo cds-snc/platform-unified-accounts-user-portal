@@ -54,7 +54,7 @@ jobs:
       contents: read
     container:
       # Playwright Docker image tag must match the pnpm-lock.yaml pinned version
-      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:f6fe3cf9a493670b9a20f33597a807262abb25c40c31839ba4ac1dbc51fe7366
+      image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:766137e2d9caad4744187e53cdc89320ba6f2eb57cff097374020944b44dd0a9
     steps:
       - name: Audit DNS requests
         uses: cds-snc/dns-proxy-action@db1dcfd7d049041985df926671cae9d356738008 # v1.2.2
