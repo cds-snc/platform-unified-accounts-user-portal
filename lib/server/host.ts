@@ -3,16 +3,11 @@
  *--------------------------------------------*/
 import { headers } from "next/headers";
 
-import { TRUSTED_DOMAINS } from "@root/constants/site-config";
 import { logMessage } from "@lib/logger";
 
 type HeaderReader = {
   get: (name: string) => string | null;
 };
-
-const TRUSTED_SITE_HOSTS = Object.values(TRUSTED_DOMAINS).map((config) => {
-  return normalizeHost(config.baseUrl);
-});
 
 export function normalizeHost(rawHost: string): string {
   return (
@@ -25,19 +20,9 @@ export function normalizeHost(rawHost: string): string {
   );
 }
 
-export const isTrustedSiteHost = (rawHost: string): boolean => {
-  const normalizedHost = normalizeHost(rawHost);
-
-  // Check for exact match
-  if (TRUSTED_SITE_HOSTS.includes(normalizedHost)) {
-    return true;
-  }
-
-  // Check if it's a subdomain of a trusted host
-  return TRUSTED_SITE_HOSTS.some((trustedHost) => {
-    return normalizedHost.endsWith(`.${trustedHost}`);
-  });
-};
+function getAppHosts(): string[] {
+  return (process.env.APP_HOSTS ?? "").split(",").map(normalizeHost).filter(Boolean);
+}
 
 function parseHostHeader(value: string | null): string | undefined {
   const candidate = value?.split(",")[0]?.trim();
@@ -53,18 +38,6 @@ function parseHostHeader(value: string | null): string | undefined {
   }
 }
 
-function isLocalHost(host: string): boolean {
-  const hostname = new URL(`http://${host}`).hostname;
-
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
-}
-
-function isLambdaPRReviewHost(host: string): boolean {
-  const hostname = new URL(`http://${host}`).hostname;
-
-  return process.env.PR_REVIEW === "true" && hostname.endsWith(".lambda-url.ca-central-1.on.aws");
-}
-
 export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
   const host =
     parseHostHeader(_headers.get("x-forwarded-host")) ??
@@ -76,7 +49,7 @@ export function getOriginalHostFromHeaders(_headers: HeaderReader): string {
     throw new Error("No host found in headers");
   }
 
-  if (!isLocalHost(host) && !isLambdaPRReviewHost(host) && !isTrustedSiteHost(host)) {
+  if (!getAppHosts().includes(normalizeHost(host))) {
     throw new Error(`Untrusted host header: ${host}`);
   }
 

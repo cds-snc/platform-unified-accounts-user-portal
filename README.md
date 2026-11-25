@@ -33,6 +33,7 @@ pnpm test        # run tests
 ## Required environment variables
 
 - `ZITADEL_API_URL`
+- `APP_HOSTS`
 - `HCAPTCHA_SITE_KEY`
 - `HCAPTCHA_SECRET`
 - `FRESHDESK_API_URL`
