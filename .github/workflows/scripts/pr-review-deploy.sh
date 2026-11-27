@@ -53,6 +53,8 @@ else
   --reserved-concurrent-executions 10 > /dev/null 2>&1
 fi
 
+aws lambda wait function-updated --function-name "$FUNCTION_NAME" > /dev/null 2>&1
+
 URL="$(aws lambda get-function-url-config --function-name "$FUNCTION_NAME" | jq -r .FunctionUrl)"
 APP_HOST="$(echo "$URL" | sed -E 's#^https?://##; s#/.*$##')"
 
