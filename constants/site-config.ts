@@ -11,7 +11,7 @@ export type SiteLinkKey = "about" | "termsOfUse" | "sla" | "support" | "gcForms"
 type SiteLinkValue = string | false;
 type SiteLinksConfig = Record<SiteLinkKey, SiteLinkValue>;
 
-export type TrustedDomainConfig = Pick<SiteConfig, "baseUrl"> & {
+export type SiteDefinition = Pick<SiteConfig, "baseUrl"> & {
   links: SiteLinksConfig;
 };
 
@@ -25,7 +25,7 @@ const createLinks = (overrides: Partial<SiteLinksConfig> = {}): SiteLinksConfig 
   ...overrides,
 });
 
-export const TRUSTED_DOMAINS: Record<SiteId, TrustedDomainConfig> = {
+export const SITES: Record<SiteId, SiteDefinition> = {
   dev: {
     baseUrl: "http://localhost:3002",
     links: createLinks(),

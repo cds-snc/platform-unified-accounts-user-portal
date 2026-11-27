@@ -56,6 +56,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - ZITADEL_API_URL=http://localhost:8080
+      - APP_HOSTS=localhost
       - ZITADEL_SERVICE_USER_TOKEN_FILE=/zitadel/login-client.pat
       - ZITADEL_SESSION_COOKIE_SECRET=LocalDevSessionCookieSecretNeeds32Chars
       - PASSWORD_RESET_SECRET=LocalDevPasswordResetSecretNeeds32Chars

@@ -1,8 +1,13 @@
 /*--------------------------------------------*
  * Internal Aliases
  *--------------------------------------------*/
-import { TRUSTED_DOMAINS, ZITADEL_ORGANIZATION } from "@root/constants/config";
-import type { SiteConfig, SiteId, TrustedDomainConfig } from "@root/constants/site-config";
+import { ZITADEL_ORGANIZATION } from "@root/constants/config";
+import {
+  type SiteConfig,
+  type SiteDefinition,
+  type SiteId,
+  SITES,
+} from "@root/constants/site-config";
 
 import { getOriginalHost, normalizeHost } from "./server/host";
 
@@ -12,12 +17,12 @@ export class SiteConfigService {
   private static instance: SiteConfigService;
   private static resolvedHost: string;
 
-  protected constructor(private readonly configById: Record<SiteId, TrustedDomainConfig>) {}
+  protected constructor(private readonly configById: Record<SiteId, SiteDefinition>) {}
 
   static async getInstance() {
     // When running unit tests we need to recreate the instance
     if (!this.instance || process.env.NODE_ENV === "test") {
-      this.instance = new SiteConfigService(TRUSTED_DOMAINS);
+      this.instance = new SiteConfigService(SITES);
       SiteConfigService.resolvedHost = await getOriginalHost().then((host) => normalizeHost(host));
     }
 
@@ -26,16 +31,23 @@ export class SiteConfigService {
 
   requestHost(): SiteId {
     const ids = Object.keys(this.configById) as SiteId[];
-    for (const id of ids) {
-      const trustedHost = normalizeHost(this.configById[id].baseUrl);
-      if (
-        SiteConfigService.resolvedHost === trustedHost ||
-        SiteConfigService.resolvedHost.endsWith(`.${trustedHost}`)
-      ) {
-        return id;
-      }
+    const match = ids.find((id) => {
+      const siteHost = normalizeHost(this.configById[id].baseUrl);
+      return SiteConfigService.resolvedHost === siteHost;
+    });
+
+    if (match) {
+      return match;
     }
-    return "authStaging";
+
+    if (process.env.PR_REVIEW === "true") {
+      return "authStaging";
+    }
+    if (process.env.NODE_ENV === "development") {
+      return "dev";
+    }
+
+    throw new Error(`No site configured for host: ${SiteConfigService.resolvedHost}`);
   }
 
   resolve(): SiteConfig {

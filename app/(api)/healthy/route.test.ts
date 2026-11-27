@@ -5,6 +5,7 @@ describe("GET /healthy", () => {
     "NOTIFY_API_KEY",
     "TEMPLATE_ID",
     "ZITADEL_API_URL",
+    "APP_HOSTS",
     "ZITADEL_ORGANIZATION",
     "HCAPTCHA_SITE_KEY",
     "HCAPTCHA_SECRET",

@@ -33,6 +33,7 @@ pnpm test        # run tests
 ## Required environment variables
 
 - `ZITADEL_API_URL`
+- `APP_HOSTS`
 - `HCAPTCHA_SITE_KEY`
 - `HCAPTCHA_SECRET`
 - `FRESHDESK_API_URL`
@@ -42,6 +43,10 @@ pnpm test        # run tests
 - `FRESHDESK_TAGS`
 - `ZITADEL_SESSION_COOKIE_SECRET`
 - `PASSWORD_RESET_SECRET`
+
+`APP_HOSTS` is a comma-separated list of hostnames this deployment accepts (e.g. `auth.cdssandbox.xyz,localhost`). Matching is exact: subdomains are not included and scheme/port are ignored. Requests from any other host are rejected.
+
+Each host should also have an entry in `SITES` ([constants/site-config.ts](constants/site-config.ts)), which sets the site's base URL and links. A host without an entry throws, except in development or PR review, where it falls back to the `dev` or `authStaging` site.
 
 ## Stack
 
