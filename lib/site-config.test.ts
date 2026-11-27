@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ZITADEL_ORGANIZATION } from "@root/constants/config";
 import { getOriginalHost } from "@lib/server/host";
@@ -16,6 +16,33 @@ vi.mock("./server/host", async (importActual) => {
 describe("site-config", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it.each(["auth.forms-staging.cdssandbox.xyz", "attacker.example"])(
+    "throws for %s since it has no exact site match",
+    async (host) => {
+      vi.mocked(getOriginalHost).mockResolvedValue(host);
+      const mocked = await SiteConfigService.getInstance();
+      expect(() => mocked.requestHost()).toThrow(`No site configured for host: ${host}`);
+    }
+  );
+
+  it("falls back to authStaging for unmatched hosts in PR review", async () => {
+    vi.stubEnv("PR_REVIEW", "true");
+    vi.mocked(getOriginalHost).mockResolvedValue("abc123.lambda-url.ca-central-1.on.aws");
+    const mocked = await SiteConfigService.getInstance();
+    expect(mocked.requestHost()).toBe("authStaging");
+  });
+
+  it("falls back to dev for unmatched hosts in development", async () => {
+    vi.mocked(getOriginalHost).mockResolvedValue("127.0.0.1");
+    const mocked = await SiteConfigService.getInstance();
+    vi.stubEnv("NODE_ENV", "development");
+    expect(mocked.requestHost()).toBe("dev");
   });
   it("classifies localhost hosts as dev", async () => {
     vi.mocked(getOriginalHost).mockResolvedValue("localhost");

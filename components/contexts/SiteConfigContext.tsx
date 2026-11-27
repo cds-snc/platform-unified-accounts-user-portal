@@ -2,8 +2,7 @@
 
 import React, { createContext, ReactNode, useContext } from "react";
 
-import { TRUSTED_DOMAINS } from "@root/constants/site-config";
-import { SiteConfig, SiteLinkKey } from "@root/constants/site-config";
+import { SiteConfig, SiteLinkKey, SITES } from "@root/constants/site-config";
 import { useTranslation } from "@i18n";
 
 interface SiteConfigContextType {
@@ -23,7 +22,7 @@ export const SiteConfigProvider: React.FC<SiteConfigProviderProps> = ({ children
   } = useTranslation();
 
   function resolveSiteLinkTemplate(site: Pick<SiteConfig, "id" | "baseUrl">, linkKey: SiteLinkKey) {
-    const links = TRUSTED_DOMAINS[site.id].links;
+    const links = SITES[site.id].links;
     return links[linkKey];
   }
 

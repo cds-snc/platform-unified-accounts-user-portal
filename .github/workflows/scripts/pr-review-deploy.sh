@@ -24,7 +24,6 @@ else
     --memory-size 2048 \
     --architectures "arm64" \
     --code "ImageUri=$IMAGE_URI" \
-    --environment "Variables={ZITADEL_API_URL=$ZITADEL_API_URL}" \
     --description "cds-snc/platform-unified-accounts-user-portal" \
     --vpc-config "SubnetIds=$SUBNET_IDS,SecurityGroupIds=$SECURITY_GROUP_IDS" > /dev/null 2>&1
 
@@ -54,7 +53,6 @@ else
   --reserved-concurrent-executions 10 > /dev/null 2>&1
 fi
 
-aws lambda wait function-updated --function-name "$FUNCTION_NAME" > /dev/null 2>&1
 URL="$(aws lambda get-function-url-config --function-name "$FUNCTION_NAME" | jq -r .FunctionUrl)"
 APP_HOST="$(echo "$URL" | sed -E 's#^https?://##; s#/.*$##')"
 
